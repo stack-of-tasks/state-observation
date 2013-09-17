@@ -30,7 +30,6 @@ public:
         (void)k;//unused
         (void)u;//unused
 
-        std::cout<<"here";
         ekf::StateVector xk1;
         xk1=a_*x+(x.transpose()*x)[0]*s_+t_+(u*u.transpose())[0]*s_;
         return xk1;
@@ -60,13 +59,21 @@ public:
     void doNothing () {}
 
 private:
-    ekf::StateVectorMember s_;
-    ekf::StateVectorMember t_;
-    ekf::MeasureVectorMember m_;
-    ekf::MeasureVectorMember n_;
 
-    ekf::AmatrixMember a_;
-    ekf::CmatrixMember c_;
+    ///Special instructions to have a static-sized eigen vector as a member
+    enum { NeedsToAlign = ((sizeof(ekf::StateVector)%16)==0)||
+                          ((sizeof(ekf::MeasureVector)%16)==0)||
+                          ((sizeof(ekf::Amatrix)%16)==0)||
+                          ((sizeof(ekf::Cmatrix)%16)==0)};
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(NeedsToAlign)
+
+    ekf::StateVector s_;
+    ekf::StateVector t_;
+    ekf::MeasureVector m_;
+    ekf::MeasureVector n_;
+
+    ekf::Amatrix a_;
+    ekf::Cmatrix c_;
 
 };
 
@@ -75,7 +82,7 @@ void testExtendedKalmanFilter()
 {
     ekf::Amatrix a;
     KalmanFunctor func;
-    KalmanFunctor* debug=&func;
+
     f2.setFunctor(&func);
     a<<	-0.6785714 ,0.1156463 ,	0.4392517,	0.2863946  ,
     0.0865306 ,	-0.0273810,	0.3355102  ,0.0184150 ,
@@ -126,7 +133,10 @@ void testExtendedKalmanFilter()
         }
         w=r1*w;
 
-        uk[k]=ekf::InputVector::Random();
+        if (k<kmax)
+        {
+            uk[k]=ekf::InputVector::Random();
+        }
 
         xk[k]=x=func.stateDynamics(x,uk[k-1],k-1)+v;
         yk[k-1]=func.measureDynamics(x,uk[k-1],k-1)+w;
@@ -159,16 +169,20 @@ void testExtendedKalmanFilter()
         f2.setMeasurement(yk[i-1],i);
         f2.setInput(uk[i],i);
 
-        func.reset();
-        std::cout << "Success in doNothing." << std::endl;
-        //f2.setInput(u,i);
+
+        ////Debug code (to be removed)
+        //KalmanFunctor* debug=&func;
+        //func.reset();
+        //debug->reset();
+
+
         std::cout<<xk[i].transpose()<<std::endl;
         std::cout<<yk[i-1].transpose()<<std::endl;
         std::cout<<uk[i-1].transpose()<<std::endl;
         std::cout<<f2.getEstimateState(i).transpose()<<std::endl;
         std::cout<<f2.getEstimateState(i).transpose()-xk[i].transpose()<<std::endl<<std::endl;
     }
-    system("pause");
+
 }
 
 
@@ -225,7 +239,10 @@ void testKalmanFilter()
         }
         w=r1*w;
 
-        uk[k]=filter::InputVector::Random();
+        if (k<kmax)
+        {
+            uk[k]=filter::InputVector::Random();
+        }
 
 
 
@@ -269,7 +286,6 @@ void testKalmanFilter()
         std::cout<<f.getEstimateState(i).transpose()<<std::endl;
         std::cout<<f.getEstimateState(i).transpose()-xk[i].transpose()<<std::endl<<std::endl;
     }
-    system("pause");
 }
 
 int main()
