@@ -65,23 +65,6 @@ namespace observation
 
 
 
-        /// The type of the jacobian df/dx to be used to set as class members
-        typedef Eigen::Matrix<double, n,n,Eigen::DontAlign> AmatrixMember;
-
-        /// The type of the jacobian dh/dx to be used to set as class members
-        typedef Eigen::Matrix<double, m,n,Eigen::DontAlign> CmatrixMember;
-
-        /// The type of the covariance matrix of the process noise v to be used to set as class members
-        typedef Eigen::Matrix<double, n,n,Eigen::DontAlign> QmatrixMember;
-
-        /// The type of the covariance matrix of the measurement noise w to be used to set as class members
-        typedef Eigen::Matrix<double, m,m,Eigen::DontAlign> RmatrixMember;
-
-        /// The type of the covariance matrix of the state estimation error. to be used to set as class members
-        typedef Eigen::Matrix<double, n,n,Eigen::DontAlign> PmatrixMember;
-
-
-
         /// Set the value of the jacobian df/dx
         virtual void setA(const Amatrix& A);
 
@@ -197,28 +180,6 @@ namespace observation
 
         /// The type of the covariance matrix of the state estimation error.
         typedef Eigen::Matrix<double, n,n> Pmatrix;
-
-
-
-
-        /// The type of the jacobian df/dx to be used to set as class members
-        typedef Eigen::Matrix<double, n,n,Eigen::DontAlign> AmatrixMember;
-
-        /// The type of the jacobian dh/dx to be used to set as class members
-        typedef Eigen::Matrix<double, m,n,Eigen::DontAlign> CmatrixMember;
-
-        /// The type of the covariance matrix of the process noise v to be used to set as class members
-        typedef Eigen::Matrix<double, n,n,Eigen::DontAlign> QmatrixMember;
-
-        /// The type of the covariance matrix of the measurement noise w to be used to set as class members
-        typedef Eigen::Matrix<double, m,m,Eigen::DontAlign> RmatrixMember;
-
-
-        /// The type of the covariance matrix of the state estimation error. to be used to set as class members
-        typedef Eigen::Matrix<double, n,n,Eigen::DontAlign> PmatrixMember;
-
-
-
 
         /// Set the value of the jacobian df/dx
         virtual void setA(const Amatrix& A);

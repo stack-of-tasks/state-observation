@@ -98,6 +98,8 @@ namespace observation
     class DiscreteTimeMatrix
     {
     public:
+
+
         /// Static assert to check that r and c are positive.
         BOOST_STATIC_ASSERT(((r>0) && (c>0)));
 
@@ -125,16 +127,15 @@ namespace observation
         ///Switch off the initalization flag, the value is no longer accessible
         inline void reset();
 
+        ///Special instructions to have a static-sized eigen vector as a member
+        enum { NeedsToAlign = (sizeof(MatrixT)%16)==0 };
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(NeedsToAlign)
+
     protected:
-
-
-        ///Definition of internal matrix type, the Unaligne precision treats
-        ///specific problems of bytes alignment in members of classes
-        typedef Eigen::Matrix<double, r,c,Eigen::DontAlign> MatrixTUnaligned;
 
         bool isSet_;
         unsigned k_;
-        MatrixTUnaligned v_;
+        MatrixT v_;
     };
 
 
@@ -178,19 +179,6 @@ namespace observation
         typedef Eigen::Matrix<double, n,1> StateVector;
         typedef Eigen::Matrix<double, m,1> MeasureVector;
         typedef Eigen::Matrix<double, p,1> InputVector;
-
-
-
-
-        /**
-         * \li   StateVectorMember is the type of state vector to be used to set as class members
-         * \li   MeasureVectorMember is the type of measurements vector to be used to set as class members
-         * \li   InputVectorMember is the type of the input vector to be used to set as class members
-         */
-
-        typedef Eigen::Matrix<double, n,1,Eigen::DontAlign> StateVectorMember;
-        typedef Eigen::Matrix<double, m,1,Eigen::DontAlign> MeasureVectorMember;
-        typedef Eigen::Matrix<double, p,1,Eigen::DontAlign> InputVectorMember;
 
 
         ///Set the value of the state vector at time index k
