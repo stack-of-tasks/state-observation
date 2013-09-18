@@ -31,21 +31,16 @@ void DiscreteTimeMatrix<r, c>::reset()
 template<unsigned r,unsigned c>
 typename DiscreteTimeMatrix<r, c>::MatrixT DiscreteTimeMatrix<r, c>::operator()()const
 {
-    if (isSet_)
-        return v_;
-    else
-        throw InitializationException("Vector not initialized");
+    check_();
+    return v_;
 }
 
 template<unsigned r,unsigned c>
 const unsigned & DiscreteTimeMatrix<r, c>::getTime()const
 {
-    if (isSet_)
-        return k_;
-    else
-        throw InitializationException("Vector not initialized");
+    check_();
+    return k_;
 }
-
 
 template<unsigned r,unsigned c>
 const bool & DiscreteTimeMatrix<r, c>::isSet()const
@@ -59,4 +54,10 @@ void ObserverBase<n,m,p>::reset()
     clearState();
     clearMeasurements();
     clearInputs();
+}
+
+template<unsigned r,unsigned c>
+void DiscreteTimeMatrix<r, c>::check_()const
+{
+    BOOST_ASSERT(isSet_ && "Error : Matrix not initialized");
 }

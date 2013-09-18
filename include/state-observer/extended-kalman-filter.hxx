@@ -23,14 +23,12 @@ typename ObserverBase<n,m,p>::StateVector ExtendedKalmanFilter<n,m,p>::predictio
 {
     if (!this->xbar_.isSet() || this->xbar_.getTime()!=k)
     {
-        if (f_!=0x0)
-            xbar_.set(f_->stateDynamics(
-                          this->x_(),
-                          this->u_[0](),
-                          this->x_.getTime()),
-                      k);
-        else
-            throw std::logic_error("The Kalman filter functor is not set");
+        BOOST_ASSERT (f_!=0x0 && "ERROR: The Kalman filter functor is not set");
+        xbar_.set(f_->stateDynamics(
+                      this->x_(),
+                      this->u_[0](),
+                      this->x_.getTime()),
+                  k);
     }
     return xbar_();
 }
@@ -38,10 +36,8 @@ typename ObserverBase<n,m,p>::StateVector ExtendedKalmanFilter<n,m,p>::predictio
 template <unsigned n,unsigned m, unsigned p>
 typename ObserverBase<n,m,p>::StateVector ExtendedKalmanFilter<n,m,p>::getPrediction(unsigned k)
 {
-    if (k!=this->x_.getTime()+1)
-        throw TimeException("The prediction can only be calculated for next sample (k+1)");
-    if (this->u_.size()==0 || this->u_[0].getTime()!=k-1)
-        throw InitializationException("The input vector is not set");
+    BOOST_ASSERT(k==this->x_.getTime()+1 && "ERROR: The prediction can only be calculated for next sample (k+1)");
+    BOOST_ASSERT(this->u_.size()>0 && this->u_[0].getTime()== k-1 && "ERROR: The input vector is not set");
     return prediction_(k);
 }
 
@@ -49,25 +45,20 @@ template <unsigned n,unsigned m, unsigned p>
 typename ObserverBase<n,m,p>::MeasureVector
 ExtendedKalmanFilter<n,m,p>::simulateSensor_(const typename ObserverBase<n,m,p>::StateVector& x, unsigned k)
 {
-    if (f_!=0x0)
+    BOOST_ASSERT (f_!=0x0 && "ERROR: The Kalman filter functor is not set");
+    typename ObserverBase<n,m,p>::InputVector u= ObserverBase<n,m,p>::InputVector::Zero();
+    if (directInputOutputFeedthrough_)
     {
-        typename ObserverBase<n,m,p>::InputVector u= ObserverBase<n,m,p>::InputVector::Zero();
-        if (directInputOutputFeedthrough_)
+        unsigned i;
+        for (i=0; i<this->u_.size()&&this->u_[i].getTime()<k;++i)
         {
-            unsigned i;
-            for (i=0; i<this->u_.size()&&this->u_[i].getTime()<k;++i)
-            {
-            }
-
-            if (i==this->u_.size()||this->u_[i].getTime()>k)
-                throw TimeException("The input feedthrough of the measurements is not set");
-            else
-                u=this->u_[i]();
         }
-        return f_->measureDynamics(x,u,k);
+
+        BOOST_ASSERT(i!=this->u_.size() && this->u_[i].getTime()<=k && "The input feedthrough of the measurements is not set");
+
+        u=this->u_[i]();
     }
-    else
-        throw std::logic_error("The Kalman filter functor is not set");
+    return f_->measureDynamics(x,u,k);
 }
 
 template <unsigned n,unsigned m, unsigned p>
@@ -134,12 +125,10 @@ void ExtendedKalmanFilter<n,m,p>::reset()
 template <unsigned n,unsigned m>
 typename ObserverBase<n,m,0>::StateVector ExtendedKalmanFilter<n,m,0>::prediction_(unsigned k)
 {
-    if ((this->xbar_.isSet()) || (this->xbar_.getTime()!=k))
+    if (!(this->xbar_.isSet()) || (this->xbar_.getTime()!=k))
     {
-        if (f_!=0x0)
-            this->xbar_.set(f_->stateDynamics(this->x_(),this->x_.getTime()),k);
-        else
-            throw std::logic_error("The Kalman filter functor is not set");
+        BOOST_ASSERT(f_!=0x0 && "ERROR: The Kalman filter functor is not set");
+        this->xbar_.set(f_->stateDynamics(this->x_(),this->x_.getTime()),k);
     }
     return xbar_();
 }
@@ -147,8 +136,7 @@ typename ObserverBase<n,m,0>::StateVector ExtendedKalmanFilter<n,m,0>::predictio
 template <unsigned n,unsigned m>
 typename ObserverBase<n,m,0>::StateVector ExtendedKalmanFilter<n,m,0>::getPrediction(unsigned k)
 {
-    if (k!=this->x_.getTime()+1)
-        throw std::runtime_error("The prediction can only be calculated for next sample (k+1)");
+    BOOST_ASSERT(k==this->x_.getTime()+1 && "ERROR: The prediction can only be calculated for next sample (k+1)");
     return prediction_(k);
 }
 
@@ -156,10 +144,8 @@ template <unsigned n,unsigned m>
 typename ObserverBase<n,m,0>::MeasureVector
 ExtendedKalmanFilter<n,m,0>::simulateSensor_(const typename ObserverBase<n,m,0>::StateVector& x, unsigned k)
 {
-    if (f_!=0x0)
-        return f_->measureDynamics(x,k);
-    else
-        throw std::logic_error("The Kalman filter functor is not set");
+    BOOST_ASSERT(f_!=0x0 && "ERROR: The Kalman filter functor is not set");
+    return f_->measureDynamics(x,k);
 }
 
 template <unsigned n,unsigned m>

@@ -23,6 +23,7 @@
 #include <Eigen/Dense>
 #include <exception>
 #include <boost/static_assert.hpp>
+#include <boost/assert.hpp>
 
 namespace observation
 {
@@ -133,7 +134,11 @@ namespace observation
 
     protected:
 
+        inline void check_()const;
+
+        ///this variable ensures the matrix is initialized,
         bool isSet_;
+
         unsigned k_;
         MatrixT v_;
     };

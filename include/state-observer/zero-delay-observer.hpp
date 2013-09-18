@@ -73,8 +73,7 @@ namespace observation
         ///In order to estimate the state k, two conditions hqve to be met:
         /// \li the time index k must be superior to the current time k_0, the
         ///     does *not* record past values of the state and cannot observe
-        ///     past states. A time exception is thrown in case this condition
-        ///     is not met.
+        ///     past states.
         /// \li the observer has to be able to reconstruct all the state
         ///     values from k_0 to k. Thqt means all the measurements or input
         ///     values reauired have to be provided before.
@@ -101,8 +100,8 @@ namespace observation
         ///Containers for the observation. Notice that only one state is recorded
         ///while the measurements and iputs are put in lists
         typename ObserverBase<n,m,p>::State x_;
-        std::deque<typename ObserverBase<n,m,p>::Measure> y_;
-        std::deque<typename ObserverBase<n,m,p>::Input> u_;
+        std::deque<typename ObserverBase<n,m,p>::Measure,Eigen::aligned_allocator<typename ObserverBase<n,m,p>::Measure> > y_;
+        std::deque<typename ObserverBase<n,m,p>::Input,Eigen::aligned_allocator<typename ObserverBase<n,m,p>::Input>  > u_;
 
     };
 

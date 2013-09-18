@@ -45,10 +45,8 @@ KalmanFilter<n,m,p>::simulateSensor_(const typename ObserverBase<n,m,p>::StateVe
         {
         }
 
-        if (i==this->u_.size()||this->u_[i].getTime()>k)
-            throw TimeException("The input feedthrough of the measurements is not set");
-        else
-            u=this->u_[i]();
+        BOOST_ASSERT(i!=this->u_.size() && this->u_[i].getTime()<=k && "ERROR: The input feedthrough of the measurements is not set");
+        u=this->u_[i]();
     }
     return this->c_()*x+this->d_()*u;
 }

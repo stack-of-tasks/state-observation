@@ -62,34 +62,13 @@ template <unsigned n,unsigned m, unsigned p>
 typename ObserverBase<n,m,p>::StateVector KalmanFilterBase<n,m,p>::oneStepEstimation_()
 {
     unsigned k=this->x_.getTime();
-    if (this->y_.size()==0 || this->y_[0].getTime()!=k+1)
-    {
-        throw InitializationException("The measurement vector is not set");
-    }
-    if (this->u_.size()==0 || this->u_[0].getTime()!=k)
-    {
-        throw InitializationException("The input vector is not set");
-    }
-    if (!a_.isSet())
-    {
-        throw InitializationException("The Matrix A is not initialized");
-    }
-    if (!c_.isSet())
-    {
-        throw InitializationException("The Matrix C is not initialized");
-    }
-    if (!q_.isSet())
-    {
-        throw InitializationException("The Matrix Q is not initialized");
-    }
-    if (!r_.isSet())
-    {
-        throw InitializationException("The Matrix R is not initialized");
-    }
-    if (!p_.isSet())
-    {
-        throw InitializationException("The Matrix P is not initialized");
-    }
+    BOOST_ASSERT(this->y_.size()> 0 && this->y_[0].getTime()==k+1 && "ERROR: The measurement vector is not set");
+    BOOST_ASSERT(this->u_.size()> 0 && this->u_[0].getTime()==k && "ERROR: The input vector is not set");
+    BOOST_ASSERT(a_.isSet() && "ERROR: The Matrix A is not initialized" );
+    BOOST_ASSERT(c_.isSet() && "ERROR: The Matrix C is not initialized");
+    BOOST_ASSERT(q_.isSet() && "ERROR: The Matrix Q is not initialized");
+    BOOST_ASSERT(r_.isSet() && "ERROR: The Matrix R is not initialized");
+    BOOST_ASSERT(p_.isSet() && "ERROR: The Matrix P is not initialized");
 
     Amatrix a=a_();
     Cmatrix c=c_();
@@ -203,15 +182,12 @@ template <unsigned n,unsigned m>
 typename ObserverBase<n,m,0>::StateVector KalmanFilterBase<n,m,0>::oneStepEstimation_()
 {
     unsigned k=this->x_.getTime();
-    if (this->y_.size()==0 || this->y_[0].getTime()!=k+1)
-    {
-        throw InitializationException("The measurement vector is not set");
-    }
-
-    if ((!a_.isSet()) || (!c_.isSet()) || (!q_.isSet()) || (!r_.isSet()) || (!p_.isSet()))
-    {
-        throw InitializationException("The Matrices are not initialized");
-    }
+    BOOST_ASSERT(this->y_.size()!=0 && this->y_[0].getTime()==k+1 && "ERROR: The measurement vector is not set");
+    BOOST_ASSERT(a_.isSet() && "ERROR: The Matrix A is not initialized" );
+    BOOST_ASSERT(c_.isSet() && "ERROR: The Matrix C is not initialized");
+    BOOST_ASSERT(q_.isSet() && "ERROR: The Matrix Q is not initialized");
+    BOOST_ASSERT(r_.isSet() && "ERROR: The Matrix R is not initialized");
+    BOOST_ASSERT(p_.isSet() && "ERROR: The Matrix P is not initialized");
 
     Amatrix a=a_();
     Cmatrix c=c_();

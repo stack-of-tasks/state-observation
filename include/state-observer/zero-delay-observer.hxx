@@ -26,16 +26,9 @@ void ZeroDelayObserver<n,m,p>::setMeasurement
 (const typename ObserverBase<n,m,p>::MeasureVector& y_k,unsigned k)
 {
     if (y_.size()>0)
-    {
-        if (y_[y_.size()-1].getTime()!=k-1)
-            throw TimeException("The time is set incorrectly for \
-                                the measurements (order or gap)");
-    }
+       BOOST_ASSERT (y_[y_.size()-1].getTime()==k-1 && "ERROR: The time is set incorrectly for the measurements (order or gap)");
     else
-        if (x_.isSet())
-            if (x_.getTime()!=k-1)
-                throw TimeException("The time is set incorrectly for the \
-                                    measurements (must be [current_time+1])");
+       BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k-1) && "ERROR: The time is set incorrectly for the measurements (must be [current_time+1])");
 
     typename ObserverBase<n,m,p>::Measure a(y_k,k);
 
@@ -53,16 +46,9 @@ void ZeroDelayObserver<n,m,p>::setInput
 (const typename ObserverBase<n,m,p>::InputVector& u_k,unsigned k)
 {
     if (u_.size()>0)
-    {
-        if (u_[u_.size()-1].getTime()!=k-1)
-            throw TimeException("The time is set incorrectly for the inputs \
-                                (order or gap)");
-    }
+        BOOST_ASSERT (u_[u_.size()-1].getTime()==k-1 && "ERROR: The time is set incorrectly for the inputs (order or gap)");
     else
-        if (x_.isSet())
-            if (x_.getTime()!=k)
-                throw TimeException("The time is set incorrectly for \
-                                    the inputs (must be [current_time])");
+        BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k) && "ERROR: The time is set incorrectly for the inputs (must be [current_time])");
 
     typename ObserverBase<n,m,p>::Input a(u_k,k);
 
@@ -81,8 +67,7 @@ ZeroDelayObserver<n,m,p>::getEstimateState(unsigned k)
 {
     unsigned k0=x_.getTime();
 
-    if (k0>k)
-        throw TimeException("The observer cannot estimate previous states");
+    BOOST_ASSERT(k0<=k && "ERROR: The observer cannot estimate previous states");
 
     for (unsigned i=k0;i<k;++i)
     {
