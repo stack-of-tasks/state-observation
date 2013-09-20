@@ -1,11 +1,11 @@
 /**
- * \file      observer-base.hpp
+ * \file      zero-delay-observer.hpp
  * \author    Mehdi Benallegue
  * \date       2012
  * \brief      Defines the base class of online zero delay observers.
  *             Zero delay observers are the classical state observers where
  *             input and state values at instant k and the measurement value
- *             at instant k+1 are enough to provie the estimation of the state
+ *             at instant k+1 are enough to provide the estimation of the state
  *             at instant k+1.
  *
  * \details
@@ -26,10 +26,16 @@ namespace observation
 {
     /**
      * \class  ZeroDelayObserver
-     * \brief  The base class of zero delay observers. It mostly defines the data
-     *         structures for storing the vectors, it describes the set routines
-     *         and the observation loop mechanism. It requires to be derviated
-     *         to implement the new oneStepEstimation_() method
+     * \brief  Defines the base class of online zero delay observers.
+     *         Zero delay observers are the classical state observers where
+     *         input and state values at instant k and the measurement value
+     *         at instant k+1 are enough to provide the estimation of the state
+     *         at instant k+1.
+     *         This class mostly defines the data structures for storing the
+     *         vectors, it describes the set routines and the observation
+     *         loop mechanism. It requires to be derviated to implement the
+     *         new oneStepEstimation_() method
+     *
      *         \li n : size of the state vector
      *         \li m : size of the measurements vector
      *         \li p : size of the input vector

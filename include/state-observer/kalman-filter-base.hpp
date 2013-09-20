@@ -1,17 +1,18 @@
 /**
- * \file      observer-base.hpp
+ * \file      kalman-filter-base.hpp
  * \author    Mehdi Benallegue
  * \date       2012
  * \brief      Defines the base class of a Kalman filter
  *
  *             It mostly implements the equations of Kalman filtering
  *             It is suitablle by derivation to be used incases of Linear,
- *             linearized and extended Kalman filtering. It can may be
+ *             linearized and extended Kalman filtering. It may be
  *             derived to unscented Kalman filtering, but non-straighforwardly
  *             because the state vector is modified.
  *
  *             x_{k+1}=f(x_k,u_k)+v_k
- *             y_k=h(x_k,u_k)
+ *
+ *             y_k=h(x_k,u_k)+w_k
  *
  * \details
  *
@@ -29,12 +30,20 @@ namespace observation
 {
 
 
-    /**
+/**
      * \class  KalmanFilterBase
-     * \brief  The base class of linear /extended Kalman filters.
-     *         It implements one loop of the Kalman filter. This class requires
-     *         to be derived to overload the update routine and the measurements
-     *         simulation routine.
+     * \brief
+     *        It mostly implements the equations of Kalman filtering
+     *        It is suitablle by derivation to be used incases of Linear,
+     *        linearized and extended Kalman filtering. It may be
+     *        derived to unscented Kalman filtering, but non-straighforwardly
+     *        because the state vector is modified. This class requires
+     *        to be derived to overload the update routine and the measurements
+     *        simulation routine.
+     *
+     *             x_{k+1}=f(x_k,u_k)+v_k
+     *
+     *             y_k=h(x_k,u_k)+w_k
      *
      *         \li n : size of the state vector
      *         \li m : size of the measurements vector
@@ -77,7 +86,6 @@ namespace observation
 
         /// Clear the jacobian dh/dx
         virtual void clearC();
-
 
 
         /// Set the measurement noise covariance matrix

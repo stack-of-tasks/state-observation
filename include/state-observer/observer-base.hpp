@@ -142,8 +142,11 @@ namespace observation
 
     /**
      * \class  ObserverBase
-     * \brief  The base class for observers. It mostly defined an abstract
+     * \brief  The base class for observers.
+     *         The observer is destinated to any dynamical system with a vector
+     *         state representation. This class mostly defined an abstract
      *         interface, static constants and types. It is templated by:
+     *
      *         \li n : size of the state vector
      *         \li m : size of the measurements vector
      *         \li p : size of the input vector
