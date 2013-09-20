@@ -47,17 +47,20 @@ ExtendedKalmanFilter<n,m,p>::simulateSensor_(const typename ObserverBase<n,m,p>:
 {
     BOOST_ASSERT (f_!=0x0 && "ERROR: The Kalman filter functor is not set");
     typename ObserverBase<n,m,p>::InputVector u= ObserverBase<n,m,p>::InputVector::Zero();
+    unsigned i;
+    for (i=0; i<this->u_.size()&&this->u_[i].getTime()<k;++i)
+    {
+    }
     if (directInputOutputFeedthrough_)
     {
-        unsigned i;
-        for (i=0; i<this->u_.size()&&this->u_[i].getTime()<k;++i)
-        {
-        }
-
-        BOOST_ASSERT(i!=this->u_.size() && this->u_[i].getTime()<=k && "The input feedthrough of the measurements is not set");
-
-        u=this->u_[i]();
+        BOOST_ASSERT(i!=this->u_.size() && this->u_[i].getTime()==k &&
+            "The input feedthrough of the measurements is not set\
+                (if you don't need the input in the computation measurement, you need\
+                to set directInputOutputFeedthrough to false in the constructor)");
     }
+    if (i<this->u_.size())
+        u=this->u_[i]();
+
     return f_->measureDynamics(x,u,k);
 }
 
