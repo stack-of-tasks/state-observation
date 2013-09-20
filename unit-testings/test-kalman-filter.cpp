@@ -478,7 +478,8 @@ int main()
     std::cout<<"Starting"<<std::endl;
 
     testKalmanFilter();
-    //testKalmanFilter();
+    testExtendedKalmanFilter();
+    testExtendedKalmanFilterLTV();
 
     return 0;
 

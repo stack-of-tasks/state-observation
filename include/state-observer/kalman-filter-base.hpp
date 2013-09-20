@@ -122,24 +122,32 @@ namespace observation
         virtual typename ObserverBase<n,m,p>::MeasureVector simulateSensor_
         (const typename ObserverBase<n,m,p>::StateVector& x, unsigned k)=0;
 
-        /// The internal type for storing the jacobian matrices
+        /// The internal type for storing the jacobian matrix of the process
         typedef DiscreteTimeMatrix<n,n> Amat_;
+
+        /// The internal type for storing the jacobian matrix of the measurement
         typedef DiscreteTimeMatrix<m,n> Cmat_;
 
-        /// The internal type for storing the noises covariance matrices
+        /// The internal type for storing the process noise covariance matrices
         typedef DiscreteTimeMatrix<n,n> Qmat_;
+
+         /// The internal type for storing the measurement noise covariance matrices
         typedef DiscreteTimeMatrix<m,m> Rmat_;
 
         /// The internal type for storing the covariance matrix of the
         /// estimation error
         typedef DiscreteTimeMatrix<n,n> Pmat_;
 
-        /// Containers for the jacobian matrices
+        /// Containers for the jacobian matrix of the process
         Amat_ a_;
+
+        /// Containers for the jacobian matrix of the measurement
         Cmat_ c_;
 
-        /// Containers for the noises covariance matrices
+        /// Container for the process noise covariance matrice
         Qmat_ q_;
+
+        /// Container for the measurement noise covariance matrice
         Rmat_ r_;
 
         /// Container for the covariance matrix of the estimation error
@@ -236,12 +244,16 @@ namespace observation
         simulateSensor_(const typename ObserverBase<n,m,0>::StateVector& x,unsigned k)=0;
 
 
-        /// Containers for the jacobian matrices
+        /// Container for the jacobian matrix of the process
         typedef DiscreteTimeMatrix<n,n>  Amat_;
+
+        /// Container for the jacobian matrix of the measurement
         typedef DiscreteTimeMatrix<m,n>  Cmat_;
 
-        /// The internal type for storing the noises covariance matrices
+        /// The internal type for storing the process noise covariance matrices
         typedef DiscreteTimeMatrix<n,n> Qmat_;
+
+        /// The internal type for storing the measurement noise covariance matrices
         typedef DiscreteTimeMatrix<m,m> Rmat_;
 
         /// The internal type for storing the covariance matrix of the
@@ -249,12 +261,16 @@ namespace observation
         typedef DiscreteTimeMatrix<n,n> Pmat_;
 
 
-        /// Containers for the jacobian matrices
+        /// Container for the jacobian matrix of the process
         Amat_ a_;
+
+        /// Container for the jacobian matrix of the measurement
         Cmat_ c_;
 
-        /// Containers for the noises covariance matrices
+        /// Containers for the process noise covariance matrix
         Qmat_ q_;
+
+        /// Containers for the jacobian noise covariance matrix
         Rmat_ r_;
 
         /// Container for the covariance matrix of the estimation error

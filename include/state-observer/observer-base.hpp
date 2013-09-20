@@ -161,13 +161,14 @@ namespace observation
     class ObserverBase
     {
     public:
-        /**
-         * \li   stateSize is the size of the state vector
-         * \li   measureSize is the size of measurements vector
-         * \li   inputSize is the size of the input vector
-         */
+
+        ///stateSize is the size of the state vector
         static unsigned const stateSize=n;
+
+        ///measureSize is the size of measurements vector
         static unsigned const measureSize=m;
+
+        ///inputSize is the size of the input vector
         static unsigned const inputSize=p;
 
 
@@ -175,14 +176,13 @@ namespace observation
         virtual ~ObserverBase(){};
 
 
-        /**
-         * \li   StateVector is the type of state vector
-         * \li   MeasureVector is the type of measurements vector
-         * \li   InputVector is the type of the input vector
-         */
-
+        ///StateVector is the type of state vector
         typedef Eigen::Matrix<double, n,1> StateVector;
+
+        ///MeasureVector is the type of measurements vector
         typedef Eigen::Matrix<double, m,1> MeasureVector;
+
+        ///InputVector is the type of the input vector
         typedef Eigen::Matrix<double, p,1> InputVector;
 
 
@@ -209,14 +209,18 @@ namespace observation
         virtual StateVector getEstimateState(unsigned k)=0;
 
         ///Reinitializes the whole observer
-        ///Default behavior is to call the three clear methodsŔ
+        ///default behavior is to call the three "ObserverBase::clear*" methods
         virtual void reset();
 
     protected:
 
-        ///Internal typedefs the timed states, measurements and inputs.Ŕ
+        ///Internal (protected) typedefs the timed states.
         typedef DiscreteTimeMatrix<n,1> State;
+
+        ///Internal (protected) typedefs the timed measurements.
         typedef DiscreteTimeMatrix<m,1> Measure;
+
+        ///Internal (protected) typedefs the timed inputs.
         typedef DiscreteTimeMatrix<p,1> Input;
     };
 

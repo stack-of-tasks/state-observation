@@ -97,10 +97,15 @@ namespace observation
         virtual typename ObserverBase<n,m,p>::StateVector
         oneStepEstimation_()=0;
 
-        ///Containers for the observation. Notice that only one state is recorded
         ///while the measurements and iputs are put in lists
+
+        ///The state estimation of the observer (only one state is recorded)
         typename ObserverBase<n,m,p>::State x_;
+
+        ///Container for the measurements.
         std::deque<typename ObserverBase<n,m,p>::Measure,Eigen::aligned_allocator<typename ObserverBase<n,m,p>::Measure> > y_;
+
+        ///Container for the actual measurements.
         std::deque<typename ObserverBase<n,m,p>::Input,Eigen::aligned_allocator<typename ObserverBase<n,m,p>::Input>  > u_;
 
     };
