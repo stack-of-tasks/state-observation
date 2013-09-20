@@ -27,7 +27,12 @@ template <unsigned n,unsigned m, unsigned p>
 typename ObserverBase<n,m,p>::StateVector KalmanFilter<n,m,p>::prediction_(unsigned k)
 {
     (void)k; //unused
-    return this->a_()*this->x_()+this->b_()*this->u_[0]();
+
+    if (p>0)
+        return this->a_()*this->x_()+this->b_()*this->u_[0]();
+    else
+        return this->a_()*this->x_();
+
 }
 
 template <unsigned n,unsigned m, unsigned p>
@@ -37,22 +42,29 @@ KalmanFilter<n,m,p>::simulateSensor_(const typename ObserverBase<n,m,p>::StateVe
 
     typename ObserverBase<n,m,p>::InputVector u ( ObserverBase<n,m,p>::InputVector::Zero());
 
-
-    if (p>0 && d_()!=Dmatrix::Zero())
+    if (p>0)
     {
-        unsigned i;
-        for (i=0; i<this->u_.size()&&this->u_[i].getTime()<k;++i)
+        if (d_()!=Dmatrix::Zero())
         {
-        }
+            unsigned i;
+            for (i=0; i<this->u_.size()&&this->u_[i].getTime()<k;++i)
+            {
+            }
 
-        BOOST_ASSERT(i!=this->u_.size() && this->u_[i].getTime()<=k &&
-                    "ERROR: The input feedthrough of the measurements is not set \
-                (the measurement at time k needs the input at time k which was not given) \
-                if you don't need the input in the computation of measurement, you \
-                must set D matrix to zero");
-        u=this->u_[i]();
+            BOOST_ASSERT(i!=this->u_.size() && this->u_[i].getTime()<=k &&
+                         "ERROR: The input feedthrough of the measurements is not set \
+                         (the measurement at time k needs the input at time k which was not given) \
+                         if you don't need the input in the computation of measurement, you \
+                         must set D matrix to zero");
+            u=this->u_[i]();
+        }
+        return this->c_()*x+this->d_()*u;
     }
-    return this->c_()*x+this->d_()*u;
+    else
+    {
+        return this->c_()*x;
+    }
+
 }
 
 template <unsigned n,unsigned m, unsigned p>
