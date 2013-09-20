@@ -35,10 +35,10 @@ typename ObserverBase<n,m,p>::MeasureVector
 KalmanFilter<n,m,p>::simulateSensor_(const typename ObserverBase<n,m,p>::StateVector& x, unsigned k)
 {
 
-    typename ObserverBase<n,m,p>::InputVector u= ObserverBase<n,m,p>::InputVector::Zero();
+    typename ObserverBase<n,m,p>::InputVector u ( ObserverBase<n,m,p>::InputVector::Zero());
 
 
-    if (d_()!=Dmatrix::Zero())
+    if (p>0 && d_()!=Dmatrix::Zero())
     {
         unsigned i;
         for (i=0; i<this->u_.size()&&this->u_[i].getTime()<k;++i)
@@ -63,18 +63,4 @@ void KalmanFilter<n,m,p>::reset()
     b_.reset();
     d_.reset();
 }
-
-template <unsigned n,unsigned m>
-typename ObserverBase<n,m,0>::StateVector KalmanFilter<n,m,0>::prediction_(unsigned k)
-{
-    return this->a_()*this->x_();
-}
-
-template <unsigned n,unsigned m>
-typename ObserverBase<n,m,0>::MeasureVector
-KalmanFilter<n,m,0>::simulateSensor_(const typename ObserverBase<n,m,0>::StateVector& x, unsigned k)
-{
-    return this->c_()*x;
-}
-
 

@@ -26,9 +26,9 @@ void ZeroDelayObserver<n,m,p>::setMeasurement
 (const typename ObserverBase<n,m,p>::MeasureVector& y_k,unsigned k)
 {
     if (y_.size()>0)
-       BOOST_ASSERT (y_[y_.size()-1].getTime()==k-1 && "ERROR: The time is set incorrectly for the measurements (order or gap)");
+        BOOST_ASSERT (y_[y_.size()-1].getTime()==k-1 && "ERROR: The time is set incorrectly for the measurements (order or gap)");
     else
-       BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k-1) && "ERROR: The time is set incorrectly for the measurements (must be [current_time+1])");
+        BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k-1) && "ERROR: The time is set incorrectly for the measurements (must be [current_time+1])");
 
     typename ObserverBase<n,m,p>::Measure a(y_k,k);
 
@@ -45,20 +45,24 @@ template <unsigned n,unsigned m, unsigned p>
 void ZeroDelayObserver<n,m,p>::setInput
 (const typename ObserverBase<n,m,p>::InputVector& u_k,unsigned k)
 {
-    if (u_.size()>0)
-        BOOST_ASSERT (u_[u_.size()-1].getTime()==k-1 && "ERROR: The time is set incorrectly for the inputs (order or gap)");
-    else
-        BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k) && "ERROR: The time is set incorrectly for the inputs (must be [current_time])");
+    if (p>0)
+    {
+        if (u_.size()>0)
+            BOOST_ASSERT (u_[u_.size()-1].getTime()==k-1 && "ERROR: The time is set incorrectly for the inputs (order or gap)");
+        else
+            BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k) && "ERROR: The time is set incorrectly for the inputs (must be [current_time])");
 
-    typename ObserverBase<n,m,p>::Input a(u_k,k);
+        typename ObserverBase<n,m,p>::Input a(u_k,k);
 
-    u_.push_back(a);
+        u_.push_back(a);
+    }
 }
 
 template <unsigned n,unsigned m, unsigned p>
 void ZeroDelayObserver<n,m,p>::clearInputs()
 {
-    u_.clear();
+    if (p>0)
+        u_.clear();
 }
 
 template <unsigned n,unsigned m, unsigned p>

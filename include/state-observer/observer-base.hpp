@@ -100,10 +100,6 @@ namespace observation
     {
     public:
 
-
-        /// Static assert to check that r and c are positive.
-        BOOST_STATIC_ASSERT(((r>0) && (c>0)));
-
         ///Definition of matrix type
         typedef Eigen::Matrix<double, r,c> MatrixT;
 

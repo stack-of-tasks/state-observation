@@ -35,13 +35,6 @@ namespace observation
         Bmat_ b_;
     };
 
-    template <unsigned n,unsigned m>
-    class KalmanFilter<n,m,0>: public KalmanFilterBase<n,m,0>
-    {
-    protected:
-        virtual typename ObserverBase<n,m,0>::StateVector prediction_(unsigned k);
-        virtual typename ObserverBase<n,m,0>::MeasureVector simulateSensor_(const typename ObserverBase<n,m,0>::StateVector& x, unsigned k);
-    };
 
 #include <state-observer/kalman-filter.hxx>
 
