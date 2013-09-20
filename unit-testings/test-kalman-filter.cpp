@@ -649,14 +649,107 @@ void testKalmanFilter()
     }
 }
 
+void testKalmanFilterZeroInput()
+{
+    typedef observation::KalmanFilter<4,3> filter;
+
+    filter f;
+    filter::Amatrix a;
+
+    a<<	-0.6785714 ,0.1156463 ,	0.4392517 ,	0.2863946 ,
+    0.0865306  ,-0.0273810,	0.3355102 ,	0.0184150 ,
+    - 0.4172789,-0.2036735,	-0.4434014,	-0.2666667,
+    0.4200680  ,0.5387075 ,	0.4883673 , -0.6598639;
+
+    filter::Bmatrix b=filter::Bmatrix::Random();
+    filter::Cmatrix c=filter::Cmatrix::Random();
+    filter::Dmatrix d=filter::Dmatrix::Random();
+
+    const unsigned kmax=1000;
+
+    filter::StateVector xk[kmax+1];
+    filter::MeasureVector yk[kmax];
+
+    filter::StateVector x=filter::StateVector::Zero();
+
+    xk[0]=x;
+
+    boost::lagged_fibonacci1279 gen_;
+
+    filter::Rmatrix r1=filter::Rmatrix::Random()*0.1;
+
+    filter::Qmatrix q1=filter::Qmatrix::Random()*0.1;
+
+    filter::Rmatrix r=r1*r1.transpose();
+    filter::Qmatrix q=q1*q1.transpose();
+
+    filter::InputVector u=filter::InputVector::Zero();
+
+    for (unsigned k=1; k<=kmax; ++k)
+    {
+
+        filter::StateVector v;
+        for (unsigned i=0;i<filter::stateSize;++i)
+        {
+            boost::normal_distribution<> g(0, 1);
+            v[i]=g(gen_);
+        }
+        v=q1*v;
+
+        filter::MeasureVector w;
+        for (unsigned i=0;i<filter::measureSize;++i)
+        {
+            boost::normal_distribution<> g(0, 1);
+            w[i]=g(gen_);
+        }
+        w=r1*w;
+
+        xk[k]=x=a*x+v;
+        yk[k-1]=c*x+w;
+    }
+
+    filter::StateVector xh=filter::StateVector::Random();
+
+    f.setState(xh,0);
+
+    filter::Pmatrix p=filter::Pmatrix::Zero();
+
+    for (unsigned i=0;i<filter::stateSize;++i)
+    {
+        p(i,i)=xh[i];
+    }
+    p=p*p.transpose();
+
+    f.setStateCovariance(p);
+
+    f.setA(a);
+    f.setB(b);
+    f.setC(c);
+    f.setD(d);
+
+    f.setR(r);
+    f.setQ(q);
+
+    for (unsigned i=1;i<=kmax;++i)
+    {
+        f.setMeasurement(yk[i-1],i);
+
+        std::cout<<xk[i].transpose()<<std::endl;
+        std::cout<<yk[i-1].transpose()<<std::endl;
+        std::cout<<f.getEstimateState(i).transpose()<<std::endl;
+        std::cout<<f.getEstimateState(i).transpose()-xk[i].transpose()<<std::endl<<std::endl;
+    }
+}
+
 int main()
 {
     std::cout<<"Starting"<<std::endl;
 
     //testKalmanFilter();
+    testKalmanFilterZeroInput();
     //testExtendedKalmanFilter();
     //testExtendedKalmanFilterLTV();
-    testExtendedKalmanFilterZeroInput();
+    //testExtendedKalmanFilterZeroInput();
 
     return 0;
 
