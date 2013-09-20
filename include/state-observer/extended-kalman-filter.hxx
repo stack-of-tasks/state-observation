@@ -54,9 +54,10 @@ ExtendedKalmanFilter<n,m,p>::simulateSensor_(const typename ObserverBase<n,m,p>:
     if (directInputOutputFeedthrough_)
     {
         BOOST_ASSERT(i!=this->u_.size() && this->u_[i].getTime()==k &&
-            "The input feedthrough of the measurements is not set\
-                (if you don't need the input in the computation measurement, you need\
-                to set directInputOutputFeedthrough to false in the constructor)");
+            "ERROR: The input feedthrough of the measurements is not set \
+                (the measurement at time k needs the input at time k which was not given) \
+                if you don't need the input in the computation of measurement, you \
+                must set directInputOutputFeedthrough to false in the constructor");
     }
     if (i<this->u_.size())
         u=this->u_[i]();
