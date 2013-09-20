@@ -30,7 +30,7 @@ namespace observation
 
         };
 
-        ExtendedKalmanFilter(bool directInputOutputFeedthrough=0):
+        ExtendedKalmanFilter(bool directInputOutputFeedthrough=true):
                 directInputOutputFeedthrough_(directInputOutputFeedthrough),f_(0x0)
         {
         }
