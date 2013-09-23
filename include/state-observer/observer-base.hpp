@@ -25,7 +25,7 @@
 #include <boost/static_assert.hpp>
 #include <boost/assert.hpp>
 
-namespace observation
+namespace stateObserver
 {
     /**
      * \class    ObserverException

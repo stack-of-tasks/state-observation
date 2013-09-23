@@ -26,7 +26,7 @@
 
 #include <state-observer/zero-delay-observer.hpp>
 
-namespace observation
+namespace stateObserver
 {
 
 

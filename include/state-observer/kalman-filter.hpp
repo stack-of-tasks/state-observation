@@ -23,7 +23,7 @@
 
 #include <state-observer/kalman-filter-base.hpp>
 
-namespace observation
+namespace stateObserver
 {
 
 /**

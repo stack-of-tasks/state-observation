@@ -22,7 +22,7 @@
 #include <state-observer/observer-base.hpp>
 
 
-namespace observation
+namespace stateObserver
 {
     /**
      * \class  ZeroDelayObserver

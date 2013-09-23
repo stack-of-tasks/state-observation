@@ -73,9 +73,10 @@ ExtendedKalmanFilter<n,m,p>::simulateSensor_(const typename ObserverBase<n,m,p>:
                          if you don't need the input in the computation of measurement, you \
                          must set directInputOutputFeedthrough to 'false' in the constructor");
         }
+
+        if (i<this->u_.size())
+            u=this->u_[i]();
     }
-    if (i<this->u_.size())
-        u=this->u_[i]();
 
     return f_->measureDynamics(x,u,k);
 }
