@@ -356,6 +356,7 @@ double testExtendedKalmanFilterZeroInput()
         KalmanFunctor()
         {
             m_=ekf::MeasureVector::Random()*0.1;
+            s_=ekf::StateVector::Random()*0.1;
             t_=ekf::StateVector::Random();
             n_=ekf::MeasureVector::Random();
         }
@@ -412,8 +413,12 @@ double testExtendedKalmanFilterZeroInput()
 
     ekf f;
 
-    ekf::Amatrix a;
     KalmanFunctor func;
+
+    func.setA(ekf::Amatrix::Random()*0.5);
+    func.setC(ekf::Cmatrix::Random());
+
+
 
     f.setFunctor(&func);
 
@@ -615,7 +620,7 @@ double testKalmanFilterZeroInput()
     a<<	-0.6785714 ,0.1156463 ,	0.4392517 ,	0.2863946 ,
     0.0865306  ,-0.0273810,	0.3355102 ,	0.0184150 ,
     - 0.4172789,-0.2036735,	-0.4434014,	-0.2666667,
-    0.4200680  ,0.5387075 ,	0.4883673 , -0.6598639;
+    0.4200680  ,0.5387075 ,	0.4883673 , -0.598639;
 
     filter::Bmatrix b=filter::Bmatrix::Random();
     filter::Cmatrix c=filter::Cmatrix::Random();
@@ -701,52 +706,53 @@ double testKalmanFilterZeroInput()
 int main()
 {
     short exit=0;
+    double error;
     std::cout<<"Starting"<<std::endl;
 
-    if (testKalmanFilter()<0.1)
+    if ((error=testKalmanFilter())<0.1)
     {
-        std::cout<<"Test Kalman filter succeeded"<<std::endl;
+        std::cout<<"Test Kalman filter SUCCEEDED: estimationError = "<<error<<std::endl;
     }
     else
     {
         exit=exit | BOOST_BINARY( 1 );
-        std::cout<<"Test Kalman filter failed"<<std::endl;
+        std::cout<<"Test Kalman filter FAILED: estimationError = "<<error<<std::endl;
     }
-    if (testKalmanFilterZeroInput()<0.1)
+    if ((error=testKalmanFilterZeroInput())<0.1)
     {
-        std::cout<<"Test Kalman filter (zero input) succeeded"<<std::endl;
+        std::cout<<"Test Kalman filter (zero input) SUCCEEDED: estimationError = "<<error<<std::endl;
     }
     else
     {
         exit=exit | BOOST_BINARY( 10 );
-        std::cout<<"Test Kalman filter (zero input) failed"<<std::endl;
+        std::cout<<"Test Kalman filter (zero input) FAILED: estimationError = "<<error<<std::endl;
     }
-    if (testExtendedKalmanFilter()<0.1)
+    if ((error=testExtendedKalmanFilter())<0.1)
     {
-        std::cout<<"Test extended Kalman filter succeeded"<<std::endl;
+        std::cout<<"Test extended Kalman filter SUCCEEDED: estimationError = "<<error<<std::endl;
     }
     else
     {
         exit=exit | BOOST_BINARY( 100 );
-        std::cout<<"Test extended Kalman filter failed"<<std::endl;
+        std::cout<<"Test extended Kalman filter FAILED: estimationError = "<<error<<std::endl;
     }
-    if (testExtendedKalmanFilterLTV()<0.1)
+    if ((error=testExtendedKalmanFilterLTV())<0.1)
     {
-        std::cout<<"Test extended Kalman filter (LTV) succeeded"<<std::endl;
+        std::cout<<"Test extended Kalman filter (LTV) SUCCEEDED: estimationError = "<<error<<std::endl;
     }
     else
     {
         exit=exit | BOOST_BINARY( 1000 );
-        std::cout<<"Test extended Kalman filter (LTV) failed"<<std::endl;
+        std::cout<<"Test extended Kalman filter (LTV) FAILED: estimationError = "<<error<<std::endl;
     }
-    if (testExtendedKalmanFilterZeroInput()<0.1)
+    if ((error=testExtendedKalmanFilterZeroInput())<0.1)
     {
-        std::cout<<"Test extended Kalman filter (zero input) succeeded"<<std::endl;
+        std::cout<<"Test extended Kalman filter (zero input) SUCCEEDED: estimationError = "<<error<<std::endl;
     }
     else
     {
         exit=exit | BOOST_BINARY( 10000 );
-        std::cout<<"Test extended Kalman filter (zero input) failed"<<std::endl<<std::endl;
+        std::cout<<"Test extended Kalman filter (zero input) FAILED: estimationError = "<<error<<std::endl<<std::endl;
     }
 
 
