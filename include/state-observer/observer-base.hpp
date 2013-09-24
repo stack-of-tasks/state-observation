@@ -95,13 +95,12 @@ namespace stateObserver
      * \details
      *
      */
-    template<unsigned r,unsigned c>
     class DiscreteTimeMatrix
     {
     public:
 
         ///Definition of matrix type
-        typedef Eigen::Matrix<double, r,c> MatrixT;
+        typedef Eigen::MatrixXd MatrixT;
 
         ///Default constructor
         DiscreteTimeMatrix();
@@ -123,10 +122,6 @@ namespace stateObserver
 
         ///Switch off the initalization flag, the value is no longer accessible
         inline void reset();
-
-        ///Special instructions to have a static-sized eigen vector as a member
-        enum { NeedsToAlign = (sizeof(MatrixT)%16)==0 };
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(NeedsToAlign)
 
     protected:
 
@@ -156,40 +151,50 @@ namespace stateObserver
      */
 
 
-    template <unsigned n,unsigned m, unsigned p=0>
     class ObserverBase
     {
     public:
 
-        ///stateSize is the size of the state vector
-        static unsigned const stateSize=n;
+        ///StateVector is the type of state vector
+        typedef Eigen::VectorXd StateVector;
 
-        ///measureSize is the size of measurements vector
-        static unsigned const measureSize=m;
+        ///MeasureVector is the type of measurements vector
+        typedef Eigen::VectorXd MeasureVector;
 
-        ///inputSize is the size of the input vector
-        static unsigned const inputSize=p;
+        ///InputVector is the type of the input vector
+        typedef Eigen::VectorXd InputVector;
+
+
+        ObserverBase();
+
+        ObserverBase(unsigned n, unsigned m, unsigned p=0);
+
 
 
         ///Destructor
         virtual ~ObserverBase(){};
 
 
-        ///StateVector is the type of state vector
-        typedef Eigen::Matrix<double, n,1> StateVector;
+        virtual void setStateSize(unsigned n);
 
-        ///MeasureVector is the type of measurements vector
-        typedef Eigen::Matrix<double, m,1> MeasureVector;
+        virtual unsigned getStateSize() const;
 
-        ///InputVector is the type of the input vector
-        typedef Eigen::Matrix<double, p,1> InputVector;
+        virtual void setMeasureSize(unsigned m);
+
+        virtual unsigned getMeasureSize() const;
+
+        virtual void setInputSize(unsigned p);
+
+        virtual unsigned getInputSize() const;
+
+
 
 
         ///Set the value of the state vector at time index k
         virtual void setState(const StateVector& x_k,unsigned k)=0;
 
         ///Remove all the given past values of the state
-        virtual void clearState()=0;
+        virtual void clearStates()=0;
 
         ///Set the value of the measurements vector at time index k
         virtual void setMeasurement(const MeasureVector& x_k,unsigned k)=0;
@@ -211,16 +216,45 @@ namespace stateObserver
         ///default behavior is to call the three "ObserverBase::clear*" methods
         virtual void reset();
 
+
+        virtual Eigen::VectorXd stateVectorConstant( double c ) const;
+
+        virtual Eigen::VectorXd stateVectorRandom() const;
+
+        virtual Eigen::VectorXd stateVectorZero() const;
+
+        virtual bool checkStateVector(const StateVector &) const;
+
+
+        virtual Eigen::VectorXd measureVectorConstant( double c ) const;
+
+        virtual Eigen::VectorXd measureVectorRandom() const;
+
+        virtual Eigen::VectorXd measureVectorZero() const;
+
+        virtual bool checkMeasureVector(const MeasureVector &) const;
+
+
+        virtual Eigen::VectorXd inputVectorConstant( double c ) const;
+
+        virtual Eigen::VectorXd inputVectorRandom() const;
+
+        virtual Eigen::VectorXd inputVectorZero() const;
+
+        virtual bool checkInputVector(const InputVector &) const;
+
     protected:
 
-        ///Internal (protected) typedefs the timed states.
-        typedef DiscreteTimeMatrix<n,1> State;
 
-        ///Internal (protected) typedefs the timed measurements.
-        typedef DiscreteTimeMatrix<m,1> Measure;
+        ///stateSize is the size of the state vector
+        unsigned n_;
 
-        ///Internal (protected) typedefs the timed inputs.
-        typedef DiscreteTimeMatrix<p,1> Input;
+        ///measureSize is the size of measurements vector
+        unsigned m_;
+
+        ///inputSize is the size of the input vector
+        unsigned p_;
+
     };
 
 #include <state-observer/observer-base.hxx>

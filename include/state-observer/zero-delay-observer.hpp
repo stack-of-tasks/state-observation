@@ -43,25 +43,30 @@ namespace stateObserver
      * \details
      *
      */
-    template <unsigned n,unsigned m, unsigned p=0>
-    class ZeroDelayObserver: public ObserverBase<n,m,p>
+    class ZeroDelayObserver: public ObserverBase
     {
     public:
+
+        ZeroDelayObserver(){}
+
+        ZeroDelayObserver(unsigned n, unsigned m, unsigned p=0):
+            ObserverBase(n,m,p){}
+
         virtual ~ZeroDelayObserver(){};
 
         ///Set the value of the state vector at time index k. Only the value
         ///with the highest time-index is kept and others are deleted, the
         ///highest index is called the current time k_0
         virtual void setState(
-            const typename ObserverBase<n,m,p>::StateVector& x_k,unsigned k);
+            const ObserverBase::StateVector& x_k,unsigned k);
 
         ///Remove all the given past values of the state
-        virtual void clearState();
+        virtual void clearStates();
 
         ///Set the value of the measurements vector at time index k. The
         ///measurements have to be inserted in chronological order without gaps.
         virtual void setMeasurement(
-            const typename ObserverBase<n,m,p>::MeasureVector& y_k,unsigned k);
+            const ObserverBase::MeasureVector& y_k,unsigned k);
 
         ///Remove all the given past values of the measurements
         virtual void clearMeasurements();
@@ -70,7 +75,7 @@ namespace stateObserver
         ///inputs have to be inserted in chronological order without gaps.
         ///If there is no input in the system (p==0), this instruction has no effect
         virtual void setInput(
-            const typename ObserverBase<n,m,p>::InputVector& u_k,unsigned k);
+            const ObserverBase::InputVector& u_k,unsigned k);
 
         ///Remove all the given past values of the inputs
         ///If there is no input, this instruction has no effect
@@ -92,29 +97,34 @@ namespace stateObserver
         ///y_{k_0+1} to y_{k} and u_{k_0} to u_{k-1}
         ///
         /// This method sets the current time to k
-        virtual typename ObserverBase<n,m,p>::StateVector
+        virtual ObserverBase::StateVector
         getEstimateState(unsigned k);
 
         ///Get the value of the current time index
         virtual unsigned getCurrentTime()const;
 
+        virtual void setStateSize(unsigned n);
+
+        virtual void setMeasureSize(unsigned m);
+
+        virtual void setInputSize(unsigned p);
+
     protected:
 
         ///This method describes one loop of the observer (from k_0 to k_0+1)
         /// it has to be implemented in derived classes.
-        virtual typename ObserverBase<n,m,p>::StateVector
-        oneStepEstimation_()=0;
+        virtual StateVector oneStepEstimation_()=0;
 
         ///while the measurements and iputs are put in lists
 
         ///The state estimation of the observer (only one state is recorded)
-        typename ObserverBase<n,m,p>::State x_;
+        DiscreteTimeMatrix x_;
 
         ///Container for the measurements.
-        std::deque<typename ObserverBase<n,m,p>::Measure,Eigen::aligned_allocator<typename ObserverBase<n,m,p>::Measure> > y_;
+        std::deque< DiscreteTimeMatrix > y_;
 
         ///Container for the actual measurements.
-        std::deque<typename ObserverBase<n,m,p>::Input,Eigen::aligned_allocator<typename ObserverBase<n,m,p>::Input>  > u_;
+        std::deque< DiscreteTimeMatrix > u_;
 
     };
 

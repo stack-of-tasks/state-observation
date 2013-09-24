@@ -52,25 +52,29 @@ namespace stateObserver
      * \details
      *
      */
-    template <unsigned n,unsigned m, unsigned p=0>
-    class KalmanFilterBase: public ZeroDelayObserver<n,m,p>
+    class KalmanFilterBase: public ZeroDelayObserver
     {
     public:
 
         /// The type of the jacobian df/dx
-        typedef Eigen::Matrix<double, n,n> Amatrix;
+        typedef Eigen::MatrixXd Amatrix;
 
         /// The type of the jacobian dh/dx
-        typedef Eigen::Matrix<double, m,n> Cmatrix;
+        typedef Eigen::MatrixXd Cmatrix;
 
         /// The type of the covariance matrix of the process noise v
-        typedef Eigen::Matrix<double, n,n> Qmatrix;
+        typedef Eigen::MatrixXd Qmatrix;
 
         /// The type of the covariance matrix of the measurement noise w
-        typedef Eigen::Matrix<double, m,m> Rmatrix;
+        typedef Eigen::MatrixXd Rmatrix;
 
         /// The type of the covariance matrix of the state estimation error.
-        typedef Eigen::Matrix<double, n,n> Pmatrix;
+        typedef Eigen::MatrixXd Pmatrix;
+
+        KalmanFilterBase(){}
+
+        KalmanFilterBase(unsigned n,unsigned m,unsigned p=0)
+            :ZeroDelayObserver(n,m,p){}
 
 
 
@@ -115,51 +119,94 @@ namespace stateObserver
         /// Resets all the observer
         virtual void reset();
 
+
+        /// The type of the jacobian df/dx
+        Amatrix getAmatrixConstant(double c) const;
+
+        Amatrix getAmatrixRandom() const;
+
+        Amatrix getAmatrixZero() const;
+
+        Amatrix getAmatrixIdentity() const;
+
+        bool checkAmatrix(const Amatrix & ) const;
+
+
+        /// The type of the jacobian dh/dx
+        Cmatrix getCmatrixConstant(double c) const;
+
+        Cmatrix getCmatrixRandom() const;
+
+        Cmatrix getCmatrixZero() const;
+
+        bool checkCmatrix(const Cmatrix &) const;
+
+        /// The type of the covariance matrix of the process noise v
+        Qmatrix getQmatrixConstant(double c) const;
+
+        Qmatrix getQmatrixRandom() const;
+
+        Qmatrix getQmatrixZero() const;
+
+        Qmatrix getQmatrixIdentity() const;
+
+        bool checkQmatrix(const Qmatrix &) const;
+
+        /// The type of the covariance matrix of the measurement noise w
+        Rmatrix getRmatrixConstant(double c) const;
+
+        Rmatrix getRmatrixRandom() const;
+
+        Rmatrix getRmatrixZero() const;
+
+        Rmatrix getRmatrixIdentity() const;
+
+        bool checkRmatrix(const Rmatrix &) const;
+
+        /// The type of the covariance matrix of the state estimation error.
+        Pmatrix getPmatrixConstant(double c) const;
+
+        Pmatrix getPmatrixRandom() const;
+
+        Pmatrix getPmatrixZero() const;
+
+        Pmatrix getPmatrixIdentity() const;
+
+        bool checkPmatrix(const Pmatrix & ) const;
+
+
+        virtual void setStateSize(unsigned n);
+
+        virtual void setMeasureSize(unsigned m);
+
     protected:
 
         /// The type of Kalman gain matrix
-        typedef Eigen::Matrix<double, n,m> Kmatrix;
+        typedef Eigen::MatrixXd Kmatrix;
 
         /// The Kalman filter loop
-        virtual typename ObserverBase<n,m,p>::StateVector oneStepEstimation_();
+        virtual StateVector oneStepEstimation_();
 
         /// The abstract method to overload to implement f(x,u)
-        virtual typename ObserverBase<n,m,p>::StateVector prediction_(unsigned k)=0;
+        virtual StateVector prediction_(unsigned k)=0;
 
         /// The abstract method to overload to implement h(x,u)
-        virtual typename ObserverBase<n,m,p>::MeasureVector simulateSensor_
-        (const typename ObserverBase<n,m,p>::StateVector& x, unsigned k)=0;
-
-        /// The internal type for storing the jacobian matrix of the process
-        typedef DiscreteTimeMatrix<n,n> Amat_;
-
-        /// The internal type for storing the jacobian matrix of the measurement
-        typedef DiscreteTimeMatrix<m,n> Cmat_;
-
-        /// The internal type for storing the process noise covariance matrices
-        typedef DiscreteTimeMatrix<n,n> Qmat_;
-
-         /// The internal type for storing the measurement noise covariance matrices
-        typedef DiscreteTimeMatrix<m,m> Rmat_;
-
-        /// The internal type for storing the covariance matrix of the
-        /// estimation error
-        typedef DiscreteTimeMatrix<n,n> Pmat_;
+        virtual MeasureVector simulateSensor_(const StateVector& x, unsigned k)=0;
 
         /// Containers for the jacobian matrix of the process
-        Amat_ a_;
+        DiscreteTimeMatrix a_;
 
         /// Containers for the jacobian matrix of the measurement
-        Cmat_ c_;
+        DiscreteTimeMatrix c_;
 
         /// Container for the process noise covariance matrice
-        Qmat_ q_;
+        DiscreteTimeMatrix q_;
 
         /// Container for the measurement noise covariance matrice
-        Rmat_ r_;
+        DiscreteTimeMatrix r_;
 
         /// Container for the covariance matrix of the estimation error
-        Pmat_ p_;
+        DiscreteTimeMatrix pr_;
 
     };
 

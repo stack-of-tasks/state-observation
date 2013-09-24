@@ -48,15 +48,20 @@ namespace stateObserver
      *
      */
 
-    template <unsigned n,unsigned m, unsigned p=0>
-    class KalmanFilter: public KalmanFilterBase<n,m,p>
+    class KalmanFilter: public KalmanFilterBase
     {
     public:
+
+        KalmanFilter(){}
+
+        KalmanFilter(unsigned n,unsigned m,unsigned p=0)
+            :KalmanFilterBase(n,m,p){}
+
         /// The type of the matrix linking the input to the state
-        typedef Eigen::Matrix<double, n,p> Bmatrix;
+        typedef Eigen::MatrixXd Bmatrix;
 
         /// The type of the matrix linking the input to the measurement
-        typedef Eigen::Matrix<double, m,p> Dmatrix;
+        typedef Eigen::MatrixXd Dmatrix;
 
         /// Set the value of the input-state matrix
         virtual void setB(const Bmatrix& B);
@@ -73,24 +78,44 @@ namespace stateObserver
         ///Reset all the observer
         virtual void reset();
 
+        /// The type of the jacobian df/dx
+        Bmatrix getBmatrixConstant(double c) const;
+
+        Bmatrix getBmatrixRandom() const;
+
+        Bmatrix getBmatrixZero() const;
+
+        bool checkBmatrix(const Bmatrix & ) const;
+
+
+        /// The type of the jacobian dh/dx
+        Dmatrix getDmatrixConstant(double c) const;
+
+        Dmatrix getDmatrixRandom() const;
+
+        Dmatrix getDmatrixZero() const;
+
+        bool checkDmatrix(const Dmatrix &) const;
+
+
+        virtual void setStateSize(unsigned n);
+
+        virtual void setMeasureSize(unsigned m);
+
+        virtual void setInputSize(unsigned p);
+
     protected:
         /// The implementation of the (linear) prediction (state dynamics)
-        virtual typename ObserverBase<n,m,p>::StateVector prediction_(unsigned k);
+        virtual StateVector prediction_(unsigned k);
 
         /// The implementation of the (linear) measurement (state dynamics)
-        virtual typename ObserverBase<n,m,p>::MeasureVector simulateSensor_(const typename ObserverBase<n,m,p>::StateVector& x, unsigned k);
-
-        /// The type of the timed Input-State matrix
-        typedef DiscreteTimeMatrix<n,p>  Bmat_;
-
-        /// The type of the timed Input-Measurement matrix
-        typedef DiscreteTimeMatrix<m,p>  Dmat_;
+        virtual MeasureVector simulateSensor_(const StateVector& x, unsigned k);
 
         /// The container of the Input-State matrix
-        Dmat_ d_;
+        DiscreteTimeMatrix d_;
 
         /// The container of the Input-Measurement matrix
-        Bmat_ b_;
+        DiscreteTimeMatrix b_;
     };
 
 

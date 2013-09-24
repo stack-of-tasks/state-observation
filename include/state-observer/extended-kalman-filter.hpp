@@ -42,8 +42,7 @@ namespace stateObserver
      *
      */
 
-    template <unsigned n,unsigned m, unsigned p=0>
-    class ExtendedKalmanFilter: public KalmanFilterBase<n,m,p>
+    class ExtendedKalmanFilter: public KalmanFilterBase
     {
 
         /**
@@ -60,15 +59,15 @@ namespace stateObserver
         {
         public:
             ///The function to oberload to describe the dynamics of the state
-            virtual typename ObserverBase<n,m,p>::StateVector stateDynamics
-            (const typename ObserverBase<n,m,p>::StateVector& x,
-             const typename ObserverBase<n,m,p>::InputVector& u,
+            virtual ObserverBase::StateVector stateDynamics
+            (const ObserverBase::StateVector& x,
+             const ObserverBase::InputVector& u,
              unsigned k)=0;
 
             ///The function to overloas to describe the dynamics of the sensor (measurements)
-            virtual typename ObserverBase<n,m,p>::MeasureVector measureDynamics
-            (const typename ObserverBase<n,m,p>::StateVector& x,
-             const typename ObserverBase<n,m,p>::InputVector& u,
+            virtual ObserverBase::MeasureVector measureDynamics
+            (const ObserverBase::StateVector& x,
+             const ObserverBase::InputVector& u,
              unsigned k)=0;
 
 
@@ -80,8 +79,8 @@ namespace stateObserver
 
         /// The constructor. The parameter directInputOutputFeedthrough defines
         /// whether (true) or not (false) the measurement y_k requires the input u_k
-        ExtendedKalmanFilter(bool directInputOutputFeedthrough=true):
-                directInputOutputFeedthrough_(directInputOutputFeedthrough),f_(0x0)
+        ExtendedKalmanFilter(unsigned n,unsigned m,unsigned p=0,bool directInputOutputFeedthrough=true)
+            :KalmanFilterBase(n,m,p)
         {
             if (p==0)
                 directInputOutputFeedthrough=false;
@@ -105,31 +104,30 @@ namespace stateObserver
         /// for the estimation call getEstimateState method
         /// it is only an execution of the state synamics with the current state
         /// estimation and the current input value
-        virtual typename ObserverBase<n,m,p>::StateVector getPrediction(unsigned k);
+        virtual StateVector getPrediction(unsigned k);
 
         ///Give an estimation of A matrix using
         ///finite difference method (the forward difference method)
         ///the parameter dx is the step vector for derivation
-        virtual typename KalmanFilterBase<n,m,p>::Amatrix getAMatrixFD(const typename ObserverBase<n,m,p>::StateVector &dx);
+        virtual Amatrix getAMatrixFD(const StateVector &dx);
 
         ///Give an estimation of C matrix using
         ///finite difference method (the forward difference method)
         ///the parameter dx is the step vector for derivation
-        virtual typename KalmanFilterBase<n,m,p>::Cmatrix getCMatrixFD(const typename ObserverBase<n,m,p>::StateVector &dx);
+        virtual Cmatrix getCMatrixFD(const StateVector &dx);
 
         /// Reset the extended kalman filter (call also the reset function of the dynamics functor)
         virtual void reset();
 
     protected:
         /// simulate the dynamics of the state using the functor
-        virtual typename ObserverBase<n,m,p>::StateVector prediction_(unsigned k);
+        virtual StateVector prediction_(unsigned k);
 
         /// simulate the dynamic of the measurement using the functor
-        virtual typename ObserverBase<n,m,p>::MeasureVector simulateSensor_
-        (const typename ObserverBase<n,m,p>::StateVector& x, unsigned k);
+        virtual MeasureVector simulateSensor_(const StateVector& x, unsigned k);
 
         /// container for the prediction
-        typename ObserverBase<n,m,p>::State xbar_;
+        DiscreteTimeMatrix xbar_;
 
         /// boolean that provides if theris a need of not for input for the masurement
         bool directInputOutputFeedthrough_;

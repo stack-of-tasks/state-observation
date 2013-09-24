@@ -1,112 +1,106 @@
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilterBase<n,m,p>::setA(const typename KalmanFilterBase<n,m,p>::Amatrix& A)
+void KalmanFilterBase::setA(const Amatrix& A)
 {
+    BOOST_ASSERT(checkAmatrix(A)&& "ERROR: The A matrix dimensions are wrong");
     a_.set(A,0);
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilterBase<n,m,p>::clearA()
+void KalmanFilterBase::clearA()
 {
     a_.reset();
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilterBase<n,m,p>::setC( const typename KalmanFilterBase<n,m,p>::Cmatrix& C)
+void KalmanFilterBase::setC( const Cmatrix& C)
 {
+    BOOST_ASSERT(checkCmatrix(C)&& "ERROR: The C matrix dimensions are wrong");
     c_.set(C,0);
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilterBase<n,m,p>::clearC()
+void KalmanFilterBase::clearC()
 {
     c_.reset();
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilterBase<n,m,p>::setR( const typename  KalmanFilterBase<n,m,p>::Rmatrix& R)
+
+void KalmanFilterBase::setR( const Rmatrix& R)
 {
+    BOOST_ASSERT(checkRmatrix(R)&& "ERROR: The R matrix dimensions are wrong");
     r_.set(R,0);
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilterBase<n,m,p>::clearR()
+void KalmanFilterBase::clearR()
 {
     r_.reset();
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilterBase<n,m,p>::setQ( const typename   KalmanFilterBase<n,m,p>::Qmatrix& Q)
+void KalmanFilterBase::setQ( const Qmatrix& Q)
 {
+    BOOST_ASSERT(checkQmatrix(Q)&& "ERROR: The Q matrix dimensions are wrong");
     q_.set(Q,0);
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilterBase<n,m,p>::clearQ()
+void KalmanFilterBase::clearQ()
 {
     q_.reset();
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilterBase<n,m,p>::setStateCovariance(const typename   KalmanFilterBase<n,m,p>::Pmatrix& P)
+void KalmanFilterBase::setStateCovariance(const Pmatrix& P)
 {
-    p_.set(P,this->x_.getTime());
+    BOOST_ASSERT(checkPmatrix(P)&& "ERROR: The P matrix dimensions are wrong");
+    pr_.set(P,this->x_.getTime());
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilterBase<n,m,p>::clearStateCovariance()
+
+void KalmanFilterBase::clearStateCovariance()
 {
-    p_.reset();
+    pr_.reset();
 }
 
-template <unsigned n,unsigned m, unsigned p>
-typename ObserverBase<n,m,p>::StateVector KalmanFilterBase<n,m,p>::oneStepEstimation_()
+ObserverBase::StateVector KalmanFilterBase::oneStepEstimation_()
 {
     unsigned k=this->x_.getTime();
     BOOST_ASSERT(this->y_.size()> 0 && this->y_[0].getTime()==k+1 && "ERROR: The measurement vector is not set");
-    if (p>0)
+    if (p_>0)
         BOOST_ASSERT(this->u_.size()> 0 && this->u_[0].getTime()==k && "ERROR: The input vector is not set");
 
     BOOST_ASSERT(a_.isSet() && "ERROR: The Matrix A is not initialized" );
     BOOST_ASSERT(c_.isSet() && "ERROR: The Matrix C is not initialized");
     BOOST_ASSERT(q_.isSet() && "ERROR: The Matrix Q is not initialized");
     BOOST_ASSERT(r_.isSet() && "ERROR: The Matrix R is not initialized");
-    BOOST_ASSERT(p_.isSet() && "ERROR: The Matrix P is not initialized");
+    BOOST_ASSERT(pr_.isSet() && "ERROR: The Matrix P is not initialized");
 
     Amatrix a=a_();
     Cmatrix c=c_();
-    Pmatrix px=p_();
+    Pmatrix px=pr_();
 
     //prediction
-    typename ObserverBase<n,m,p>::StateVector xbar=prediction_(k+1);
+    StateVector xbar=prediction_(k+1);
     Pmatrix pbar=a*px*a.transpose()+q_();
 
     //innovation
-    typename ObserverBase<n,m,p>::MeasureVector ino= this->y_[0]() - simulateSensor_(xbar,k+1);
+    MeasureVector ino= this->y_[0]() - simulateSensor_(xbar,k+1);
     Rmatrix inoCov = c * pbar * c.transpose() + r_();
 
     //gain
     Kmatrix kGain = (pbar * c.transpose()) * inoCov.inverse();
 
     //update
-    typename ObserverBase<n,m,p>::StateVector xhat=xbar+kGain*ino;
+    StateVector xhat=xbar+kGain*ino;
 
     this->x_.set(xhat,k+1);
-    p_.set((Pmatrix::Identity()-kGain*c)*pbar,k+1);
+    pr_.set((getPmatrixIdentity()-kGain*c)*pbar,k+1);
 
     return xhat;
 }
 
-template <unsigned n,unsigned m, unsigned p>
-typename KalmanFilterBase<n,m,p>::Pmatrix KalmanFilterBase<n,m,p>::getStateCovariance(unsigned k)
+KalmanFilterBase::Pmatrix KalmanFilterBase::getStateCovariance(unsigned k)
 {
     this->getEstimateState(k);
-    return p_();
+    return pr_();
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilterBase<n,m,p>::reset()
+void KalmanFilterBase::reset()
 {
-    ZeroDelayObserver<n,m,p>::reset();
+    ZeroDelayObserver::reset();
 
     a_.reset();
     c_.reset();
@@ -114,6 +108,149 @@ void KalmanFilterBase<n,m,p>::reset()
     c_.reset();
     q_.reset();
     r_.reset();
-    p_.reset();
+    pr_.reset();
+}
+
+
+KalmanFilterBase::Amatrix KalmanFilterBase::getAmatrixConstant(double c) const
+{
+    return Amatrix::Constant(n_,n_,c);
+}
+
+KalmanFilterBase::Amatrix KalmanFilterBase::getAmatrixRandom() const
+{
+    return Amatrix::Random(n_,n_);
+}
+
+KalmanFilterBase::Amatrix KalmanFilterBase::getAmatrixZero() const
+{
+    return Amatrix::Zero(n_,n_);
+}
+
+KalmanFilterBase::Amatrix KalmanFilterBase::getAmatrixIdentity() const
+{
+    return Amatrix::Identity(n_,n_);
+}
+
+bool KalmanFilterBase::checkAmatrix(const Amatrix & a) const
+{
+    return (a.rows()==n_ && a.cols()==n_);
+}
+
+KalmanFilterBase::Cmatrix KalmanFilterBase::getCmatrixConstant(double c) const
+{
+    return Cmatrix::Constant(m_,n_,c);
+}
+
+KalmanFilterBase::Cmatrix KalmanFilterBase::getCmatrixRandom() const
+{
+    return Cmatrix::Random(m_,n_);
+}
+
+KalmanFilterBase::Cmatrix KalmanFilterBase::getCmatrixZero() const
+{
+    return Cmatrix::Zero(m_,n_);
+}
+
+bool KalmanFilterBase::checkCmatrix(const Cmatrix & a) const
+{
+    return (a.rows()==m_ && a.cols()==n_);
+}
+
+KalmanFilterBase::Qmatrix KalmanFilterBase::getQmatrixConstant(double c) const
+{
+    return Qmatrix::Constant(n_,n_,c);
+}
+
+KalmanFilterBase::Qmatrix KalmanFilterBase::getQmatrixRandom() const
+{
+    return Qmatrix::Random(n_,n_);
+}
+
+KalmanFilterBase::Qmatrix KalmanFilterBase::getQmatrixZero() const
+{
+    return Qmatrix::Zero(n_,n_);
+}
+
+KalmanFilterBase::Qmatrix KalmanFilterBase::getQmatrixIdentity() const
+{
+    return Qmatrix::Identity(n_,n_);
+}
+
+bool KalmanFilterBase::checkQmatrix(const Qmatrix & a) const
+{
+    return (a.rows()==n_ && a.cols()==n_);
+}
+
+KalmanFilterBase::Rmatrix KalmanFilterBase::getRmatrixConstant(double c) const
+{
+    return Cmatrix::Constant(m_,m_,c);
+}
+
+KalmanFilterBase::Rmatrix KalmanFilterBase::getRmatrixRandom() const
+{
+    return Cmatrix::Random(m_,m_);
+}
+
+KalmanFilterBase::Rmatrix KalmanFilterBase::getRmatrixZero() const
+{
+    return Rmatrix::Zero(m_,m_);
+}
+
+KalmanFilterBase::Rmatrix KalmanFilterBase::getRmatrixIdentity() const
+{
+    return Rmatrix::Identity(m_,m_);
+}
+
+bool KalmanFilterBase::checkRmatrix(const Rmatrix & a) const
+{
+    return (a.rows()==m_ && a.cols()==m_);
+}
+
+KalmanFilterBase::Pmatrix KalmanFilterBase::getPmatrixConstant(double c) const
+{
+    return Pmatrix::Constant(n_,n_,c);
+}
+
+KalmanFilterBase::Pmatrix KalmanFilterBase::getPmatrixRandom() const
+{
+    return Pmatrix::Random(n_,n_);
+}
+
+KalmanFilterBase::Pmatrix KalmanFilterBase::getPmatrixZero() const
+{
+    return Pmatrix::Zero(n_,n_);
+}
+
+KalmanFilterBase::Pmatrix KalmanFilterBase::getPmatrixIdentity() const
+{
+    return Pmatrix::Identity(n_,n_);
+}
+
+bool KalmanFilterBase::checkPmatrix(const Pmatrix & a) const
+{
+    return (a.rows()==n_ && a.cols()==n_);
+}
+
+void KalmanFilterBase::setStateSize(unsigned n)
+{
+    if (n!=n_)
+    {
+        ZeroDelayObserver::setStateSize(n);
+        a_.reset();
+        c_.reset();
+        q_.reset();
+        pr_.reset();
+    }
+}
+
+void KalmanFilterBase::setMeasureSize(unsigned m)
+{
+    if (m!=m_)
+    {
+        ZeroDelayObserver::setMeasureSize(m);
+        c_.reset();
+        r_.reset();
+    }
 }
 

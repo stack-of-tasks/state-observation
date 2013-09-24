@@ -23,7 +23,10 @@ double testExtendedKalmanFilter()
     const static unsigned kmax=1000;
 
     ///define the type of the extended Kalman filter
-    typedef stateObserver::ExtendedKalmanFilter<4,3,1> ekf;
+    typedef stateObserver::ExtendedKalmanFilter ekf;
+
+    ///instanciation of the extended Kalman filter
+    static ekf f(4,3,1);
 
     ///The functor that describes the dynamics of the state
     ///and the measurement
@@ -35,12 +38,12 @@ double testExtendedKalmanFilter()
         ///Constructor
         KalmanFunctor()
         {
-            s_=ekf::StateVector::Random()*0.1;
-            m_=ekf::MeasureVector::Random()*0.1;
-            t_=ekf::StateVector::Random();
-            n_=ekf::MeasureVector::Random();
-            a_=ekf::Amatrix::Random()*0.6;
-            c_=ekf::Cmatrix::Random();
+            s_=f.stateVectorRandom()*0.1;
+            m_=f.measureVectorRandom()*0.1;
+            t_=f.stateVectorRandom();
+            n_=f.measureVectorRandom();
+            a_=f.getAmatrixRandom()*0.6;
+            c_=f.getCmatrixRandom();
         }
 
         ///The dynamics of the state xk1=f(xk,u,k)
@@ -50,7 +53,8 @@ double testExtendedKalmanFilter()
             (void)u;//unused
 
             ekf::StateVector xk1;
-            xk1=a_*xk+cos(10*(xk.transpose()*xk)[0])*s_+t_+(u*u.transpose())[0]*s_;
+
+            xk1=a_*xk+cos(10*(xk.transpose()*xk)[0])*s_+t_+(u.transpose()*u)(0,0)*s_;
             return xk1;
         }
 
@@ -66,15 +70,7 @@ double testExtendedKalmanFilter()
         }
 
     private:
-        ///Special instructions to have a static-sized eigen vector as a member
-        enum { NeedsToAlign = ((sizeof(ekf::StateVector)%16)==0)||
-                              ((sizeof(ekf::MeasureVector)%16)==0)||
-                              ((sizeof(ekf::Amatrix)%16)==0)||
-                              ((sizeof(ekf::Cmatrix)%16)==0)
-             };
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(NeedsToAlign)
-
-        ///containers for the vectors and matrices
+         ///containers for the vectors and matrices
         ekf::StateVector s_;
         ekf::StateVector t_;
         ekf::MeasureVector m_;
@@ -90,8 +86,8 @@ double testExtendedKalmanFilter()
     ekf::InputVector uk[kmax+1];
 
      ///the standard deviation matrix to generate the gaussian noise
-     ekf::Rmatrix r1=ekf::Rmatrix::Random()*0.01;
-     ekf::Qmatrix q1=ekf::Qmatrix::Random()*0.01;
+     ekf::Rmatrix r1=f.getRmatrixRandom()*0.01;
+     ekf::Qmatrix q1=f.getQmatrixRandom()*0.01;
 
      ///instanciate the functor
      KalmanFunctor func;
@@ -99,21 +95,21 @@ double testExtendedKalmanFilter()
     { /// Construction of the sequence of states measurements and inputs
 
         ///initializations
-        ekf::StateVector x=ekf::StateVector::Zero();
+        ekf::StateVector x=f.stateVectorZero();
         xk[0]=x;
-        uk[0]=ekf::InputVector::Random();
+        uk[0]=f.inputVectorRandom();
 
         for (unsigned k=1; k<=kmax; ++k)
         {
             ///generation of random inputs
-            uk[k]=ekf::InputVector::Random();
+            uk[k]=f.inputVectorRandom();
 
             ///generation of Gaussian white noises
             ekf::StateVector v= stateObserver::unitTesting::Tools::
-                                getWGNoise<ekf::stateSize>(q1,ekf::StateVector::Zero());
+                                getWGNoise(q1,f.stateVectorZero(),f.getStateSize());
 
             ekf::MeasureVector w= stateObserver::unitTesting::Tools::
-                                  getWGNoise<ekf::measureSize>(r1,ekf::MeasureVector::Zero());
+                                  getWGNoise(r1,f.measureVectorZero(),f.getMeasureSize());
 
             ///the dynamics is executed here
             xk[k]=x=func.stateDynamics(x,uk[k-1],k-1)+v;
@@ -121,21 +117,20 @@ double testExtendedKalmanFilter()
         }
     }
 
-    ///instanciation of the extended Kalman filter
-    ekf f;
+
 
     ///set the functor of the extended Kalman filter
     f.setFunctor(&func);
 
     ///generation of a random initial estimation of the state
-    ekf::StateVector xh=ekf::StateVector::Random();
+    ekf::StateVector xh=f.stateVectorRandom();
 
     ///set the initial state of the estimator
     f.setState(xk[0],0);
 
     ///set the covariance matrix of the initial estimation error
-    ekf::Pmatrix p=ekf::Pmatrix::Zero();
-    for (unsigned i=0;i<ekf::stateSize;++i)
+    ekf::Pmatrix p=f.getPmatrixZero();
+    for (unsigned i=0;i<f.getStateSize();++i)
     {
         p(i,i)=xh[i];
     }
@@ -154,7 +149,7 @@ double testExtendedKalmanFilter()
     f.setInput(uk[0],0);
 
     ///set the derivation step for the finite difference method
-    ekf::StateVector dx=ekf::StateVector::Constant(1)*1e-8;
+    ekf::StateVector dx=f.stateVectorConstant(1)*1e-8;
 
 
     unsigned i;
@@ -185,7 +180,9 @@ double testExtendedKalmanFilterLTV()
 {
     const static unsigned kmax=1000;
 
-    typedef stateObserver::ExtendedKalmanFilter<4,3,1> ekf;
+    typedef stateObserver::ExtendedKalmanFilter ekf;
+
+    static ekf f(4,3,1);
 
 
     struct KalmanFunctorLTV:
@@ -195,13 +192,13 @@ double testExtendedKalmanFilterLTV()
 public:
         KalmanFunctorLTV()
         {
-            s_=ekf::StateVector::Random();
-            n_=ekf::MeasureVector::Random();
+            s_=f.stateVectorRandom();
+            n_=f.measureVectorRandom();
 
             for (unsigned i=0;i<=kmax;++i)
             {
-                a.push_back( ekf::Amatrix::Random()*0.5 );
-                c.push_back( ekf::Cmatrix::Random() );
+                a.push_back( f.getAmatrixRandom()*0.5 );
+                c.push_back( f.getCmatrixRandom() );
             }
 
         }
@@ -210,7 +207,7 @@ public:
         {
             ekf::StateVector xk1;
             unsigned kk=std::min(k,kmax);
-            xk1=a[kk]*x+(u*u.transpose())[0]*s_;
+            xk1=a[kk]*x+(u.transpose()*u)(0,0)*s_;
 
             return xk1;
         }
@@ -222,21 +219,18 @@ public:
 
             ekf::MeasureVector yk;
             unsigned kk=std::min(k,kmax);
-            yk=c[kk]*x+(u*u.transpose())[0]*n_;
+            yk=c[kk]*x+(u.transpose()*u)(0,0)*n_;
             return yk;
         }
 
-        std::vector<ekf::Amatrix,Eigen::aligned_allocator<ekf::Amatrix> > a;
-        std::vector<ekf::Cmatrix,Eigen::aligned_allocator<ekf::Cmatrix> > c;
+        std::vector<ekf::Amatrix> a;
+        std::vector<ekf::Cmatrix> c;
 private:
         ekf::StateVector s_;
         ekf::MeasureVector n_;
     };
 
 
-    ekf f;
-
-    ekf::Amatrix a;
     KalmanFunctorLTV func;
 
     f.setFunctor(&func);
@@ -247,41 +241,41 @@ private:
     ekf::MeasureVector yk[kmax];
     ekf::InputVector uk[kmax+1];
 
-    ekf::StateVector x=ekf::StateVector::Zero();
+    ekf::StateVector x=f.stateVectorZero();
 
 
 
     boost::lagged_fibonacci1279 gen_;
 
-    ekf::Rmatrix r1=ekf::Rmatrix::Random()*0.01;
+    ekf::Rmatrix r1=f.getRmatrixRandom()*0.01;
 
-    ekf::Qmatrix q1=ekf::Qmatrix::Random()*0.01;
+    ekf::Qmatrix q1=f.getQmatrixRandom()*0.01;
 
     ekf::Rmatrix r=r1*r1.transpose();
     ekf::Qmatrix q=q1*q1.transpose();
 
     xk[0]=x;
-    uk[0]=ekf::InputVector::Random();
+    uk[0]=f.inputVectorRandom();
 
     for (unsigned k=1; k<=kmax; ++k)
     {
-        ekf::StateVector v;
-        for (unsigned i=0;i<ekf::stateSize;++i)
+        ekf::StateVector v(f.stateVectorZero());
+        for (unsigned i=0;i<f.getStateSize();++i)
         {
             boost::normal_distribution<> g(0, 1);
             v[i]=g(gen_);
         }
         v=q1*v;
 
-        ekf::MeasureVector w;
-        for (unsigned i=0;i<ekf::measureSize;++i)
+        ekf::MeasureVector w(f.measureVectorZero());
+        for (unsigned i=0;i<f.getMeasureSize();++i)
         {
             boost::normal_distribution<> g(0, 1);
             w[i]=g(gen_);
         }
         w=r1*w;
 
-        uk[k]=ekf::InputVector::Random();
+        uk[k]=f.inputVectorRandom();
 
         x=func.stateDynamics(x,uk[k-1],k-1)+v;
 
@@ -290,11 +284,11 @@ private:
 
     }
 
-    ekf::StateVector xh=ekf::StateVector::Random();
+    ekf::StateVector xh=f.stateVectorRandom();
 
     f.setState(xh,0);
 
-    ekf::Pmatrix p=ekf::Pmatrix::Zero();
+    ekf::Pmatrix p=f.getPmatrixZero();
 
 
 
@@ -305,13 +299,13 @@ private:
 
     f.setInput(uk[0],0);
 
-    for (unsigned i=0;i<ekf::stateSize;++i)
+    for (unsigned i=0;i<f.getStateSize();++i)
     {
         p(i,i)=xh[i];
     }
     p=p*p.transpose();
 
-    ekf::StateVector dx=ekf::StateVector::Constant(1)*1e-8;
+    ekf::StateVector dx=f.stateVectorConstant(1)*1e-8;
 
     unsigned i;
     for (i=1;i<=kmax;++i)
@@ -345,7 +339,9 @@ double testExtendedKalmanFilterZeroInput()
     const static unsigned kmax=1000;
 
 
-    typedef stateObserver::ExtendedKalmanFilter<4,3> ekf;
+    typedef stateObserver::ExtendedKalmanFilter ekf;
+
+    static ekf f(4,3);
 
 
     class KalmanFunctor:
@@ -355,10 +351,10 @@ double testExtendedKalmanFilterZeroInput()
     public:
         KalmanFunctor()
         {
-            m_=ekf::MeasureVector::Random()*0.1;
-            s_=ekf::StateVector::Random()*0.1;
-            t_=ekf::StateVector::Random();
-            n_=ekf::MeasureVector::Random();
+            m_=f.measureVectorRandom()*0.1;
+            s_=f.stateVectorRandom()*0.1;
+            t_=f.stateVectorRandom();
+            n_=f.measureVectorRandom();
         }
 
         virtual ekf::StateVector stateDynamics(const ekf::StateVector& x, const ekf::InputVector& u, unsigned k)
@@ -392,13 +388,6 @@ double testExtendedKalmanFilterZeroInput()
         }
 
     private:
-        ///Special instructions to have a static-sized eigen vector as a member
-        enum { NeedsToAlign = ((sizeof(ekf::StateVector)%16)==0)||
-                              ((sizeof(ekf::MeasureVector)%16)==0)||
-                              ((sizeof(ekf::Amatrix)%16)==0)||
-                              ((sizeof(ekf::Cmatrix)%16)==0)
-             };
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(NeedsToAlign)
 
         ekf::StateVector s_;
         ekf::StateVector t_;
@@ -411,12 +400,11 @@ double testExtendedKalmanFilterZeroInput()
     };
 
 
-    ekf f;
 
     KalmanFunctor func;
 
-    func.setA(ekf::Amatrix::Random()*0.5);
-    func.setC(ekf::Cmatrix::Random());
+    func.setA(f.getAmatrixRandom()*0.5);
+    func.setC(f.getCmatrixRandom());
 
 
 
@@ -425,15 +413,15 @@ double testExtendedKalmanFilterZeroInput()
 
     ekf::StateVector xk[kmax+1];
     ekf::MeasureVector yk[kmax];
-    ekf::InputVector u= ekf::InputVector::Zero();
+    ekf::InputVector u= f.inputVectorZero();
 
-    ekf::StateVector x=ekf::StateVector::Zero();
+    ekf::StateVector x=f.stateVectorZero();
 
     boost::lagged_fibonacci1279 gen_;
 
-    ekf::Rmatrix r1=ekf::Rmatrix::Random()*0.01;
+    ekf::Rmatrix r1=f.getRmatrixRandom()*0.01;
 
-    ekf::Qmatrix q1=ekf::Qmatrix::Random()*0.01;
+    ekf::Qmatrix q1=f.getQmatrixRandom()*0.01;
 
     ekf::Rmatrix r=r1*r1.transpose();
     ekf::Qmatrix q=q1*q1.transpose();
@@ -443,16 +431,16 @@ double testExtendedKalmanFilterZeroInput()
 
     for (unsigned k=1; k<=kmax; ++k)
     {
-        ekf::StateVector v;
-        for (unsigned i=0;i<ekf::stateSize;++i)
+        ekf::StateVector v(f.stateVectorZero());
+        for (unsigned i=0;i<f.getStateSize();++i)
         {
             boost::normal_distribution<> g(0, 1);
             v[i]=g(gen_);
         }
         v=q1*v;
 
-        ekf::MeasureVector w;
-        for (unsigned i=0;i<ekf::measureSize;++i)
+        ekf::MeasureVector w(f.measureVectorZero());
+        for (unsigned i=0;i<f.getMeasureSize();++i)
         {
             boost::normal_distribution<> g(0, 1);
             w[i]=g(gen_);
@@ -466,24 +454,24 @@ double testExtendedKalmanFilterZeroInput()
 
     }
 
-    ekf::StateVector xh=ekf::StateVector::Random();
+    ekf::StateVector xh=f.stateVectorRandom();
 
     f.setState(xk[0],0);
 
-    ekf::Pmatrix p=ekf::Pmatrix::Zero();
+    ekf::Pmatrix p=f.getPmatrixZero();
 
     f.setStateCovariance(p);
 
     f.setR(r);
     f.setQ(q);
 
-    for (unsigned i=0;i<ekf::stateSize;++i)
+    for (unsigned i=0;i<f.getStateSize();++i)
     {
         p(i,i)=xh[i];
     }
     p=p*p.transpose();
 
-    ekf::StateVector dx=ekf::StateVector::Constant(1)*1e-8;
+    ekf::StateVector dx=f.stateVectorConstant(1)*1e-8;
 
     unsigned i;
     for (i=1;i<=kmax;++i)
@@ -510,19 +498,19 @@ double testExtendedKalmanFilterZeroInput()
 double testKalmanFilter()
 {
 
-    typedef stateObserver::KalmanFilter<4,3,2> filter;
+    typedef stateObserver::KalmanFilter filter;
 
-    filter f;
-    filter::Amatrix a;
+    filter f(4,3,2);
+    Eigen::Matrix<double,4,4> a;
 
     a<<	-0.6785714 ,0.1156463 ,	0.4392517 ,	0.2863946 ,
     0.0865306  ,-0.0273810,	0.3355102 ,	0.0184150 ,
     - 0.4172789,-0.2036735,	-0.4434014,	-0.2666667,
     0.4200680  ,0.5387075 ,	0.4883673 , -0.6598639;
 
-    filter::Bmatrix b=filter::Bmatrix::Random();
-    filter::Cmatrix c=filter::Cmatrix::Random();
-    filter::Dmatrix d=filter::Dmatrix::Random();
+    filter::Bmatrix b=f.getBmatrixRandom();
+    filter::Cmatrix c=f.getCmatrixRandom();
+    filter::Dmatrix d=f.getDmatrixRandom();
 
     const unsigned kmax=1000;
 
@@ -530,42 +518,42 @@ double testKalmanFilter()
     filter::MeasureVector yk[kmax];
     filter::InputVector uk[kmax+1];
 
-    filter::StateVector x=filter::StateVector::Zero();
+    filter::StateVector x=f.stateVectorZero();
 
     xk[0]=x;
 
 
 
-    filter::Rmatrix r1=filter::Rmatrix::Random()*0.01;
+    filter::Rmatrix r1=f.getRmatrixRandom()*0.01;
 
-    filter::Qmatrix q1=filter::Qmatrix::Random()*0.01;
+    filter::Qmatrix q1=f.getQmatrixRandom()*0.01;
 
     filter::Rmatrix r=r1*r1.transpose();
     filter::Qmatrix q=q1*q1.transpose();
 
-    uk[0]=filter::InputVector::Random();
+    uk[0]=f.inputVectorRandom();
 
     boost::lagged_fibonacci1279 gen_;
     for (unsigned k=1; k<=kmax; ++k)
     {
 
-        filter::StateVector v;
-        for (unsigned i=0;i<filter::stateSize;++i)
+        filter::StateVector v=f.stateVectorZero();
+        for (unsigned i=0;i<f.getStateSize();++i)
         {
             boost::normal_distribution<> g(0, 1);
             v[i]=g(gen_);
         }
         v=q1*v;
 
-        filter::MeasureVector w;
-        for (unsigned i=0;i<filter::measureSize;++i)
+        filter::MeasureVector w=f.measureVectorZero();
+        for (unsigned i=0;i<f.getMeasureSize();++i)
         {
             boost::normal_distribution<> g(0, 1);
             w[i]=g(gen_);
         }
         w=r1*w;
 
-        uk[k]=filter::InputVector::Random();
+        uk[k]=f.inputVectorRandom();
 
 
 
@@ -574,13 +562,13 @@ double testKalmanFilter()
         yk[k-1]=c*x+w+d*uk[k];
     }
 
-    filter::StateVector xh=filter::StateVector::Random();
+    filter::StateVector xh=f.stateVectorRandom();
 
     f.setState(xh,0);
 
-    filter::Pmatrix p=filter::Pmatrix::Zero();
+    filter::Pmatrix p=f.getPmatrixZero();
 
-    for (unsigned i=0;i<filter::stateSize;++i)
+    for (unsigned i=0;i<f.getStateSize();++i)
     {
         p(i,i)=xh[i];
     }
@@ -612,53 +600,53 @@ double testKalmanFilter()
 
 double testKalmanFilterZeroInput()
 {
-    typedef stateObserver::KalmanFilter<4,3> filter;
+    typedef stateObserver::KalmanFilter filter;
 
-    filter f;
-    filter::Amatrix a;
+    filter f(4,3);
+    Eigen::Matrix<double,4,4> a;
 
     a<<	-0.6785714 ,0.1156463 ,	0.4392517 ,	0.2863946 ,
     0.0865306  ,-0.0273810,	0.3355102 ,	0.0184150 ,
     - 0.4172789,-0.2036735,	-0.4434014,	-0.2666667,
     0.4200680  ,0.5387075 ,	0.4883673 , -0.598639;
 
-    filter::Bmatrix b=filter::Bmatrix::Random();
-    filter::Cmatrix c=filter::Cmatrix::Random();
-    filter::Dmatrix d=filter::Dmatrix::Random();
+    filter::Bmatrix b=f.getBmatrixRandom();
+    filter::Cmatrix c=f.getCmatrixRandom();
+    filter::Dmatrix d=f.getDmatrixRandom();
 
     const unsigned kmax=1000;
 
     filter::StateVector xk[kmax+1];
     filter::MeasureVector yk[kmax];
 
-    filter::StateVector x=filter::StateVector::Zero();
+    filter::StateVector x=f.stateVectorZero();
 
     xk[0]=x;
 
     boost::lagged_fibonacci1279 gen_;
 
-    filter::Rmatrix r1=filter::Rmatrix::Random()*0.01;
+    filter::Rmatrix r1=f.getRmatrixRandom()*0.01;
 
-    filter::Qmatrix q1=filter::Qmatrix::Random()*0.01;
+    filter::Qmatrix q1=f.getQmatrixRandom()*0.01;
 
     filter::Rmatrix r=r1*r1.transpose();
     filter::Qmatrix q=q1*q1.transpose();
 
-    filter::InputVector u=filter::InputVector::Zero();
+    filter::InputVector u=f.inputVectorZero();
 
     for (unsigned k=1; k<=kmax; ++k)
     {
 
-        filter::StateVector v;
-        for (unsigned i=0;i<filter::stateSize;++i)
+        filter::StateVector v = f.stateVectorZero();
+        for (unsigned i=0;i<f.getStateSize();++i)
         {
             boost::normal_distribution<> g(0, 1);
             v[i]=g(gen_);
         }
         v=q1*v;
 
-        filter::MeasureVector w;
-        for (unsigned i=0;i<filter::measureSize;++i)
+        filter::MeasureVector w = f.measureVectorZero();
+        for (unsigned i=0;i<f.getMeasureSize();++i)
         {
             boost::normal_distribution<> g(0, 1);
             w[i]=g(gen_);
@@ -669,13 +657,13 @@ double testKalmanFilterZeroInput()
         yk[k-1]=c*x+w;
     }
 
-    filter::StateVector xh=filter::StateVector::Random();
+    filter::StateVector xh=f.stateVectorRandom();
 
     f.setState(xh,0);
 
-    filter::Pmatrix p=filter::Pmatrix::Zero();
+    filter::Pmatrix p=f.getPmatrixZero();
 
-    for (unsigned i=0;i<filter::stateSize;++i)
+    for (unsigned i=0;i<f.getStateSize();++i)
     {
         p(i,i)=xh[i];
     }

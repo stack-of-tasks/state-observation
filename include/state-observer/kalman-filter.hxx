@@ -1,50 +1,46 @@
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilter<n,m,p>::setB(const typename  KalmanFilter<n,m,p>::Bmatrix& B)
+void KalmanFilter::setB(const Bmatrix& B)
 {
+    BOOST_ASSERT(checkBmatrix(B)&& "ERROR: The B matrix size is incorrect");
     b_.set(B,0);
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilter<n,m,p>::clearB()
+void KalmanFilter::clearB()
 {
     b_.reset();
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilter<n,m,p>::setD(const typename  KalmanFilter<n,m,p>::Dmatrix& D)
+void KalmanFilter::setD(const Dmatrix& D)
 {
+    BOOST_ASSERT(checkDmatrix(D)&& "ERROR: The D matrix size is incorrect");
+
     d_.set(D,0);
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilter<n,m,p>::clearD()
+void KalmanFilter::clearD()
 {
     d_.reset();
 }
 
 
-template <unsigned n,unsigned m, unsigned p>
-typename ObserverBase<n,m,p>::StateVector KalmanFilter<n,m,p>::prediction_(unsigned k)
+ObserverBase::StateVector KalmanFilter::prediction_(unsigned k)
 {
     (void)k; //unused
 
-    if (p>0)
+    if (p_>0)
         return this->a_()*this->x_()+this->b_()*this->u_[0]();
     else
         return this->a_()*this->x_();
 
 }
 
-template <unsigned n,unsigned m, unsigned p>
-typename ObserverBase<n,m,p>::MeasureVector
-KalmanFilter<n,m,p>::simulateSensor_(const typename ObserverBase<n,m,p>::StateVector& x, unsigned k)
+ObserverBase::MeasureVector KalmanFilter::simulateSensor_(const StateVector& x, unsigned k)
 {
 
-    typename ObserverBase<n,m,p>::InputVector u ( ObserverBase<n,m,p>::InputVector::Zero());
+    InputVector u ( inputVectorZero());
 
-    if (p>0)
+    if (p_>0)
     {
-        if (d_()!=Dmatrix::Zero())
+        if (d_()!=getDmatrixZero())
         {
             unsigned i;
             for (i=0; i<this->u_.size()&&this->u_[i].getTime()<k;++i)
@@ -67,12 +63,79 @@ KalmanFilter<n,m,p>::simulateSensor_(const typename ObserverBase<n,m,p>::StateVe
 
 }
 
-template <unsigned n,unsigned m, unsigned p>
-void KalmanFilter<n,m,p>::reset()
+void KalmanFilter::reset()
 {
-    KalmanFilterBase<n,m,p>::reset();
+    KalmanFilterBase::reset();
 
     b_.reset();
     d_.reset();
 }
 
+KalmanFilter::Bmatrix KalmanFilter::getBmatrixConstant(double c) const
+{
+    return Bmatrix::Constant(n_,p_,c);
+}
+
+KalmanFilter::Bmatrix KalmanFilter::getBmatrixRandom() const
+{
+    return Bmatrix::Random(n_,p_);
+}
+
+KalmanFilter::Bmatrix KalmanFilter::getBmatrixZero() const
+{
+    return Bmatrix::Zero(n_,p_);
+}
+
+bool KalmanFilter::checkBmatrix(const Bmatrix & a) const
+{
+    return (a.rows()==n_ && a.cols()==p_);
+}
+
+KalmanFilter::Dmatrix KalmanFilter::getDmatrixConstant(double c) const
+{
+    return Dmatrix::Constant(m_,p_,c);
+}
+
+KalmanFilter::Dmatrix KalmanFilter::getDmatrixRandom() const
+{
+    return Dmatrix::Random(m_,p_);
+}
+
+KalmanFilter::Dmatrix KalmanFilter::getDmatrixZero() const
+{
+    return Dmatrix::Zero(m_,p_);
+}
+
+bool KalmanFilter::checkDmatrix(const Dmatrix & a) const
+{
+    return (a.rows()==m_ && a.cols()==p_);
+}
+
+
+void KalmanFilter::setStateSize(unsigned n)
+{
+    if (n!=n_)
+    {
+        KalmanFilterBase::setStateSize(n);
+        b_.reset();
+    }
+}
+
+void KalmanFilter::setMeasureSize(unsigned m)
+{
+    if (m!=m_)
+    {
+        KalmanFilterBase::setMeasureSize(m);
+        d_.reset();
+    }
+}
+
+void KalmanFilter::setInputSize(unsigned p)
+{
+    if (p!=p_)
+    {
+        KalmanFilterBase::setInputSize(p);
+        b_.reset();
+        d_.reset();
+    }
+}
