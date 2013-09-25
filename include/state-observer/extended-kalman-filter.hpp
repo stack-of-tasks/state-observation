@@ -136,10 +136,6 @@ namespace stateObserver
         DynamicsFunctorBase* f_;
     };
 
-
-
-#include <state-observer/extended-kalman-filter.hxx>
-
 }
 
 #endif //EXTENDEDKALMANFILTERHPP

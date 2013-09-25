@@ -211,7 +211,7 @@ namespace stateObserver
     };
 
 
-#include <state-observer/kalman-filter-base.hxx>
+
 
 }
 

@@ -119,8 +119,6 @@ namespace stateObserver
     };
 
 
-#include <state-observer/kalman-filter.hxx>
-
 }
 
 #endif //KALMANFILTERHPP

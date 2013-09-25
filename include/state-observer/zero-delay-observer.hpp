@@ -128,8 +128,6 @@ namespace stateObserver
 
     };
 
-#include <state-observer/zero-delay-observer.hxx>
-
 }
 
 
