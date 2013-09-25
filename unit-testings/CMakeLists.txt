@@ -1,42 +1,24 @@
-# Francois Keith, Mehdi Benallegue JRL, CNRS/AIST
-# Creation: 2013
-# History:
-#
-# Copyright CNRS/AIST
+
+# provide path to dependency libraries
+
+ADD_EXECUTABLE(test-kalman-filter
+  test-kalman-filter.cpp)
+
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
+
+LINK_DIRECTORIES(${${PROJECT_NAME}_BINARY_DIR}/src)
+TARGET_LINK_LIBRARIES(test-kalman-filter
+  ${Boost_LIBRARIES} ${PROJECT_NAME})
 
 
 
-# prefix and suffix each element of list by ${prefix}elemnt${suffix}
-macro(ADDPREFIX newlist prefix list_name)
-    # create empty list - necessary?
-    SET(${newlist})
+ADD_TEST(test-kalman-filter test-kalman-filter)
 
-     # prefix and suffix elements
-    foreach(l ${${list_name}})
-      list(APPEND ${newlist} ${prefix}${l} )
-    endforeach()
+ADD_EXECUTABLE(test-kalman-filter-template
+  test-kalman-filter-template.cpp)
 
-endmacro(ADDPREFIX)
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
 
+TARGET_LINK_LIBRARIES(test-kalman-filter ${Boost_LIBRARIES})
 
-INCLUDE(CTest)
-
-ADDPREFIX(${PROJECT_NAME}_ABSOLUTE_HEADERS  "${CMAKE_SOURCE_DIR}/"  ${PROJECT_NAME}_HEADERS)
-
-SET(${PROJECT_NAME}_test_CXXFLAGS "-I${PROJECT_SOURCE_DIR}/include/ ${${PROJECT_NAME}_CXXFLAGS}")
-
-
- include_directories(${Boost_INCLUDE_DIR} ${PROJECT_INCLUDE_DIR})
- 
- ADD_EXECUTABLE(kalman-testing test-kalman-filter.cpp)
-ADD_EXECUTABLE(kalman-testing-template test-kalman-filter-template.cpp)
-
-
- 
- target_link_libraries(kalman-testing ${PROJECT_NAME} ${Boost_LIBRARIES})
- target_link_libraries(kalman-testing-template ${Boost_LIBRARIES})
- 
- ADD_DEPENDENCIES(kalman-testing ${PROJECT_NAME}) 
-
- ADD_TEST(kalman-testing kalman-testing)
- ADD_TEST(kalman-testing kalman-testing-template)
+ADD_TEST(test-kalman-filter-template test-kalman-filter-template)
