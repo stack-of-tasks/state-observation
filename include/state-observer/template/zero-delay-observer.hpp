@@ -14,8 +14,8 @@
  */
 
 
-#ifndef ZERODELAYOBSERVER_H
-#define ZERODELAYOBSERVER_H
+#ifndef TEMPLATEZERODELAYOBSERVER_H
+#define TEMPLATEZERODELAYOBSERVER_H
 
 #include <deque>
 
@@ -125,4 +125,4 @@ namespace stateObserver
 
 
 
-#endif //ZERODELAYOBSERVER
+#endif //TEMPLATEZERODELAYOBSERVER

@@ -21,8 +21,8 @@
 
 
 
-#ifndef KALMANFILTERBASEHPP
-#define KALMANFILTERBASEHPP
+#ifndef TEMPLATEKALMANFILTERBASEHPP
+#define TEMPLATEKALMANFILTERBASEHPP
 
 #include <state-observer/template/zero-delay-observer.hpp>
 
@@ -169,4 +169,4 @@ namespace stateObserver
     }
 }
 
-#endif //KALMANFILTERBASEHPP
+#endif //TEMPLATEKALMANFILTERBASEHPP

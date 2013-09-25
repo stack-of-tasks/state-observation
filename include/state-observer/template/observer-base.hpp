@@ -16,8 +16,8 @@
 
 
 
-#ifndef OBSERVERBASEHPP
-#define OBSERVERBASEHPP
+#ifndef TEMPLATEOBSERVERBASEHPP
+#define TEMPLATEOBSERVERBASEHPP
 
 #include <Eigen/Core>
 #include <Eigen/Dense>

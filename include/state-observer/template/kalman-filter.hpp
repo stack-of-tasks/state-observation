@@ -18,8 +18,8 @@
  */
 
 
-#ifndef STATEOBSERVER_KALMANFILTERHPP
-#define STATEOBSERVER_KALMANFILTERHPP
+#ifndef TEMPLATESTATEOBSERVER_KALMANFILTERHPP
+#define TEMPLATESTATEOBSERVER_KALMANFILTERHPP
 
 #include <state-observer/template/kalman-filter-base.hpp>
 
@@ -100,4 +100,4 @@ namespace stateObserver
     }
 }
 
-#endif //KALMANFILTERHPP
+#endif //TEMPLATEKALMANFILTERHPP
