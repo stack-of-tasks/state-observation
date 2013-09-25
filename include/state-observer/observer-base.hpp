@@ -108,24 +108,48 @@ namespace stateObserver
         ///A constructor with a given matrix value and a time index
         DiscreteTimeMatrix(const MatrixT& v, unsigned k);
 
+
         ///Set the value of the matrix and the time sample
-        inline void set(const MatrixT& v,unsigned k);
+        inline void set(const MatrixT& v,unsigned k)
+        {
+            k_=k;
+            v_=v;
+            isSet_=true;
+        }
 
         ///Get the matrix value
-        inline MatrixT operator()()const;
+        inline MatrixT operator()()const
+        {
+            check_();
+            return v_;
+        }
 
         ///Get the time index
-        inline const unsigned & getTime()const;
+        inline const unsigned & getTime()const
+        {
+            check_();
+            return k_;
+        }
 
         ///Says whether the matrix is initialized or not
-        inline const bool & isSet()const;
+        inline const bool & isSet()const
+        {
+            return isSet_;
+        }
 
         ///Switch off the initalization flag, the value is no longer accessible
-        inline void reset();
+        inline void reset()
+        {
+            k_=0;
+            isSet_=false;
+        }
 
     protected:
 
-        inline void check_()const;
+        inline void check_()const
+        {
+            BOOST_ASSERT(isSet_ && "Error: Matrix not initialized");
+        }
 
         ///this variable ensures the matrix is initialized,
         bool isSet_;
@@ -257,8 +281,6 @@ namespace stateObserver
 
     };
 
-#include <state-observer/observer-base.hxx>
-
 }
 
-#endif
+#endif//OBSERVERBASEHPP
