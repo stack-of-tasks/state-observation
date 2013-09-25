@@ -27,204 +27,206 @@
 
 namespace stateObserver
 {
-    /**
-     * \class    ObserverException
-     * \brief    The base class for the exceptions thrown by an observer
-     *
-     * \details
-     *
-     */
-    class ObserverException: public std::exception
+    namespace compileTime
     {
-    public:
-        ObserverException(const char * const & c)
-                :std::exception(), what_(c)
-        {}
-
-        virtual const char* what() const throw()
+        /**
+         * \class    ObserverException
+         * \brief    The base class for the exceptions thrown by an observer
+         *
+         * \details
+         *
+         */
+        class ObserverException: public std::exception
         {
-            return what_;
-        }
+        public:
+            ObserverException(const char * const & c)
+                    :std::exception(), what_(c)
+            {}
 
-    protected:
-        const char* what_;
+            virtual const char* what() const throw()
+            {
+                return what_;
+            }
 
-    };
+        protected:
+            const char* what_;
 
-    /**
-     * \class  InitializationException
-     * \brief  An exception thrown in cas of uninitialized variable
-     *
-     * \details
-     *
-     */
-    class InitializationException: public ObserverException
-    {
-    public:
-        InitializationException(const char * const & c)
-                :ObserverException(c)
-        {}
-    };
+        };
 
-    /**
-     * \class  TimeException
-     * \brief  An exception thrown when the user tries to observe a value with
-     *         a wrong time parameter (too early or too late)
-     *
-     * \details
-     *
-     */
-    class TimeException: public ObserverException
-    {
-    public:
-        TimeException(const char * const & c)
-                :ObserverException(c)
-        {}
-    };
+        /**
+         * \class  InitializationException
+         * \brief  An exception thrown in cas of uninitialized variable
+         *
+         * \details
+         *
+         */
+        class InitializationException: public ObserverException
+        {
+        public:
+            InitializationException(const char * const & c)
+                    :ObserverException(c)
+            {}
+        };
 
-    /**
-     * \class    DiscreteTimeMatrix
-     * \brief    This class describes a structure composed by a matrix
-     *           of a given size and a time-index parameter. It can tell also if
-     *           it initialized or not.
-     *           It is templated by:
-     *           \li r : number of rows
-     *           \li c : number of columns
-     *           r and c must be positive.
-     *
-     * \details
-     *
-     */
-    template<unsigned r,unsigned c>
-    class DiscreteTimeMatrix
-    {
-    public:
+        /**
+         * \class  TimeException
+         * \brief  An exception thrown when the user tries to observe a value with
+         *         a wrong time parameter (too early or too late)
+         *
+         * \details
+         *
+         */
+        class TimeException: public ObserverException
+        {
+        public:
+            TimeException(const char * const & c)
+                    :ObserverException(c)
+            {}
+        };
 
-        ///Definition of matrix type
-        typedef Eigen::Matrix<double, r,c> MatrixT;
+        /**
+         * \class    DiscreteTimeMatrix
+         * \brief    This class describes a structure composed by a matrix
+         *           of a given size and a time-index parameter. It can tell also if
+         *           it initialized or not.
+         *           It is templated by:
+         *           \li r : number of rows
+         *           \li c : number of columns
+         *           r and c must be positive.
+         *
+         * \details
+         *
+         */
+        template<unsigned r,unsigned c>
+        class DiscreteTimeMatrix
+        {
+        public:
 
-        ///Default constructor
-        DiscreteTimeMatrix();
+            ///Definition of matrix type
+            typedef Eigen::Matrix<double, r,c> MatrixT;
 
-        ///A constructor with a given matrix value and a time index
-        DiscreteTimeMatrix(const MatrixT& v, unsigned k);
+            ///Default constructor
+            DiscreteTimeMatrix();
 
-        ///Set the value of the matrix and the time sample
-        inline void set(const MatrixT& v,unsigned k);
+            ///A constructor with a given matrix value and a time index
+            DiscreteTimeMatrix(const MatrixT& v, unsigned k);
 
-        ///Get the matrix value
-        inline MatrixT operator()()const;
+            ///Set the value of the matrix and the time sample
+            inline void set(const MatrixT& v,unsigned k);
 
-        ///Get the time index
-        inline const unsigned & getTime()const;
+            ///Get the matrix value
+            inline MatrixT operator()()const;
 
-        ///Says whether the matrix is initialized or not
-        inline const bool & isSet()const;
+            ///Get the time index
+            inline const unsigned & getTime()const;
 
-        ///Switch off the initalization flag, the value is no longer accessible
-        inline void reset();
+            ///Says whether the matrix is initialized or not
+            inline const bool & isSet()const;
 
-        ///Special instructions to have a static-sized eigen vector as a member
-        enum { NeedsToAlign = (sizeof(MatrixT)%16)==0 };
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(NeedsToAlign)
+            ///Switch off the initalization flag, the value is no longer accessible
+            inline void reset();
 
-    protected:
+            ///Special instructions to have a static-sized eigen vector as a member
+            enum { NeedsToAlign = (sizeof(MatrixT)%16)==0 };
+            EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(NeedsToAlign)
 
-        inline void check_()const;
+        protected:
 
-        ///this variable ensures the matrix is initialized,
-        bool isSet_;
+            inline void check_()const;
 
-        unsigned k_;
-        MatrixT v_;
-    };
+            ///this variable ensures the matrix is initialized,
+            bool isSet_;
 
-
-    /**
-     * \class  ObserverBase
-     * \brief  The base class for observers.
-     *         The observer is destinated to any dynamical system with a vector
-     *         state representation. This class mostly defined an abstract
-     *         interface, static constants and types. It is templated by:
-     *
-     *         \li n : size of the state vector
-     *         \li m : size of the measurements vector
-     *         \li p : size of the input vector
-     *
-     * \details
-     *
-     */
+            unsigned k_;
+            MatrixT v_;
+        };
 
 
-    template <unsigned n,unsigned m, unsigned p=0>
-    class ObserverBase
-    {
-    public:
-
-        ///stateSize is the size of the state vector
-        static unsigned const stateSize=n;
-
-        ///measureSize is the size of measurements vector
-        static unsigned const measureSize=m;
-
-        ///inputSize is the size of the input vector
-        static unsigned const inputSize=p;
-
-
-        ///Destructor
-        virtual ~ObserverBase(){};
+        /**
+         * \class  ObserverBase
+         * \brief  The base class for observers.
+         *         The observer is destinated to any dynamical system with a vector
+         *         state representation. This class mostly defined an abstract
+         *         interface, static constants and types. It is templated by:
+         *
+         *         \li n : size of the state vector
+         *         \li m : size of the measurements vector
+         *         \li p : size of the input vector
+         *
+         * \details
+         *
+         */
 
 
-        ///StateVector is the type of state vector
-        typedef Eigen::Matrix<double, n,1> StateVector;
+        template <unsigned n,unsigned m, unsigned p=0>
+        class ObserverBase
+        {
+        public:
 
-        ///MeasureVector is the type of measurements vector
-        typedef Eigen::Matrix<double, m,1> MeasureVector;
+            ///stateSize is the size of the state vector
+            static unsigned const stateSize=n;
 
-        ///InputVector is the type of the input vector
-        typedef Eigen::Matrix<double, p,1> InputVector;
+            ///measureSize is the size of measurements vector
+            static unsigned const measureSize=m;
+
+            ///inputSize is the size of the input vector
+            static unsigned const inputSize=p;
 
 
-        ///Set the value of the state vector at time index k
-        virtual void setState(const StateVector& x_k,unsigned k)=0;
+            ///Destructor
+            virtual ~ObserverBase(){};
 
-        ///Remove all the given past values of the state
-        virtual void clearState()=0;
 
-        ///Set the value of the measurements vector at time index k
-        virtual void setMeasurement(const MeasureVector& x_k,unsigned k)=0;
+            ///StateVector is the type of state vector
+            typedef Eigen::Matrix<double, n,1> StateVector;
 
-        ///Remove all the given past values of the measurements
-        virtual void clearMeasurements()=0;
+            ///MeasureVector is the type of measurements vector
+            typedef Eigen::Matrix<double, m,1> MeasureVector;
 
-        ///Set the value of the input vector at time index k
-        virtual void setInput(const InputVector& x_k,unsigned k)=0;
+            ///InputVector is the type of the input vector
+            typedef Eigen::Matrix<double, p,1> InputVector;
 
-        ///Remove all the given past values of the inputs
-        virtual void clearInputs()=0;
 
-        ///Run the observer loop and gets the state estimation of the state at
-        ///instant k
-        virtual StateVector getEstimateState(unsigned k)=0;
+            ///Set the value of the state vector at time index k
+            virtual void setState(const StateVector& x_k,unsigned k)=0;
 
-        ///Reinitializes the whole observer
-        ///default behavior is to call the three "ObserverBase::clear*" methods
-        virtual void reset();
+            ///Remove all the given past values of the state
+            virtual void clearState()=0;
 
-    protected:
+            ///Set the value of the measurements vector at time index k
+            virtual void setMeasurement(const MeasureVector& x_k,unsigned k)=0;
 
-        ///Internal (protected) typedefs the timed states.
-        typedef DiscreteTimeMatrix<n,1> State;
+            ///Remove all the given past values of the measurements
+            virtual void clearMeasurements()=0;
 
-        ///Internal (protected) typedefs the timed measurements.
-        typedef DiscreteTimeMatrix<m,1> Measure;
+            ///Set the value of the input vector at time index k
+            virtual void setInput(const InputVector& x_k,unsigned k)=0;
 
-        ///Internal (protected) typedefs the timed inputs.
-        typedef DiscreteTimeMatrix<p,1> Input;
-    };
+            ///Remove all the given past values of the inputs
+            virtual void clearInputs()=0;
 
-#include <state-observer/observer-base.hxx>
+            ///Run the observer loop and gets the state estimation of the state at
+            ///instant k
+            virtual StateVector getEstimateState(unsigned k)=0;
 
+            ///Reinitializes the whole observer
+            ///default behavior is to call the three "ObserverBase::clear*" methods
+            virtual void reset();
+
+        protected:
+
+            ///Internal (protected) typedefs the timed states.
+            typedef DiscreteTimeMatrix<n,1> State;
+
+            ///Internal (protected) typedefs the timed measurements.
+            typedef DiscreteTimeMatrix<m,1> Measure;
+
+            ///Internal (protected) typedefs the timed inputs.
+            typedef DiscreteTimeMatrix<p,1> Input;
+        };
+
+#include <state-observer/template/observer-base.hxx>
+    }
 }
 
 #endif

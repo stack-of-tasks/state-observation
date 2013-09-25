@@ -9,8 +9,8 @@
 #include <bitset>
 #include <iomanip>
 
-#include <state-observer/kalman-filter.hpp>
-#include <state-observer/extended-kalman-filter.hpp>
+#include <state-observer/template/kalman-filter.hpp>
+#include <state-observer/template/extended-kalman-filter.hpp>
 
 #include <boost/utility/binary.hpp>
 
@@ -23,7 +23,7 @@ double testExtendedKalmanFilter()
     const static unsigned kmax=1000;
 
     ///define the type of the extended Kalman filter
-    typedef stateObserver::ExtendedKalmanFilter<4,3,1> ekf;
+    typedef stateObserver::compileTime::ExtendedKalmanFilter<4,3,1> ekf;
 
     ///The functor that describes the dynamics of the state
     ///and the measurement
@@ -185,7 +185,7 @@ double testExtendedKalmanFilterLTV()
 {
     const static unsigned kmax=1000;
 
-    typedef stateObserver::ExtendedKalmanFilter<4,3,1> ekf;
+    typedef stateObserver::compileTime::ExtendedKalmanFilter<4,3,1> ekf;
 
 
     struct KalmanFunctorLTV:
@@ -345,7 +345,7 @@ double testExtendedKalmanFilterZeroInput()
     const static unsigned kmax=1000;
 
 
-    typedef stateObserver::ExtendedKalmanFilter<4,3> ekf;
+    typedef stateObserver::compileTime::ExtendedKalmanFilter<4,3> ekf;
 
 
     class KalmanFunctor:
@@ -510,7 +510,7 @@ double testExtendedKalmanFilterZeroInput()
 double testKalmanFilter()
 {
 
-    typedef stateObserver::KalmanFilter<4,3,2> filter;
+    typedef stateObserver::compileTime::KalmanFilter<4,3,2> filter;
 
     filter f;
     filter::Amatrix a;
@@ -612,7 +612,7 @@ double testKalmanFilter()
 
 double testKalmanFilterZeroInput()
 {
-    typedef stateObserver::KalmanFilter<4,3> filter;
+    typedef stateObserver::compileTime::KalmanFilter<4,3> filter;
 
     filter f;
     filter::Amatrix a;
