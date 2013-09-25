@@ -45,11 +45,7 @@ namespace stateObserver
      *
      *             y_k=h(x_k,u_k)+w_k
      *
-     *         \li n : size of the state vector
-     *         \li m : size of the measurements vector
-     *         \li p : size of the input vector
      *
-     * \details
      *
      */
     class KalmanFilterBase: public ZeroDelayObserver
@@ -71,8 +67,13 @@ namespace stateObserver
         /// The type of the covariance matrix of the state estimation error.
         typedef Eigen::MatrixXd Pmatrix;
 
+        /// Default constructor
         KalmanFilterBase(){}
 
+        /// The constructor
+        ///  \li n : size of the state vector
+        ///  \li m : size of the measurements vector
+        ///  \li p : size of the input vector
         KalmanFilterBase(unsigned n,unsigned m,unsigned p=0)
             :ZeroDelayObserver(n,m,p){}
 
@@ -120,63 +121,90 @@ namespace stateObserver
         virtual void reset();
 
 
-        /// The type of the jacobian df/dx
+        /// Get a matrix having the size of the A matrix having "c" values
         Amatrix getAmatrixConstant(double c) const;
 
+        /// Get a matrix having the size of the A matrix having random values
         Amatrix getAmatrixRandom() const;
 
+        /// Get a matrix having the size of the A matrix having zero values
         Amatrix getAmatrixZero() const;
 
+        /// Get an identity matrix having the size of the A matrix
         Amatrix getAmatrixIdentity() const;
 
+        ///checks whether or not a matrix has the dimensions of the A matrix
         bool checkAmatrix(const Amatrix & ) const;
 
 
-        /// The type of the jacobian dh/dx
+        /// Get a matrix having the size of the C matrix having "c" values
         Cmatrix getCmatrixConstant(double c) const;
 
+        /// Get a matrix having the size of the C matrix having random values
         Cmatrix getCmatrixRandom() const;
 
+        /// Get a matrix having the size of the C matrix having zero values
         Cmatrix getCmatrixZero() const;
 
+        ///checks whether or not a matrix has the dimensions of the C matrix
         bool checkCmatrix(const Cmatrix &) const;
 
-        /// The type of the covariance matrix of the process noise v
+
+        /// Get a matrix having the size of the Q matrix having "c" values
         Qmatrix getQmatrixConstant(double c) const;
 
+        /// Get a matrix having the size of the Q matrix having random values
         Qmatrix getQmatrixRandom() const;
 
+        /// Get a matrix having the size of the Q matrix having zero values
         Qmatrix getQmatrixZero() const;
 
+        /// Get an identity matrix having the size of the Q matrix
         Qmatrix getQmatrixIdentity() const;
 
+        ///checks whether or not a matrix has the dimensions of the Q matrix
         bool checkQmatrix(const Qmatrix &) const;
 
-        /// The type of the covariance matrix of the measurement noise w
+
+        /// Get a matrix having the size of the R matrix having "c" values
         Rmatrix getRmatrixConstant(double c) const;
 
+        /// Get a matrix having the size of the R matrix having random values
         Rmatrix getRmatrixRandom() const;
 
+        /// Get a matrix having the size of the R matrix having zero values
         Rmatrix getRmatrixZero() const;
 
+        /// Get an identity matrix having the size of the R matrix
         Rmatrix getRmatrixIdentity() const;
 
+        ///checks whether or not a matrix has the dimensions of the R matrix
         bool checkRmatrix(const Rmatrix &) const;
 
-        /// The type of the covariance matrix of the state estimation error.
+
+        /// Get a matrix having the size of the P matrix having "c" values
         Pmatrix getPmatrixConstant(double c) const;
 
+        /// Get a matrix having the size of the P matrix having random values
         Pmatrix getPmatrixRandom() const;
 
+        /// Get a matrix having the size of the P matrix having zero values
         Pmatrix getPmatrixZero() const;
 
+        /// Get an identity matrix having the size of the P matrix
         Pmatrix getPmatrixIdentity() const;
 
+        ///checks whether or not a matrix has the dimensions of the P matrix
         bool checkPmatrix(const Pmatrix & ) const;
 
-
+        ///changes the dimension of the state vector:
+        ///resets the internal container for the state vector and
+        ///the containers for the matrices A, C, Q, P
         virtual void setStateSize(unsigned n);
 
+        ///changes the dimension of the measurement vector:
+        ///resets the internal container for the measurement vectors and
+        ///the containers for the matrices C, R
         virtual void setMeasureSize(unsigned m);
 
     protected:

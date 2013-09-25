@@ -34,11 +34,7 @@ namespace stateObserver
      *
      *        y_k=h(x_k,u_k)+w_k
      *
-     *         \li n : size of the state vector
-     *         \li m : size of the measurements vector
-     *         \li p : size of the input vector
      *
-     * \details
      *
      */
 
@@ -77,8 +73,11 @@ namespace stateObserver
 
         };
 
-        /// The constructor. The parameter directInputOutputFeedthrough defines
-        /// whether (true) or not (false) the measurement y_k requires the input u_k
+        /// The constructor.
+        ///  \li n : size of the state vector
+        ///  \li m : size of the measurements vector
+        ///  \li p : size of the input vector
+        ///  \li The parameter directInputOutputFeedthrough defines whether (true) or not (false) the measurement y_k requires the input u_k
         ExtendedKalmanFilter(unsigned n,unsigned m,unsigned p=0,bool directInputOutputFeedthrough=true)
             :KalmanFilterBase(n,m,p)
         {

@@ -40,11 +40,7 @@ namespace stateObserver
      *
      *             y_k=C_k x_k + D_k u_k + w_k
      *
-     *         \li n : size of the state vector
-     *         \li m : size of the measurements vector
-     *         \li p : size of the input vector
      *
-     * \details
      *
      */
 
@@ -52,10 +48,17 @@ namespace stateObserver
     {
     public:
 
-        KalmanFilter(){}
 
+
+        /// The constructor
+        ///  \li n : size of the state vector
+        ///  \li m : size of the measurements vector
+        ///  \li p : size of the input vector
         KalmanFilter(unsigned n,unsigned m,unsigned p=0)
             :KalmanFilterBase(n,m,p){}
+
+        /// Default constructor
+        KalmanFilter(){}
 
         /// The type of the matrix linking the input to the state
         typedef Eigen::MatrixXd Bmatrix;
@@ -78,30 +81,46 @@ namespace stateObserver
         ///Reset all the observer
         virtual void reset();
 
-        /// The type of the jacobian df/dx
+
+        /// Get a matrix having the size of the B matrix having "c" values
         Bmatrix getBmatrixConstant(double c) const;
 
+        /// Get a matrix having the size of the B matrix having random values
         Bmatrix getBmatrixRandom() const;
 
+        /// Get a matrix having the size of the B matrix having zero values
         Bmatrix getBmatrixZero() const;
 
+        ///checks whether or not a matrix has the dimensions of the B matrix
         bool checkBmatrix(const Bmatrix & ) const;
 
 
-        /// The type of the jacobian dh/dx
+        /// Get a matrix having the size of the D matrix having "c" values
         Dmatrix getDmatrixConstant(double c) const;
 
+        /// Get a matrix having the size of the D matrix having random values
         Dmatrix getDmatrixRandom() const;
 
+        /// Get a matrix having the size of the D matrix having zero values
         Dmatrix getDmatrixZero() const;
 
+        ///checks whether or not a matrix has the dimensions of the D matrix
         bool checkDmatrix(const Dmatrix &) const;
 
 
+        ///changes the dimension of the state vector:
+        ///resets the internal container for the state vector and
+        ///the containers for the matrices A, B, C, Q, P
         virtual void setStateSize(unsigned n);
 
+        ///changes the dimension of the measurement vector:
+        ///resets the internal container for the measurement vectors and
+        ///the containers for the matrices C, D, R
         virtual void setMeasureSize(unsigned m);
 
+        ///changes the dimension of the input vector:
+        ///resets the internal container for the input vectors and
+        ///the containers for the matrices B, D
         virtual void setInputSize(unsigned p);
 
     protected:

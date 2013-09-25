@@ -36,9 +36,7 @@ namespace stateObserver
      *         loop mechanism. It requires to be derviated to implement the
      *         new oneStepEstimation_() method
      *
-     *         \li n : size of the state vector
-     *         \li m : size of the measurements vector
-     *         \li p : size of the input vector
+
      *
      * \details
      *
@@ -47,11 +45,17 @@ namespace stateObserver
     {
     public:
 
-        ZeroDelayObserver(){}
-
+        /// The constructor
+        ///  \li n : size of the state vector
+        ///  \li m : size of the measurements vector
+        ///  \li p : size of the input vector
         ZeroDelayObserver(unsigned n, unsigned m, unsigned p=0):
             ObserverBase(n,m,p){}
 
+        ///Default constructor (default values for n,m,p are zero)
+        ZeroDelayObserver(){}
+
+        ///Destructor
         virtual ~ZeroDelayObserver(){};
 
         ///Set the value of the state vector at time index k. Only the value
@@ -103,10 +107,13 @@ namespace stateObserver
         ///Get the value of the current time index
         virtual unsigned getCurrentTime()const;
 
+        ///changes the size of the state vector: resets the stored state vector
         virtual void setStateSize(unsigned n);
 
+        ///changes the size of the measurement vector: reset the stored measurement vectors
         virtual void setMeasureSize(unsigned m);
 
+        ///changes the size of the input vector: reset the stored input vectors
         virtual void setInputSize(unsigned p);
 
     protected:
