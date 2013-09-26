@@ -21,67 +21,11 @@
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
-#include <exception>
 #include <boost/static_assert.hpp>
 #include <boost/assert.hpp>
 
 namespace stateObserver
 {
-    /**
-     * \class    ObserverException
-     * \brief    The base class for the exceptions thrown by an observer
-     *
-     * \details
-     *
-     */
-    class ObserverException: public std::exception
-    {
-    public:
-        ObserverException(const char * const & c)
-                :std::exception(), what_(c)
-        {}
-
-        virtual const char* what() const throw()
-        {
-            return what_;
-        }
-
-    protected:
-        const char* what_;
-
-    };
-
-    /**
-     * \class  InitializationException
-     * \brief  An exception thrown in cas of uninitialized variable
-     *
-     * \details
-     *
-     */
-    class InitializationException: public ObserverException
-    {
-    public:
-        InitializationException(const char * const & c)
-                :ObserverException(c)
-        {}
-    };
-
-    /**
-     * \class  TimeException
-     * \brief  An exception thrown when the user tries to observe a value with
-     *         a wrong time parameter (too early or too late)
-     *
-     * \details
-     *
-     */
-    class TimeException: public ObserverException
-    {
-    public:
-        TimeException(const char * const & c)
-                :ObserverException(c)
-        {}
-    };
-
     /**
      * \class    DiscreteTimeMatrix
      * \brief    This class describes a structure composed by a matrix
