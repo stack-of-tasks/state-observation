@@ -1,7 +1,7 @@
-#include <state-observer/extended-kalman-filter.hpp>
+#include <state-observation/observer/extended-kalman-filter.hpp>
 
 
-namespace stateObserver
+namespace stateObservation
 {
     void ExtendedKalmanFilter::setFunctor(ExtendedKalmanFilter::DynamicsFunctorBase* f)
     {

@@ -1,6 +1,6 @@
-#include <state-observer/kalman-filter-base.hpp>
+#include <state-observation/observer/kalman-filter-base.hpp>
 
-namespace stateObserver
+namespace stateObservation
 {
 
     void KalmanFilterBase::setA(const Amatrix& A)

@@ -1,6 +1,6 @@
-#include <state-observer/zero-delay-observer.hpp>
+#include <state-observation/observer/zero-delay-observer.hpp>
 
-namespace stateObserver
+namespace stateObservation
 {
 
     void ZeroDelayObserver::setState (const ObserverBase::StateVector& x_k,unsigned k)

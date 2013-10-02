@@ -1,9 +1,9 @@
-#include  <state-observer/observer-base.hpp>
+#include  <state-observation/observer/observer-base.hpp>
 
-namespace stateObserver
+namespace stateObservation
 {
 
-    DiscreteTimeMatrix::DiscreteTimeMatrix(const MatrixT& v,unsigned k):
+    DiscreteTimeMatrix::DiscreteTimeMatrix(const Matrix& v,unsigned k):
             isSet_(true),
             k_(k),
             v_(v)

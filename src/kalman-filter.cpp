@@ -1,6 +1,6 @@
-#include <state-observer/kalman-filter.hpp>
+#include <state-observation/observer/kalman-filter.hpp>
 
-namespace stateObserver
+namespace stateObservation
 {
 
     void KalmanFilter::setB(const Bmatrix& B)

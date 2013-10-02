@@ -9,12 +9,12 @@
 #include <bitset>
 #include <iomanip>
 
-#include <state-observer/template/kalman-filter.hpp>
-#include <state-observer/template/extended-kalman-filter.hpp>
+#include <state-observation/observer/compile-time/kalman-filter.hpp>
+#include <state-observation/observer/compile-time/extended-kalman-filter.hpp>
 
 #include <boost/utility/binary.hpp>
 
-#include "tools.hpp"
+#include <state-observation/tools/probability-law-simulation.hpp>
 
 
 double testExtendedKalmanFilter()
@@ -23,7 +23,7 @@ double testExtendedKalmanFilter()
     const static unsigned kmax=1000;
 
     ///define the type of the extended Kalman filter
-    typedef stateObserver::compileTime::ExtendedKalmanFilter<4,3,1> ekf;
+    typedef stateObservation::compileTime::ExtendedKalmanFilter<4,3,1> ekf;
 
     ///The functor that describes the dynamics of the state
     ///and the measurement
@@ -109,10 +109,10 @@ double testExtendedKalmanFilter()
             uk[k]=ekf::InputVector::Random();
 
             ///generation of Gaussian white noises
-            ekf::StateVector v= stateObserver::unitTesting::Tools::
+            ekf::StateVector v= stateObservation::tools::ProbabilityLawSimulation::
                                 getWGNoise(q1,ekf::StateVector::Zero(),ekf::stateSize);
 
-            ekf::MeasureVector w= stateObserver::unitTesting::Tools::
+            ekf::MeasureVector w= stateObservation::tools::ProbabilityLawSimulation::
                                   getWGNoise(r1,ekf::MeasureVector::Zero(),ekf::measureSize);
 
             ///the dynamics is executed here
@@ -185,7 +185,7 @@ double testExtendedKalmanFilterLTV()
 {
     const static unsigned kmax=1000;
 
-    typedef stateObserver::compileTime::ExtendedKalmanFilter<4,3,1> ekf;
+    typedef stateObservation::compileTime::ExtendedKalmanFilter<4,3,1> ekf;
 
 
     struct KalmanFunctorLTV:
@@ -345,7 +345,7 @@ double testExtendedKalmanFilterZeroInput()
     const static unsigned kmax=1000;
 
 
-    typedef stateObserver::compileTime::ExtendedKalmanFilter<4,3> ekf;
+    typedef stateObservation::compileTime::ExtendedKalmanFilter<4,3> ekf;
 
 
     class KalmanFunctor:
@@ -510,7 +510,7 @@ double testExtendedKalmanFilterZeroInput()
 double testKalmanFilter()
 {
 
-    typedef stateObserver::compileTime::KalmanFilter<4,3,2> filter;
+    typedef stateObservation::compileTime::KalmanFilter<4,3,2> filter;
 
     filter f;
     filter::Amatrix a;
@@ -612,7 +612,7 @@ double testKalmanFilter()
 
 double testKalmanFilterZeroInput()
 {
-    typedef stateObserver::compileTime::KalmanFilter<4,3> filter;
+    typedef stateObservation::compileTime::KalmanFilter<4,3> filter;
 
     filter f;
     filter::Amatrix a;
