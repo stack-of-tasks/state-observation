@@ -52,6 +52,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/state-observation/sensors-simulation/algorithm/rotation-velocity.hpp
   include/state-observation/sensors-simulation/algorithm/linear-acceleration.hpp
   include/state-observation/tools/definitions.hpp
+  include/state-observation/tools/definitions.hxx
   include/state-observation/tools/probability-law-simulation.hpp
   include/state-observation/dynamical-system/dynamical-system-functor-base.hpp
   include/state-observation/dynamical-system/dynamical-system-simulator.hpp
