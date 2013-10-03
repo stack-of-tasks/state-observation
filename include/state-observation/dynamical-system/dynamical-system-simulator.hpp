@@ -1,7 +1,7 @@
 #ifndef STATEOBSERVATIONDYNAMICALSYSTEMSIMULATOR_H
 #define STATEOBSERVATIONDYNAMICALSYSTEMSIMULATOR_H
 
-#include <vector>
+#include <map>
 
 #include <state-observation/noise/noise-base.hpp>
 
@@ -9,7 +9,6 @@
 
 namespace stateObservation
 {
-
     class DynamicalSystemSimulator
     {
     public:
@@ -20,26 +19,41 @@ namespace stateObservation
 
         virtual void setState( const Vector & x, unsigned k);
 
-        virtual void setInput( const Vector & x, unsigned k);
+        virtual void setInput( const Vector & u, unsigned k);
 
-        virtual Vector getInput( unsigned k );
+        virtual Vector getCurrentState() const;
 
-        virtual std::vector<Vector> getMeasurementVector
+        virtual unsigned getCurrentTime() const;
+
+        virtual void interateDynamics();
+
+        virtual void simulateDynamicsTo(unsigned k);
+
+        virtual Vector getInput(unsigned k) const;
+
+        virtual Vector getMeasurement( unsigned k );
+
+        virtual Vector getState( unsigned k );
+
+        virtual DiscreteTimeArray getMeasurementArray
                     (unsigned startingTime, unsigned duration);
 
-        virtual void setMeasurementNoise(NoiseBase * );
+        virtual DiscreteTimeArray getStateArray
+                    (unsigned startingTime, unsigned duration);
 
-        virtual void setProcessNoise(NoiseBase *);
+        virtual void resetDynamics();
+
+        virtual void resetSimulator();
 
     protected:
-        DynamicalSystemFunctorBase * p_;
+        DynamicalSystemFunctorBase * f_;
 
-        NoiseBase * measurementNoise_;
+        DiscreteTimeArray x_;
 
-        NoiseBase * processNoise_;
+        DiscreteTimeArray y_;
 
+        std::map<unsigned, Vector> u_;
 
-    private:
     };
 }
 #endif // STATEOBSERVATIONDYNAMICALSYSTEMSIMULATOR_H
