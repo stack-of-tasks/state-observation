@@ -31,7 +31,7 @@ namespace stateObservation
     public:
         virtual ~NoiseBase(){}
 
-        virtual Vector addNoise(const Vector & state, const Vector & measurement, unsigned timeIndex)=0;
+        virtual Vector addNoise(const Vector &)=0;
 
 
     protected:

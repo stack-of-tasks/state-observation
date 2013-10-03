@@ -38,7 +38,7 @@ namespace stateObservation
 
         GaussianWhiteNoise();
 
-        virtual Vector addNoise(const Vector & state, const Vector & measurement, unsigned timeIndex);
+        virtual Vector addNoise(const Vector &);
 
         virtual void setStandardDeviation(const Matrix & std);
 

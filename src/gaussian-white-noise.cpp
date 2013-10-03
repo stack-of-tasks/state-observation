@@ -20,11 +20,11 @@ namespace stateObservation
     {
     }
 
-    Vector GaussianWhiteNoise::addNoise(const Vector & state, const Vector & measurement, unsigned timeIndex)
+    Vector GaussianWhiteNoise::addNoise(const Vector & v)
     {
-        checkVector_(measurement);
+        checkVector_(v);
 
-        return measurement+tools::ProbabilityLawSimulation::getWGNoise(std_, bias_,dim_);
+        return v+tools::ProbabilityLawSimulation::getWGNoise(std_, bias_,dim_);
 
     }
 
