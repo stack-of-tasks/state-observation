@@ -14,6 +14,9 @@
 #ifndef SENSORSIMULATIONDEFINITIONSHPP
 #define SENSORSIMULATIONDEFINITIONSHPP
 
+#include <vector>
+#include <deque>
+
 #include <boost/assert.hpp>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -36,6 +39,38 @@ namespace stateObservation
 
     typedef Eigen::AngleAxis<double> AngleAxis;
 
+    class CheckedMatrix
+    {
+    public:
+        ///Default constructor
+        CheckedMatrix();
+
+        ///A constructor with a given matrix value and a time index
+        CheckedMatrix(const Matrix& v);
+
+        ///Set the value of the matrix and the time sample
+        inline void set(const Matrix& v);
+
+        ///Get the matrix value
+        inline Matrix operator()()const;
+
+        ///Says whether the matrix is initialized or not
+        inline const bool & isSet()const;
+
+        ///Switch off the initalization flag, the value is no longer accessible
+        inline void reset();
+
+    protected:
+        ///Checks whether the matrix is set or not (assert)
+        ///does nothing in release mode
+        inline void check_() const;
+
+        ///this variable ensures the matrix is initialized,
+        bool isSet_;
+
+        Matrix v_;
+    };
+
 
     /**
      * \class    DiscreteTimeMatrix
@@ -55,47 +90,24 @@ namespace stateObservation
         DiscreteTimeMatrix(const Matrix& v, unsigned k);
 
         ///Set the value of the matrix and the time sample
-        inline void set(const Matrix& v,unsigned k)
-        {
-            k_=k;
-            v_=v;
-            isSet_=true;
-        }
+        inline void set(const Matrix& v,unsigned k);
 
         ///Get the matrix value
-        inline Matrix operator()()const
-        {
-            check_();
-            return v_;
-        }
+        inline Matrix operator()() const;
 
         ///Get the time index
-        inline const unsigned & getTime()const
-        {
-            check_();
-            return k_;
-        }
+        inline const unsigned & getTime() const;
 
         ///Says whether the matrix is initialized or not
-        inline const bool & isSet()const
-        {
-            return isSet_;
-        }
+        inline const bool & isSet() const;
 
         ///Switch off the initalization flag, the value is no longer accessible
-        inline void reset()
-        {
-            k_=0;
-            isSet_=false;
-        }
+        inline void reset();
 
     protected:
         ///Checks whether the matrix is set or not (assert)
         ///does nothing in release mode
-        inline void check_()const
-        {
-            BOOST_ASSERT(isSet_ && "Error: Matrix not initialized");
-        }
+        inline void check_() const;
 
         ///this variable ensures the matrix is initialized,
         bool isSet_;
@@ -104,10 +116,62 @@ namespace stateObservation
         Matrix v_;
     };
 
+    class DiscreteTimeArray
+    {
+        public:
+        ///Default constructor
+        DiscreteTimeArray();
+
+        ///Set the value of the matrix and the time sample
+        inline void pushBack(const Matrix& v,unsigned k);
+
+        inline void popFront();
+
+        inline Matrix operator[](unsigned time) const;
+
+        inline Matrix  & operator[](unsigned time);
+
+        void truncate(unsigned time);
+
+
+        ///Get the time index
+        inline unsigned getLastTime() const;
+
+        ///Get the time index
+        inline unsigned getFirstTime() const;
+
+        inline unsigned size() const;
+
+        ///Switch off the initalization flag, the value is no longer accessible
+        inline void reset();
+
+        std::vector<Matrix> getArray() const;
+
+        inline bool checkIndex(unsigned k) const;
+
+    protected:
+        ///Checks whether the matrix is set or not (assert)
+        ///does nothing in release mode
+        inline void check_(unsigned time) const;
+
+        ///Checks whether the matrix is set or not (assert)
+        ///does nothing in release mode
+        inline void check_() const;
+
+        inline void checkNext_(unsigned time) const;
+
+        unsigned k_;
+
+        std::deque<Matrix> v_;
+
+    };
+
     namespace cst
     {
         const Vector gravity= 9.81 * Eigen::Vector3d::UnitZ();
     }
+
+    #include <state-observation/tools/definitions.hxx>
 }
 
 #endif //SENSORSIMULATIONDEFINITIONSHPP
