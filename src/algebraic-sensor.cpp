@@ -64,7 +64,7 @@ namespace stateObservation
             storedNoiselessMeasurement_=true;
         }
 
-        return noise_->addNoise(state_,noiselessMeasurement_,time_);
+        return noise_->addNoise( noiselessMeasurement_);
     }
 
 
