@@ -31,7 +31,7 @@ double testExtendedKalmanFilter()
     ///The functor that describes the dynamics of the state
     ///and the measurement
     class KalmanFunctor:
-                public ekf::DynamicsFunctorBase
+                public stateObservation::DynamicalSystemFunctorBase
     {
 
     public:
@@ -186,7 +186,7 @@ double testExtendedKalmanFilterLTV()
 
 
     struct KalmanFunctorLTV:
-                public ekf::DynamicsFunctorBase
+                public stateObservation::DynamicalSystemFunctorBase
     {
 
 public:
@@ -345,7 +345,7 @@ double testExtendedKalmanFilterZeroInput()
 
 
     class KalmanFunctor:
-                public ekf::DynamicsFunctorBase
+                public stateObservation::DynamicalSystemFunctorBase
     {
 
     public:
