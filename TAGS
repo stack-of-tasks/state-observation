@@ -1,0 +1,302 @@
+
+include/state-observer/extended-kalman-filter.hpp,626
+#define EXTENDEDKALMANFILTERHPP2,33
+namespace observation6,117
+	template <unsigned n,observation::n12,251
+	template <unsigned n,unsigned m,observation::m12,251
+	template <unsigned n,unsigned m, unsigned p=observation::p12,251
+	template <unsigned n,observation::n68,2150
+	class ExtendedKalmanFilter<n,m,0>: public KalmanFilterBase<observation::KalmanFilterBase69,2185
+		class DynamicsFunctorBaseobservation::DynamicsFunctorBase72,2267
+			virtual typename ObserverBase<observation::DynamicsFunctorBase::ObserverBase75,2312
+			virtual typename ObserverBase<observation::DynamicsFunctorBase::ObserverBase76,2447
+
+include/state-observer/extended-kalman-filter.hxx,2178
+template <unsigned n,1,0
+template <unsigned n,unsigned m,1,0
+void ExtendedKalmanFilter<n,m,p>::setFunctor(setFunctor2,45
+template <unsigned n,9,183
+template <unsigned n,unsigned m,9,183
+void ExtendedKalmanFilter<n,m,p>::clearFunctor(clearFunctor10,228
+template <unsigned n,15,292
+template <unsigned n,unsigned m,15,292
+void ExtendedKalmanFilter<n,m,p>::setDirectInputOutputFeedthrough(setDirectInputOutputFeedthrough16,337
+template <unsigned n,21,451
+template <unsigned n,unsigned m,21,451
+typename ObserverBase<n,m,p>::StateVector ExtendedKalmanFilter<n,m,p>::prediction_(prediction_22,496
+template <unsigned n,34,855
+template <unsigned n,unsigned m,34,855
+typename ObserverBase<n,m,p>::StateVector ExtendedKalmanFilter<n,m,p>::getPrediction(getPrediction35,900
+template <unsigned n,44,1268
+template <unsigned n,unsigned m,44,1268
+ExtendedKalmanFilter<n,m,p>::simulateSensor_(simulateSensor_46,1357
+template <unsigned n,69,2009
+template <unsigned n,unsigned m,69,2009
+ExtendedKalmanFilter<n,m,p>::getAMatrixFD(getAMatrixFD71,2149
+template <unsigned n,95,2763
+template <unsigned n,unsigned m,95,2763
+ExtendedKalmanFilter<n,m,p>::getCMatrixFD(getCMatrixFD97,2911
+template <unsigned n,120,3509
+template <unsigned n,unsigned m,120,3509
+void ExtendedKalmanFilter<n,m,p>::reset(reset121,3554
+template <unsigned n,130,3671
+typename ObserverBase<n,m,0>::StateVector ExtendedKalmanFilter<n,m,0>::prediction_(prediction_131,3704
+template <unsigned n,143,4058
+typename ObserverBase<n,m,0>::StateVector ExtendedKalmanFilter<n,m,0>::getPrediction(getPrediction144,4091
+template <unsigned n,151,4342
+ExtendedKalmanFilter<n,m,0>::simulateSensor_(simulateSensor_153,4419
+template <unsigned n,161,4660
+void ExtendedKalmanFilter<n,m,0>::setFunctor(setFunctor162,4693
+template <unsigned n,167,4813
+void ExtendedKalmanFilter<n,m,0>::clearFunctor(clearFunctor168,4846
+template <unsigned n,175,4912
+ExtendedKalmanFilter<n,m,0>::getAMatrixFD(getAMatrixFD177,5050
+template <unsigned n,198,5619
+ExtendedKalmanFilter<n,m,0>::getCMatrixFD(getCMatrixFD200,5756
+template <unsigned n,222,6339
+void ExtendedKalmanFilter<n,m,0>::reset(reset223,6372
+
+include/state-observer/kalman-filter-base.hpp,2013
+#define KALMANFILTERBASEHPP24,641
+namespace observation28,722
+    template <unsigned n,observation::n46,1230
+    template <unsigned n,unsigned m,observation::m46,1230
+    template <unsigned n,unsigned m, unsigned p=observation::p46,1230
+		typedef Eigen::Matrix<double, n,n> Amatrix;observation::Amatrix52,1393
+		typedef Eigen::Matrix<double, m,n> Cmatrix;observation::Cmatrix55,1478
+		typedef Eigen::Matrix<double, n,n> Qmatrix;observation::Qmatrix59,1597
+		typedef Eigen::Matrix<double, m,m> Rmatrix;observation::Rmatrix62,1712
+		typedef Eigen::Matrix<double, n,n> Pmatrix;observation::Pmatrix66,1839
+		typedef Eigen::Matrix<double, n,m> Kmatrix;observation::Kmatrix115,3052
+		typedef DiscreteTimeMatrix<n,n> Amat_;observation::Amat_128,3633
+		typedef DiscreteTimeMatrix<m,n> Cmat_;observation::Cmat_129,3675
+        typedef DiscreteTimeMatrix<n,n> Qmat_;observation::Qmat_132,3791
+		typedef DiscreteTimeMatrix<m,m> Rmat_;observation::Rmat_133,3839
+        typedef DiscreteTimeMatrix<n,n> Pmat_;observation::Pmat_137,3969
+    */	template <unsigned n,observation::n163,4648
+	class KalmanFilterBase<n,m,0>: public ZeroDelayObserver<observation::ZeroDelayObserver164,4689
+		typedef Eigen::Matrix<double, n,n> Amatrix;observation::Amatrix169,4807
+		typedef Eigen::Matrix<double, m,n> Cmatrix;observation::Cmatrix172,4891
+		typedef Eigen::Matrix<double, n,n> Qmatrix;observation::Qmatrix176,5009
+		typedef Eigen::Matrix<double, m,m> Rmatrix;observation::Rmatrix179,5124
+		typedef Eigen::Matrix<double, n,n> Pmatrix;observation::Pmatrix183,5250
+		typedef Eigen::Matrix<double, n,m> Kmatrix;observation::Kmatrix227,6445
+		typedef DiscreteTimeMatrix<n,n>  Amat_;observation::Amat_241,7020
+		typedef DiscreteTimeMatrix<m,n>  Cmat_;observation::Cmat_242,7063
+        typedef DiscreteTimeMatrix<n,n> Qmat_;observation::Qmat_245,7180
+		typedef DiscreteTimeMatrix<m,m> Rmat_;observation::Rmat_246,7228
+		typedef DiscreteTimeMatrix<n,n> Pmat_;observation::Pmat_250,7366
+
+include/state-observer/kalman-filter-base.hxx,3001
+template <unsigned n,1,0
+template <unsigned n,unsigned m,1,0
+void KalmanFilterBase<n,m,p>::setA(setA2,46
+template <unsigned n,7,157
+template <unsigned n,unsigned m,7,157
+void KalmanFilterBase<n,m,p>::clearA(clearA8,203
+template <unsigned n,13,265
+template <unsigned n,unsigned m,13,265
+void KalmanFilterBase<n,m,p>::setC(setC14,311
+template <unsigned n,19,423
+template <unsigned n,unsigned m,19,423
+void KalmanFilterBase<n,m,p>::clearC(clearC20,469
+template <unsigned n,25,531
+template <unsigned n,unsigned m,25,531
+void KalmanFilterBase<n,m,p>::setR(setR26,577
+template <unsigned n,31,690
+template <unsigned n,unsigned m,31,690
+void KalmanFilterBase<n,m,p>::clearR(clearR32,736
+template <unsigned n,37,798
+template <unsigned n,unsigned m,37,798
+void KalmanFilterBase<n,m,p>::setQ(setQ38,844
+template <unsigned n,43,958
+template <unsigned n,unsigned m,43,958
+void KalmanFilterBase<n,m,p>::clearQ(clearQ44,1004
+template <unsigned n,49,1066
+template <unsigned n,unsigned m,49,1066
+void KalmanFilterBase<n,m,p>::setStateCovariance(setStateCovariance50,1112
+template <unsigned n,55,1256
+template <unsigned n,unsigned m,55,1256
+void KalmanFilterBase<n,m,p>::clearStateCovariance(clearStateCovariance56,1302
+template <unsigned n,61,1378
+template <unsigned n,unsigned m,61,1378
+typename ObserverBase<n,m,p>::StateVector KalmanFilterBase<n,m,p>::oneStepEstimation_(oneStepEstimation_62,1424
+template <unsigned n,120,2935
+template <unsigned n,unsigned m,120,2935
+typename KalmanFilterBase<n,m,p>::Pmatrix KalmanFilterBase<n,m,p>::getStateCovariance(getStateCovariance121,2981
+template <unsigned n,127,3132
+template <unsigned n,unsigned m,127,3132
+void KalmanFilterBase<n,m,p>::reset(reset128,3178
+template <unsigned n,141,3362
+void KalmanFilterBase<n,m,0>::setA(setA142,3396
+template <unsigned n,147,3508
+void KalmanFilterBase<n,m,0>::clearA(clearA148,3542
+template <unsigned n,153,3604
+void KalmanFilterBase<n,m,0>::setC(setC154,3638
+template <unsigned n,159,3751
+void KalmanFilterBase<n,m,0>::clearC(clearC160,3785
+template <unsigned n,165,3847
+void KalmanFilterBase<n,m,0>::setR(setR166,3881
+template <unsigned n,171,3993
+void KalmanFilterBase<n,m,0>::clearR(clearR172,4027
+template <unsigned n,177,4089
+void KalmanFilterBase<n,m,0>::setQ(setQ178,4123
+template <unsigned n,183,4236
+void KalmanFilterBase<n,m,0>::clearQ(clearQ184,4270
+template <unsigned n,189,4332
+void KalmanFilterBase<n,m,0>::setStateCovariance(setStateCovariance190,4366
+template <unsigned n,195,4474
+void KalmanFilterBase<n,m,0>::clearStateCovariance(clearStateCovariance196,4508
+template <unsigned n,202,4586
+typename ObserverBase<n,m,0>::StateVector KalmanFilterBase<n,m,0>::oneStepEstimation_(oneStepEstimation_203,4620
+template <unsigned n,241,5643
+typename KalmanFilterBase<n,m,0>::Pmatrix KalmanFilterBase<n,m,0>::getStateCovariance(getStateCovariance242,5677
+template <unsigned n,248,5828
+void KalmanFilterBase<n,m,0>::reset(reset249,5862
+
+include/state-observer/kalman-filter.hpp,645
+#define KALMANFILTERHPP2,25
+namespace observation6,101
+	template <unsigned n,observation::n12,235
+	template <unsigned n,unsigned m,observation::m12,235
+	template <unsigned n,unsigned m, unsigned p=observation::p12,235
+		typedef Eigen::Matrix<double, n,p> Bmatrix;observation::Bmatrix16,351
+		typedef Eigen::Matrix<double, m,p> Dmatrix;observation::Dmatrix17,398
+		typedef DiscreteTimeMatrix<n,p>  Bmat_;observation::Bmat_31,839
+		typedef DiscreteTimeMatrix<m,p>  Dmat_;observation::Dmat_32,882
+	template <unsigned n,observation::n38,960
+	class KalmanFilter<n,m,0>: public KalmanFilterBase<observation::KalmanFilterBase39,995
+
+include/state-observer/kalman-filter.hxx,1081
+template <unsigned n,1,0
+template <unsigned n,unsigned m,1,0
+void KalmanFilter<n,m,p>::setB(setB2,46
+template <unsigned n,7,150
+template <unsigned n,unsigned m,7,150
+void KalmanFilter<n,m,p>::clearB(clearB8,196
+template <unsigned n,13,254
+template <unsigned n,unsigned m,13,254
+void KalmanFilter<n,m,p>::setD(setD14,300
+template <unsigned n,19,404
+template <unsigned n,unsigned m,19,404
+void KalmanFilter<n,m,p>::clearD(clearD20,450
+template <unsigned n,26,510
+template <unsigned n,unsigned m,26,510
+typename ObserverBase<n,m,p>::StateVector KalmanFilter<n,m,p>::prediction_(prediction_27,556
+template <unsigned n,32,709
+template <unsigned n,unsigned m,32,709
+	KalmanFilter<n,m,p>::simulateSensor_(simulateSensor_34,800
+template <unsigned n,55,1326
+template <unsigned n,unsigned m,55,1326
+void KalmanFilter<n,m,p>::reset(reset56,1372
+template <unsigned n,64,1481
+typename ObserverBase<n,m,0>::StateVector KalmanFilter<n,m,0>::prediction_(prediction_65,1515
+template <unsigned n,70,1643
+	KalmanFilter<n,m,0>::simulateSensor_(simulateSensor_72,1722
+
+include/state-observer/observer-base.hpp,2246
+#define OBSERVERBASEHPP20,463
+namespace observation27,596
+    class ObserverException:observation::ObserverException36,771
+		ObserverException(observation::ObserverException::ObserverException39,837
+		 virtual const char* what(observation::ObserverException::what43,920
+        const char* what_;observation::ObserverException::what_49,1026
+	class InitializationException:observation::InitializationException60,1205
+		InitializationException(observation::InitializationException::InitializationException63,1277
+	class TimeException:observation::TimeException76,1572
+		TimeException(observation::TimeException::TimeException79,1634
+	template<unsigned r,observation::r97,2134
+	class DiscreteTimeMatrixobservation::DiscreteTimeMatrix98,2168
+		typedef Eigen::Matrix<double,observation::DiscreteTimeMatrix::double105,2356
+		typedef Eigen::Matrix<double, r,observation::DiscreteTimeMatrix::r105,2356
+		typedef Eigen::Matrix<double, r,c> MatrixT;observation::DiscreteTimeMatrix::MatrixT105,2356
+        typedef Eigen::Matrix<double,observation::DiscreteTimeMatrix::double133,3198
+        typedef Eigen::Matrix<double, r,observation::DiscreteTimeMatrix::r133,3198
+        typedef Eigen::Matrix<double, r,c,observation::DiscreteTimeMatrix::c133,3198
+        typedef Eigen::Matrix<double, r,c,Eigen::DontAlign> MatrixTUnaligned;observation::DiscreteTimeMatrix::MatrixTUnaligned133,3198
+		bool isSet_;observation::DiscreteTimeMatrix::isSet_135,3278
+		unsigned k_;observation::DiscreteTimeMatrix::k_136,3294
+		MatrixTUnaligned v_;observation::DiscreteTimeMatrix::v_137,3310
+	template <unsigned n,observation::n154,3700
+	template <unsigned n,unsigned m,observation::m154,3700
+	template <unsigned n,unsigned m, unsigned p=observation::p154,3700
+		typedef Eigen::Matrix<double, n,1> StateVector;observation::StateVector178,4366
+		typedef Eigen::Matrix<double, m,1> MeasureVector;observation::MeasureVector179,4417
+		typedef Eigen::Matrix<double, p,1> InputVector;observation::InputVector180,4470
+		typedef DiscreteTimeMatrix<n,1> State;observation::State212,5570
+		typedef DiscreteTimeMatrix<m,1> Measure;observation::Measure213,5612
+		typedef DiscreteTimeMatrix<p,1> Input;observation::Input214,5656
+
+include/state-observer/observer-base.hxx,776
+template<unsigned r,2,2
+DiscreteTimeMatrix<r, c>::DiscreteTimeMatrix(DiscreteTimeMatrix3,35
+template<unsigned r,10,151
+DiscreteTimeMatrix<r, c>::DiscreteTimeMatrix(DiscreteTimeMatrix11,184
+template<unsigned r,17,265
+void DiscreteTimeMatrix<r, c>::set(set18,298
+template<unsigned r,25,402
+void DiscreteTimeMatrix<r, c>::reset(reset26,435
+template<unsigned r,32,507
+typename DiscreteTimeMatrix<r, c>::MatrixT DiscreteTimeMatrix<r, c>::operator()(operator()33,540
+template<unsigned r,41,731
+const unsigned & DiscreteTimeMatrix<r, c>::getTime(getTime42,764
+template<unsigned r,51,928
+const bool & DiscreteTimeMatrix<r, c>::isSet(isSet52,961
+template <unsigned n,57,1039
+template <unsigned n,unsigned m,57,1039
+void ObserverBase<n,m,p>::reset(reset58,1085
+
+include/state-observer/zero-delay-observer.hpp,236
+#define ZERODELAYOBSERVER_H18,489
+namespace observation25,583
+	template <unsigned n,observation::n40,1128
+	template <unsigned n,unsigned m,observation::m40,1128
+	template <unsigned n,unsigned m, unsigned p=observation::p40,1128
+
+include/state-observer/zero-delay-observer.hxx,1104
+template <unsigned n,1,0
+template <unsigned n,unsigned m,1,0
+void ZeroDelayObserver<n,m,p>::setStatesetState2,46
+template <unsigned n,18,348
+template <unsigned n,unsigned m,18,348
+void ZeroDelayObserver<n,m,p>::clearState(clearState19,394
+template <unsigned n,24,461
+template <unsigned n,unsigned m,24,461
+void ZeroDelayObserver<n,m,p>::setMeasurementsetMeasurement25,507
+template <unsigned n,45,1105
+template <unsigned n,unsigned m,45,1105
+void ZeroDelayObserver<n,m,p>::clearMeasurements(clearMeasurements46,1151
+template <unsigned n,51,1225
+template <unsigned n,unsigned m,51,1225
+void ZeroDelayObserver<n,m,p>::setInputsetInput52,1271
+template <unsigned n,72,1847
+template <unsigned n,unsigned m,72,1847
+void ZeroDelayObserver<n,m,p>::clearInputs(clearInputs73,1893
+template <unsigned n,78,1961
+template <unsigned n,unsigned m,78,1961
+                        ZeroDelayObserver<n,m,p>::getEstimateState(getEstimateState80,2049
+template <unsigned n,99,2384
+template <unsigned n,unsigned m,99,2384
+unsigned ZeroDelayObserver<n,m,p>::getCurrentTime(getCurrentTime100,2429
+
+unit-testings/test-kalman-filter.cpp,907
+typedef observation::KalmanFilter<4,3,2> filter;11,184
+typedef observation::ExtendedKalmanFilter<4,3,1> ekf;12,233
+filter f;13,287
+ekf f2;14,297
+class KalmanFunctor:KalmanFunctor16,306
+	KalmanFunctor(KalmanFunctor::KalmanFunctor20,370
+	virtual ekf::StateVector stateDynamics(KalmanFunctor::stateDynamics28,538
+	virtual ekf::MeasureVector measureDynamics(KalmanFunctor::measureDynamics36,776
+	void setA(KalmanFunctor::setA43,968
+	void setC(KalmanFunctor::setC48,1017
+  void doNothing KalmanFunctor::doNothing53,1066
+	ekf::StateVector s_;KalmanFunctor::s_56,1099
+	ekf::StateVector t_;KalmanFunctor::t_57,1121
+	ekf::MeasureVector m_;KalmanFunctor::m_58,1143
+	ekf::MeasureVector n_;KalmanFunctor::n_59,1167
+	ekf::Amatrix a_;KalmanFunctor::a_61,1192
+	ekf::Cmatrix c_;KalmanFunctor::c_62,1210
+void testExtendedKalmanFilter(67,1234
+void testKalmanFilter(172,3434
+int main(272,5503
