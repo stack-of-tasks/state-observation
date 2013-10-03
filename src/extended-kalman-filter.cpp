@@ -3,7 +3,7 @@
 
 namespace stateObservation
 {
-    void ExtendedKalmanFilter::setFunctor(ExtendedKalmanFilter::DynamicsFunctorBase* f)
+    void ExtendedKalmanFilter::setFunctor(DynamicalSystemFunctorBase* f)
     {
         f_=f;
         //f_->reset();

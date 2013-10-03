@@ -17,6 +17,7 @@
 #define STATEOBSERVER_EXTENDEDKALMANFILTERHPP
 
 #include <state-observation/observer/kalman-filter-base.hpp>
+#include <state-observation/dynamical-system/dynamical-system-functor-base.hpp>
 
 namespace stateObservation
 {
@@ -41,37 +42,7 @@ namespace stateObservation
     class ExtendedKalmanFilter: public KalmanFilterBase
     {
 
-        /**
-     * \class  DynamicsFunctorBase
-     * \brief
-     *        This is the base class of any functor that describes the dynamics
-     *        of the state and the measurement.
-     *        This class is to be derived in order to be given
-     *        to the Extended Kalman Filter.
-     *
-     */
     public:
-        class DynamicsFunctorBase
-        {
-        public:
-            ///The function to oberload to describe the dynamics of the state
-            virtual ObserverBase::StateVector stateDynamics
-            (const ObserverBase::StateVector& x,
-             const ObserverBase::InputVector& u,
-             unsigned k)=0;
-
-            ///The function to overloas to describe the dynamics of the sensor (measurements)
-            virtual ObserverBase::MeasureVector measureDynamics
-            (const ObserverBase::StateVector& x,
-             const ObserverBase::InputVector& u,
-             unsigned k)=0;
-
-
-            ///The method to overload if the functor needs to be reset when the
-            ///Exteded Kalman filter is reset itself
-            virtual void reset(){}
-
-        };
 
         /// The constructor.
         ///  \li n : size of the state vector
@@ -79,17 +50,19 @@ namespace stateObservation
         ///  \li p : size of the input vector
         ///  \li The parameter directInputOutputFeedthrough defines whether (true) or not (false) the measurement y_k requires the input u_k
         ExtendedKalmanFilter(unsigned n,unsigned m,unsigned p=0,bool directInputOutputFeedthrough=true)
-            :KalmanFilterBase(n,m,p)
+            :KalmanFilterBase(n,m,p), f_(0x0)
         {
             if (p==0)
                 directInputOutputFeedthrough=false;
+
+
         }
 
 
         /// Set a pointer to the functor that defines the dynamics of the states
         ///and the measurement the user is responsible for the validity of the
         ///pointer during the execution of the kalman filter
-        void setFunctor(DynamicsFunctorBase* f);
+        void setFunctor(DynamicalSystemFunctorBase* f);
 
         /// Clear the value of the functor
         ///Does not destroy the pointed object
@@ -132,7 +105,7 @@ namespace stateObservation
         bool directInputOutputFeedthrough_;
 
         /// pointer on the dynamics functor
-        DynamicsFunctorBase* f_;
+        DynamicalSystemFunctorBase* f_;
     };
 
 }
