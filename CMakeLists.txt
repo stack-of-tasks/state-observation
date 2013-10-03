@@ -2,18 +2,18 @@
 #
 # Author: Mehdi Benallegue
 #
-# This file is part of state-observer.
-# state-observer is free software: you can redistribute it and/or
+# This file is part of state-observation.
+# state-observation is free software: you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
 # as published by the Free Software Foundation, either version 3 of
 # the License, or (at your option) any later version.
 #
-# state-observer is distributed in the hope that it will be useful, but
+# state-observation is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Lesser Public License for more details.  You should have
 # received a copy of the GNU Lesser General Public License along with
-# state-observer. If not, see <http://www.gnu.org/licenses/>.
+# state-observation. If not, see <http://www.gnu.org/licenses/>.
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
@@ -21,7 +21,7 @@ INCLUDE(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/eigen.cmake)
 
-SET(PROJECT_NAME state-observer)
+SET(PROJECT_NAME state-observation)
 SET(PROJECT_DESCRIPTION
   "General implementation of observers.")
 SET(PROJECT_URL "")
@@ -29,21 +29,32 @@ SET(PROJECT_URL "")
 SET(CUSTOM_HEADER_DIR "${PROJECT_NAME}")
 
 SET(${PROJECT_NAME}_HEADERS
-  include/state-observer/extended-kalman-filter.hpp
-  include/state-observer/kalman-filter-base.hpp
-  include/state-observer/kalman-filter.hpp
-  include/state-observer/observer-base.hpp
-  include/state-observer/zero-delay-observer.hpp
-  include/state-observer/template/extended-kalman-filter.hpp
-  include/state-observer/template/extended-kalman-filter.hxx
-  include/state-observer/template/kalman-filter-base.hpp
-  include/state-observer/template/kalman-filter-base.hxx
-  include/state-observer/template/kalman-filter.hpp
-  include/state-observer/template/kalman-filter.hxx
-  include/state-observer/template/observer-base.hpp
-  include/state-observer/template/observer-base.hxx
-  include/state-observer/template/zero-delay-observer.hpp
-  include/state-observer/template/zero-delay-observer.hxx
+  include/state-observation/observer/extended-kalman-filter.hpp
+  include/state-observation/observer/kalman-filter-base.hpp
+  include/state-observation/observer/kalman-filter.hpp
+  include/state-observation/observer/observer-base.hpp
+  include/state-observation/observer/zero-delay-observer.hpp
+  include/state-observation/observer/compile-time/extended-kalman-filter.hpp
+  include/state-observation/observer/compile-time/extended-kalman-filter.hxx
+  include/state-observation/observer/compile-time/kalman-filter-base.hpp
+  include/state-observation/observer/compile-time/kalman-filter-base.hxx
+  include/state-observation/observer/compile-time/kalman-filter.hpp
+  include/state-observation/observer/compile-time/kalman-filter.hxx
+  include/state-observation/observer/compile-time/observer-base.hpp
+  include/state-observation/observer/compile-time/observer-base.hxx
+  include/state-observation/observer/compile-time/zero-delay-observer.hpp
+  include/state-observation/observer/compile-time/zero-delay-observer.hxx
+  include/state-observation/sensors-simulation/sensor-base.hpp
+  include/state-observation/sensors-simulation/algebraic-sensor.hpp
+  include/state-observation/sensors-simulation/accelerometer-gyrometer.hpp
+  include/state-observation/noise/noise-base.hpp
+  include/state-observation/noise/gaussian-white-noise.hpp
+  include/state-observation/sensors-simulation/algorithm/rotation-velocity.hpp
+  include/state-observation/sensors-simulation/algorithm/linear-acceleration.hpp
+  include/state-observation/tools/definitions.hpp
+  include/state-observation/tools/probability-law-simulation.hpp
+  include/state-observation/dynamical-system/dynamical-system-functor-base.hpp
+  include/state-observation/dynamical-system/dynamical-system-simulator.hpp
 )
 SET(CXX_DISABLE_WERROR TRUE)
 

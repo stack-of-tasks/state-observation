@@ -1,17 +1,17 @@
 # Copyright 2008, 2009, 2010, 2013 Olivier Stasse, Mehdi Benallegue JRL, CNRS/AIST
 #
-# This file is part of state-observer.
-# state-observer is free software: you can redistribute it and/or modify
+# This file is part of state-observation.
+# state-observation is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# state-observer is distributed in the hope that it will be useful,
+# state-observation is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Lesser Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License
-# along with state-observer.  If not, see <http://www.gnu.org/licenses/>.
+# along with state-observation.  If not, see <http://www.gnu.org/licenses/>.
 
 # prefix and suffix each element of list by ${prefix}elemnt${suffix}
 macro(ADDPREFIX newlist prefix list_name)
@@ -38,6 +38,16 @@ ADD_LIBRARY(${LIBRARY_NAME}
   extended-kalman-filter.cpp
   kalman-filter.cpp
   zero-delay-observer.cpp
+  sensor-base.cpp
+  algebraic-sensor.cpp
+  rotation-velocity.cpp
+  linear-acceleration.cpp
+  definitions.cpp
+  accelerometer-gyrometer.cpp
+  probability-law-simulation.cpp
+  gaussian-white-noise.cpp
+  dynamical-system-functor-base.cpp
+  dynamical-system-simulator.cpp
   ${${PROJECT_NAME}_ABSOLUTE_HEADERS}
   )
 
