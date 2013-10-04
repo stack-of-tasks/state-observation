@@ -32,7 +32,7 @@ namespace stateObservation
         (void)k; //unused
 
         if (p_>0)
-            return this->a_()*this->x_()+this->b_()*this->u_[k];
+            return this->a_()*this->x_()+this->b_()*this->u_[k-1];
         else
             return this->a_()*this->x_();
 
