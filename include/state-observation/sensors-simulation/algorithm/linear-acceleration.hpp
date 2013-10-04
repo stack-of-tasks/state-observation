@@ -29,6 +29,8 @@ namespace stateObservation
         class LinearAcceleration
         {
         public:
+            virtual ~LinearAcceleration(){}
+
             Vector3 accelerationMeasure(const Vector3 & acceleration, const Matrix3 & orientation) const;
 
 

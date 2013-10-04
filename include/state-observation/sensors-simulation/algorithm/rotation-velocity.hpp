@@ -29,6 +29,8 @@ namespace stateObservation
         class RotationVelocity
         {
         public:
+            virtual ~RotationVelocity(){}
+
             Vector3 rotationVelocityMeasure(const Vector3 & rotationVector, const Matrix3 & orientation) const;
 
 
