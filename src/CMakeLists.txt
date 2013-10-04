@@ -48,6 +48,7 @@ ADD_LIBRARY(${LIBRARY_NAME}
   gaussian-white-noise.cpp
   dynamical-system-functor-base.cpp
   dynamical-system-simulator.cpp
+  rigid-body-kinematics.cpp
   ${${PROJECT_NAME}_ABSOLUTE_HEADERS}
   )
 
