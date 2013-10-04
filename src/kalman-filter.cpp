@@ -6,7 +6,7 @@ namespace stateObservation
     void KalmanFilter::setB(const Bmatrix& B)
     {
         BOOST_ASSERT(checkBmatrix(B)&& "ERROR: The B matrix size is incorrect");
-        b_.set(B,0);
+        b_.set(B);
     }
 
     void KalmanFilter::clearB()
@@ -18,7 +18,7 @@ namespace stateObservation
     {
         BOOST_ASSERT(checkDmatrix(D)&& "ERROR: The D matrix size is incorrect");
 
-        d_.set(D,0);
+        d_.set(D);
     }
 
     void KalmanFilter::clearD()
@@ -32,7 +32,7 @@ namespace stateObservation
         (void)k; //unused
 
         if (p_>0)
-            return this->a_()*this->x_()+this->b_()*this->u_[0]();
+            return this->a_()*this->x_()+this->b_()*this->u_[k];
         else
             return this->a_()*this->x_();
 
@@ -47,23 +47,18 @@ namespace stateObservation
         {
             if (d_()!=getDmatrixZero())
             {
-                unsigned i;
-                for (i=0; i<this->u_.size()&&this->u_[i].getTime()<k;++i)
-                {
-                }
-
-                BOOST_ASSERT(i!=this->u_.size() && this->u_[i].getTime()<=k &&
+                BOOST_ASSERT(u_.checkIndex(k) &&
                              "ERROR: The input feedthrough of the measurements is not set \
                              (the measurement at time k needs the input at time k which was not given) \
                              if you don't need the input in the computation of measurement, you \
                              must set D matrix to zero");
-                u=this->u_[i]();
+                u=u_[k];
             }
-            return this->c_()*x+this->d_()*u;
+            return c_()*x+d_()*u;
         }
         else
         {
-            return this->c_()*x;
+            return c_()*x;
         }
 
     }

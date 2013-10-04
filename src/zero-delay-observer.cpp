@@ -7,15 +7,15 @@ namespace stateObservation
     {
         BOOST_ASSERT(checkStateVector(x_k) && "The size of the state vector is incorrect");
         x_.set(x_k,k);
-        while (y_.size()>0 && y_[0].getTime()<=k)
+        while (y_.size()>0 && y_.getFirstTime()<=k)
         {
-            y_.pop_front();
+            y_.popFront();
         }
 
         if (p_>0)
-            while (u_.size()>0 && u_[0].getTime()<k)
+            while (u_.size()>0 && u_.getFirstTime()<k)
             {
-                u_.pop_front();
+                u_.popFront();
             }
     }
 
@@ -28,18 +28,16 @@ namespace stateObservation
     {
         BOOST_ASSERT(checkMeasureVector(y_k) && "The size of the measure vector is incorrect");
         if (y_.size()>0)
-            BOOST_ASSERT (y_[y_.size()-1].getTime()==k-1 && "ERROR: The time is set incorrectly for the measurements (order or gap)");
+            BOOST_ASSERT (y_.getLastTime()==k-1 && "ERROR: The time is set incorrectly for the measurements (order or gap)");
         else
             BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k-1) && "ERROR: The time is set incorrectly for the measurements (must be [current_time+1])");
 
-        DiscreteTimeMatrix a(y_k,k);
-
-        y_.push_back(a);
+        y_.pushBack(y_k,k);
     }
 
     void ZeroDelayObserver::clearMeasurements()
     {
-        y_.clear();
+        y_.reset();
     }
 
     void ZeroDelayObserver::setInput (const ObserverBase::InputVector& u_k,unsigned k)
@@ -49,20 +47,18 @@ namespace stateObservation
             BOOST_ASSERT(checkInputVector(u_k) && "The size of the input vector is incorrect");
 
             if (u_.size()>0)
-                BOOST_ASSERT (u_[u_.size()-1].getTime()==k-1 && "ERROR: The time is set incorrectly for the inputs (order or gap)");
+                BOOST_ASSERT (u_.getLastTime()==k-1 && "ERROR: The time is set incorrectly for the inputs (order or gap)");
             else
                 BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k) && "ERROR: The time is set incorrectly for the inputs (must be [current_time])");
 
-            DiscreteTimeMatrix a(u_k,k);
-
-            u_.push_back(a);
+           u_.pushBack(u_k,k);
         }
     }
 
     void ZeroDelayObserver::clearInputs()
     {
         if (p_>0)
-            u_.clear();
+            u_.reset();
     }
 
     ObserverBase::StateVector
@@ -75,9 +71,9 @@ namespace stateObservation
         for (unsigned i=k0;i<k;++i)
         {
             oneStepEstimation_();
-            y_.pop_front();
+            y_.popFront();
             if (p_>0)
-                u_.pop_front();
+                u_.popFront();
         }
 
         return x_();

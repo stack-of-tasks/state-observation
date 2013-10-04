@@ -6,7 +6,7 @@ namespace stateObservation
     void KalmanFilterBase::setA(const Amatrix& A)
     {
         BOOST_ASSERT(checkAmatrix(A)&& "ERROR: The A matrix dimensions are wrong");
-        a_.set(A,0);
+        a_.set(A);
     }
 
     void KalmanFilterBase::clearA()
@@ -17,7 +17,7 @@ namespace stateObservation
     void KalmanFilterBase::setC( const Cmatrix& C)
     {
         BOOST_ASSERT(checkCmatrix(C)&& "ERROR: The C matrix dimensions are wrong");
-        c_.set(C,0);
+        c_.set(C);
     }
 
     void KalmanFilterBase::clearC()
@@ -29,7 +29,7 @@ namespace stateObservation
     void KalmanFilterBase::setR( const Rmatrix& R)
     {
         BOOST_ASSERT(checkRmatrix(R)&& "ERROR: The R matrix dimensions are wrong");
-        r_.set(R,0);
+        r_.set(R);
     }
 
     void KalmanFilterBase::clearR()
@@ -40,7 +40,7 @@ namespace stateObservation
     void KalmanFilterBase::setQ( const Qmatrix& Q)
     {
         BOOST_ASSERT(checkQmatrix(Q)&& "ERROR: The Q matrix dimensions are wrong");
-        q_.set(Q,0);
+        q_.set(Q);
     }
 
     void KalmanFilterBase::clearQ()
@@ -51,7 +51,7 @@ namespace stateObservation
     void KalmanFilterBase::setStateCovariance(const Pmatrix& P)
     {
         BOOST_ASSERT(checkPmatrix(P)&& "ERROR: The P matrix dimensions are wrong");
-        pr_.set(P,this->x_.getTime());
+        pr_.set(P);
     }
 
 
@@ -63,9 +63,9 @@ namespace stateObservation
     ObserverBase::StateVector KalmanFilterBase::oneStepEstimation_()
     {
         unsigned k=this->x_.getTime();
-        BOOST_ASSERT(this->y_.size()> 0 && this->y_[0].getTime()==k+1 && "ERROR: The measurement vector is not set");
+        BOOST_ASSERT(this->y_.size()> 0 && this->y_.checkIndex(k+1) && "ERROR: The measurement vector is not set");
         if (p_>0)
-            BOOST_ASSERT(this->u_.size()> 0 && this->u_[0].getTime()==k && "ERROR: The input vector is not set");
+            BOOST_ASSERT(this->u_.size()> 0 && this->u_.checkIndex(k) && "ERROR: The input vector is not set");
 
         BOOST_ASSERT(a_.isSet() && "ERROR: The Matrix A is not initialized" );
         BOOST_ASSERT(c_.isSet() && "ERROR: The Matrix C is not initialized");
@@ -82,7 +82,7 @@ namespace stateObservation
         Pmatrix pbar=a*px*a.transpose()+q_();
 
         //innovation
-        MeasureVector ino= this->y_[0]() - simulateSensor_(xbar,k+1);
+        MeasureVector ino= this->y_[k+1] - simulateSensor_(xbar,k+1);
         Rmatrix inoCov = c * pbar * c.transpose() + r_();
 
         //gain
@@ -92,7 +92,7 @@ namespace stateObservation
         StateVector xhat=xbar+kGain*ino;
 
         this->x_.set(xhat,k+1);
-        pr_.set((getPmatrixIdentity()-kGain*c)*pbar,k+1);
+        pr_.set((getPmatrixIdentity()-kGain*c)*pbar);
 
         return xhat;
     }

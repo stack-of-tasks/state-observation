@@ -222,19 +222,19 @@ namespace stateObservation
         virtual MeasureVector simulateSensor_(const StateVector& x, unsigned k)=0;
 
         /// Containers for the jacobian matrix of the process
-        DiscreteTimeMatrix a_;
+        CheckedMatrix a_;
 
         /// Containers for the jacobian matrix of the measurement
-        DiscreteTimeMatrix c_;
+        CheckedMatrix c_;
 
         /// Container for the process noise covariance matrice
-        DiscreteTimeMatrix q_;
+        CheckedMatrix q_;
 
         /// Container for the measurement noise covariance matrice
-        DiscreteTimeMatrix r_;
+        CheckedMatrix r_;
 
         /// Container for the covariance matrix of the estimation error
-        DiscreteTimeMatrix pr_;
+        CheckedMatrix pr_;
 
     };
 

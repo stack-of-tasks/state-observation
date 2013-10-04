@@ -128,10 +128,10 @@ namespace stateObservation
         DiscreteTimeMatrix x_;
 
         ///Container for the measurements.
-        std::deque< DiscreteTimeMatrix > y_;
+        DiscreteTimeArray y_;
 
         ///Container for the actual measurements.
-        std::deque< DiscreteTimeMatrix > u_;
+        DiscreteTimeArray u_;
 
     };
 
