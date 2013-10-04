@@ -78,13 +78,17 @@ void DiscreteTimeMatrix::check_()const
 void DiscreteTimeArray::pushBack(const Matrix& v,unsigned k)
 {
     checkNext_(k);
+    if (v_.size()==0)
+        k_=k;
+
     v_.push_back(v);
 }
 
 void DiscreteTimeArray::popFront()
 {
     check_();
-    return v_.pop_front();
+    v_.pop_front();
+    ++k_;
 }
 
 ///Get the matrix value

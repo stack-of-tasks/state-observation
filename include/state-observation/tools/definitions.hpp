@@ -122,7 +122,6 @@ namespace stateObservation
         ///Default constructor
         DiscreteTimeArray();
 
-        ///Set the value of the matrix and the time sample
         inline void pushBack(const Matrix& v,unsigned k);
 
         inline void popFront();
