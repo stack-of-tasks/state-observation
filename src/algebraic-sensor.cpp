@@ -3,7 +3,7 @@
 namespace stateObservation
 {
     AlgebraicSensor::AlgebraicSensor()
-        :time_(0),storedNoiselessMeasurement_(false),storedNoisyMeasurement_()
+        :time_(0),storedNoisyMeasurement_(),storedNoiselessMeasurement_(false)
     {
     }
 
