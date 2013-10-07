@@ -14,8 +14,6 @@ namespace stateObservation
 
     Vector AccelerometerGyrometer::computeNoiselessMeasurement_()
     {
-        Vector4 v(state_.head(4));
-        //Quaternion q= Quaternion(v);
         Quaternion q(state_[0],state_[1],state_[2],state_[3]);
         Matrix3 r(q.toRotationMatrix());
 
