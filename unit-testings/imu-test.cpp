@@ -2,30 +2,49 @@
 
 #include <state-observation/sensors-simulation/accelerometer-gyrometer.hpp>
 #include <state-observation/noise/gaussian-white-noise.hpp>
+#include <state-observation/dynamical-system/imu-dynamical-system.hpp>
+#include <state-observation/dynamical-system/dynamical-system-simulator.hpp>
 
 using namespace stateObservation;
 
 int test()
 {
-    AccelerometerGyrometer imu;
+    IMUDynamicalSystem imu;
 
-    Vector x=imu.stateVectorZero();
+    DynamicalSystemSimulator sym;
 
-    x[0]=1;
+    //GaussianWhiteNoise vk(imu.getMeasurementSize());
 
-    GaussianWhiteNoise vk(imu.getMeasurementSize());
+    sym.setDynamicsFunctor(&imu);
+
+    Vector x=Vector::Zero(imu.getStateSize(),1);
+
+    sym.setState(x,0);
+
+    std::vector<Vector> u;
+
+    for (int i=0;i<50;++i)
+    {
+        Vector uk=Vector::Random(imu.getInputSize(),1);
+        for (int j=0;j<10;++j)
+        {
+            u.push_back(uk);
+        }
+        sym.setInput(uk,10*i);
+
+    }
+
+    sym.simulateDynamicsTo(501);
+
+    DiscreteTimeArray y = sym.getMeasurementArray(1,500);
 
 
-    imu.setState(x,0);
-
-    imu.setNoise(&vk);
-
-    std::cout<<"State \n"<<x<<std::endl<<std::endl;
 
 
-    //x=Vector::Random(x.rows(),1);
 
-    std::cout<<"Measurement \n"<<imu.getMeasurements()<<std::endl;
+
+
+
     return 0;
 }
 
