@@ -69,6 +69,23 @@ double testExtendedKalmanFilter()
             return yk;
         }
 
+        virtual unsigned getStateSize()
+        {
+            f.getStateSize();
+        }
+
+        virtual unsigned getInputSize()
+        {
+            f.getInputSize();
+        }
+
+        virtual unsigned getMeasurementSize()
+        {
+            f.getMeasureSize();
+        }
+
+
+
     private:
          ///containers for the vectors and matrices
         ekf::StateVector s_;
@@ -221,6 +238,21 @@ public:
             unsigned kk=std::min(k,kmax);
             yk=c[kk]*x+(u.transpose()*u)(0,0)*n_;
             return yk;
+        }
+
+        virtual unsigned getStateSize()
+        {
+            f.getStateSize();
+        }
+
+        virtual unsigned getInputSize()
+        {
+            f.getInputSize();
+        }
+
+        virtual unsigned getMeasurementSize()
+        {
+            f.getMeasureSize();
         }
 
         std::vector<ekf::Amatrix> a;
@@ -385,6 +417,21 @@ double testExtendedKalmanFilterZeroInput()
         void setC(const ekf::Cmatrix& c)
         {
             c_=c;
+        }
+
+        virtual unsigned getStateSize()
+        {
+            f.getStateSize();
+        }
+
+        virtual unsigned getInputSize()
+        {
+            f.getInputSize();
+        }
+
+        virtual unsigned getMeasurementSize()
+        {
+            f.getMeasureSize();
         }
 
     private:
