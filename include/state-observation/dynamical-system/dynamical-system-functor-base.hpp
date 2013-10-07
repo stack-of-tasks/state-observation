@@ -26,14 +26,32 @@ namespace stateObservation
         virtual Vector stateDynamics
         (const Vector& x, const Vector& u, unsigned k)=0;
 
-        ///The function to overloas to describe the dynamics of the sensor (measurements)
+        ///The function to overload to describe the dynamics of the sensor (measurements)
         virtual Vector measureDynamics
         (const Vector& x, const Vector& u, unsigned k)=0;
 
         ///The method to overload if the functor needs to be reset when the
         ///Exteded Kalman filter is reset itself
         virtual void reset(){}
+
+        virtual unsigned getStateSize()=0;
+        virtual unsigned getInputSize()=0;
+        virtual unsigned getMeasurementSize()=0;
+
+        virtual bool checkStateVector(const Vector &);
+        virtual bool checkInputvector(const Vector &);
+
     protected:
+
+        inline void assertStateVector_(const Vector & v)
+        {
+            BOOST_ASSERT(checkStateVector(v) && "ERROR: The state vector has the wrong size");
+        }
+        inline void assertInputVector_(const Vector & v)
+        {
+            BOOST_ASSERT(checkInputvector(v) && "ERROR: The input vector has the wrong size");
+        }
+
     private:
     };
 }
