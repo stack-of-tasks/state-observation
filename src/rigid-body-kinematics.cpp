@@ -5,26 +5,29 @@ namespace stateObservation
     namespace algorithm
 
     {
-        RigidBodyKinematics::RigidBodyKinematics()
-        {
-            //ctor
-        }
-
         RigidBodyKinematics::~RigidBodyKinematics()
         {
             //dtor
         }
 
         void RigidBodyKinematics::integrateKinematics
-                (Vector3 & position, Vector3 & velocity, Vector3 & acceleration,
+                (Vector3 & position, Vector3 & velocity, const Vector3 & acceleration,
                     Matrix3 & orientation, Vector3 & rotationVelocityVector,
-                        Vector3 & rotationVelocityVectorRate, double dt)
+                        const Vector3 & rotationVelocityVectorRate, double dt)
         {
-            position = position + dt * velocity + 0.5 * dt * dt * acceleration;
-            velocity = velocity + dt * acceleration;
+            position +=  dt * velocity + 0.5 * dt * dt * acceleration;
+            velocity +=  dt * acceleration;
 
+            double norm=rotationVelocityVector.norm();
+
+            Vector3 a = rotationVelocityVector / norm;
+
+            AngleAxis rot( norm*dt, a);
+
+            orientation = rot.toRotationMatrix() * orientation;
+
+            rotationVelocityVector += dt * rotationVelocityVectorRate;
 
         }
-
     }
 }

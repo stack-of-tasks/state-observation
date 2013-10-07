@@ -10,13 +10,12 @@ namespace stateObservation
         class RigidBodyKinematics
         {
         public:
-            RigidBodyKinematics();
             virtual ~RigidBodyKinematics();
 
             virtual void integrateKinematics
-                (Vector3 & position, Vector3 & velocity, Vector3 & acceleration,
+                (Vector3 & position, Vector3 & velocity, const Vector3 & acceleration,
                     Matrix3 & orientation, Vector3 & rotationVelocityVector,
-                        Vector3 & rotationVelocityVectorRate, double dt);
+                        const Vector3 & rotationVelocityVectorRate, double dt);
 
         protected:
         private:
