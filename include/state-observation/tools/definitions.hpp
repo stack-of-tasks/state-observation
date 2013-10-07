@@ -168,6 +168,8 @@ namespace stateObservation
     namespace cst
     {
         const Vector gravity= 9.81 * Eigen::Vector3d::UnitZ();
+
+        const double epsilonAngle=1e-16;
     }
 
     #include <state-observation/tools/definitions.hxx>
