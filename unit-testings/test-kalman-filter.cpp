@@ -322,6 +322,11 @@ private:
 
     ekf::Pmatrix p=f.getPmatrixZero();
 
+    for (unsigned i=0;i<f.getStateSize();++i)
+    {
+        p(i,i)=xh[i];
+    }
+    p=p*p.transpose();
 
 
     f.setStateCovariance(p);
