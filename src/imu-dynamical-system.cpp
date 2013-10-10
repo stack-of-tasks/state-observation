@@ -87,7 +87,7 @@ namespace stateObservation
 
         Quaternion q=computeQuaternion_(orientationV);
 
-        Vector v=Vector::Zero(9,1);
+        Vector v=Vector::Zero(10,1);
 
         v[0]=q.w();
         v[1]=q.x();
