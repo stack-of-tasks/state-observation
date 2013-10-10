@@ -3,7 +3,8 @@ namespace stateObservation
 {
 
     IMUDynamicalSystem::IMUDynamicalSystem()
-    :processNoise_(0x0),dt_(1)
+    :processNoise_(0x0),dt_(1),orientationVector_(Vector3::Zero()),
+        quaternion_(Quaternion::Identity())
     {
         //ctor
     }
@@ -27,7 +28,7 @@ namespace stateObservation
         Vector3 angularVelocity=x.segment(12,3);
         Vector3 angularAcceleration=x.tail(3);
 
-        Matrix3 orientation=(computeQuaternion_(orientationV)).toRotationMatrix();
+        Quaternion orientation=computeQuaternion_(orientationV);
 
         integrateKinematics
                 (position, velocity, acceleration, orientation, angularVelocity,
@@ -38,7 +39,6 @@ namespace stateObservation
 
         xk1.head(3) = position;
         xk1.segment(3,3) = velocity;
-        xk1.segment(6,3) = acceleration;
 
         AngleAxis orientationAA(orientation);
 
@@ -46,12 +46,11 @@ namespace stateObservation
 
         xk1.segment(9,3) =  orientationV;
         xk1.segment(12,3) = angularVelocity;
-        xk1.tail(3) = angularAcceleration;
 
 
         //inputs
-        Vector3 accelerationInput=u.head(3);
-        Vector3 angularAccelerationInput=u.tail(3);
+        Vector3 accelerationInput =u.head(3);
+        Vector3 angularAccelerationInput =u.tail(3);
 
         xk1.segment(6,3)+=accelerationInput;
         xk1.tail(3)+=angularAccelerationInput;
@@ -64,6 +63,7 @@ namespace stateObservation
     {
         if (orientationVector_!=x)
         {
+            orientationVector_=x;
             double angle=x.norm();
             if (angle > cst::epsilonAngle)
                 quaternion_ = AngleAxis(angle, x/angle);
