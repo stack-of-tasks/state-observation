@@ -50,12 +50,10 @@ namespace stateObservation
         ///  \li p : size of the input vector
         ///  \li The parameter directInputOutputFeedthrough defines whether (true) or not (false) the measurement y_k requires the input u_k
         ExtendedKalmanFilter(unsigned n,unsigned m,unsigned p=0,bool directInputOutputFeedthrough=true)
-            :KalmanFilterBase(n,m,p), f_(0x0)
+            :KalmanFilterBase(n,m,p), f_(0x0), directInputOutputFeedthrough_(directInputOutputFeedthrough)
         {
             if (p==0)
-                directInputOutputFeedthrough=false;
-
-
+                directInputOutputFeedthrough_=false;
         }
 
 
