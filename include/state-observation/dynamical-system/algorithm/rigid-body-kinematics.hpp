@@ -14,7 +14,7 @@ namespace stateObservation
 
             virtual void integrateKinematics
                 (Vector3 & position, Vector3 & velocity, const Vector3 & acceleration,
-                    Matrix3 & orientation, Vector3 & rotationVelocityVector,
+                    Quaternion & orientation, Vector3 & rotationVelocityVector,
                         const Vector3 & rotationVelocityVectorRate, double dt);
 
         protected:
