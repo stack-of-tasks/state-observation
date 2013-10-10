@@ -9,9 +9,9 @@ namespace stateObservation
 
     void AlgebraicSensor::setState(const Vector & state, unsigned k)
     {
-        state_=state;
-        if (time_!=k)
+        if (state.size()!=state_.size() || state!=state_ || time_!=k)
         {
+            state_=state;
             time_=k;
             storedNoisyMeasurement_=false;
             storedNoiselessMeasurement_=false;
