@@ -28,7 +28,7 @@ namespace stateObservation
 
     void KalmanFilterBase::setR( const Rmatrix& R)
     {
-        BOOST_ASSERT(checkRmatrix(R)&& "ERROR: The R matrix dimensions are wrong");
+        BOOST_ASSERT(checkRmatrix(R)&& "ERROR: The dimensions of the measurement noise covariance matrix R are wrong");
         r_.set(R);
     }
 
@@ -39,7 +39,7 @@ namespace stateObservation
 
     void KalmanFilterBase::setQ( const Qmatrix& Q)
     {
-        BOOST_ASSERT(checkQmatrix(Q)&& "ERROR: The Q matrix dimensions are wrong");
+        BOOST_ASSERT(checkQmatrix(Q)&& "ERROR: The dimensions of the process noise covariance matrix Q are wrong");
         q_.set(Q);
     }
 
