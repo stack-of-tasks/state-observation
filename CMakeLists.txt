@@ -54,10 +54,13 @@ SET(${PROJECT_NAME}_HEADERS
   include/state-observation/tools/definitions.hpp
   include/state-observation/tools/definitions.hxx
   include/state-observation/tools/probability-law-simulation.hpp
+  include/state-observation/tools/miscellaneous-algorithms.hpp 
   include/state-observation/dynamical-system/dynamical-system-functor-base.hpp
   include/state-observation/dynamical-system/dynamical-system-simulator.hpp
   include/state-observation/dynamical-system/imu-dynamical-system.hpp
   include/state-observation/dynamical-system/algorithm/rigid-body-kinematics.hpp
+
+
 )
 SET(CXX_DISABLE_WERROR TRUE)
 
