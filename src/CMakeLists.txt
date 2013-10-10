@@ -49,6 +49,7 @@ ADD_LIBRARY(${LIBRARY_NAME}
   dynamical-system-functor-base.cpp
   dynamical-system-simulator.cpp
   rigid-body-kinematics.cpp
+  imu-dynamical-system.cpp
   ${${PROJECT_NAME}_ABSOLUTE_HEADERS}
   )
 
