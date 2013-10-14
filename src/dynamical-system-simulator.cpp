@@ -63,14 +63,21 @@ namespace stateObservation
 
     Vector DynamicalSystemSimulator::getInput(unsigned k)const
     {
+        BOOST_ASSERT(u_.size()>0 && "ERROR: the input is not set");
         std::map<unsigned,Vector>::const_iterator i=u_.upper_bound(k);
+
+
+
         --i;
+
+        BOOST_ASSERT(i->first<=k &&
+                "ERROR: the input is not set for the current time");
 
         return i->second;
 
     }
 
-    void DynamicalSystemSimulator::interateDynamics()
+    void DynamicalSystemSimulator::simulateDynamics()
     {
         BOOST_ASSERT(f_!=0x0 &&
             "ERROR: A dynamics functor must be set");
@@ -86,7 +93,7 @@ namespace stateObservation
     {
         for (unsigned i=x_.getLastTime(); i <k ; ++i)
         {
-            interateDynamics();
+            simulateDynamics();
         }
     }
 

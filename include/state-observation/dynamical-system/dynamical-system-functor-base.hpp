@@ -1,3 +1,15 @@
+/**
+ * \file      dynamics-functor-base.hpp
+ * \author    Mehdi Benallegue
+ * \date       2013
+ * \brief      Gives the base class to be derived in order to define any
+ *             dynamics system.
+ *
+ * \details
+ *
+ *
+ */
+
 #ifndef STATEOBSERVERDYNAMICALSYSTEMFUNCTORBASE_H
 #define STATEOBSERVERDYNAMICALSYSTEMFUNCTORBASE_H
 
@@ -34,11 +46,16 @@ namespace stateObservation
         ///Exteded Kalman filter is reset itself
         virtual void reset(){}
 
+        ///gets the state size
         virtual unsigned getStateSize()=0;
+        ///gets the input size
         virtual unsigned getInputSize()=0;
+        ///gets the measurements size
         virtual unsigned getMeasurementSize()=0;
 
+        ///Gives a boolean answer on whether or not the vector is correctly sized to be a state vector
         virtual bool checkStateVector(const Vector &);
+        ///Gives a boolean answer on whether or not the vector is correctly sized to be an input vector
         virtual bool checkInputvector(const Vector &);
 
     protected:
