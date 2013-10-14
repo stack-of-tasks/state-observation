@@ -142,8 +142,11 @@ int test()
     {
         ///introduction of the measurement
         filter.setMeasurement(y[i],i);
+
+        ///introduction of the input
         if (i<x.getLastTime())
-            filter.setInput(u[i],i);
+            //filter.setInput(u[i],i);
+            filter.setInput(filter.inputVectorZero(),i);
 
         ///get the jacobians by finite differences and provide them to the Kalman filter
         Matrix a=filter.getAMatrixFD(dx);
