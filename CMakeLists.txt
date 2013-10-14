@@ -59,8 +59,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/state-observation/dynamical-system/dynamical-system-simulator.hpp
   include/state-observation/dynamical-system/imu-dynamical-system.hpp
   include/state-observation/dynamical-system/algorithm/rigid-body-kinematics.hpp
-
-
+  include/state-observation/examples/imu-attitude-trajectory-reconstruction.hpp
+  include/state-observation/examples/imu-attitude-trajectory-reconstruction.hxx
 )
 SET(CXX_DISABLE_WERROR TRUE)
 

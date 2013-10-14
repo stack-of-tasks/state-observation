@@ -1,12 +1,8 @@
 #include <iostream>
 #include <fstream>
 
-#include <state-observation/sensors-simulation/accelerometer-gyrometer.hpp>
 #include <state-observation/noise/gaussian-white-noise.hpp>
-#include <state-observation/dynamical-system/imu-dynamical-system.hpp>
-#include <state-observation/dynamical-system/dynamical-system-simulator.hpp>
-#include <state-observation/observer/extended-kalman-filter.hpp>
-#include <state-observation/tools/miscellaneous-algorithms.hpp>
+#include <state-observation/examples/imu-attitude-trajectory-reconstruction.hpp>
 
 using namespace stateObservation;
 
@@ -100,38 +96,23 @@ int test()
     ///initialization of the extended Kalman filter
     ExtendedKalmanFilter filter(stateSize, measurementSize, measurementSize, false);
 
-    ///initalization of the functor
-    IMUDynamicalSystem imuFunctor;
-    imuFunctor.setSamplingPeriod(dt);
-    filter.setFunctor(& imuFunctor);
-
     ///the initalization of a random estimation of the initial state
-    Vector xh0=filter.stateVectorRandom()*3.14;
+    Vector xh0=Vector::Random(stateSize,1)*3.14;
     xh0[9]=3.14;
-    filter.setState(xh0,0);
+
 
     ///computation and initialization of the covariance matrix of the initial state
-    Matrix p=filter.getPmatrixZero();
+    Matrix p=Matrix::Zero(stateSize,stateSize);
     for (unsigned i=0;i<filter.getStateSize();++i)
     {
         p(i,i)=xh0[i];
     }
     p=p*p.transpose();
-    filter.setStateCovariance(p);
 
-    ///set initial input
-    filter.setInput(u[0],0);
 
-    ///set the covariance matrices for the extended Kalman filter
-    filter.setR(r);
-    filter.setQ(q);
+    DiscreteTimeArray xh = examples::imuAttitudeTrajectoryReconstruction
+                           (y, u, xh0, p, q, r, dt);
 
-    ///set the derivation step for the finite difference method
-    Vector dx=filter.stateVectorConstant(1)*1e-8;
-
-    ///the array of the state estimations over time
-    DiscreteTimeArray xh;
-    xh.pushBack(xh0,0);
 
     ///file of output
     std::ofstream f;
@@ -140,66 +121,37 @@ int test()
     ///the reconstruction of the state
     for (int i=y.getFirstTime();i<=y.getLastTime();++i)
     {
-        ///introduction of the measurement
-        filter.setMeasurement(y[i],i);
-
-        ///introduction of the input
-        if (i<x.getLastTime())
-            //filter.setInput(u[i],i);
-            filter.setInput(filter.inputVectorZero(),i);
-
-        ///get the jacobians by finite differences and provide them to the Kalman filter
-        Matrix a=filter.getAMatrixFD(dx);
-        Matrix c= filter.getCMatrixFD(dx);
-        filter.setA(a);
-        filter.setC(c);
-
-        ///get the estimation and give it to the array
-        Vector xhk=filter.getEstimateState(i);
-
-        ///regulate the part of orientation vector in the state vector
-        xhk.segment(9,3)=tools::regulateOrientationVector(xhk.segment(9,3));
-
-        ///give the new value of the state to the kalman filter.
-        ///This step is usually unnecessary, unless we modify the value of the state esimation
-        ///which is the case here.
-        filter.setState(xhk,i);
-
-
-        xh.pushBack(xhk,i);
-
-
-        {///display part, useless
-            Vector3 g;
-            {
-                Matrix3 R;
-                Vector3 orientationV=Vector(x[i]).segment(9,3);
-                double angle=orientationV.norm();
-                if (angle > cst::epsilonAngle)
-                    R = AngleAxis(angle, orientationV/angle).toRotationMatrix();
-                else
-                    R = Matrix3::Identity();
-                g=R.transpose()*Vector3::UnitZ();
-                g.normalize();
-            }
-
-            Vector3 gh;
-            {
-                Matrix3 Rh;
-                Vector3 orientationV=Vector(xh[i]).segment(9,3);
-                double angle=orientationV.norm();
-                if (angle > cst::epsilonAngle)
-                    Rh = AngleAxis(angle, orientationV/angle).toRotationMatrix();
-                else
-                    Rh = Matrix3::Identity();
-                gh=Rh.transpose()*Vector3::UnitZ();
-                gh.normalize();
-            }
-
-
-            f << i<< " \t "<< acos(double(g.transpose()*gh)) * 180 / M_PI << " \t\t\t "
-            << g.transpose() << " \t\t\t " << gh.transpose() << std::endl;
+        ///display part, useless
+        Vector3 g;
+        {
+            Matrix3 R;
+            Vector3 orientationV=Vector(x[i]).segment(9,3);
+            double angle=orientationV.norm();
+            if (angle > cst::epsilonAngle)
+                R = AngleAxis(angle, orientationV/angle).toRotationMatrix();
+            else
+                R = Matrix3::Identity();
+            g=R.transpose()*Vector3::UnitZ();
+            g.normalize();
         }
+
+        Vector3 gh;
+        {
+            Matrix3 Rh;
+            Vector3 orientationV=Vector(xh[i]).segment(9,3);
+            double angle=orientationV.norm();
+            if (angle > cst::epsilonAngle)
+                Rh = AngleAxis(angle, orientationV/angle).toRotationMatrix();
+            else
+                Rh = Matrix3::Identity();
+            gh=Rh.transpose()*Vector3::UnitZ();
+            gh.normalize();
+        }
+
+
+        f << i<< " \t "<< acos(double(g.transpose()*gh)) * 180 / M_PI << " \t\t\t "
+        << g.transpose() << " \t\t\t " << gh.transpose() << std::endl;
+
     }
     return 0;
 }
