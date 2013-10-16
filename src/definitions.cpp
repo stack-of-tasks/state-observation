@@ -3,14 +3,12 @@
 namespace stateObservation
 {
     DiscreteTimeMatrix::DiscreteTimeMatrix(const Matrix& v,unsigned k):
-            isSet_(true),
             k_(k),
             v_(v)
     {
     }
 
     DiscreteTimeMatrix::DiscreteTimeMatrix():
-            isSet_(false),
             k_(0)
     {
     }
@@ -36,9 +34,16 @@ namespace stateObservation
 
     void DiscreteTimeArray::truncate(unsigned time)
     {
-        for (unsigned i=v_.size(); (i > time - k_) && (i > 0) ;--i)
+        if (time > getFirstTime())
         {
-            v_.pop_back();
+            for (unsigned i=getLastTime(); i>=time ;--i)
+            {
+                v_.pop_back();
+            }
+        }
+        else
+        {
+            v_.clear();
         }
     }
 

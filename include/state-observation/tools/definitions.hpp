@@ -82,12 +82,16 @@ namespace stateObservation
         ///does nothing in release mode
         inline void check_() const;
 
-        ///this variable ensures the matrix is initialized,
-        bool isSet_;
-
         unsigned k_;
         Matrix v_;
     };
+
+    /**
+     * \class    DiscreteTimeMatrix
+     * \brief    This class describes a structure that enables to store array of matrices
+     *           with time indexation.
+     *
+     */
 
     class DiscreteTimeArray
     {
@@ -95,15 +99,25 @@ namespace stateObservation
         ///Default constructor
         DiscreteTimeArray();
 
+        ///Pushes the vector v at the time index k
+        ///It checks the time index, the array must have contiguous indexes
         inline void pushBack(const Matrix& v,unsigned k);
 
+        ///Pushes back the matrix to the array, the new value will take the next time
+        ///index. If the array is empty, the time index will be set to 0
+        inline void pushBack(const Matrix& v);
+
+        ///removes the first (oldest) element of the array
         inline void popFront();
 
-        inline Matrix operator[](unsigned time) const;
+        ///gets the value with the given time index
+        inline Matrix operator[](unsigned timeIndex) const;
 
-        inline Matrix  & operator[](unsigned time);
+        ///gets the value with the given time index, non const version
+        inline Matrix  & operator[](unsigned timeIndex);
 
-        void truncate(unsigned time);
+        ///removes all the elements with larger or equal indexes than timeIndex
+        void truncate(unsigned timeIndex);
 
 
         ///Get the time index
@@ -117,16 +131,18 @@ namespace stateObservation
         ///Switch off the initalization flag, the value is no longer accessible
         inline void reset();
 
+        ///converts the array into a standard vector
         std::vector<Matrix> getArray() const;
 
+        ///checks whether the index is present in the array
         inline bool checkIndex(unsigned k) const;
 
     protected:
-        ///Checks whether the matrix is set or not (assert)
+        ///Asserts that the index is present in the array
         ///does nothing in release mode
         inline void check_(unsigned time) const;
 
-        ///Checks whether the matrix is set or not (assert)
+        ///Asserts that the array is not empty
         ///does nothing in release mode
         inline void check_() const;
 
@@ -140,8 +156,10 @@ namespace stateObservation
 
     namespace cst
     {
+        ///Gravity Vector along Z
         const Vector gravity= 9.81 * Eigen::Vector3d::UnitZ();
 
+        ///angles considered Zero
         const double epsilonAngle=1e-16;
     }
 
