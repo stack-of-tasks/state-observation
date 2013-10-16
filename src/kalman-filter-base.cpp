@@ -6,58 +6,58 @@ namespace stateObservation
     void KalmanFilterBase::setA(const Amatrix& A)
     {
         BOOST_ASSERT(checkAmatrix(A)&& "ERROR: The A matrix dimensions are wrong");
-        a_.set(A);
+        a_=A;
     }
 
     void KalmanFilterBase::clearA()
     {
-        a_.reset();
+        a_.resize(0,0);
     }
 
     void KalmanFilterBase::setC( const Cmatrix& C)
     {
         BOOST_ASSERT(checkCmatrix(C)&& "ERROR: The C matrix dimensions are wrong");
-        c_.set(C);
+        c_=C;
     }
 
     void KalmanFilterBase::clearC()
     {
-        c_.reset();
+        c_.resize(0,0);
     }
 
 
     void KalmanFilterBase::setR( const Rmatrix& R)
     {
         BOOST_ASSERT(checkRmatrix(R)&& "ERROR: The dimensions of the measurement noise covariance matrix R are wrong");
-        r_.set(R);
+        r_=R;
     }
 
     void KalmanFilterBase::clearR()
     {
-        r_.reset();
+        r_.resize(0,0);
     }
 
     void KalmanFilterBase::setQ( const Qmatrix& Q)
     {
         BOOST_ASSERT(checkQmatrix(Q)&& "ERROR: The dimensions of the process noise covariance matrix Q are wrong");
-        q_.set(Q);
+        q_=Q;
     }
 
     void KalmanFilterBase::clearQ()
     {
-        q_.reset();
+        q_.resize(0,0);
     }
 
     void KalmanFilterBase::setStateCovariance(const Pmatrix& P)
     {
         BOOST_ASSERT(checkPmatrix(P)&& "ERROR: The P matrix dimensions are wrong");
-        pr_.set(P);
+        pr_=P;
     }
 
 
     void KalmanFilterBase::clearStateCovariance()
     {
-        pr_.reset();
+        pr_.resize(0,0);
     }
 
     ObserverBase::StateVector KalmanFilterBase::oneStepEstimation_()
@@ -67,32 +67,28 @@ namespace stateObservation
         if (p_>0)
             BOOST_ASSERT(this->u_.size()> 0 && this->u_.checkIndex(k) && "ERROR: The input vector is not set");
 
-        BOOST_ASSERT(a_.isSet() && "ERROR: The Matrix A is not initialized" );
-        BOOST_ASSERT(c_.isSet() && "ERROR: The Matrix C is not initialized");
-        BOOST_ASSERT(q_.isSet() && "ERROR: The Matrix Q is not initialized");
-        BOOST_ASSERT(r_.isSet() && "ERROR: The Matrix R is not initialized");
-        BOOST_ASSERT(pr_.isSet() && "ERROR: The Matrix P is not initialized");
-
-        Amatrix a=a_();
-        Cmatrix c=c_();
-        Pmatrix px=pr_();
+        BOOST_ASSERT(checkAmatrix(a_) && "ERROR: The Matrix A is not initialized" );
+        BOOST_ASSERT(checkCmatrix(c_) && "ERROR: The Matrix C is not initialized");
+        BOOST_ASSERT(checkQmatrix(q_) && "ERROR: The Matrix Q is not initialized");
+        BOOST_ASSERT(checkRmatrix(r_) && "ERROR: The Matrix R is not initialized");
+        BOOST_ASSERT(checkPmatrix(pr_) && "ERROR: The Matrix P is not initialized");
 
         //prediction
         StateVector xbar=prediction_(k+1);
-        Pmatrix pbar=a*px*a.transpose()+q_();
+        Pmatrix pbar=a_*pr_*a_.transpose()+q_;
 
         //innovation
         MeasureVector ino= this->y_[k+1] - simulateSensor_(xbar,k+1);
-        Rmatrix inoCov = c * pbar * c.transpose() + r_();
+        Rmatrix inoCov = c_ * pbar * c_.transpose() + r_;
 
         //gain
-        Kmatrix kGain = (pbar * c.transpose()) * inoCov.inverse();
+        Kmatrix kGain = (pbar * c_.transpose()) * inoCov.inverse();
 
         //update
         StateVector xhat=xbar+kGain*ino;
 
         this->x_.set(xhat,k+1);
-        pr_.set((getPmatrixIdentity()-kGain*c)*pbar);
+        pr_=(getPmatrixIdentity()-kGain*c_)*pbar;
 
         return xhat;
     }
@@ -100,20 +96,18 @@ namespace stateObservation
     KalmanFilterBase::Pmatrix KalmanFilterBase::getStateCovariance(unsigned k)
     {
         this->getEstimateState(k);
-        return pr_();
+        return pr_;
     }
 
     void KalmanFilterBase::reset()
     {
         ZeroDelayObserver::reset();
 
-        a_.reset();
-        c_.reset();
-        a_.reset();
-        c_.reset();
-        q_.reset();
-        r_.reset();
-        pr_.reset();
+        clearA();
+        clearC();
+        clearQ();
+        clearR();
+        clearStateCovariance();
     }
 
 
@@ -242,10 +236,10 @@ namespace stateObservation
         if (n!=n_)
         {
             ZeroDelayObserver::setStateSize(n);
-            a_.reset();
-            c_.reset();
-            q_.reset();
-            pr_.reset();
+            clearA();
+            clearC();
+            clearQ();
+            clearStateCovariance();
         }
     }
 
@@ -254,8 +248,8 @@ namespace stateObservation
         if (m!=m_)
         {
             ZeroDelayObserver::setMeasureSize(m);
-            c_.reset();
-            r_.reset();
+            clearC();
+            clearR();
         }
     }
 }

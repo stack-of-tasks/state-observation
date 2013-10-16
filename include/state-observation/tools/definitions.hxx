@@ -1,38 +1,4 @@
 ///Set the value of the matrix and the time sample
-void CheckedMatrix::set(const Matrix& v)
-{
-    v_=v;
-    isSet_=true;
-}
-
-///Get the matrix value
-Matrix CheckedMatrix::operator()()const
-{
-    check_();
-    return v_;
-}
-
-///Says whether the matrix is initialized or not
-const bool & CheckedMatrix::isSet()const
-{
-    return isSet_;
-}
-
-///Switch off the initalization flag, the value is no longer accessible
-void CheckedMatrix::reset()
-{
-    isSet_=false;
-}
-
-
-///Checks whether the matrix is set or not (assert)
-///does nothing in release mode
-void CheckedMatrix::check_()const
-{
-    BOOST_ASSERT(isSet_ && "Error: Matrix not initialized");
-}
-
-///Set the value of the matrix and the time sample
 inline void DiscreteTimeMatrix::set(const Matrix& v,unsigned k)
 {
     k_=k;

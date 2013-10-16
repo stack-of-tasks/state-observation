@@ -5,25 +5,25 @@ namespace stateObservation
 
     void KalmanFilter::setB(const Bmatrix& B)
     {
-        BOOST_ASSERT(checkBmatrix(B)&& "ERROR: The B matrix size is incorrect");
-        b_.set(B);
+        BOOST_ASSERT(checkBmatrix(B) && "ERROR: The B matrix size is incorrect");
+        b_=B;
     }
 
     void KalmanFilter::clearB()
     {
-        b_.reset();
+        b_.resize(0,0);
     }
 
     void KalmanFilter::setD(const Dmatrix& D)
     {
-        BOOST_ASSERT(checkDmatrix(D)&& "ERROR: The D matrix size is incorrect");
+        BOOST_ASSERT(checkDmatrix(D) && "ERROR: The D matrix size is incorrect");
 
-        d_.set(D);
+        d_=D;
     }
 
     void KalmanFilter::clearD()
     {
-        d_.reset();
+        d_.resize(0,0);
     }
 
 
@@ -31,10 +31,16 @@ namespace stateObservation
     {
         (void)k; //unused
 
+        BOOST_ASSERT(checkAmatrix(a_) && "ERROR: The A is not initialized");
+        BOOST_ASSERT(checkBmatrix(b_) && "ERROR: The B is not initialized");
+        BOOST_ASSERT(checkCmatrix(c_) && "ERROR: The C is not initialized");
+        BOOST_ASSERT(checkDmatrix(d_) && "ERROR: The D is not initialized");
+
+
         if (p_>0)
-            return this->a_()*this->x_()+this->b_()*this->u_[k-1];
+            return this->a_*this->x_()+this->b_*this->u_[k-1];
         else
-            return this->a_()*this->x_();
+            return this->a_*this->x_();
 
     }
 
@@ -43,9 +49,14 @@ namespace stateObservation
 
         InputVector u ( inputVectorZero());
 
+        BOOST_ASSERT(checkAmatrix(a_) && "ERROR: The A is not initialized");
+        BOOST_ASSERT(checkBmatrix(b_) && "ERROR: The B is not initialized");
+        BOOST_ASSERT(checkCmatrix(c_) && "ERROR: The C is not initialized");
+        BOOST_ASSERT(checkDmatrix(d_) && "ERROR: The D is not initialized");
+
         if (p_>0)
         {
-            if (d_()!=getDmatrixZero())
+            if (d_!=getDmatrixZero())
             {
                 BOOST_ASSERT(u_.checkIndex(k) &&
                              "ERROR: The input feedthrough of the measurements is not set \
@@ -54,11 +65,11 @@ namespace stateObservation
                              must set D matrix to zero");
                 u=u_[k];
             }
-            return c_()*x+d_()*u;
+            return c_*x+d_*u;
         }
         else
         {
-            return c_()*x;
+            return c_*x;
         }
 
     }
@@ -67,8 +78,8 @@ namespace stateObservation
     {
         KalmanFilterBase::reset();
 
-        b_.reset();
-        d_.reset();
+        clearB();
+        clearD();
     }
 
     KalmanFilter::Bmatrix KalmanFilter::getBmatrixConstant(double c) const
@@ -117,7 +128,7 @@ namespace stateObservation
         if (n!=n_)
         {
             KalmanFilterBase::setStateSize(n);
-            b_.reset();
+            clearB();
         }
     }
 
@@ -126,7 +137,7 @@ namespace stateObservation
         if (m!=m_)
         {
             KalmanFilterBase::setMeasureSize(m);
-            d_.reset();
+            clearD();
         }
     }
 
@@ -135,8 +146,8 @@ namespace stateObservation
         if (p!=p_)
         {
             KalmanFilterBase::setInputSize(p);
-            b_.reset();
-            d_.reset();
+            clearB();
+            clearD();
         }
     }
 

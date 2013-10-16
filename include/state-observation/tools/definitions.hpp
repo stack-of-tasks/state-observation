@@ -46,44 +46,6 @@ namespace stateObservation
     typedef Eigen::AngleAxis<double> AngleAxis;
 
     /**
-     * \class  CheckedMatrix
-     * \brief
-     *
-     */
-    class CheckedMatrix
-    {
-    public:
-        ///Default constructor
-        CheckedMatrix();
-
-        ///A constructor with a given matrix value and a time index
-        CheckedMatrix(const Matrix& v);
-
-        ///Set the value of the matrix and the time sample
-        inline void set(const Matrix& v);
-
-        ///Get the matrix value
-        inline Matrix operator()()const;
-
-        ///Says whether the matrix is initialized or not
-        inline const bool & isSet()const;
-
-        ///Switch off the initalization flag, the value is no longer accessible
-        inline void reset();
-
-    protected:
-        ///Checks whether the matrix is set or not (assert)
-        ///does nothing in release mode
-        inline void check_() const;
-
-        ///this variable ensures the matrix is initialized,
-        bool isSet_;
-
-        Matrix v_;
-    };
-
-
-    /**
      * \class    DiscreteTimeMatrix
      * \brief    This class describes a structure composed by a matrix
      *           of a given size and a time-index parameter. It can tell also if

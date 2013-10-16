@@ -131,10 +131,10 @@ namespace stateObservation
         virtual MeasureVector simulateSensor_(const StateVector& x, unsigned k);
 
         /// The container of the Input-State matrix
-        CheckedMatrix d_;
+        Matrix d_;
 
         /// The container of the Input-Measurement matrix
-        CheckedMatrix b_;
+        Matrix b_;
     };
 
 

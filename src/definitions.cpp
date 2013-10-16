@@ -17,20 +17,6 @@ namespace stateObservation
 
 
     ///Default constructor
-    CheckedMatrix::CheckedMatrix():
-            isSet_(false)
-    {
-    }
-
-    ///A constructor with a given matrix value and a time index
-    CheckedMatrix::CheckedMatrix(const Matrix& v):
-            isSet_(false)
-    {
-    }
-
-
-
-    ///Default constructor
     DiscreteTimeArray::DiscreteTimeArray():
         k_(0)
     {
