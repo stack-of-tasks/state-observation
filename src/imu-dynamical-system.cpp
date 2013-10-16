@@ -139,4 +139,14 @@ namespace stateObservation
     {
         return measurementSize_;
     }
+
+    NoiseBase * IMUDynamicalSystem::getProcessNoise() const
+    {
+        return processNoise_;
+    }
+
+    NoiseBase * IMUDynamicalSystem::getMeasurementNoise() const
+    {
+        return sensor_.getNoise();
+    }
 }

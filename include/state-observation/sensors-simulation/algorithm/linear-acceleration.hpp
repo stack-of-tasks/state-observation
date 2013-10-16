@@ -2,7 +2,7 @@
  * \file      linear-acceleration.hpp
  * \author    Mehdi Benallegue
  * \date       2013
- * \brief
+ * \brief     Implements the accelerometer algorithm
  *
  * \details
  *
@@ -21,16 +21,18 @@ namespace stateObservation
     namespace algorithm
     {
         /**
-         * \class  LinearAcceleration
-         * \brief
+         * \class LinearAcceleration
+         * \brief Implements the measurements given by an accelerometer.
          *
          */
 
         class LinearAcceleration
         {
         public:
+            ///virtual destructor
             virtual ~LinearAcceleration(){}
 
+            ///The acceleration measurement in the local frame represented by the orientation Matrix
             Vector3 accelerationMeasure(const Vector3 & acceleration, const Matrix3 & orientation) const;
 
 

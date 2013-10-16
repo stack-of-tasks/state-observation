@@ -139,4 +139,9 @@ namespace stateObservation
             f_->reset();
     }
 
+    DynamicalSystemFunctorBase* ExtendedKalmanFilter::functor() const
+    {
+        return f_;
+    }
+
 }

@@ -2,7 +2,7 @@
  * \file      accelerometer-gyrometer.hpp
  * \author    Mehdi Benallegue
  * \date       2013
- * \brief
+ * \brief     Implements the accelerometer-gyrometer inertial measuremen
  *
  *
  */
@@ -24,8 +24,10 @@
 namespace stateObservation
 {
     /**
-     * \class  ObserverBase
-     * \brief  The base class for observers.
+     * \class  AccelerometerGyrometer
+     * \brief  Implements the accelerometer-gyrometer measurements
+     *
+     *
      *
      * \details
      *
@@ -36,10 +38,13 @@ namespace stateObservation
         protected algorithm::RotationVelocity
     {
     public:
+        ///Virtual destructor
         virtual ~AccelerometerGyrometer(){}
 
+        ///Gets the state vector Size
         virtual unsigned getStateSize() const;
 
+        ///Gets the measurements vector size
         virtual unsigned getMeasurementSize() const;
 
 

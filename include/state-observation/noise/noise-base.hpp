@@ -29,8 +29,10 @@ namespace stateObservation
     class NoiseBase
     {
     public:
+        /// Virtual destructor
         virtual ~NoiseBase(){}
 
+        /// The method to overload to add a noise to a given vector
         virtual Vector addNoise(const Vector &)=0;
 
 

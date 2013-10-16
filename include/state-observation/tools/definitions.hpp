@@ -1,8 +1,8 @@
 /**
  * \file     definitions.hpp
- * \author    Mehdi Benallegue
- * \date       2013
- * \brief
+ * \author   Mehdi Benallegue
+ * \date     2013
+ * \brief    Definitions of types and some structures.
  *
  * \details
  *
@@ -24,21 +24,32 @@
 
 namespace stateObservation
 {
-
+    ///Dynamic sized scalar vector
     typedef Eigen::VectorXd Vector;
 
+    ///Dynamic sized 3D vector
     typedef Eigen::Vector3d Vector3;
 
+    ///Dynamic sized 4D vector
     typedef Eigen::Vector4d Vector4;
 
+    ///Dynamic sized Matrix
     typedef Eigen::MatrixXd Matrix;
 
+    ///3x3 Scalar Matrix
     typedef Eigen::Matrix3d Matrix3;
 
+    ///Quaternion
     typedef Eigen::Quaterniond Quaternion;
 
+    ///Euler Axis/Angle representation of orientation
     typedef Eigen::AngleAxis<double> AngleAxis;
 
+    /**
+     * \class  CheckedMatrix
+     * \brief
+     *
+     */
     class CheckedMatrix
     {
     public:

@@ -25,8 +25,8 @@ namespace stateObservation
         {
         public:
 
-            //gets White Gaussian Noise
-            //having a given bias and standard deviation(std)
+            ///gets White Gaussian Noise
+            ///having a given bias and standard deviation(std)
             static Matrix getWGNoise( const Matrix & std, const Matrix & bias,
                 unsigned rows, unsigned cols=1);
 

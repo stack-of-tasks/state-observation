@@ -2,7 +2,7 @@
  * \file      rotation-velocity.hpp
  * \author    Mehdi Benallegue
  * \date       2013
- * \brief
+ * \brief     The implementation of the algorithm of a rotation velocity sensor
  *
  * \details
  *
@@ -22,15 +22,17 @@ namespace stateObservation
     {
         /**
          * \class  RotationVelocity
-         * \brief
+         * \brief Implements the gyrometer measurement algorithm
          *
          */
 
         class RotationVelocity
         {
         public:
+            ///virtual destructor
             virtual ~RotationVelocity(){}
 
+            ///The angular velocity measurement in the local frame represented by the orientation Matrix
             Vector3 rotationVelocityMeasure(const Vector3 & rotationVector, const Matrix3 & orientation) const;
 
 

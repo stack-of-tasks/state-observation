@@ -27,4 +27,9 @@ namespace stateObservation
         return Vector::Zero(getStateSize(),1);
     }
 
+    NoiseBase * SensorBase::getNoise() const
+    {
+        return noise_;
+    }
+
 }

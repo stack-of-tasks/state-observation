@@ -2,7 +2,7 @@
  * \file      algebraic-sensor.hpp
  * \author    Mehdi Benallegue
  * \date       2013
- * \brief
+ * \brief     Gives a base class for algebraic sensors
  *
  *
  */
@@ -20,8 +20,13 @@
 namespace stateObservation
 {
     /**
-     * \class  ObserverBase
-     * \brief  The base class for observers.
+     * \class  AlgebraicSensor
+     * \brief  The base class for algebraic sensors. Algebraic sensors are sensors
+     *         which depend only on the state value and the current time
+     *          and do not have internal dynamics
+     *         (or a dynamics which converges fast enough to be ignored). This class
+     *         implements mostly the containers and the interface to algebraic sensors.
+     *         Algebraic sensors must be derived from this class.
      *
      * \details
      *
@@ -30,21 +35,31 @@ namespace stateObservation
     class AlgebraicSensor: public SensorBase
     {
     public:
+        /// Default constructor
         AlgebraicSensor();
 
+        ///virtual destructor
         virtual ~AlgebraicSensor(){}
 
+        ///gets the measurement of the current time. We can choose to consider
+        ///noise or not (default is noisy)
         virtual Vector getMeasurements(bool noisy=true);
 
+        ///Sets the value of the state at instant k
         virtual void setState(const Vector & state, unsigned k);
 
+        ///gets the current time
         virtual unsigned getTime() const;
 
+        ///gets the state vector size. Pure virtual method.
         virtual unsigned getStateSize() const=0;
 
+        ///get the size of the measurements. Pure virtual method.
         virtual unsigned getMeasurementSize() const=0;
 
     protected:
+        ///the actual algorithm for the computation of the measurements, must
+        ///be overloaded to implement any sensor
         virtual Vector computeNoiselessMeasurement_()=0;
 
         virtual Vector computeNoisyMeasurement_();

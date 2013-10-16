@@ -52,11 +52,15 @@ namespace stateObservation
         virtual void setProcessNoise( NoiseBase * );
         ///Removes the process noise
         virtual void resetProcessNoise();
+        ///Gets the process noise
+        virtual NoiseBase * getProcessNoise() const;
 
         ///Sets a noise which disturbs the measurements
         virtual void setMeasurementNoise( NoiseBase * );
         ///Removes the measurement noise
         virtual void resetMeasurementNoise();
+        ///Gets a pointer on the measurement noise
+        virtual NoiseBase * getMeasurementNoise() const;
 
         ///Set the period of the time discretization
         virtual void setSamplingPeriod(double dt);

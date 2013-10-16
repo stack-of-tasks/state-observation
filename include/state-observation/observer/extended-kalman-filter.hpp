@@ -62,6 +62,9 @@ namespace stateObservation
         ///pointer during the execution of the kalman filter
         void setFunctor(DynamicalSystemFunctorBase* f);
 
+        ///Gets a pointer to the functor
+        DynamicalSystemFunctorBase* functor() const;
+
         /// Clear the value of the functor
         ///Does not destroy the pointed object
         void clearFunctor();
