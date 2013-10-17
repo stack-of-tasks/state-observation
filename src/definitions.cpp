@@ -16,7 +16,7 @@ namespace stateObservation
 
     ///Default constructor
     DiscreteTimeArray::DiscreteTimeArray():
-        k_(0)
+            k_(0)
     {
     }
 
@@ -34,16 +34,19 @@ namespace stateObservation
 
     void DiscreteTimeArray::truncate(unsigned time)
     {
-        if (time > getFirstTime())
+        if (v_.size()>0)
         {
-            for (unsigned i=getLastTime(); i>=time ;--i)
+            if (time > getFirstTime())
             {
-                v_.pop_back();
+                for (unsigned i=getLastTime(); i>=time ;--i)
+                {
+                    v_.pop_back();
+                }
             }
-        }
-        else
-        {
-            v_.clear();
+            else
+            {
+                v_.clear();
+            }
         }
     }
 
