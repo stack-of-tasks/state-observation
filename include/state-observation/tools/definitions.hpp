@@ -27,10 +27,10 @@ namespace stateObservation
     ///Dynamic sized scalar vector
     typedef Eigen::VectorXd Vector;
 
-    ///Dynamic sized 3D vector
+    ///3D vector
     typedef Eigen::Vector3d Vector3;
 
-    ///Dynamic sized 4D vector
+    ///4D vector
     typedef Eigen::Vector4d Vector4;
 
     ///Dynamic sized Matrix
