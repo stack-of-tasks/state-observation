@@ -25,7 +25,6 @@ namespace stateObservation
     namespace examples
     {
 
-
         /*! \fn DiscreteTimeArray imuAttitudeTrajectoryReconstruction(
          *   const DiscreteTimeArray & y,
          *   const DiscreteTimeArray & u,

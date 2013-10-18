@@ -3,9 +3,11 @@
 namespace stateObservation
 {
 
-    void ZeroDelayObserver::setState (const ObserverBase::StateVector& x_k,unsigned k)
+    void ZeroDelayObserver::setState
+                            (const ObserverBase::StateVector& x_k,unsigned k)
     {
-        BOOST_ASSERT(checkStateVector(x_k) && "The size of the state vector is incorrect");
+        BOOST_ASSERT(checkStateVector(x_k)
+                            && "The size of the state vector is incorrect");
         x_.set(x_k,k);
         while (y_.size()>0 && y_.getFirstTime()<=k)
         {
@@ -24,13 +26,19 @@ namespace stateObservation
         x_.reset();
     }
 
-    void ZeroDelayObserver::setMeasurement (const ObserverBase::MeasureVector& y_k,unsigned k)
+    void ZeroDelayObserver::setMeasurement
+                    (const ObserverBase::MeasureVector& y_k,unsigned k)
     {
-        BOOST_ASSERT(checkMeasureVector(y_k) && "The size of the measure vector is incorrect");
+        BOOST_ASSERT(checkMeasureVector(y_k)
+                && "The size of the measure vector is incorrect");
         if (y_.size()>0)
-            BOOST_ASSERT (y_.getLastTime()==k-1 && "ERROR: The time is set incorrectly for the measurements (order or gap)");
+            BOOST_ASSERT (y_.getLastTime()==k-1
+                && "ERROR: The time is set incorrectly for \
+                                the measurements (order or gap)");
         else
-            BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k-1) && "ERROR: The time is set incorrectly for the measurements (must be [current_time+1])");
+            BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k-1)
+                && "ERROR: The time is set incorrectly for the measurements \
+                                (must be [current_time+1])");
 
         y_.pushBack(y_k,k);
     }
@@ -40,18 +48,26 @@ namespace stateObservation
         y_.reset();
     }
 
-    void ZeroDelayObserver::setInput (const ObserverBase::InputVector& u_k,unsigned k)
+    void ZeroDelayObserver::setInput
+                    (const ObserverBase::InputVector& u_k,unsigned k)
     {
         if (p_>0)
         {
-            BOOST_ASSERT(checkInputVector(u_k) && "The size of the input vector is incorrect");
+            BOOST_ASSERT(checkInputVector(u_k)
+                        && "The size of the input vector is incorrect");
 
             if (u_.size()>0)
-                BOOST_ASSERT (u_.getLastTime()==k-1 && "ERROR: The time is set incorrectly for the inputs (order or gap)");
+                BOOST_ASSERT (u_.getLastTime()==k-1
+                        && "ERROR: The time is set incorrectly \
+                                for the inputs (order or gap)");
             else
-                BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k) && "ERROR: The time is set incorrectly for the inputs (must be [current_time])");
+            {
+                BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k) &&
+                        "ERROR: The time is set incorrectly for the \
+                                        inputs (must be [current_time])");
+            }
 
-           u_.pushBack(u_k,k);
+            u_.pushBack(u_k,k);
         }
     }
 
@@ -66,7 +82,8 @@ namespace stateObservation
     {
         unsigned k0=x_.getTime();
 
-        BOOST_ASSERT(k0<=k && "ERROR: The observer cannot estimate previous states");
+        BOOST_ASSERT(k0<=k
+                && "ERROR: The observer cannot estimate previous states");
 
         for (unsigned i=k0;i<k;++i)
         {
