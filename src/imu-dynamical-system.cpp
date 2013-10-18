@@ -1,4 +1,8 @@
 #include <state-observation/dynamical-system/imu-dynamical-system.hpp>
+
+
+#include <state-observation/tools/miscellaneous-algorithms.hpp>
+
 namespace stateObservation
 {
 
@@ -63,17 +67,10 @@ namespace stateObservation
     {
         if (orientationVector_!=x)
         {
-            orientationVector_=x;
-            double angle=x.norm();
-            if (angle > cst::epsilonAngle)
-                quaternion_ = AngleAxis(angle, x/angle);
-            else
-                quaternion_ = Quaternion::Identity();
-
+            quaternion_ = tools::rotationVectorToAngleAxis(orientationVector_);
         }
 
         return quaternion_;
-
     }
 
     Vector IMUDynamicalSystem::measureDynamics (const Vector& x, const Vector& , unsigned k)
