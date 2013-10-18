@@ -69,10 +69,10 @@ namespace stateObservation
         inline Matrix operator()() const;
 
         ///Get the time index
-        inline const unsigned & getTime() const;
+        inline unsigned getTime() const;
 
         ///Says whether the matrix is initialized or not
-        inline const bool & isSet() const;
+        inline bool isSet() const;
 
         ///Switch off the initalization flag, the value is no longer accessible
         inline void reset();
@@ -157,7 +157,7 @@ namespace stateObservation
     namespace cst
     {
         ///Gravity Vector along Z
-        const Vector gravity= 9.81 * Eigen::Vector3d::UnitZ();
+        const Vector gravity= 9.81 * Vector3::UnitZ();
 
         ///angles considered Zero
         const double epsilonAngle=1e-16;

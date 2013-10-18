@@ -13,16 +13,16 @@ Matrix DiscreteTimeMatrix::operator()()const
 }
 
 ///Get the time index
-const unsigned & DiscreteTimeMatrix::getTime()const
+unsigned DiscreteTimeMatrix::getTime()const
 {
     check_();
     return k_;
 }
 
 ///Says whether the matrix is initialized or not
-const bool & DiscreteTimeMatrix::isSet()const
+bool DiscreteTimeMatrix::isSet()const
 {
-    return (v_.rows()*v_.cols() > 0 );
+    return ( v_.rows()>0 && v_.cols() > 0 );
 }
 
 ///Switch off the initalization flag, the value is no longer accessible
@@ -128,6 +128,7 @@ void DiscreteTimeArray::check_()const
 
 void DiscreteTimeArray::checkNext_(unsigned time)const
 {
-    BOOST_ASSERT( (v_.size()==0 || k_+v_.size() == time )&& "Error: Time instant must be consecutive");
+    BOOST_ASSERT( (v_.size()==0 || k_+v_.size() == time )&&
+                                    "Error: Time instant must be consecutive");
 }
 

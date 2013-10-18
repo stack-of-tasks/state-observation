@@ -9,7 +9,8 @@ namespace stateObservation
     }
 
     DiscreteTimeMatrix::DiscreteTimeMatrix():
-            k_(0)
+            k_(0),
+            v_(Matrix::Zero(0,0))
     {
     }
 
