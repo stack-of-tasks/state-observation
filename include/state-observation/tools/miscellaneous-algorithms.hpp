@@ -19,7 +19,9 @@ namespace stateObservation
 {
     namespace tools
     {
-       /// puts the orientation vector norm between 0 and Pi if its get close to 2pi
+
+        /// Puts the orientation vector norm between 0 and Pi if its
+        /// get close to 2pi
         inline Vector regulateOrientationVector(const Vector3 & v )
         {
 
@@ -30,7 +32,17 @@ namespace stateObservation
             }
             else
                 return v;
-       }
+        }
+
+        /// Transform the rotation vector into angle axis
+        inline AngleAxis rotationVectorToAngleAxis(const Vector3 & v)
+        {
+            double angle=v.squaredNorm();
+            if (angle > cst::epsilonAngle * cst::epsilonAngle)
+                return AngleAxis(sqrt(angle), v/angle);
+            else
+                return AngleAxis(0.0 , Vector3::UnitZ());
+        }
     }
 }
 
