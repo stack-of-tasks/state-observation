@@ -62,7 +62,7 @@ namespace stateObservation
                                 for the inputs (order or gap)");
             else
             {
-                BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k || x_.getTime()==k+1)
+                BOOST_ASSERT ( (!x_.isSet() || x_.getTime()==k || x_.getTime()==k-1)
                     && "ERROR: The time is set incorrectly for the \
                           inputs (must be [current_time] or [current_time+1])");
             }
