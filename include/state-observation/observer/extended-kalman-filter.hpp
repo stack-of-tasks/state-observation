@@ -80,6 +80,10 @@ namespace stateObservation
         ///the input u_k
         void setDirectInputOutputFeedthrough(bool b=true);
 
+        /// Precise whether (true) or not (false) the estimation of the state x_{k+1} requires
+        ///the input u_k
+        void setDirectInputStateFeedthrough(bool b=true);
+
         /// A function that gives the prediction (this is NOT the estimation of the state,
         /// for the estimation call getEstimateState method
         /// it is only an execution of the state synamics with the current state

@@ -23,6 +23,14 @@ namespace stateObservation
         }
     }
 
+    void ExtendedKalmanFilter::setDirectInputStateFeedthrough(bool b)
+    {
+        if (p_>0)
+        {
+            directInputStateProcessFeedthrough_=b;
+        }
+    }
+
     ObserverBase::StateVector ExtendedKalmanFilter::prediction_(unsigned k)
     {
 
