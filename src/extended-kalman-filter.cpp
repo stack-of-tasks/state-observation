@@ -26,11 +26,19 @@ namespace stateObservation
     ObserverBase::StateVector ExtendedKalmanFilter::prediction_(unsigned k)
     {
 
+
         if (!this->xbar_.isSet() || this->xbar_.getTime()!=k)
         {
             ObserverBase::InputVector u;
-            if (p_>0)
-            u=this->u_[k-1];
+            if ((p_>0) && (directInputStateProcessFeedthrough_))
+            {
+                BOOST_ASSERT(this->u_.size()>0 && this->u_.checkIndex(k-1) && "ERROR: The input vector is not set");
+                u=this->u_[k-1];
+            }
+            else
+            {
+                u = inputVectorZero();
+            }
 
             BOOST_ASSERT (f_!=0x0 && "ERROR: The Kalman filter functor is not set");
             xbar_.set(f_->stateDynamics(
@@ -42,14 +50,9 @@ namespace stateObservation
         return xbar_();
     }
 
-    ObserverBase::StateVector ExtendedKalmanFilter::getPrediction(unsigned k)
+    ObserverBase::StateVector ExtendedKalmanFilter::getPrediction()
     {
-        BOOST_ASSERT(k==this->x_.getTime()+1 && "ERROR: The prediction can only be calculated for next sample (k+1)");
-        if (p_>0)
-        {
-            BOOST_ASSERT(this->u_.size()>0 && this->u_.checkIndex(k-1) && "ERROR: The input vector is not set");
-        }
-        return prediction_(k);
+        return prediction_(x_.getTime()+1);
     }
 
     ObserverBase::MeasureVector ExtendedKalmanFilter::simulateSensor_(const ObserverBase::StateVector& x, unsigned k)

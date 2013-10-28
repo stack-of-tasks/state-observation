@@ -49,8 +49,15 @@ namespace stateObservation
         ///  \li m : size of the measurements vector
         ///  \li p : size of the input vector
         ///  \li The parameter directInputOutputFeedthrough defines whether (true) or not (false) the measurement y_k requires the input u_k
-        ExtendedKalmanFilter(unsigned n,unsigned m,unsigned p=0,bool directInputOutputFeedthrough=true)
-            :KalmanFilterBase(n,m,p), f_(0x0), directInputOutputFeedthrough_(directInputOutputFeedthrough)
+        ///  \li The parameter directInputStateProcessFeedthrough defines whether (true) or not (false) the state x_{k+1} requires the input u_k
+
+        ExtendedKalmanFilter(unsigned n,unsigned m,unsigned p=0,
+                bool directInputOutputFeedthrough=true,
+                bool directInputStateProcessFeedthrough=true)
+            :KalmanFilterBase(n,m,p), f_(0x0),
+            directInputOutputFeedthrough_(directInputOutputFeedthrough),
+            directInputStateProcessFeedthrough_(directInputStateProcessFeedthrough)
+
         {
             if (p==0)
                 directInputOutputFeedthrough_=false;
@@ -77,7 +84,7 @@ namespace stateObservation
         /// for the estimation call getEstimateState method
         /// it is only an execution of the state synamics with the current state
         /// estimation and the current input value
-        virtual StateVector getPrediction(unsigned k);
+        virtual StateVector getPrediction();
 
         ///Give an estimation of A matrix using
         ///finite difference method (the forward difference method)
@@ -104,6 +111,9 @@ namespace stateObservation
 
         /// boolean that provides if theris a need of not for input for the masurement
         bool directInputOutputFeedthrough_;
+
+        /// boolean that provides if theris a need of not for input for the state dynamics
+        bool directInputStateProcessFeedthrough_;
 
         /// pointer on the dynamics functor
         DynamicalSystemFunctorBase* f_;

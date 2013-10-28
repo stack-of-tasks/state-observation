@@ -37,8 +37,15 @@ namespace stateObservation
         BOOST_ASSERT(checkDmatrix(d_) && "ERROR: The D is not initialized");
 
 
-        if (p_>0)
+        if (p_>0 && b_!=getBmatrixZero())
+        {
+            BOOST_ASSERT(u_.checkIndex(k-1) &&
+                             "ERROR: The input feedthrough of the state dynamics is not set \
+                             (the state at time k+1 needs the input at time k which was not given) \
+                             if you don't need the input in the computation of state, you \
+                             must set B matrix to zero");
             return this->a_*this->x_()+this->b_*this->u_[k-1];
+        }
         else
             return this->a_*this->x_();
 
@@ -47,25 +54,20 @@ namespace stateObservation
     ObserverBase::MeasureVector KalmanFilter::simulateSensor_(const StateVector& x, unsigned k)
     {
 
-        InputVector u ( inputVectorZero());
-
         BOOST_ASSERT(checkAmatrix(a_) && "ERROR: The A is not initialized");
         BOOST_ASSERT(checkBmatrix(b_) && "ERROR: The B is not initialized");
         BOOST_ASSERT(checkCmatrix(c_) && "ERROR: The C is not initialized");
         BOOST_ASSERT(checkDmatrix(d_) && "ERROR: The D is not initialized");
 
-        if (p_>0)
+        if (p_>0 && d_!=getDmatrixZero())
         {
-            if (d_!=getDmatrixZero())
-            {
                 BOOST_ASSERT(u_.checkIndex(k) &&
                              "ERROR: The input feedthrough of the measurements is not set \
                              (the measurement at time k needs the input at time k which was not given) \
                              if you don't need the input in the computation of measurement, you \
                              must set D matrix to zero");
-                u=u_[k];
-            }
-            return c_*x+d_*u;
+                return c_*x+d_*u_[k];
+
         }
         else
         {

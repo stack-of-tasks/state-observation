@@ -64,8 +64,6 @@ namespace stateObservation
     {
         unsigned k=this->x_.getTime();
         BOOST_ASSERT(this->y_.size()> 0 && this->y_.checkIndex(k+1) && "ERROR: The measurement vector is not set");
-        if (p_>0)
-            BOOST_ASSERT(this->u_.size()> 0 && this->u_.checkIndex(k) && "ERROR: The input vector is not set");
 
         BOOST_ASSERT(checkAmatrix(a_) && "ERROR: The Matrix A is not initialized" );
         BOOST_ASSERT(checkCmatrix(c_) && "ERROR: The Matrix C is not initialized");
