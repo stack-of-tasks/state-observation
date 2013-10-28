@@ -24,7 +24,7 @@
 #ifndef TEMPLATEKALMANFILTERBASEHPP
 #define TEMPLATEKALMANFILTERBASEHPP
 
-#include <state-observation/observer/compile-time/zero-delay-observer.hpp>
+#include <state-observation/observer/compile-time/compile-time-zero-delay-observer.hpp>
 
 namespace stateObservation
 {
@@ -165,7 +165,7 @@ namespace stateObservation
         };
 
 
-#include <state-observation/observer/compile-time/kalman-filter-base.hxx>
+#include <state-observation/observer/compile-time/compile-time-kalman-filter-base.hxx>
     }
 }
 

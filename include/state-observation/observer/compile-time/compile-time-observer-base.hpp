@@ -19,8 +19,12 @@
 #ifndef TEMPLATEOBSERVERBASEHPP
 #define TEMPLATEOBSERVERBASEHPP
 
+
+
 #include <boost/static_assert.hpp>
 #include <boost/assert.hpp>
+
+#include <state-observation/tools/definitions.hpp>
 
 namespace stateObservation
 {
@@ -167,7 +171,7 @@ namespace stateObservation
             typedef DiscreteTimeMatrix<p,1> Input;
         };
 
-#include <state-observation/observer/compile-time/observer-base.hxx>
+#include <state-observation/observer/compile-time/compile-time-observer-base.hxx>
     }
 }
 

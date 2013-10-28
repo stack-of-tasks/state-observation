@@ -34,16 +34,16 @@ SET(${PROJECT_NAME}_HEADERS
   include/state-observation/observer/kalman-filter.hpp
   include/state-observation/observer/observer-base.hpp
   include/state-observation/observer/zero-delay-observer.hpp
-  include/state-observation/observer/compile-time/extended-kalman-filter.hpp
-  include/state-observation/observer/compile-time/extended-kalman-filter.hxx
-  include/state-observation/observer/compile-time/kalman-filter-base.hpp
-  include/state-observation/observer/compile-time/kalman-filter-base.hxx
-  include/state-observation/observer/compile-time/kalman-filter.hpp
-  include/state-observation/observer/compile-time/kalman-filter.hxx
-  include/state-observation/observer/compile-time/observer-base.hpp
-  include/state-observation/observer/compile-time/observer-base.hxx
-  include/state-observation/observer/compile-time/zero-delay-observer.hpp
-  include/state-observation/observer/compile-time/zero-delay-observer.hxx
+  include/state-observation/observer/compile-time/compile-time-extended-kalman-filter.hpp
+  include/state-observation/observer/compile-time/compile-time-extended-kalman-filter.hxx
+  include/state-observation/observer/compile-time/compile-time-kalman-filter-base.hpp
+  include/state-observation/observer/compile-time/compile-time-kalman-filter-base.hxx
+  include/state-observation/observer/compile-time/compile-time-kalman-filter.hpp
+  include/state-observation/observer/compile-time/compile-time-kalman-filter.hxx
+  include/state-observation/observer/compile-time/compile-time-observer-base.hpp
+  include/state-observation/observer/compile-time/compile-time-observer-base.hxx
+  include/state-observation/observer/compile-time/compile-time-zero-delay-observer.hpp
+  include/state-observation/observer/compile-time/compile-time-zero-delay-observer.hxx
   include/state-observation/sensors-simulation/sensor-base.hpp
   include/state-observation/sensors-simulation/algebraic-sensor.hpp
   include/state-observation/sensors-simulation/accelerometer-gyrometer.hpp

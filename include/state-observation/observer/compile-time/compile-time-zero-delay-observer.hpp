@@ -19,7 +19,7 @@
 
 #include <deque>
 
-#include <state-observation/observer/compile-time/observer-base.hpp>
+#include <state-observation/observer/compile-time/compile-time-observer-base.hpp>
 
 
 namespace stateObservation
@@ -119,7 +119,7 @@ namespace stateObservation
             std::deque<typename ObserverBase<n,m,p>::Input,Eigen::aligned_allocator<typename ObserverBase<n,m,p>::Input>  > u_;
 
         };
-#include <state-observation/observer/compile-time/zero-delay-observer.hxx>
+#include <state-observation/observer/compile-time/compile-time-zero-delay-observer.hxx>
     }
 }
 

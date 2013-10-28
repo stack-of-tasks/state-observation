@@ -21,7 +21,7 @@
 #ifndef TEMPLATESTATEOBSERVER_KALMANFILTERHPP
 #define TEMPLATESTATEOBSERVER_KALMANFILTERHPP
 
-#include <state-observation/observer/compile-time/kalman-filter-base.hpp>
+#include <state-observation/observer/compile-time/compile-time-kalman-filter-base.hpp>
 
 namespace stateObservation
 {
@@ -96,7 +96,7 @@ namespace stateObservation
         };
 
 
-#include <state-observation/observer/compile-time/kalman-filter.hxx>
+#include <state-observation/observer/compile-time/compile-time-kalman-filter.hxx>
     }
 }
 
