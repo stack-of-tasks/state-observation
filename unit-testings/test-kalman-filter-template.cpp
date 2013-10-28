@@ -9,8 +9,8 @@
 #include <bitset>
 #include <iomanip>
 
-#include <state-observation/observer/compile-time/kalman-filter.hpp>
-#include <state-observation/observer/compile-time/extended-kalman-filter.hpp>
+#include <state-observation/observer/compile-time/compile-time-kalman-filter.hpp>
+#include <state-observation/observer/compile-time/compile-time-extended-kalman-filter.hpp>
 
 #include <boost/utility/binary.hpp>
 
