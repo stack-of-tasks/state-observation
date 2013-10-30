@@ -40,7 +40,8 @@ namespace stateObservation
             ObserverBase::InputVector u;
             if ((p_>0) && (directInputStateProcessFeedthrough_))
             {
-                BOOST_ASSERT(this->u_.size()>0 && this->u_.checkIndex(k-1) && "ERROR: The input vector is not set");
+                BOOST_ASSERT(this->u_.size()>0 && this->u_.checkIndex(k-1) &&
+                                        "ERROR: The input vector is not set");
                 u=this->u_[k-1];
             }
             else
@@ -73,10 +74,10 @@ namespace stateObservation
             if (directInputOutputFeedthrough_)
             {
                 BOOST_ASSERT(u_.checkIndex(k) &&
-                             "ERROR: The input feedthrough of the measurements is not set \
-                             (the measurement at time k needs the input at time k which was not given) \
-                             if you don't need the input in the computation of measurement, you \
-                             must set directInputOutputFeedthrough to 'false' in the constructor");
+                "ERROR: The input feedthrough of the measurements is not set \
+(the measurement at time k needs the input at time k which was not given) \
+if you don't need the input in the computation of measurement, you \
+must set directInputOutputFeedthrough to 'false' in the constructor");
             }
 
             if (u_.checkIndex(k))
@@ -113,8 +114,8 @@ namespace stateObservation
         for (unsigned i=0;i<n_;++i)
         {
             unsigned it=(i-1)%n_;
-            x(it,0)=this->x_()(it,0);
-            x(i,0)=this->x_()(i,0)+dx(i,0);
+            x[it]=this->x_()(it,0);
+            x[i]=this->x_()(i,0)+dx[i];
             xp=(f_->stateDynamics(x,u,k)-fx)/dx[i];
 
             for (unsigned j=0;j<n_;++j)
@@ -132,15 +133,19 @@ namespace stateObservation
     {
         unsigned k=this->x_.getTime();
         Cmatrix c(getCmatrixZero());
-        MeasureVector y=simulateSensor_(this->x_(), k);
-        StateVector x=this->x_();
+
+        StateVector xbar=prediction_(k+1);
+        StateVector xbarInit = xbar;
+
+        MeasureVector y=simulateSensor_( xbar, k+1);
+
         MeasureVector yp;
 
         for (unsigned i=0;i<n_;++i)
         {
-            x[(i-1)%n_]=this->x_()((i-1)%n_,0);
-            x[i]=this->x_()(i,0)+dx[i];
-            yp=(simulateSensor_(x, k)-y)/dx[i];
+            xbar[(i-1)%n_]=xbarInit[(i-1)%n_];
+            xbar[i]=xbarInit[i]+dx[i];
+            yp=(simulateSensor_(xbar, k+1)-y)/dx[i];
 
             for (unsigned j=0;j<m_;++j)
             {
