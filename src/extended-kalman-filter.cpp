@@ -1,6 +1,5 @@
 #include <state-observation/observer/extended-kalman-filter.hpp>
 
-
 namespace stateObservation
 {
     void ExtendedKalmanFilter::setFunctor(DynamicalSystemFunctorBase* f)
@@ -127,7 +126,7 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
         return a;
     }
 
-    KalmanFilterBase::Cmatrix//typename ExtendedKalmanFilter<n,m,p>::Cmatrix does not work
+    KalmanFilterBase::Cmatrix
     ExtendedKalmanFilter::getCMatrixFD(const ObserverBase::StateVector
                                        &dx)
     {
@@ -143,15 +142,20 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
 
         for (unsigned i=0;i<n_;++i)
         {
+
             xbar[(i-1)%n_]=xbarInit[(i-1)%n_];
             xbar[i]=xbarInit[i]+dx[i];
-            yp=(simulateSensor_(xbar, k+1)-y)/dx[i];
+
+            yp=simulateSensor_(xbar, k+1);
+            yp-=y;
+            yp/=dx[i];
 
             for (unsigned j=0;j<m_;++j)
             {
                 c(j,i)=yp[j];
             }
         }
+
         return c;
     }
 
