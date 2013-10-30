@@ -320,11 +320,6 @@ private:
         f.setInput(uk[i],i);
 
 
-        ////Debug code (to be removed)
-        //KalmanFunctor* debug=&func;
-        //func.reset();
-        //debug->reset();
-
         ekf::Amatrix a=f.getAMatrixFD(dx);
         ekf::Cmatrix c= f.getCMatrixFD(dx);
 
