@@ -101,11 +101,16 @@ namespace stateObservation
         ///y_{k_0+1} to y_{k} and u_{k_0} to u_{k-1}
         ///
         /// This method sets the current time to k
-        virtual ObserverBase::StateVector
-        getEstimateState(unsigned k);
+        virtual ObserverBase::StateVector getEstimateState(unsigned k);
 
         ///Get the value of the current time index
         virtual unsigned getCurrentTime()const;
+
+        ///Get the time index of the last given input
+        virtual unsigned getInputTime()const;
+
+        ///Get the time index of the last given measurement
+        virtual unsigned getMeasurementTime()const;
 
         ///changes the size of the state vector: resets the stored state vector
         virtual void setStateSize(unsigned n);

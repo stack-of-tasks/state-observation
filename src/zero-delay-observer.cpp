@@ -102,6 +102,30 @@ namespace stateObservation
         return x_.getTime();
     }
 
+    unsigned ZeroDelayObserver::getInputTime()const
+    {
+        if (u_.size()>0)
+        {
+            return u_.getLastTime();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    unsigned ZeroDelayObserver::getMeasurementTime()const
+    {
+        if (y_.size()>0)
+        {
+            return y_.getLastTime();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
     void ZeroDelayObserver::setStateSize(unsigned n)
     {
         if (n!=n_)

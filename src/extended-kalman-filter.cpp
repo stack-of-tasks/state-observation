@@ -66,7 +66,7 @@ namespace stateObservation
     ObserverBase::MeasureVector ExtendedKalmanFilter::simulateSensor_(const ObserverBase::StateVector& x, unsigned k)
     {
         BOOST_ASSERT (f_!=0x0 && "ERROR: The Kalman filter functor is not set");
-        ObserverBase::InputVector u (inputVectorZero());
+        ObserverBase::InputVector u;
         unsigned i;
         if (p_>0)
         {
@@ -82,6 +82,10 @@ namespace stateObservation
             if (u_.checkIndex(k))
             {
                 u=u_[k];
+            }
+            else
+            {
+                u=inputVectorZero();
             }
         }
 
@@ -101,7 +105,10 @@ namespace stateObservation
         InputVector u;
 
         if (p_>0)
-            u=this->u_[k];
+            if (directInputStateProcessFeedthrough_)
+                u=this->u_[k];
+            else
+                u=inputVectorZero();
 
         for (unsigned i=0;i<n_;++i)
         {
