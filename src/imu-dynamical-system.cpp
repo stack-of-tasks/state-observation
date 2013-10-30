@@ -67,7 +67,8 @@ namespace stateObservation
     {
         if (orientationVector_!=x)
         {
-            quaternion_ = tools::rotationVectorToAngleAxis(orientationVector_);
+            quaternion_ = tools::rotationVectorToAngleAxis(x);
+            orientationVector_=x;
         }
 
         return quaternion_;
