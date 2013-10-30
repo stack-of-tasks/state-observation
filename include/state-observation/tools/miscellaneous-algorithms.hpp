@@ -39,7 +39,10 @@ namespace stateObservation
         {
             double angle=v.squaredNorm();
             if (angle > cst::epsilonAngle * cst::epsilonAngle)
-                return AngleAxis(sqrt(angle), v/angle);
+            {
+                angle=sqrt(angle);
+                return AngleAxis(angle, v/angle);
+            }
             else
                 return AngleAxis(0.0 , Vector3::UnitZ());
         }
