@@ -59,8 +59,14 @@ SET(${PROJECT_NAME}_HEADERS
   include/state-observation/dynamical-system/dynamical-system-simulator.hpp
   include/state-observation/dynamical-system/imu-dynamical-system.hpp
   include/state-observation/dynamical-system/algorithm/rigid-body-kinematics.hpp
+  include/state-observation/flexibility-estimation/flexibility-estimator-base.hpp
+  include/state-observation/flexibility-estimation/ekf-flexibility-estimator-base.hpp
+  include/state-observation/flexibility-estimation/fixed-contact-ekf-flex-estimator-imu.hpp
+  include/state-observation/flexibility-estimation/imu-fixed-contact-dynamical-system.hpp
   include/state-observation/examples/imu-attitude-trajectory-reconstruction.hpp
   include/state-observation/examples/imu-attitude-trajectory-reconstruction.hxx
+  include/state-observation/examples/offline-ekf-flexibility-estimation.hpp
+  include/state-observation/examples/offline-ekf-flexibility-estimation.hxx
 )
 SET(CXX_DISABLE_WERROR TRUE)
 

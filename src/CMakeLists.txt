@@ -50,6 +50,10 @@ ADD_LIBRARY(${LIBRARY_NAME}
   dynamical-system-simulator.cpp
   rigid-body-kinematics.cpp
   imu-dynamical-system.cpp
+  flexibility-estimator-base.cpp
+  ekf-flexibility-estimator-base.cpp
+  fixed-contact-ekf-flex-estimator-imu.cpp
+  imu-fixed-contact-dynamical-system.cpp
   ${${PROJECT_NAME}_ABSOLUTE_HEADERS}
   )
 

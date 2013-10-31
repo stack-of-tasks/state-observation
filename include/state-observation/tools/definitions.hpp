@@ -33,11 +33,17 @@ namespace stateObservation
     ///4D vector
     typedef Eigen::Vector4d Vector4;
 
+    /// 6D vector
+    typedef Eigen::Matrix<double,6,1> Vector6;
+
     ///Dynamic sized Matrix
     typedef Eigen::MatrixXd Matrix;
 
     ///3x3 Scalar Matrix
     typedef Eigen::Matrix3d Matrix3;
+
+    ///4x4 Scalar Matrix
+    typedef Eigen::Matrix4d Matrix4;
 
     ///Quaternion
     typedef Eigen::Quaterniond Quaternion;

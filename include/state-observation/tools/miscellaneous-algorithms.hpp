@@ -46,6 +46,45 @@ namespace stateObservation
             else
                 return AngleAxis(0.0 , Vector3::UnitZ());
         }
+
+        inline Matrix3 skewSymmetric(const Vector3 & v)
+        {
+            Matrix3 R ;
+            R << 0,     -v[2],    v[1],
+                 v[2],   0,      -v[0],
+                -v[1],   v[0],    0;
+
+            return R;
+        }
+
+        template <class T>
+        inline T square (const T & x)
+        {
+            return x*x;
+        }
+
+        inline Vector6 homogeneousMatrixToVector6(const Matrix4 & M)
+        {
+            Vector6 v;
+            AngleAxis a = AngleAxis(Matrix3(M.block(0,0,3,3)));
+
+            v.head(3) = M.block(0,3,3,1);
+            v.tail(3) = a.angle() * a.axis();
+
+            return v;
+        }
+
+        inline Matrix4 vector6ToHomogeneousMatrix(const Vector6 & v)
+        {
+            Matrix4 M;
+            M.block(0,0,3,3) = rotationVectorToAngleAxis(Vector3(v.tail(3)))
+                                    .toRotationMatrix();
+            M.block(0,3,3,1) = v.head(3);
+            M(3,3) = 1.0;
+
+            return M;
+        }
+
     }
 }
 
