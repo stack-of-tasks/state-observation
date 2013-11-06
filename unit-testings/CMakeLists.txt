@@ -19,3 +19,4 @@ TARGET_LINK_LIBRARIES(flex-estimation-test ${Boost_LIBRARIES} ${PROJECT_NAME})
 
 ADD_TEST(test-kalman-filter test-kalman-filter)
 ADD_TEST(test-kalman-filter-template test-kalman-filter-template)
+ADD_TEST(imu-test imu-test)
