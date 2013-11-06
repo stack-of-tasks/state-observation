@@ -59,7 +59,10 @@ namespace stateObservation
         xk1.segment(6,3)+=accelerationInput;
         xk1.tail(3)+=angularAccelerationInput;
 
-        return xk1;
+        if (processNoise_!=0x0)
+            return processNoise_->addNoise(xk1);
+        else
+            return xk1;
 
     }
 
