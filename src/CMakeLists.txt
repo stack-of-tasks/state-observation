@@ -36,7 +36,7 @@ ADD_LIBRARY(${LIBRARY_NAME}
   kalman-filter-base.cpp  
   observer-base.cpp
   extended-kalman-filter.cpp
-  kalman-filter.cpp
+  linear-kalman-filter.cpp
   zero-delay-observer.cpp
   sensor-base.cpp
   algebraic-sensor.cpp

@@ -1,5 +1,5 @@
 /**
- * \file      kalman-filter.hpp
+ * \file      linear-kalman-filter.hpp
  * \author    Mehdi Benallegue
  * \date       2012
  * \brief      Defines the class of a Linear Kalman filter
@@ -18,8 +18,8 @@
  */
 
 
-#ifndef STATEOBSERVER_KALMANFILTERHPP
-#define STATEOBSERVER_KALMANFILTERHPP
+#ifndef STATEOBSERVER_LINEARKALMANFILTERHPP
+#define STATEOBSERVER_LINEARKALMANFILTERHPP
 
 #include <state-observation/observer/kalman-filter-base.hpp>
 
@@ -27,7 +27,7 @@ namespace stateObservation
 {
 
 /**
-     * \class  KalmanFilter
+     * \class  LinearKalmanFilter
      * \brief
      *        The class of a Linear Kalman filter
      *
@@ -44,7 +44,7 @@ namespace stateObservation
      *
      */
 
-    class KalmanFilter: public KalmanFilterBase
+    class LinearKalmanFilter: public KalmanFilterBase
     {
     public:
 
@@ -54,11 +54,11 @@ namespace stateObservation
         ///  \li n : size of the state vector
         ///  \li m : size of the measurements vector
         ///  \li p : size of the input vector
-        KalmanFilter(unsigned n,unsigned m,unsigned p=0)
+        LinearKalmanFilter(unsigned n,unsigned m,unsigned p=0)
             :KalmanFilterBase(n,m,p){}
 
         /// Default constructor
-        KalmanFilter(){}
+        LinearKalmanFilter(){}
 
         /// The type of the matrix linking the input to the state
         typedef Matrix Bmatrix;
@@ -140,4 +140,4 @@ namespace stateObservation
 
 }
 
-#endif //KALMANFILTERHPP
+#endif //STATEOBSERVER_LINEARKALMANFILTERHPP

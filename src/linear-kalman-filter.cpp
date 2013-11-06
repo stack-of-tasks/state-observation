@@ -1,33 +1,33 @@
-#include <state-observation/observer/kalman-filter.hpp>
+#include <state-observation/observer/linear-kalman-filter.hpp>
 
 namespace stateObservation
 {
 
-    void KalmanFilter::setB(const Bmatrix& B)
+    void LinearKalmanFilter::setB(const Bmatrix& B)
     {
         BOOST_ASSERT(checkBmatrix(B) && "ERROR: The B matrix size is incorrect");
         b_=B;
     }
 
-    void KalmanFilter::clearB()
+    void LinearKalmanFilter::clearB()
     {
         b_.resize(0,0);
     }
 
-    void KalmanFilter::setD(const Dmatrix& D)
+    void LinearKalmanFilter::setD(const Dmatrix& D)
     {
         BOOST_ASSERT(checkDmatrix(D) && "ERROR: The D matrix size is incorrect");
 
         d_=D;
     }
 
-    void KalmanFilter::clearD()
+    void LinearKalmanFilter::clearD()
     {
         d_.resize(0,0);
     }
 
 
-    ObserverBase::StateVector KalmanFilter::prediction_(unsigned k)
+    ObserverBase::StateVector LinearKalmanFilter::prediction_(unsigned k)
     {
         (void)k; //unused
 
@@ -51,7 +51,7 @@ namespace stateObservation
 
     }
 
-    ObserverBase::MeasureVector KalmanFilter::simulateSensor_(const StateVector& x, unsigned k)
+    ObserverBase::MeasureVector LinearKalmanFilter::simulateSensor_(const StateVector& x, unsigned k)
     {
 
         BOOST_ASSERT(checkAmatrix(a_) && "ERROR: The A is not initialized");
@@ -76,7 +76,7 @@ namespace stateObservation
 
     }
 
-    void KalmanFilter::reset()
+    void LinearKalmanFilter::reset()
     {
         KalmanFilterBase::reset();
 
@@ -84,48 +84,48 @@ namespace stateObservation
         clearD();
     }
 
-    KalmanFilter::Bmatrix KalmanFilter::getBmatrixConstant(double c) const
+    LinearKalmanFilter::Bmatrix LinearKalmanFilter::getBmatrixConstant(double c) const
     {
         return Bmatrix::Constant(n_,p_,c);
     }
 
-    KalmanFilter::Bmatrix KalmanFilter::getBmatrixRandom() const
+    LinearKalmanFilter::Bmatrix LinearKalmanFilter::getBmatrixRandom() const
     {
         return Bmatrix::Random(n_,p_);
     }
 
-    KalmanFilter::Bmatrix KalmanFilter::getBmatrixZero() const
+    LinearKalmanFilter::Bmatrix LinearKalmanFilter::getBmatrixZero() const
     {
         return Bmatrix::Zero(n_,p_);
     }
 
-    bool KalmanFilter::checkBmatrix(const Bmatrix & a) const
+    bool LinearKalmanFilter::checkBmatrix(const Bmatrix & a) const
     {
         return (a.rows()==n_ && a.cols()==p_);
     }
 
-    KalmanFilter::Dmatrix KalmanFilter::getDmatrixConstant(double c) const
+    LinearKalmanFilter::Dmatrix LinearKalmanFilter::getDmatrixConstant(double c) const
     {
         return Dmatrix::Constant(m_,p_,c);
     }
 
-    KalmanFilter::Dmatrix KalmanFilter::getDmatrixRandom() const
+    LinearKalmanFilter::Dmatrix LinearKalmanFilter::getDmatrixRandom() const
     {
         return Dmatrix::Random(m_,p_);
     }
 
-    KalmanFilter::Dmatrix KalmanFilter::getDmatrixZero() const
+    LinearKalmanFilter::Dmatrix LinearKalmanFilter::getDmatrixZero() const
     {
         return Dmatrix::Zero(m_,p_);
     }
 
-    bool KalmanFilter::checkDmatrix(const Dmatrix & a) const
+    bool LinearKalmanFilter::checkDmatrix(const Dmatrix & a) const
     {
         return (a.rows()==m_ && a.cols()==p_);
     }
 
 
-    void KalmanFilter::setStateSize(unsigned n)
+    void LinearKalmanFilter::setStateSize(unsigned n)
     {
         if (n!=n_)
         {
@@ -134,7 +134,7 @@ namespace stateObservation
         }
     }
 
-    void KalmanFilter::setMeasureSize(unsigned m)
+    void LinearKalmanFilter::setMeasureSize(unsigned m)
     {
         if (m!=m_)
         {
@@ -143,7 +143,7 @@ namespace stateObservation
         }
     }
 
-    void KalmanFilter::setInputSize(unsigned p)
+    void LinearKalmanFilter::setInputSize(unsigned p)
     {
         if (p!=p_)
         {

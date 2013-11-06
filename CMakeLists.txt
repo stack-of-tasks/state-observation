@@ -31,7 +31,7 @@ SET(CUSTOM_HEADER_DIR "${PROJECT_NAME}")
 SET(${PROJECT_NAME}_HEADERS
   include/state-observation/observer/extended-kalman-filter.hpp
   include/state-observation/observer/kalman-filter-base.hpp
-  include/state-observation/observer/kalman-filter.hpp
+  include/state-observation/observer/linear-kalman-filter.hpp
   include/state-observation/observer/observer-base.hpp
   include/state-observation/observer/zero-delay-observer.hpp
   include/state-observation/observer/compile-time/compile-time-extended-kalman-filter.hpp
