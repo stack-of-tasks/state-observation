@@ -15,7 +15,6 @@
 
 #include <map>
 
-#include <state-observation/noise/noise-base.hpp>
 #include <state-observation/dynamical-system/dynamical-system-functor-base.hpp>
 
 namespace stateObservation

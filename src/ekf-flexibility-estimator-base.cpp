@@ -85,8 +85,7 @@ namespace flexibilityEstimation
         return ekf_;
     }
 
-    stateObservation::ExtendedKalmanFilter &  EKFFlexibilityEstimatorBase::
-                                                                        getEKF()
+    stateObservation::ExtendedKalmanFilter & EKFFlexibilityEstimatorBase::getEKF()
     {
         return ekf_;
     }
