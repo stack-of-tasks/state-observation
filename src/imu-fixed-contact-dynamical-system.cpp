@@ -43,7 +43,7 @@ namespace flexibilityEstimation
                  angularVelocityFlex, angularAccelerationFlex, dt_);
 
         //x_{k+1}
-        Vector xk1=Vector::Zero(18,1);
+        Vector xk1(x);
 
         xk1.head(3) = positionFlex;
         xk1.segment(3,3) = velocityFlex;
@@ -54,7 +54,10 @@ namespace flexibilityEstimation
         xk1.segment(9,3) =  orientationFlexV;
         xk1.segment(12,3) = angularVelocityFlex;
 
-        return xk1;
+        if (processNoise_!=0x0)
+            return processNoise_->addNoise(xk1);
+        else
+            return xk1;
     }
 
     Quaternion IMUFixedContactDynamicalSystem::computeQuaternion_
@@ -62,7 +65,8 @@ namespace flexibilityEstimation
     {
         if (orientationVector_!=x)
         {
-            quaternion_ = tools::rotationVectorToAngleAxis(orientationVector_);
+            orientationVector_ = x;
+            quaternion_ = tools::rotationVectorToAngleAxis(x);
         }
 
         return quaternion_;
@@ -96,13 +100,12 @@ namespace flexibilityEstimation
 
         Quaternion qControl=computeQuaternion_(orientationControlV);
 
-
-        Quaternion q = qControl.inverse() * qFlex.inverse();
+        Quaternion q = qFlex * qControl;
 
         Vector3 acceleration =
          (tools::skewSymmetric(angularAccelerationFlex)
               + tools::square(tools::skewSymmetric(angularVelocityFlex)))
-                  * rFlex * positionFlex
+                  * rFlex * positionControl
          + 2*tools::skewSymmetric(angularVelocityFlex) * rFlex * velocityControl
          + accelerationFlex + rFlex * accelerationControl;
 
