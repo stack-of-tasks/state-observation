@@ -2,6 +2,7 @@
 #define FLEXIBILITYESTIMATION_OFFLINEEKFFLEXIBILITYESTIMATION_H
 
 #include <state-observation/flexibility-estimation/fixed-contact-ekf-flex-estimator-imu.hpp>
+#include <vector>
 
 namespace stateObservation
 {
@@ -11,11 +12,15 @@ namespace stateObservation
             const stateObservation::DiscreteTimeArray & y,
             const stateObservation::DiscreteTimeArray & u,
             const Matrix & xh0,
+            unsigned numberOfContacts,
+            const std::vector<Vector3> & contactsPositions,
             double dt);
 
         stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
             const stateObservation::DiscreteTimeArray & y,
             const Matrix & xh0,
+            unsigned numberOfContacts,
+            const std::vector<Vector3> & contactsPositions,
             double dt);
 
 

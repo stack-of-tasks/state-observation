@@ -2,6 +2,8 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
             const stateObservation::DiscreteTimeArray & y,
             const stateObservation::DiscreteTimeArray & u,
             const Matrix & xh0,
+            unsigned numberOfContacts,
+            const std::vector<Vector3> & contactsPositions,
             double dt)
 {
 
@@ -11,6 +13,13 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
     const unsigned inputSize=15;
 
     flexibilityEstimation::FixedContactEKFFlexEstimatorIMU estimator;
+
+    estimator.setContactsNumber(numberOfContacts);
+
+    for (unsigned i = 0; i<numberOfContacts ; ++i)
+    {
+        estimator.setContactPosition(i,contactsPositions[i]);
+    }
 
     ///
     estimator.setFlexibilityGuess(xh0);
@@ -27,10 +36,10 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
         ///introduction of the measurement
         estimator.setMeasurement(y[i]);
 
-        estimator.setMeasurementInput(u[i-1]);
+        estimator.setMeasurementInput(u[i]);
 
         ///get the estimation and give it to the array
-        xh.pushBack(estimator.getFlexibility());
+        xh.pushBack(estimator.getFlexibilityVector());
 
     }
 
@@ -41,6 +50,8 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
 stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
             const stateObservation::DiscreteTimeArray & y,
             const Matrix & xh0,
+            unsigned numberOfContacts,
+            const std::vector<Vector3> & contactsPositions,
             double dt)
 {
     const unsigned inputSize=15;
@@ -52,6 +63,7 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
         u.pushBack(Vector::Zero(inputSize,1),k);
     }
 
-    return offlineEKFFlexibilityEstimation (y, u, xh0, dt);
+    return offlineEKFFlexibilityEstimation
+                        (y, u, xh0, numberOfContacts, contactsPositions, dt);
 }
 
