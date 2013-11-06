@@ -2,8 +2,10 @@
 #include <fstream>
 
 #include <state-observation/noise/gaussian-white-noise.hpp>
-#include <state-observation/examples/imu-attitude-trajectory-reconstruction.hpp>
 #include <state-observation/examples/offline-ekf-flexibility-estimation.hpp>
+#include <state-observation/dynamical-system/dynamical-system-simulator.hpp>
+#include <state-observation/tools/miscellaneous-algorithms.hpp>
+
 
 using namespace stateObservation;
 
@@ -20,7 +22,7 @@ int test()
     ///Sizes of the states for the state, the measurement, and the input vector
     const unsigned stateSize=18;
     const unsigned measurementSize=6;
-    const unsigned inputSize=6;
+    const unsigned inputSize=15;
 
     ///The array containing all the states, the measurements and the inputs
     DiscreteTimeArray x;
@@ -31,46 +33,70 @@ int test()
     Matrix q;
     Matrix r;
 
+    Vector3 contact(Vector3::Random());
+
+
     {
         ///simulation of the signal
         /// the IMU dynamical system functor
-        IMUDynamicalSystem imu;
+        flexibilityEstimation::IMUFixedContactDynamicalSystem imu;
 
         ///The process noise initialization
-        Matrix q1=Matrix::Identity(stateSize,stateSize)*0.01;
+        Matrix q1=Matrix::Zero(stateSize,stateSize);
+        q1(15,15) = q1(16,16) = q1(17,17) = 0.00;
+
         GaussianWhiteNoise processNoise(imu.getStateSize());
         processNoise.setStandardDeviation(q1);
         imu.setProcessNoise( & processNoise );
-        q=q1*q1.transpose();
 
         ///The measurement noise initialization
-        Matrix r1=Matrix::Identity(measurementSize,measurementSize)*0.01;
+        Matrix r1=Matrix::Identity(measurementSize,measurementSize)*0.0;
         GaussianWhiteNoise MeasurementNoise(imu.getMeasurementSize());
         MeasurementNoise.setStandardDeviation(r1);
         imu.setMeasurementNoise( & MeasurementNoise );
-        r=r1*r1.transpose();
 
         ///the simulator initalization
         DynamicalSystemSimulator sim;
-        sim.setDynamicsFunctor(&imu);
+        sim.setDynamicsFunctor( & imu);
 
         ///initialization of the state vector
         Vector x0=Vector::Zero(stateSize,1);
+
+        x0[15]=x0[16]=x0[17]=0.01;
+
+        x0[9]=x0[10]=x0[11]=0.3;
+
+        //x0=x0*100;
+
+
         sim.setState(x0,0);
 
+        Vector uk=Vector::Zero(imu.getInputSize(),1);
+
+        int i;
         ///construction of the input
         /// the input is constant over 10 time samples
-        for (int i=0;i<kmax/10;++i)
+        for (i=0;i<kmax/10.0;++i)
         {
-            Vector uk=Vector::Zero(imu.getInputSize(),1);
+            uk[ 0]=0.4 * sin(M_PI/10*i);
+            uk[ 1]=0.6 * sin(M_PI/12*i);
+            uk[ 2]=0.2 * sin(M_PI/5*i);
 
-            uk[0]=0.4 * sin(M_PI/10*i);
-            uk[1]=0.6 * sin(M_PI/12*i);
-            uk[2]=0.2 * sin(M_PI/5*i);
+            uk[ 3]=0.1  * sin(M_PI/12*i);
+            uk[ 4]=0.07  * sin(M_PI/15*i);
+            uk[ 5]=0.05 * sin(M_PI/5*i);
 
-            uk[3]=10  * sin(M_PI/12*i);
-            uk[4]=0.07  * sin(M_PI/15*i);
-            uk[5]=0.05 * sin(M_PI/5*i);
+            uk[ 6]=1  * sin(M_PI/12*i);
+            uk[ 7]=0.07  * sin(M_PI/15*i);
+            uk[ 8]=0.05 * sin(M_PI/10*i);
+
+            uk[ 9]=2  * sin(M_PI/12*i);
+            uk[10]=1.5  * sin(M_PI/18*i);
+            uk[11]=0.8 * sin(M_PI/6*i);
+
+            uk[12]=0.2  * sin(M_PI/12*i);
+            uk[13]=0.07  * sin(M_PI/12*i);
+            uk[14]=0.05 * sin(M_PI/5*i);
 
             ///filling the 10 time samples of the constant input
             for (int j=0;j<10;++j)
@@ -85,44 +111,60 @@ int test()
 
         }
 
+        ///Last sample needed
+        u.pushBack(uk,i*10);
+
         ///set the sampling perdiod to the functor
         imu.setSamplingPeriod(dt);
 
+
+
         ///launched the simulation to the time kmax+1
-        sim.simulateDynamicsTo(kmax+1);
+        for (int i=0; i<kmax+1; ++i)
+        {
+            Vector x=sim.getState(i);
+
+            Vector3 orientationFlexV=x.segment(9,3);
+            Vector3 angularVelocityFlex=x.segment(12,3);
+            Vector3 angularAccelerationFlex=x.tail(3);
+
+            Matrix3 orientationFlexR =
+                tools::rotationVectorToAngleAxis(orientationFlexV).matrix();
+
+            Vector3 positionFlex;
+            Vector3 velocityFlex;
+            Vector3 accelerationFlex;
+
+            tools::fixedPointRotationToTranslation
+                (orientationFlexR, angularVelocityFlex, angularAccelerationFlex,
+                contact, positionFlex, velocityFlex, accelerationFlex);
+
+            x.head(3) = positionFlex;
+            x.segment(3,3) = velocityFlex;
+            x.segment(6,3) = accelerationFlex;
+
+            sim.setState(x,i);
+
+            sim.simulateDynamics();
+        }
+
 
         ///extract the array of measurements and states
         y = sim.getMeasurementArray(1,kmax);
         x = sim.getStateArray(1,kmax);
     }
 
-
-
-    ///initialization of the extended Kalman filter
-    ExtendedKalmanFilter filter(stateSize, measurementSize, measurementSize, false);
-
     ///the initalization of a random estimation of the initial state
-    Vector xh0=Vector::Random(stateSize,1)*3.14;
-    xh0[9]=3.14;
+    Vector xh0=Vector::Zero(stateSize,1);
+
+    std::vector<Vector3> contactPositions;
+
+    contactPositions.push_back(contact);
 
 
-    ///computation and initialization of the covariance matrix of the initial state
-    Matrix p=Matrix::Zero(stateSize,stateSize);
-    for (unsigned i=0;i<filter.getStateSize();++i)
-    {
-        p(i,i)=xh0[i];
-    }
-    p=p*p.transpose();
-
-
-    DiscreteTimeArray xh = examples::imuAttitudeTrajectoryReconstruction
-                           (y, u, xh0, p, q, r, dt);
-
-    //debug//////////////////////////////////////////
-    stateObservation::DiscreteTimeArray useless=
-            stateObservation::examples::offlineEKFFlexibilityEstimation
-                                                            (y,xh0,dt);
-    //debug///////////////////////////////////////////
+    stateObservation::DiscreteTimeArray xh=
+        stateObservation::examples::offlineEKFFlexibilityEstimation
+        (y,u,xh0,1,contactPositions,dt);
 
     ///file of output
     std::ofstream f;
@@ -148,6 +190,7 @@ int test()
         Vector3 gh;
         {
             Matrix3 Rh;
+
             Vector3 orientationV=Vector(xh[i]).segment(9,3);
             double angle=orientationV.norm();
             if (angle > cst::epsilonAngle)
@@ -160,7 +203,9 @@ int test()
 
 
         f << i<< " \t "<< acos(double(g.transpose()*gh)) * 180 / M_PI << " \t\t\t "
-        << g.transpose() << " \t\t\t " << gh.transpose() << std::endl;
+        << g.transpose() << " \t\t\t " << gh.transpose() << " \t\t\t "
+        << x[i].transpose()<< " \t\t\t%%%%%%\t\t\t " << xh[i].transpose()
+        << std::endl;
 
     }
     return 0;
