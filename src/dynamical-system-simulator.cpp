@@ -20,7 +20,7 @@ namespace stateObservation
 
     void DynamicalSystemSimulator::setState( const Vector & x, unsigned k)
     {
-        BOOST_ASSERT((x_.size()==0 || (x_.getFirstTime()<k && x_.getLastTime()+1>=k)) &&
+        BOOST_ASSERT((x_.size()==0 || (x_.getFirstTime()<=k && x_.getLastTime()+1>=k)) &&
             "ERROR: Only consecutive states can be set. If you want to restart a new dynamics please call resetDynamics before");
         x_.truncate(k);
         x_.pushBack(x,k);
@@ -43,9 +43,9 @@ namespace stateObservation
 
     Vector DynamicalSystemSimulator::getState( unsigned k )
     {
-        BOOST_ASSERT((x_.size()==0 || x_.getFirstTime()<k) &&
+        BOOST_ASSERT((x_.size()==0 || x_.getFirstTime()<=k) &&
             "ERROR: Only future measurements can be obtained");
-        if (x_.getLastTime()<=k)
+        if (x_.getLastTime()<k)
             simulateDynamicsTo(k-1);
 
         return x_[k];
@@ -65,8 +65,6 @@ namespace stateObservation
     {
         BOOST_ASSERT(u_.size()>0 && "ERROR: the input is not set");
         std::map<unsigned,Vector>::const_iterator i=u_.upper_bound(k);
-
-
 
         --i;
 
