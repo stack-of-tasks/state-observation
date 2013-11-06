@@ -32,6 +32,8 @@ namespace flexibilityEstimation
 
         virtual Matrix4 getFlexibility();
 
+        virtual Vector getFlexibilityVector();
+
         virtual unsigned getMeasurementSize() const ;
 
         virtual unsigned getStateSize() const ;

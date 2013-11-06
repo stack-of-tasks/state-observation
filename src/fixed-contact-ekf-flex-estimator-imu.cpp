@@ -18,14 +18,14 @@ namespace flexibilityEstimation
 
         ekf_.setMeasureSize(functor_.getMeasurementSize());
 
-        R_=ekf_.getRmatrixIdentity(),
-        R_=R_*1.e-4;
+        R_=ekf_.getRmatrixIdentity();
+        R_=R_*1.e-8;
         ekf_.setR(R_);
 
         Q_=ekf_.getQmatrixIdentity();
-        Q_=Q_*1.e-10;
-        Q_.block(6,6,3,3)=Matrix3::Identity()*1.e-4;
-        Q_.block(15,15,3,3)=Matrix3::Identity()*1.e-4;
+        Q_=Q_*1.e-4;
+        Q_.block(6,6,3,3)=Matrix3::Identity()*1.e-2;
+        Q_.block(15,15,3,3)=Matrix3::Identity()*1.e-2;
         ekf_.setQ(Q_);
 
         Vector x0=ekf_.stateVectorZero();
@@ -46,6 +46,7 @@ namespace flexibilityEstimation
         finiteDifferencesJacobians_=true;
         functor_.setContactsNumber(i);
         ekf_.setMeasureSize(functor_.getMeasurementSize());
+
     }
 
     void FixedContactEKFFlexEstimatorIMU::setContactPosition
@@ -59,6 +60,7 @@ namespace flexibilityEstimation
         Vector y2 = ekf_.measureVectorZero();
         y2.head(getMeasurementSize()) = y;
         ekf_.setMeasurement(y2,k_+1);
+        updateCovarianceMatrix_();
     }
 
     void FixedContactEKFFlexEstimatorIMU::setVirtualMeasurementsCovariance
@@ -154,6 +156,18 @@ namespace flexibilityEstimation
 
         return tools::vector6ToHomogeneousMatrix(v2);
 
+    }
+
+    Vector FixedContactEKFFlexEstimatorIMU::getFlexibilityVector()
+    {
+        Vector v(EKFFlexibilityEstimatorBase::getFlexibilityVector());
+
+        ///regulate the part of orientation vector in the state vector
+        v.segment(9,3)=tools::regulateOrientationVector(v.segment(9,3));
+
+        ekf_.setState(v,ekf_.getCurrentTime());
+
+        return v;
     }
 
 }
