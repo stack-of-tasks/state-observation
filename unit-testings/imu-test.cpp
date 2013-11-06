@@ -34,14 +34,14 @@ int test()
         IMUDynamicalSystem imu;
 
         ///The process noise initialization
-        Matrix q1=Matrix::Identity(stateSize,stateSize)*0.01;
+        Matrix q1=Matrix::Identity(stateSize,stateSize)*0.00;
         GaussianWhiteNoise processNoise(imu.getStateSize());
         processNoise.setStandardDeviation(q1);
         imu.setProcessNoise( & processNoise );
         q=q1*q1.transpose();
 
         ///The measurement noise initialization
-        Matrix r1=Matrix::Identity(measurementSize,measurementSize)*0.01;
+        Matrix r1=Matrix::Identity(measurementSize,measurementSize)*0.0;
         GaussianWhiteNoise MeasurementNoise(imu.getMeasurementSize());
         MeasurementNoise.setStandardDeviation(r1);
         imu.setMeasurementNoise( & MeasurementNoise );
@@ -118,6 +118,8 @@ int test()
     std::ofstream f;
     f.open("trajectory.dat");
 
+    double dx;
+
     ///the reconstruction of the state
     for (int i=y.getFirstTime();i<=y.getLastTime();++i)
     {
@@ -148,18 +150,28 @@ int test()
             gh.normalize();
         }
 
+        dx= acos(double(g.transpose()*gh));
 
-        f << i<< " \t "<< acos(double(g.transpose()*gh)) * 180 / M_PI << " \t\t\t "
+        f << i<< " \t "<<  dx * 180 / M_PI << " \t\t\t "
         << g.transpose() << " \t\t\t " << gh.transpose() << std::endl;
-
     }
-    return 0;
+
+    std::cout << "Verticality estimation error (degrees):" << dx;
+
+    if (dx* 180 / M_PI < 1)
+    {
+        std::cout<<"Test succeeded";
+        return 0;
+    }
+    else
+    {
+        std::cout<<"Test failed";
+        return 1;
+    }
 }
 
 int main()
 {
-
-
     return test();
 
 }
