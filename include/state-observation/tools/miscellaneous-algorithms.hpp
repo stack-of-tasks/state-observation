@@ -85,6 +85,20 @@ namespace stateObservation
             return M;
         }
 
+        inline void fixedPointRotationToTranslation
+            (const Matrix3 & R, const Vector3 & rotationVelocity,
+                const Vector3 & rotationAcceleration, const Vector3 & fixedPoint,
+                Vector3 & outputTranslation, Vector3 & outputLinearVelocity,
+                Vector3 & outputLinearAcceleration)
+        {
+            Matrix3 omega_x = skewSymmetric(rotationVelocity);
+            outputTranslation = fixedPoint - R * fixedPoint;
+            outputLinearVelocity = omega_x * R * fixedPoint,
+            outputLinearAcceleration =
+                    (skewSymmetric(rotationAcceleration) + square(omega_x))
+                            * R * fixedPoint;
+        }
+
     }
 }
 
