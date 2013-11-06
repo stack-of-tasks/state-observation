@@ -9,7 +9,7 @@
 #include <bitset>
 #include <iomanip>
 
-#include <state-observation/observer/kalman-filter.hpp>
+#include <state-observation/observer/linear-kalman-filter.hpp>
 #include <state-observation/observer/extended-kalman-filter.hpp>
 
 #include <boost/utility/binary.hpp>
@@ -545,7 +545,7 @@ double testExtendedKalmanFilterZeroInput()
 double testKalmanFilter()
 {
 
-    typedef stateObservation::KalmanFilter filter;
+    typedef stateObservation::LinearKalmanFilter filter;
 
     filter f(4,3,2);
     Eigen::Matrix<double,4,4> a;
@@ -647,7 +647,7 @@ double testKalmanFilter()
 
 double testKalmanFilterZeroInput()
 {
-    typedef stateObservation::KalmanFilter filter;
+    typedef stateObservation::LinearKalmanFilter filter;
 
     filter f(4,3);
     Eigen::Matrix<double,4,4> a;
