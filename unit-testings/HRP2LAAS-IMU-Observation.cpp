@@ -73,8 +73,10 @@ int test(const DiscreteTimeArray & y)
     std::ofstream f;
     f.open("trajectory.dat");
 
+    double estimatedError=0;
+
     ///the reconstruction of the state
-    for (int i=xh.getFirstTime();i<=xh.getLastTime();++i)
+    for (int i=xh.getFirstTime()+1;i<=xh.getLastTime();++i)
     {
         ///display part,
         Vector3 gh;
@@ -91,14 +93,29 @@ int test(const DiscreteTimeArray & y)
 
         AngleAxis a(Rh);
 
+        Vector3 accelero = Vector(y[i]).head(3);
 
+        estimatedError = acos( double (accelero.normalized().transpose() * gh.normalized()) );
 
-        f << i<< " \t "<< a.angle() * 180 / M_PI << " \t\t "
-        << a.axis().transpose() << " \t\t " <<  gh.transpose()
-        << std::endl;
-
+        f << i<< "\t"<< estimatedError * 180 / M_PI << "\t"
+         <<a.angle() * 180 / M_PI << " \t\t "
+         << a.axis().transpose() << " \t\t " <<  gh.transpose() <<"\t\t\t\t"
+         << y[i].transpose() << std::endl;
     }
-    return 0;
+
+    std::cout << "Error " << estimatedError * 180 / M_PI << ", test: " ;
+
+    if (estimatedError * 180 / M_PI > 0.1)
+    {
+        std::cout << "FAILED !!!!!!!";
+        return 1;
+    }
+    else
+    {
+        std::cout << "SUCCEEDED !!!!!!!";
+        return 0;
+    }
+
 }
 
 int main()
