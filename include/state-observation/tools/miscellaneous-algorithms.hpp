@@ -99,6 +99,14 @@ namespace stateObservation
                             * R * fixedPoint;
         }
 
+        inline Vector3 derivateRotationFD
+            (const Quaternion & q1, const Quaternion & q2, double dt)
+        {
+            AngleAxis aa (q2 * q2.inverse());
+
+            return (aa.angle()/dt)*aa.axis();
+        }
+
     }
 }
 
