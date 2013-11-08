@@ -105,9 +105,10 @@ namespace stateObservation
         ///Default constructor
         DiscreteTimeArray();
 
-        ///Pushes the vector v at the time index k
+        ///Sets the vector v at the time index k
         ///It checks the time index, the array must have contiguous indexes
-        inline void pushBack(const Matrix& v,unsigned k);
+        ///It can be used to push a value into the back of the array
+        inline void setValue(const Matrix& v,unsigned k);
 
         ///Pushes back the matrix to the array, the new value will take the next time
         ///index. If the array is empty, the time index will be set to 0
@@ -125,6 +126,8 @@ namespace stateObservation
         ///removes all the elements with larger or equal indexes than timeIndex
         void truncate(unsigned timeIndex);
 
+        ///resizes the array
+        inline void resize(unsigned i, const Matrix & m= Matrix::Zero(0,0));
 
         ///Get the time index
         inline unsigned getLastTime() const;

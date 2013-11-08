@@ -38,7 +38,7 @@ DiscreteTimeArray getMeasurements(char * accelerometerSignal,  char * gyrometerS
 
             yk.head(3)=mAcc;
             yk.tail(3)=mGyr;
-            y.pushBack(yk,k1);
+            y.setValue(yk,k1);
         }
     }
 

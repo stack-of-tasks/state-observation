@@ -40,7 +40,7 @@ namespace stateObservation
                 && "ERROR: The time is set incorrectly for the measurements \
                                 (must be [current_time+1])");
 
-        y_.pushBack(y_k,k);
+        y_.setValue(y_k,k);
     }
 
     void ZeroDelayObserver::clearMeasurements()
@@ -67,7 +67,7 @@ namespace stateObservation
                           inputs (must be [current_time] or [current_time+1])");
             }
 
-            u_.pushBack(u_k,k);
+            u_.setValue(u_k,k);
         }
     }
 

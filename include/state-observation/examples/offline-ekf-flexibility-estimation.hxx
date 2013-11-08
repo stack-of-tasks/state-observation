@@ -26,7 +26,7 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
 
     ///the array of the state estimations over time
     stateObservation::DiscreteTimeArray xh;
-    xh.pushBack(xh0,y.getFirstTime()-1);
+    xh.setValue(xh0,y.getFirstTime()-1);
 
     ///the reconstruction of the state
     for (int i=y.getFirstTime();i<=y.getLastTime();++i)
@@ -60,7 +60,7 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
     stateObservation::DiscreteTimeArray u;
     for (int k=y.getFirstTime()-1; k<=y.getLastTime(); ++k)
     {
-        u.pushBack(Vector::Zero(inputSize,1),k);
+        u.setValue(Vector::Zero(inputSize,1),k);
     }
 
     return offlineEKFFlexibilityEstimation

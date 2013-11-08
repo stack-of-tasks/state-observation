@@ -23,7 +23,7 @@ namespace stateObservation
         BOOST_ASSERT((x_.size()==0 || (x_.getFirstTime()<=k && x_.getLastTime()+1>=k)) &&
             "ERROR: Only consecutive states can be set. If you want to restart a new dynamics please call resetDynamics before");
         x_.truncate(k);
-        x_.pushBack(x,k);
+        x_.setValue(x,k);
     }
 
     void DynamicalSystemSimulator::setInput( const Vector & u, unsigned k)
@@ -82,8 +82,8 @@ namespace stateObservation
 
         unsigned k=x_.getLastTime();
         Vector u=getInput(k);
-        y_.pushBack(f_->measureDynamics(x_[k],u,k),k);
-        x_.pushBack(f_->stateDynamics(x_[k],u,k),k+1);
+        y_.setValue(f_->measureDynamics(x_[k],u,k),k);
+        x_.setValue(f_->stateDynamics(x_[k],u,k),k+1);
 
     }
 
@@ -103,7 +103,7 @@ namespace stateObservation
 
         for (unsigned i= startingTime; i<startingTime+duration;++i)
         {
-            a.pushBack(getMeasurement(i),i);
+            a.setValue(getMeasurement(i),i);
         }
         return a;
     }
@@ -117,7 +117,7 @@ namespace stateObservation
 
         for (unsigned i= startingTime; i<startingTime+duration;++i)
         {
-            a.pushBack(getState(i),i);
+            a.setValue(getState(i),i);
         }
         return a;
 

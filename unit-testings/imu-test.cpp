@@ -72,7 +72,7 @@ int test()
             ///filling the 10 time samples of the constant input
             for (int j=0;j<10;++j)
             {
-                u.pushBack(uk,i*10+j);
+                u.setValue(uk,i*10+j);
             }
 
             ///give the input to the simulator

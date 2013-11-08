@@ -40,7 +40,7 @@ DiscreteTimeArray imuAttitudeTrajectoryReconstruction
 
     ///the array of the state estimations over time
     DiscreteTimeArray xh;
-    xh.pushBack(xh0,y.getFirstTime()-1);
+    xh.setValue(xh0,y.getFirstTime()-1);
 
     ///the reconstruction of the state
     for (int i=y.getFirstTime();i<=y.getLastTime();++i)
@@ -69,7 +69,7 @@ DiscreteTimeArray imuAttitudeTrajectoryReconstruction
         ///which is the case here.
         filter.setState(xhk,i);
 
-        xh.pushBack(xhk,i);
+        xh.setValue(xhk,i);
     }
 
     return xh;
@@ -89,7 +89,7 @@ DiscreteTimeArray imuAttitudeTrajectoryReconstruction(
     DiscreteTimeArray u;
     for (int k=y.getFirstTime()-1; k<y.getLastTime(); ++k)
     {
-        u.pushBack(Vector::Zero(inputSize,1),k);
+        u.setValue(Vector::Zero(inputSize,1),k);
     }
 
     return imuAttitudeTrajectoryReconstruction (y, u, xh0, p, q, r, dt);
