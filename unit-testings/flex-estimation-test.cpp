@@ -43,14 +43,16 @@ int test()
 
         ///The process noise initialization
         Matrix q1=Matrix::Zero(stateSize,stateSize);
-        q1(15,15) = q1(16,16) = q1(17,17) = 0.00;
+        q1(15,15) = q1(16,16) = q1(17,17) = 0.000001;
+        q1(12,12) = q1(13,13) = q1(14,14) = 0.0001;
+        q1(9,9) = q1(10,10) = q1(11,11) = 0.001;
 
         GaussianWhiteNoise processNoise(imu.getStateSize());
         processNoise.setStandardDeviation(q1);
         imu.setProcessNoise( & processNoise );
 
         ///The measurement noise initialization
-        Matrix r1=Matrix::Identity(measurementSize,measurementSize)*0.0;
+        Matrix r1=Matrix::Identity(measurementSize,measurementSize)*0.01;
         GaussianWhiteNoise MeasurementNoise(imu.getMeasurementSize());
         MeasurementNoise.setStandardDeviation(r1);
         imu.setMeasurementNoise( & MeasurementNoise );
@@ -62,12 +64,13 @@ int test()
         ///initialization of the state vector
         Vector x0=Vector::Zero(stateSize,1);
 
-        x0[15]=x0[16]=x0[17]=0.01;
+        x0[15]=x0[16]=x0[17]=0.00001;
+
+        x0[12]=x0[13]=x0[14]=0.0001;
 
         x0[9]=x0[10]=x0[11]=0.3;
 
         //x0=x0*100;
-
 
         sim.setState(x0,0);
 
@@ -108,7 +111,6 @@ int test()
             ///we only need to give one value and the
             ///simulator takes automatically the appropriate value
             sim.setInput(uk,10*i);
-
         }
 
         ///Last sample needed
@@ -116,8 +118,6 @@ int test()
 
         ///set the sampling perdiod to the functor
         imu.setSamplingPeriod(dt);
-
-
 
         ///launched the simulation to the time kmax+1
         for (int i=0; i<kmax+1; ++i)
@@ -170,6 +170,8 @@ int test()
     std::ofstream f;
     f.open("trajectory.dat");
 
+    double error;
+
     ///the reconstruction of the state
     for (int i=y.getFirstTime();i<=y.getLastTime();++i)
     {
@@ -201,14 +203,28 @@ int test()
             gh.normalize();
         }
 
+        error = acos(double(g.transpose()*gh)) * 180 / M_PI;
 
-        f << i<< " \t "<< acos(double(g.transpose()*gh)) * 180 / M_PI << " \t\t\t "
-        << g.transpose() << " \t\t\t " << gh.transpose() << " \t\t\t "
-        << x[i].transpose()<< " \t\t\t%%%%%%\t\t\t " << xh[i].transpose()
-        << std::endl;
+
+        f << i<< " \t "<< error << " \t\t\t "
+          << g.transpose() << " \t\t\t " << gh.transpose() << " \t\t\t "
+          << x[i].transpose()<< " \t\t\t%%%%%%\t\t\t " << xh[i].transpose()
+          << std::endl;
 
     }
-    return 0;
+
+    std::cout << "Error " << error << ", test: " ;
+
+    if (error > 2)
+    {
+        std::cout << "FAILED !!!!!!!";
+        return 1;
+    }
+    else
+    {
+        std::cout << "SUCCEEDED !!!!!!!";
+        return 0;
+    }
 }
 
 int main()
