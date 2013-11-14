@@ -42,11 +42,18 @@ void DiscreteTimeMatrix::check_()const
 ///Set the value of the matrix and the time sample
 void DiscreteTimeArray::setValue(const Matrix& v,unsigned k)
 {
-    checkNext_(k);
-    if (v_.size()==0)
-        k_=k;
+    if (checkIndex(k))
+    {
+        (*this)[k]=v;
+    }
+    else
+    {
+        checkNext_(k);
+        if (v_.size()==0)
+            k_=k;
 
-    v_.push_back(v);
+        v_.push_back(v);
+    }
 }
 
 void DiscreteTimeArray::pushBack(const Matrix& v)
@@ -129,7 +136,7 @@ void DiscreteTimeArray::check_()const
 void DiscreteTimeArray::checkNext_(unsigned time)const
 {
     BOOST_ASSERT( (v_.size()==0 || k_+v_.size() == time )&&
-                                    "Error: Time instant must be consecutive");
+                  "Error: New time instants must be consecutive to existing ones");
 }
 
 ///resizes the array
