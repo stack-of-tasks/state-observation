@@ -99,14 +99,112 @@ namespace stateObservation
                             * R * fixedPoint;
         }
 
+        template <class T>
+        inline T derivate(const T & o1 , const T & o2 , double dt)
+        {
+            return (o2-o1)/dt;
+        }
+
         inline Vector3 derivateRotationFD
             (const Quaternion & q1, const Quaternion & q2, double dt)
         {
-            AngleAxis aa (q2 * q2.inverse());
+            AngleAxis aa (q2 * q1.inverse());
+
+            double a=aa.angle();
+
+            Vector3 v =  aa.axis();
 
             return (aa.angle()/dt)*aa.axis();
         }
 
+//        inline Vector3 position(const Vector & v)
+//        {
+//            return v.head(3);
+//        }
+//
+//        inline Vector3 velocity(const Vector & v)
+//        {
+//            return v.segment(3,3);
+//        }
+//
+//        inline Vector3 acceleration(const Vector & v)
+//        {
+//            return v.segment(6,3);
+//        }
+//
+//        inline Vector3 orientation(const Vector & v)
+//        {
+//            return v.segment(9,3);
+//        }
+//
+//        inline Vector3 angularVelocity(const Vector & v)
+//        {
+//            return v.segment(12,3);
+//        }
+//
+//        inline Vector3 angularAcceleration(const Vector & v)
+//        {
+//            return v.tail(3);
+//        }
+
+        inline DiscreteTimeArray reconstructStateTrajectory
+            (const DiscreteTimeArray & positionOrientation,
+             double dt)
+        {
+            Vector r(Vector::Zero(18,1));
+
+            const DiscreteTimeArray & po= positionOrientation;
+
+            unsigned i0=positionOrientation.getFirstTime();
+            unsigned i1=positionOrientation.getLastTime()+1;
+
+            DiscreteTimeArray a;
+            a.setValue(r,i0);
+            a.resize(po.size(),r);
+
+            for (unsigned i=i0; i<i1; ++i)
+            {
+                Vector poi = po[i];
+
+                r.head(3)       = poi.head(3);
+                r.segment(9,3) = poi.tail(3);
+                a.setValue(r,i);
+            }
+
+            for (unsigned i=i0; i<i1-1; ++i)
+            {
+                r = a[i];
+
+                Vector poi = po[i];
+                Vector poi1 = po[i+1];
+
+                r.segment(3,3)  = derivate(Vector3(poi.head(3)),
+                                            Vector3(poi1.head(3)), dt);
+                r.segment(12,3) = derivateRotationFD(
+                          Quaternion(rotationVectorToAngleAxis (poi.tail(3))),
+                          Quaternion(rotationVectorToAngleAxis (poi1.tail(3))),
+                          dt);
+
+                a.setValue(r,i);
+
+            }
+
+            for (unsigned i=i0; i<i1-2; ++i)
+            {
+                r = a[i];
+                Vector r2 = a[i+1];
+
+                r.segment(6,3) = derivate(Vector3(r.segment(6,3)),
+                                        Vector3(r2.segment(6,3)), dt);
+                r.tail(3) = derivate(Vector3(r.segment(12,3)),
+                            Vector3(r2.segment(12,3)), dt);
+
+                a.setValue(r,i);
+
+            }
+
+            return a;
+        }
     }
 }
 
