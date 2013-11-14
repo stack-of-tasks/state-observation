@@ -34,14 +34,14 @@ int test()
         IMUDynamicalSystem imu;
 
         ///The process noise initialization
-        Matrix q1=Matrix::Identity(stateSize,stateSize)*0.00;
+        Matrix q1=Matrix::Identity(stateSize,stateSize)*0.001;
         GaussianWhiteNoise processNoise(imu.getStateSize());
         processNoise.setStandardDeviation(q1);
         imu.setProcessNoise( & processNoise );
         q=q1*q1.transpose();
 
         ///The measurement noise initialization
-        Matrix r1=Matrix::Identity(measurementSize,measurementSize)*0.0;
+        Matrix r1=Matrix::Identity(measurementSize,measurementSize)*0.01;
         GaussianWhiteNoise MeasurementNoise(imu.getMeasurementSize());
         MeasurementNoise.setStandardDeviation(r1);
         imu.setMeasurementNoise( & MeasurementNoise );
