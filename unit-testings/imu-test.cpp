@@ -156,7 +156,7 @@ int test()
         << g.transpose() << " \t\t\t " << gh.transpose() << std::endl;
     }
 
-    std::cout << "Verticality estimation error (degrees):" << dx;
+    std::cout << "Verticality estimation error (degrees):" << dx* 180 / M_PI;
 
     if (dx* 180 / M_PI < 1)
     {
