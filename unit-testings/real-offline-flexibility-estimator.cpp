@@ -10,6 +10,9 @@
 
 using namespace stateObservation;
 
+///sampling period
+const double dt=5e-3;
+
 int testDerivator()
 {
     /// The number of samples
@@ -126,157 +129,100 @@ int testDerivator()
 
 }
 
-
-int test()
+DiscreteTimeArray getMeasurements(char * accelerometerSignal,  char * gyrometerSignal)
 {
-    /// The number of samples
-    const unsigned kmax=3000;
+    std::ifstream facc;
+    std::ifstream fgyr;
 
-    ///sampling period
-    const double dt=1e-3;
+    facc.open(accelerometerSignal);
+    fgyr.open(gyrometerSignal);
 
-    ///Sizes of the states for the state, the measurement, and the input vector
-    const unsigned stateSize=18;
-    const unsigned measurementSize=6;
-    const unsigned inputSize=15;
+    Vector3 mAcc;
+    Vector3 mGyr;
 
-    ///The array containing all the states, the measurements and the inputs
-    DiscreteTimeArray x;
+    Vector yk=Vector::Zero(6,1);
+
     DiscreteTimeArray y;
-    DiscreteTimeArray u;
 
-    ///The covariance matrix of the process noise and the measurement noise
-    Matrix q;
-    Matrix r;
+    bool continuation=true;
 
-    Vector3 contact(Vector3::Random());
-
-
+    while (continuation)
     {
-        ///simulation of the signal
-        /// the IMU dynamical system functor
-        flexibilityEstimation::IMUFixedContactDynamicalSystem imu;
+        unsigned k1;
+        unsigned k2;
+        facc >> k1;
+        fgyr >> k2;
+        if (facc.eof()||facc.eof()||k1!=k2)
+            continuation=false;
 
-        ///The process noise initialization
-        Matrix q1=Matrix::Zero(stateSize,stateSize);
-        q1(15,15) = q1(16,16) = q1(17,17) = 0.000001;
-        q1(12,12) = q1(13,13) = q1(14,14) = 0.0001;
-        q1(9,9) = q1(10,10) = q1(11,11) = 0.001;
-
-        GaussianWhiteNoise processNoise(imu.getStateSize());
-        processNoise.setStandardDeviation(q1);
-        imu.setProcessNoise( & processNoise );
-
-        ///The measurement noise initialization
-        Matrix r1=Matrix::Identity(measurementSize,measurementSize)*0.01;
-        GaussianWhiteNoise MeasurementNoise(imu.getMeasurementSize());
-        MeasurementNoise.setStandardDeviation(r1);
-        imu.setMeasurementNoise( & MeasurementNoise );
-
-        ///the simulator initalization
-        DynamicalSystemSimulator sim;
-        sim.setDynamicsFunctor( & imu);
-
-        ///initialization of the state vector
-        Vector x0=Vector::Zero(stateSize,1);
-
-        x0[15]=x0[16]=x0[17]=0.00001;
-
-        x0[12]=x0[13]=x0[14]=0.0001;
-
-        x0[9]=x0[10]=x0[11]=0.3;
-
-        //x0=x0*100;
-
-        sim.setState(x0,0);
-
-        Vector uk=Vector::Zero(imu.getInputSize(),1);
-
-        int i;
-        ///construction of the input
-        /// the input is constant over 10 time samples
-        for (i=0;i<kmax/10.0;++i)
+        if (continuation)
         {
-            uk[ 0]=0.4 * sin(M_PI/10*i);
-            uk[ 1]=0.6 * sin(M_PI/12*i);
-            uk[ 2]=0.2 * sin(M_PI/5*i);
+            facc >> mAcc[0]>> mAcc[1]>> mAcc[2];
+            fgyr >> mGyr[0]>> mGyr[1]>> mGyr[2];
 
-            uk[ 3]=0.1  * sin(M_PI/12*i);
-            uk[ 4]=0.07  * sin(M_PI/15*i);
-            uk[ 5]=0.05 * sin(M_PI/5*i);
-
-            uk[ 6]=1  * sin(M_PI/12*i);
-            uk[ 7]=0.07  * sin(M_PI/15*i);
-            uk[ 8]=0.05 * sin(M_PI/10*i);
-
-            uk[ 9]=2  * sin(M_PI/12*i);
-            uk[10]=1.5  * sin(M_PI/18*i);
-            uk[11]=0.8 * sin(M_PI/6*i);
-
-            uk[12]=0.2  * sin(M_PI/12*i);
-            uk[13]=0.07  * sin(M_PI/12*i);
-            uk[14]=0.05 * sin(M_PI/5*i);
-
-            ///filling the 10 time samples of the constant input
-            for (int j=0;j<10;++j)
-            {
-                u.setValue(uk,i*10+j);
-            }
-
-            ///give the input to the simulator
-            ///we only need to give one value and the
-            ///simulator takes automatically the appropriate value
-            sim.setInput(uk,10*i);
+            yk.head(3)=mAcc;
+            yk.tail(3)=mGyr;
+            y.setValue(yk,k1);
         }
-
-        ///Last sample needed
-        u.setValue(uk,i*10);
-
-        ///set the sampling perdiod to the functor
-        imu.setSamplingPeriod(dt);
-
-        ///launched the simulation to the time kmax+1
-        for (int i=0; i<kmax+1; ++i)
-        {
-            Vector x=sim.getState(i);
-
-            Vector3 orientationFlexV=x.segment(9,3);
-            Vector3 angularVelocityFlex=x.segment(12,3);
-            Vector3 angularAccelerationFlex=x.tail(3);
-
-            Matrix3 orientationFlexR =
-                tools::rotationVectorToAngleAxis(orientationFlexV).matrix();
-
-            Vector3 positionFlex;
-            Vector3 velocityFlex;
-            Vector3 accelerationFlex;
-
-            tools::fixedPointRotationToTranslation
-                (orientationFlexR, angularVelocityFlex, angularAccelerationFlex,
-                contact, positionFlex, velocityFlex, accelerationFlex);
-
-            x.head(3) = positionFlex;
-            x.segment(3,3) = velocityFlex;
-            x.segment(6,3) = accelerationFlex;
-
-            sim.setState(x,i);
-
-            sim.simulateDynamics();
-        }
-
-
-        ///extract the array of measurements and states
-        y = sim.getMeasurementArray(1,kmax);
-        x = sim.getStateArray(1,kmax);
     }
 
-    ///the initalization of a random estimation of the initial state
+    return y;
+}
+
+DiscreteTimeArray getTrajectory(char * PositionOrientation)
+{
+    std::ifstream f;
+
+    f.open(PositionOrientation);
+
+    Vector6 configuration;
+
+    DiscreteTimeArray up;
+
+    bool continuation=true;
+
+    while (continuation)
+    {
+        unsigned k;
+
+        f >> k;
+
+        if (f.eof())
+            continuation=false;
+
+        if (continuation)
+        {
+            f >> configuration[0]>> configuration[1]>> configuration[2]
+              >> configuration[3]>> configuration[4]>> configuration[5];
+
+            up.setValue(configuration,k);
+        }
+    }
+
+    DiscreteTimeArray state = tools::reconstructStateTrajectory(up,dt);
+
+    return state;
+}
+
+
+
+int test (const DiscreteTimeArray & y, const DiscreteTimeArray & u)
+{
+    /// The number of samples
+    const unsigned kmin=y.getFirstTime();
+
+    const unsigned kmax=y.getLastTime() + 1;
+
+    const unsigned stateSize = 18;
+
+
+
+    ///the initalization of an estimation of the initial state
     Vector xh0=Vector::Zero(stateSize,1);
 
     std::vector<Vector3> contactPositions;
 
-    contactPositions.push_back(contact);
-
+    contactPositions.push_back(Matrix::Zero(3,0));
 
     stateObservation::DiscreteTimeArray xh=
         stateObservation::examples::offlineEKFFlexibilityEstimation
@@ -294,14 +240,7 @@ int test()
         ///display part, useless
         Vector3 g;
         {
-            Matrix3 R;
-            Vector3 orientationV=Vector(x[i]).segment(9,3);
-            double angle=orientationV.norm();
-            if (angle > cst::epsilonAngle)
-                R = AngleAxis(angle, orientationV/angle).toRotationMatrix();
-            else
-                R = Matrix3::Identity();
-            g=R.transpose()*Vector3::UnitZ();
+            g = Vector(y[i]).head(3);
             g.normalize();
         }
 
@@ -324,9 +263,7 @@ int test()
 
         f << i<< " \t "<< error << " \t\t\t "
           << g.transpose() << " \t\t\t " << gh.transpose() << " \t\t\t "
-          << x[i].transpose()<< " \t\t\t%%%%%%\t\t\t " << xh[i].transpose()
-          << std::endl;
-
+          << xh[i].transpose() << std::endl;
     }
 
     std::cout << "Error " << error << ", test: " ;
@@ -346,7 +283,14 @@ int test()
 int main()
 {
 
-    return testDerivator();
-    //return test();
+    DiscreteTimeArray y =
+            getMeasurements("dg_HRP2LAAS-accelerometer.dat",
+                "dg_HRP2LAAS-gyrometer.dat");
+
+    DiscreteTimeArray u= getTrajectory("IMUTrajectory.dat");
+
+
+
+    return test(y,u);
 
 }
