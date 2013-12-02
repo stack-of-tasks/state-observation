@@ -14,7 +14,7 @@ DiscreteTimeArray imuAttitudeTrajectoryReconstruction
     const unsigned inputSize=6;
 
     ///initialization of the extended Kalman filter
-    ExtendedKalmanFilter filter(stateSize, measurementSize, measurementSize, false);
+    ExtendedKalmanFilter filter(stateSize, measurementSize, inputSize, false);
 
     ///initalization of the functor
     IMUDynamicalSystem imuFunctor;
