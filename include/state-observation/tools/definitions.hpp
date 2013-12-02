@@ -30,6 +30,9 @@ namespace stateObservation
     ///3D vector
     typedef Eigen::Vector3d Vector3;
 
+    ///3D vector unaligned
+    typedef Eigen::Matrix<double, 3, 1, Eigen::DontAlign> Vector3Unaligned;
+
     ///4D vector
     typedef Eigen::Vector4d Vector4;
 
@@ -47,6 +50,9 @@ namespace stateObservation
 
     ///Quaternion
     typedef Eigen::Quaterniond Quaternion;
+
+    ///Quaternion Unaligned
+    typedef Eigen::Quaternion<double, Eigen::DontAlign> QuaternionUnaligned;
 
     ///Euler Axis/Angle representation of orientation
     typedef Eigen::AngleAxis<double> AngleAxis;
