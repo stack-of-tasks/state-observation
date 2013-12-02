@@ -14,7 +14,14 @@
 #ifndef SENSORSIMULATIONDEFINITIONSHPP
 #define SENSORSIMULATIONDEFINITIONSHPP
 
+//#define STATEOBSERVATION_VERBOUS_CONSTRUCTORS
+
 #include <vector>
+
+#ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
+#   include <iostream>
+#endif
+
 #include <deque>
 
 #include <boost/assert.hpp>
