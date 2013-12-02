@@ -34,6 +34,13 @@ namespace stateObservation
         class RigidBodyKinematics
         {
         public:
+            RigidBodyKinematics()
+            {
+#ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
+        std::cout<<std::endl<<"DynamicalSystemFunctorBase Constructor"<<std::endl;
+#endif //STATEOBSERVATION_VERBOUS_CONSTRUCTORS
+            }
+
             ///virtual destructor for derivation
             virtual ~RigidBodyKinematics();
 

@@ -13,7 +13,9 @@ namespace flexibilityEstimation
         quaternion_(Quaternion::Identity()),
         measurementSize_(measurementSizeBase_)
     {
-        //ctor
+#ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
+        std::cout<<std::endl<<"IMUFixedContactDynamicalSystem Constructor"<<std::endl;
+#endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
     }
 
     IMUFixedContactDynamicalSystem::

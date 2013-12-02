@@ -59,6 +59,10 @@ namespace stateObservation
             directInputStateProcessFeedthrough_(directInputStateProcessFeedthrough)
 
         {
+#ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
+            std::cout<<std::endl<<"ExtendedKalmanFilter Constructor"<<std::endl;
+#endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
+
             if (p==0)
                 directInputOutputFeedthrough_=false;
         }

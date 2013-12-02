@@ -10,6 +10,9 @@ namespace stateObservation
     :processNoise_(0x0),dt_(1),orientationVector_(Vector3::Zero()),
         quaternion_(Quaternion::Identity())
     {
+#ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
+        std::cout<<std::endl<<"IMUFixedContactDynamicalSystem Constructor"<<std::endl;
+#endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
         //ctor
     }
 
