@@ -79,8 +79,8 @@ namespace stateObservation
 
         double dt_;
 
-        Vector3 orientationVector_;
-        Quaternion quaternion_;
+        Vector3Unaligned orientationVector_;
+        QuaternionUnaligned quaternion_;
 
         Quaternion computeQuaternion_(const Vector3 & x);
 
@@ -90,6 +90,9 @@ namespace stateObservation
 
 
     private:
+
+    public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 }
 #endif // IMU-DYNAMICAL-SYSTEM_HPP

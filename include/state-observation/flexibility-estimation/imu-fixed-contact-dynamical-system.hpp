@@ -73,8 +73,8 @@ namespace flexibilityEstimation
 
         double dt_;
 
-        Vector3 orientationVector_;
-        Quaternion quaternion_;
+        Vector3Unaligned orientationVector_;
+        QuaternionUnaligned quaternion_;
 
         Quaternion computeQuaternion_(const Vector3 & x);
 
@@ -88,6 +88,8 @@ namespace flexibilityEstimation
             contactPositions_;
 
     private:
+
+    public:
     };
 }
 }
