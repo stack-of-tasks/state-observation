@@ -18,7 +18,7 @@ namespace flexibilityEstimation
         private stateObservation::algorithm::RigidBodyKinematics
     {
     public:
-        IMUFixedContactDynamicalSystem();
+        IMUFixedContactDynamicalSystem(double dt);
         virtual ~IMUFixedContactDynamicalSystem();
 
         ///Description of the state dynamics

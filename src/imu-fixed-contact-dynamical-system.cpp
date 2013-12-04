@@ -8,8 +8,8 @@ namespace flexibilityEstimation
     using namespace stateObservation;
 
     IMUFixedContactDynamicalSystem::
-                    IMUFixedContactDynamicalSystem():
-        processNoise_(0x0), dt_(1),orientationVector_(Vector3::Zero()),
+                    IMUFixedContactDynamicalSystem(double dt):
+        processNoise_(0x0), dt_(dt),orientationVector_(Vector3::Zero()),
         quaternion_(Quaternion::Identity()),
         measurementSize_(measurementSizeBase_)
     {
