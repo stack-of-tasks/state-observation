@@ -24,11 +24,12 @@ namespace stateObservation
         /// get close to 2pi
         inline Vector regulateOrientationVector(const Vector3 & v )
         {
-
-            if (v.squaredNorm() > (3./2.) * M_PI * (3./2.) * M_PI )
+            double n2=v.squaredNorm();
+            if (n2 > (3./2.) * M_PI * (3./2.) * M_PI )
             {
-                double n=v.norm();
-                return v*( n - 2*M_PI )/n;
+                double n=sqrt(n2);
+                unsigned k =  ceil((n - M_PI) / (2*M_PI)) ;
+                return (v / n) * ( n - k*2*M_PI );
             }
             else
                 return v;
