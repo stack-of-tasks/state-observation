@@ -1,7 +1,6 @@
 #include <state-observation/flexibility-estimation/fixed-contact-ekf-flex-estimator-imu.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
-
 const double initialVirtualMeasurementCovariance=1.e-10;
 
 namespace stateObservation
@@ -34,6 +33,8 @@ namespace flexibilityEstimation
         ekf_.setStateCovariance(Q_);
 
         ekf_.setFunctor(& functor_);
+
+        functor_.setSamplingPeriod(dt);
     }
 
     FixedContactEKFFlexEstimatorIMU::~FixedContactEKFFlexEstimatorIMU()
