@@ -10,6 +10,71 @@
 using namespace stateObservation;
 
 
+int testConstant()
+{
+    /// The number of samples
+    const unsigned kmax=500;
+
+    ///sampling period
+    const double dt=1e-3;
+
+    ///Sizes of the states for the state, the measurement, and the input vector
+    const unsigned stateSize=18;
+    const unsigned measurementSize=6;
+    const unsigned inputSize=15;
+
+    ///The array containing all the states, the measurements and the inputs
+    DiscreteTimeArray y;
+    DiscreteTimeArray u;
+
+    Vector3 contact(Vector3::Zero());
+
+    Vector yConstant = Vector::Zero(measurementSize,1);
+    yConstant[2]=9.81;
+    yConstant[3]=1;
+
+
+    Vector uConstant = Vector::Zero(inputSize,1);
+    uConstant[2]=1.8;
+
+    {
+        for ( unsigned i=1 ; i<kmax+1 ; ++i )
+        {
+            y.setValue(yConstant,i);
+            u.setValue(uConstant,i);
+        }
+    }
+
+    u.pushBack(uConstant);
+
+    ///the initalization of a random estimation of the initial state
+    Vector xh0=Vector::Zero(stateSize,1);
+
+    std::vector<Vector3> contactPositions;
+
+    contactPositions.push_back(contact);
+
+    stateObservation::DiscreteTimeArray xh=
+        stateObservation::examples::offlineEKFFlexibilityEstimation
+        (y,u,xh0,1,contactPositions,dt);
+
+    ///file of output
+    std::ofstream f;
+    f.open("trajectory.dat");
+
+    double error;
+
+    ///the reconstruction of the state
+    for (int i=xh.getFirstTime();i<=xh.getLastTime();++i)
+    {
+       f << i<< xh[i].transpose()
+          << std::endl;
+    }
+
+    return 0;
+}
+
+
 
 int test()
 {
@@ -39,7 +104,7 @@ int test()
     {
         ///simulation of the signal
         /// the IMU dynamical system functor
-        flexibilityEstimation::IMUFixedContactDynamicalSystem imu;
+         flexibilityEstimation::IMUFixedContactDynamicalSystem imu(dt);
 
         ///The process noise initialization
         Matrix q1=Matrix::Zero(stateSize,stateSize);
@@ -231,6 +296,6 @@ int main()
 {
 
 
-    return test();
+    return testConstant();
 
 }

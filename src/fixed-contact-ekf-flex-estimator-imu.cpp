@@ -11,7 +11,8 @@ namespace flexibilityEstimation
         EKFFlexibilityEstimatorBase
             (stateSizeConst_,measurementSizeConst_,inputSizeConst_,
                             Matrix::Constant(getStateSize(),1,1.0e-8),dt),
-        virtualMeasurementCovariance_(initialVirtualMeasurementCovariance)
+        virtualMeasurementCovariance_(initialVirtualMeasurementCovariance),
+        functor_(dt)
     {
         ekf_.setDirectInputStateFeedthrough(false);
 
@@ -33,8 +34,6 @@ namespace flexibilityEstimation
         ekf_.setStateCovariance(Q_);
 
         ekf_.setFunctor(& functor_);
-
-        functor_.setSamplingPeriod(dt);
     }
 
     FixedContactEKFFlexEstimatorIMU::~FixedContactEKFFlexEstimatorIMU()
