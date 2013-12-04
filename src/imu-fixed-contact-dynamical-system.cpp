@@ -26,7 +26,7 @@ namespace flexibilityEstimation
 
 
     Vector IMUFixedContactDynamicalSystem::stateDynamics
-        (const Vector& x, const Vector& , unsigned)
+        (const Vector& x, const Vector& , unsigned k)
     {
         assertStateVector_(x);
 
@@ -44,6 +44,8 @@ namespace flexibilityEstimation
                 (positionFlex, velocityFlex, accelerationFlex, orientationFlex,
                  angularVelocityFlex, angularAccelerationFlex, dt_);
 
+
+
         //x_{k+1}
         Vector xk1(x);
 
@@ -55,6 +57,7 @@ namespace flexibilityEstimation
 
         xk1.segment(9,3) =  orientationFlexV;
         xk1.segment(12,3) = angularVelocityFlex;
+
 
         if (processNoise_!=0x0)
             return processNoise_->addNoise(xk1);
