@@ -6,9 +6,8 @@ namespace flexibilityEstimation
     EKFFlexibilityEstimatorBase::EKFFlexibilityEstimatorBase(unsigned stateSize,
                                     unsigned measurementSize,
                                     unsigned inputSize,
-                                    const Vector & dx,
-                                    double dt):
-        FlexibilityEstimatorBase(dt),
+                                    const Vector & dx):
+        FlexibilityEstimatorBase(),
         ekf_(stateSize,measurementSize,inputSize),
         k_(0),
         finiteDifferencesJacobians_(true),

@@ -10,7 +10,7 @@ namespace flexibilityEstimation
     FixedContactEKFFlexEstimatorIMU::FixedContactEKFFlexEstimatorIMU(double dt):
         EKFFlexibilityEstimatorBase
             (stateSizeConst_,measurementSizeConst_,inputSizeConst_,
-                            Matrix::Constant(getStateSize(),1,1.0e-8),dt),
+                            Matrix::Constant(getStateSize(),1,1.0e-8)),
         virtualMeasurementCovariance_(initialVirtualMeasurementCovariance),
         functor_(dt)
     {
@@ -169,6 +169,12 @@ namespace flexibilityEstimation
 
         return v;
     }
+
+    void FixedContactEKFFlexEstimatorIMU::setSamplingPeriod(double dt)
+    {
+        dt_=dt;
+    }
+
 
 }
 }
