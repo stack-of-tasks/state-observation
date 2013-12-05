@@ -1,3 +1,16 @@
+/**
+ * \file      fixed-contact-ekf-flex-estimator-imu.hpp
+ * \author    Mehdi Benallegue
+ * \date      2013
+ * \brief     Declares the class of the estimation of the flexibility using an
+ *            extended Kalman filter and a fixed contact hypothesis
+ *
+ * \details
+ *
+ *
+ */
+
+
 #ifndef FLEXBILITYESTMATOR_FIXEDCONTACTEKFFLEXIBILITYESTIMATOR_IMU_H
 #define FLEXBILITYESTMATOR_FIXEDCONTACTEKFFLEXIBILITYESTIMATOR_IMU_H
 
@@ -9,36 +22,63 @@ namespace stateObservation
 namespace flexibilityEstimation
 {
 
+    /**
+    * \class  FixedContactEKFFlexEstimatorIMU
+    * \brief  This class implements the flexibility estimation of a robot with
+    *         the hypothesis that the contact positions do not move. This constraint
+    *         is expressed using fictious measurements but the interface is transparent
+    *         to this assumption, the state is expressed using classical representation
+    *         of position, velocity, acceleration, orientation (using (theta x mu) representation)
+    *         angular velocity (omega) and acceleration (omega dot)
+    *
+    */
+
     class FixedContactEKFFlexEstimatorIMU :
                                             public EKFFlexibilityEstimatorBase,
                                             private boost::noncopyable
     {
     public:
-        FixedContactEKFFlexEstimatorIMU( double d=0.005 );
 
+        ///The constructor, it requires the value of the time discretization period
+        explicit FixedContactEKFFlexEstimatorIMU( double d=0.005 );
+
+        ///Virtual destructor
         virtual ~FixedContactEKFFlexEstimatorIMU();
 
+        ///Sets the number of contacts can be changed online
         void setContactsNumber(unsigned i);
 
+        ///Sets the position of the i-th contact
         void setContactPosition(unsigned i, Vector3 position);
 
+        /// Sets the value of the next sensor measurement y_{k+1}
         virtual void setMeasurement(const Vector & y);
 
+        ///Sets the covariance of the fictious measurements (not mandatory)
         virtual void setVirtualMeasurementsCovariance(double c_);
 
+        ///Sets the covariance matrices
         virtual void setNoiseCovariances(const Matrix & Q, const Matrix & R);
 
+        ///Sets a value of the flexibility x_k provided from another source
+        /// can be used for initialization of the estimator
         virtual void setFlexibilityGuess(const Matrix & x);
 
+        /// Gets an estimation of the flexibility in the form of a homogeneous matrix
         virtual Matrix4 getFlexibility();
 
+        /// Gets an estimation of the flexibility in the form of a state vector \hat{x_{k+1}}
         virtual Vector getFlexibilityVector();
+
 
         virtual unsigned getMeasurementSize() const ;
 
         virtual unsigned getStateSize() const ;
 
         virtual unsigned getInputSize() const ;
+
+        /// sets the sampling period
+        virtual void setSamplingPeriod(double);
 
 
     protected:
@@ -56,6 +96,8 @@ namespace flexibilityEstimation
         static const unsigned stateSizeConst_=18;
         static const unsigned measurementSizeConst_=6;
         static const unsigned inputSizeConst_=15;
+
+        double dt_;//sampling period
 
     private:
     };

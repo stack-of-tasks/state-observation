@@ -1,3 +1,14 @@
+/**
+ * \file     imu-fixed-contact-dynamical-system.hpp
+ * \author   Mehdi Benallegue
+ * \date     2013
+ * \brief    Definitions of the dynamical system of a robot flexibility with an IMU sensor.
+ *
+ * \details
+ *
+ *
+ */
+
 #ifndef FIXED-CONTACTS-IMU-DYNAMICS-FUNCTOR_HPP
 #define FIXED-CONTACTS-IMU-DYNAMICS-FUNCTOR_HPP
 
@@ -12,13 +23,23 @@ namespace stateObservation
 {
 namespace flexibilityEstimation
 {
-
+    /**
+    * \class  IMUFixedContactDynamicalSystem
+    * \brief  This class describes the dynamics of a robot's flexibility
+    *         this dynamics is the simplest possible system, the flexibility
+    *         is expressed as a rotation against the contact positions with no
+    *         other hypothesis than that the contact points are at constant position
+    *
+    */
     class IMUFixedContactDynamicalSystem :
         public stateObservation::DynamicalSystemFunctorBase,
         private stateObservation::algorithm::RigidBodyKinematics
     {
     public:
-        IMUFixedContactDynamicalSystem(double dt);
+        ///constructor
+        explicit IMUFixedContactDynamicalSystem(double dt);
+
+        ///virtual destructor
         virtual ~IMUFixedContactDynamicalSystem();
 
         ///Description of the state dynamics

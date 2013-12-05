@@ -2,7 +2,7 @@
  * \file      miscellaneous-algorithms.hpp
  * \author    Mehdi Benallegue
  * \date       2013
- * \brief
+ * \brief      Gathers many kinds of algorithms
  *
  *
  *
@@ -48,6 +48,7 @@ namespace stateObservation
                 return AngleAxis(0.0 , Vector3::UnitZ());
         }
 
+        ///transform a 3d vector into a skew symmetric 3x3 matrix
         inline Matrix3 skewSymmetric(const Vector3 & v)
         {
             Matrix3 R ;
@@ -58,12 +59,14 @@ namespace stateObservation
             return R;
         }
 
+        ///computes the square of a value of any type
         template <class T>
         inline T square (const T & x)
         {
             return x*x;
         }
 
+        ///transforms a homogeneous matrix into 6d vector (position theta mu)
         inline Vector6 homogeneousMatrixToVector6(const Matrix4 & M)
         {
             Vector6 v;
@@ -75,6 +78,7 @@ namespace stateObservation
             return v;
         }
 
+        ///transforms a 6d vector (position theta mu) into a homogeneous matrix
         inline Matrix4 vector6ToHomogeneousMatrix(const Vector6 & v)
         {
             Matrix4 M;
@@ -86,6 +90,7 @@ namespace stateObservation
             return M;
         }
 
+        ///transforms a rotation into translation given a constraint of a fixed point
         inline void fixedPointRotationToTranslation
             (const Matrix3 & R, const Vector3 & rotationVelocity,
                 const Vector3 & rotationAcceleration, const Vector3 & fixedPoint,
@@ -100,12 +105,14 @@ namespace stateObservation
                             * R * fixedPoint;
         }
 
+        ///derivates any type with finite differences
         template <class T>
         inline T derivate(const T & o1 , const T & o2 , double dt)
         {
             return (o2-o1)/dt;
         }
 
+        ///derivates a quaternion using finite difference to get a angular velocity vector
         inline Vector3 derivateRotationFD
             (const Quaternion & q1, const Quaternion & q2, double dt)
         {
@@ -118,36 +125,8 @@ namespace stateObservation
             return (aa.angle()/dt)*aa.axis();
         }
 
-//        inline Vector3 position(const Vector & v)
-//        {
-//            return v.head(3);
-//        }
-//
-//        inline Vector3 velocity(const Vector & v)
-//        {
-//            return v.segment(3,3);
-//        }
-//
-//        inline Vector3 acceleration(const Vector & v)
-//        {
-//            return v.segment(6,3);
-//        }
-//
-//        inline Vector3 orientation(const Vector & v)
-//        {
-//            return v.segment(9,3);
-//        }
-//
-//        inline Vector3 angularVelocity(const Vector & v)
-//        {
-//            return v.segment(12,3);
-//        }
-//
-//        inline Vector3 angularAcceleration(const Vector & v)
-//        {
-//            return v.tail(3);
-//        }
-
+        ///uses the derivation to reconstruct the velocities and accelerations given
+        ///trajectories in positions and orientations only
         inline DiscreteTimeArray reconstructStateTrajectory
             (const DiscreteTimeArray & positionOrientation,
              double dt)

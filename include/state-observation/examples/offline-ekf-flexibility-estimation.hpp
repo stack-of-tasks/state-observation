@@ -1,3 +1,16 @@
+/**
+ * \file      offline-ekf-flexibility-estimation.hpp
+ * \author    Mehdi Benallegue
+ * \date       2013
+ * \brief      Gives an implementation of flexibility estimation for IMU reconstruction
+ *             with or without given input using a Kalman filter. The source is in a file
+ *             imu-attitude-trajectory-reconstruction.hxx
+ *
+ * \details
+ *
+ *
+ */
+
 #ifndef FLEXIBILITYESTIMATION_OFFLINEEKFFLEXIBILITYESTIMATION_H
 #define FLEXIBILITYESTIMATION_OFFLINEEKFFLEXIBILITYESTIMATION_H
 
@@ -8,6 +21,30 @@ namespace stateObservation
 {
     namespace examples
     {
+
+        /*! \fn DiscreteTimeArray offlineEKFFlexibilityEstimation(
+         *   const stateObservation::DiscreteTimeArray & y,
+         *   const stateObservation::DiscreteTimeArray & u,
+         *   const Matrix & xh0,
+         *   unsigned numberOfContacts,
+         *   const std::vector<Vector3> & contactsPositions,
+         *   double dt);
+         *
+         *  \brief Provides the estimation of the flexibility of a robot
+         *         given the measurements of an IMU and the input
+         *         (which provides the reference trajectory of the IMU). This method uses
+         *         extended Kalman filtering, we need to provide it with an
+         *         initial guess, the number of contacts and their positions, and
+         *         the time sampling period.
+         *
+         *
+         *  \param y IMU measurements
+         *  \param u the inputs of the dynamical system
+         *  \param xh0 an initial guess of the state
+         *  \param numberOfContacts the number of contacts
+         *  \param contactsPositions a vector of positions of the vector
+         *  \param dt the time discretization period
+         */
         stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
             const stateObservation::DiscreteTimeArray & y,
             const stateObservation::DiscreteTimeArray & u,
@@ -16,6 +53,28 @@ namespace stateObservation
             const std::vector<Vector3> & contactsPositions,
             double dt);
 
+
+        /*! \fn DiscreteTimeArray offlineEKFFlexibilityEstimation(
+         *   const stateObservation::DiscreteTimeArray & y,
+         *   const stateObservation::DiscreteTimeArray & u,
+         *   const Matrix & xh0,
+         *   unsigned numberOfContacts,
+         *   const std::vector<Vector3> & contactsPositions,
+         *   double dt);
+         *
+         *  \brief Provides the estimation of the flexibility of a robot
+         *         given the measurements of an IMU. This method uses
+         *         extended Kalman filtering, we need to provide it with an
+         *         initial guess, the number of contacts and their positions, and
+         *         the time sampling period.
+         *
+         *
+         *  \param y IMU measurements
+         *  \param xh0 an initial guess of the state
+         *  \param numberOfContacts the number of contacts
+         *  \param contactsPositions a vector of positions of the vector
+         *  \param dt the time discretization period
+         */
         stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
             const stateObservation::DiscreteTimeArray & y,
             const Matrix & xh0,

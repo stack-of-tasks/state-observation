@@ -2,7 +2,7 @@
  * \file     flexibility-estimator-base.hpp
  * \author   Mehdi Benallegue
  * \date     2013
- * \brief    Definitions of types and some structures.
+ * \brief    Definitions of base class for flexibility estimator.
  *
  * \details
  *
@@ -18,29 +18,35 @@ namespace stateObservation
 {
 namespace flexibilityEstimation
 {
+    /**
+    * \class  FlexibilityEstimatorBase
+    * \brief  This class is the base class of the flexibility estimators.
+    *
+    */
     class FlexibilityEstimatorBase
     {
     public:
+        /// virtual destructor
         virtual ~FlexibilityEstimatorBase(){}
 
-        explicit FlexibilityEstimatorBase
-                            (double dt=0.005);
+        ///The constructor
+        explicit FlexibilityEstimatorBase();
 
-        virtual unsigned getStateSize() const =0;
-
-        virtual unsigned getInputSize() const =0;
-
+        ///Sets a value of the flexibility x_k provided from another source
+        /// can be used for initialization of the estimator
         virtual void setFlexibilityGuess(const Matrix &)=0;
 
+        /// Sets the value of the next sensor measurement y_{k+1}
         virtual void setMeasurement(const Vector &)=0;
 
+        /// Gets an estimation of the flexibility in the form of a homogeneous matrix
         virtual Matrix4 getFlexibility()=0;
 
-        virtual void setSamplingPeriod(double);
+
 
     protected:
 
-        double dt_;//sampling period
+
 
     };
 
