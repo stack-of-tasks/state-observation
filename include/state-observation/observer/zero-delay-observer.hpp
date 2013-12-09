@@ -112,6 +112,9 @@ namespace stateObservation
         ///Get the time index of the last given measurement
         virtual unsigned getMeasurementTime()const;
 
+        ///Gets the number of regitered measurements
+        virtual unsigned getMeasurementsNumber()const;
+
         ///changes the size of the state vector: resets the stored state vector
         virtual void setStateSize(unsigned n);
 

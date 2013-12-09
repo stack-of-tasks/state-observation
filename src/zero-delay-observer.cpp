@@ -8,6 +8,9 @@ namespace stateObservation
     {
         BOOST_ASSERT(checkStateVector(x_k)
                             && "The size of the state vector is incorrect");
+
+
+
         x_.set(x_k,k);
         while (y_.size()>0 && y_.getFirstTime()<=k)
         {
@@ -116,15 +119,16 @@ namespace stateObservation
 
     unsigned ZeroDelayObserver::getMeasurementTime()const
     {
-        if (y_.size()>0)
-        {
-            return y_.getLastTime();
-        }
-        else
-        {
-            return 0;
-        }
+        BOOST_ASSERT(y_.size()>0
+                && "ERROR: There is no measurements registered (past measurements are erased)");
+        return y_.getLastTime();
     }
+
+    unsigned ZeroDelayObserver::getMeasurementsNumber()const
+    {
+        return y_.size();
+    }
+
 
     void ZeroDelayObserver::setStateSize(unsigned n)
     {
