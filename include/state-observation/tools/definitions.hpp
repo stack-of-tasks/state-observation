@@ -17,14 +17,14 @@
 //#define STATEOBSERVATION_VERBOUS_CONSTRUCTORS
 
 #include <vector>
+#include <deque>
 
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
 #   include <iostream>
 #endif
 
-#include <deque>
-
 #include <boost/assert.hpp>
+
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 

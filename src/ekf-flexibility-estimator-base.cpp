@@ -65,18 +65,22 @@ namespace flexibilityEstimation
 
     Vector EKFFlexibilityEstimatorBase::getFlexibilityVector()
     {
-        k_=ekf_.getMeasurementTime();
+            if (ekf_.getMeasurementsNumber()>0)
+            {
+                k_=ekf_.getMeasurementTime();
 
-        for (int i=ekf_.getCurrentTime()+1; i<=k_; ++i)
-        {
-            ekf_.setA(ekf_.getAMatrixFD(dx_));
-            ekf_.setC(ekf_.getCMatrixFD(dx_));
+                unsigned i;
+                for (i=ekf_.getCurrentTime()+1; i<=k_; ++i)
+                {
+                    ekf_.setA(ekf_.getAMatrixFD(dx_));
+                    ekf_.setC(ekf_.getCMatrixFD(dx_));
 
-            ekf_.getEstimateState(k_);
+                    ekf_.getEstimateState(i);
+                }
+            }
+
+            return ekf_.getEstimateState(k_);
         }
-
-        return ekf_.getEstimateState(k_);
-    }
 
     const stateObservation::ExtendedKalmanFilter &
         EKFFlexibilityEstimatorBase::getEKF() const
