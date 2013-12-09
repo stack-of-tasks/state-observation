@@ -62,6 +62,7 @@ namespace stateObservation
 
     ObserverBase::StateVector KalmanFilterBase::oneStepEstimation_()
     {
+
         unsigned k=this->x_.getTime();
         BOOST_ASSERT(this->y_.size()> 0 && this->y_.checkIndex(k+1) && "ERROR: The measurement vector is not set");
 
