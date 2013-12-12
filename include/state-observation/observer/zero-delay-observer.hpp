@@ -106,8 +106,17 @@ namespace stateObservation
         ///Get the value of the current time index
         virtual unsigned getCurrentTime()const;
 
+        ///Get the value of the input of the time index k
+        Vector getInput(unsigned k) const;
+
+        ///Get the time index of the last given measurement
+        virtual unsigned getInputsNumber()const;
+
         ///Get the time index of the last given input
         virtual unsigned getInputTime()const;
+
+        ///Get the measurement of the time index k
+        Vector getMeasurement(unsigned k) const;
 
         ///Get the time index of the last given measurement
         virtual unsigned getMeasurementTime()const;

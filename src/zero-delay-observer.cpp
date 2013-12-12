@@ -105,6 +105,23 @@ namespace stateObservation
         return x_.getTime();
     }
 
+    Vector ZeroDelayObserver::getInput(unsigned k) const
+    {
+        return u_[k];
+    }
+
+    unsigned ZeroDelayObserver::getInputsNumber()const
+    {
+        if (u_.size()>0)
+        {
+            return u_.getLastTime();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
     unsigned ZeroDelayObserver::getInputTime()const
     {
         if (u_.size()>0)
@@ -115,6 +132,11 @@ namespace stateObservation
         {
             return 0;
         }
+    }
+
+    Vector ZeroDelayObserver::getMeasurement(unsigned k) const
+    {
+        return y_[k];
     }
 
     unsigned ZeroDelayObserver::getMeasurementTime()const
