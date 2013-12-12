@@ -136,7 +136,7 @@ namespace flexibilityEstimation
         for (unsigned i=0; i<contactPositions_.size();++i)
         {
             y.segment(sensor_.getMeasurementSize()+i*3,3)=
-                rFlex * contactPositions_[i] + positionFlex;
+                rFlex * contactPositions_[i] + positionFlex - contactPositions_[i];
         }
 
         return y;
