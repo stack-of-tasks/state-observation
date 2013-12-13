@@ -57,6 +57,10 @@ namespace flexibilityEstimation
 
     void FixedContactEKFFlexEstimatorIMU::setMeasurement(const Vector & y)
     {
+        BOOST_ASSERT((getMeasurementSize()==y.size()) &&
+                "ERROR: The measurement vector has incorrect size");
+
+
         Vector y2 = ekf_.measureVectorZero();
         y2.head(getMeasurementSize()) = y;
         ekf_.setMeasurement(y2,k_+1);
