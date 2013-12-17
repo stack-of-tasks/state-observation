@@ -19,6 +19,22 @@ namespace stateObservation
 {
     namespace tools
     {
+        ///computes the square of a value of any type
+        template <class T>
+        inline T square (const T & x)
+        {
+            return x*x;
+        }
+
+        ///derivates any type with finite differences
+        template <class T>
+        inline T derivate(const T & o1 , const T & o2 , double dt)
+        {
+            return (o2-o1)/dt;
+        }
+
+        namespace kinematics
+        {
 
         /// Puts the orientation vector norm between 0 and Pi if its
         /// get close to 2pi
@@ -57,13 +73,6 @@ namespace stateObservation
                 -v[1],   v[0],    0;
 
             return R;
-        }
-
-        ///computes the square of a value of any type
-        template <class T>
-        inline T square (const T & x)
-        {
-            return x*x;
         }
 
         ///transforms a homogeneous matrix into 6d vector (position theta mu)
@@ -105,12 +114,7 @@ namespace stateObservation
                             * R * fixedPoint;
         }
 
-        ///derivates any type with finite differences
-        template <class T>
-        inline T derivate(const T & o1 , const T & o2 , double dt)
-        {
-            return (o2-o1)/dt;
-        }
+
 
         ///derivates a quaternion using finite difference to get a angular velocity vector
         inline Vector3 derivateRotationFD

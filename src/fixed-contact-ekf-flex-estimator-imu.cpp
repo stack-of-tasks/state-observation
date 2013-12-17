@@ -92,7 +92,7 @@ namespace flexibilityEstimation
         else
         {
             if (bhomogeneous)
-                x0=tools::homogeneousMatrixToVector6(x);
+                x0=tools::kinematics::homogeneousMatrixToVector6(x);
 
             Vector x_s = ekf_.stateVectorZero();
 

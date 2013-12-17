@@ -112,7 +112,7 @@ int testDerivator()
         dta.setValue(xi,i);
     }
 
-    DiscreteTimeArray state = tools::reconstructStateTrajectory(dta,dt);
+    DiscreteTimeArray state = tools::kinematics::reconstructStateTrajectory(dta,dt);
 
     ///file of output
     std::ofstream f;
@@ -199,7 +199,7 @@ DiscreteTimeArray getTrajectory(char * PositionOrientation)
         }
     }
 
-    DiscreteTimeArray state = tools::reconstructStateTrajectory(up,dt);
+    DiscreteTimeArray state = tools::kinematics::reconstructStateTrajectory(up,dt);
 
     return state;
 }

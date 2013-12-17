@@ -194,13 +194,13 @@ int test()
             Vector3 angularAccelerationFlex=x.tail(3);
 
             Matrix3 orientationFlexR =
-                tools::rotationVectorToAngleAxis(orientationFlexV).matrix();
+                tools::kinematics::rotationVectorToAngleAxis(orientationFlexV).matrix();
 
             Vector3 positionFlex;
             Vector3 velocityFlex;
             Vector3 accelerationFlex;
 
-            tools::fixedPointRotationToTranslation
+            tools::kinematics::fixedPointRotationToTranslation
                 (orientationFlexR, angularVelocityFlex, angularAccelerationFlex,
                 contact, positionFlex, velocityFlex, accelerationFlex);
 

@@ -71,7 +71,7 @@ namespace flexibilityEstimation
         if (orientationVector_!=x)
         {
             orientationVector_ = x;
-            quaternion_ = tools::rotationVectorToAngleAxis(x);
+            quaternion_ = tools::kinematics::rotationVectorToAngleAxis(x);
         }
 
         return quaternion_;
