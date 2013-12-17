@@ -108,10 +108,10 @@ namespace flexibilityEstimation
         Quaternion q = qFlex * qControl;
 
         Vector3 acceleration =
-         (tools::skewSymmetric(angularAccelerationFlex)
-              + tools::square(tools::skewSymmetric(angularVelocityFlex)))
+         (tools::kinematics::skewSymmetric(angularAccelerationFlex)
+              + tools::square(tools::kinematics::skewSymmetric(angularVelocityFlex)))
                   * rFlex * positionControl
-         + 2*tools::skewSymmetric(angularVelocityFlex) * rFlex * velocityControl
+         + 2*tools::kinematics::skewSymmetric(angularVelocityFlex) * rFlex * velocityControl
          + accelerationFlex + rFlex * accelerationControl;
 
         Vector3 angularVelocity = angularVelocityFlex +

@@ -158,7 +158,7 @@ namespace flexibilityEstimation
         v2.head(3) = v.head(3);
         v2.tail(3) = v.segment(9,3);
 
-        return tools::vector6ToHomogeneousMatrix(v2);
+        return tools::kinematics::vector6ToHomogeneousMatrix(v2);
 
     }
 
@@ -167,7 +167,7 @@ namespace flexibilityEstimation
         Vector v(EKFFlexibilityEstimatorBase::getFlexibilityVector());
 
         ///regulate the part of orientation vector in the state vector
-        v.segment(9,3)=tools::regulateOrientationVector(v.segment(9,3));
+        v.segment(9,3)=tools::kinematics::regulateOrientationVector(v.segment(9,3));
 
         ekf_.setState(v,ekf_.getCurrentTime());
 
