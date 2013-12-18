@@ -106,13 +106,13 @@ int testDerivator()
     {
         Vector xi = Vector::Zero(6,1);
 
-        xi.head(3) = Vector(x[i]).head(3);
-        xi.tail(3) = Vector(x[i]).segment(9,3);
+        xi.head(3) = Vector(x[i]).segment(kine::pos,3);
+        xi.tail(3) = Vector(x[i]).segment(kine::ori,3);
 
         dta.setValue(xi,i);
     }
 
-    DiscreteTimeArray state = tools::kinematics::reconstructStateTrajectory(dta,dt);
+    DiscreteTimeArray state = kine::reconstructStateTrajectory(dta,dt);
 
     ///file of output
     std::ofstream f;
@@ -199,7 +199,7 @@ DiscreteTimeArray getTrajectory(char * PositionOrientation)
         }
     }
 
-    DiscreteTimeArray state = tools::kinematics::reconstructStateTrajectory(up,dt);
+    DiscreteTimeArray state = kine::reconstructStateTrajectory(up,dt);
 
     return state;
 }
@@ -248,7 +248,7 @@ int test (const DiscreteTimeArray & y, const DiscreteTimeArray & u)
         {
             Matrix3 Rh;
 
-            Vector3 orientationV=Vector(xh[i]).segment(9,3);
+            Vector3 orientationV=Vector(xh[i]).segment(kine::ori,3);
             double angle=orientationV.norm();
             if (angle > cst::epsilonAngle)
                 Rh = AngleAxis(angle, orientationV/angle).toRotationMatrix();

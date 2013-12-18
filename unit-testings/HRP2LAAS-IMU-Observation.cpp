@@ -82,7 +82,7 @@ int test(const DiscreteTimeArray & y)
         Vector3 gh;
         Matrix3 Rh;
         {
-            Vector3 orientationV=Vector(xh[i]).segment(9,3);
+            Vector3 orientationV=Vector(xh[i]).segment(kine::ori,3);
             double angle=orientationV.norm();
             if (angle > cst::epsilonAngle)
                 Rh = AngleAxis(angle, orientationV/angle).toRotationMatrix();

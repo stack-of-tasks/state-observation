@@ -189,24 +189,24 @@ int test()
         {
             Vector x=sim.getState(i);
 
-            Vector3 orientationFlexV=x.segment(9,3);
-            Vector3 angularVelocityFlex=x.segment(12,3);
-            Vector3 angularAccelerationFlex=x.tail(3);
+            Vector3 orientationFlexV=x.segment(kine::ori,3);
+            Vector3 angularVelocityFlex=x.segment(kine::angVel,3);
+            Vector3 angularAccelerationFlex=x.tail(kine::angAcc);
 
             Matrix3 orientationFlexR =
-                tools::kinematics::rotationVectorToAngleAxis(orientationFlexV).matrix();
+                kine::rotationVectorToAngleAxis(orientationFlexV).matrix();
 
             Vector3 positionFlex;
             Vector3 velocityFlex;
             Vector3 accelerationFlex;
 
-            tools::kinematics::fixedPointRotationToTranslation
+            kine::fixedPointRotationToTranslation
                 (orientationFlexR, angularVelocityFlex, angularAccelerationFlex,
                 contact, positionFlex, velocityFlex, accelerationFlex);
 
-            x.head(3) = positionFlex;
-            x.segment(3,3) = velocityFlex;
-            x.segment(6,3) = accelerationFlex;
+            x.segment(kine::pos,3) = positionFlex;
+            x.segment(kine::linVel,3) = velocityFlex;
+            x.segment(kine::linAcc,3) = accelerationFlex;
 
             sim.setState(x,i);
 
@@ -244,7 +244,7 @@ int test()
         Vector3 g;
         {
             Matrix3 R;
-            Vector3 orientationV=Vector(x[i]).segment(9,3);
+            Vector3 orientationV=Vector(x[i]).segment(kine::ori,3);
             double angle=orientationV.norm();
             if (angle > cst::epsilonAngle)
                 R = AngleAxis(angle, orientationV/angle).toRotationMatrix();
@@ -258,7 +258,7 @@ int test()
         {
             Matrix3 Rh;
 
-            Vector3 orientationV=Vector(xh[i]).segment(9,3);
+            Vector3 orientationV=Vector(xh[i]).segment(kine::ori,3);
             double angle=orientationV.norm();
             if (angle > cst::epsilonAngle)
                 Rh = AngleAxis(angle, orientationV/angle).toRotationMatrix();

@@ -127,7 +127,7 @@ int test()
         Vector3 g;
         {
             Matrix3 R;
-            Vector3 orientationV=Vector(x[i]).segment(9,3);
+            Vector3 orientationV=Vector(x[i]).segment(kine::ori,3);
             double angle=orientationV.norm();
             if (angle > cst::epsilonAngle)
                 R = AngleAxis(angle, orientationV/angle).toRotationMatrix();
@@ -140,7 +140,7 @@ int test()
         Vector3 gh;
         {
             Matrix3 Rh;
-            Vector3 orientationV=Vector(xh[i]).segment(9,3);
+            Vector3 orientationV=Vector(xh[i]).segment(kine::ori,3);
             double angle=orientationV.norm();
             if (angle > cst::epsilonAngle)
                 Rh = AngleAxis(angle, orientationV/angle).toRotationMatrix();

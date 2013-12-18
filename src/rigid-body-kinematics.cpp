@@ -19,7 +19,7 @@ namespace algorithm
         position +=  dt * velocity + 0.5 * dt * dt * acceleration;
         velocity +=  dt * acceleration;
 
-        orientation = Quaternion( tools::kinematics::rotationVectorToAngleAxis
+        orientation = Quaternion( kine::rotationVectorToAngleAxis
                                                     (rotationVelocityVector*dt) )
                             * orientation;
 

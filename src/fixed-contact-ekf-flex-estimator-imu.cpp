@@ -92,13 +92,13 @@ namespace flexibilityEstimation
         else
         {
             if (bhomogeneous)
-                x0=tools::kinematics::homogeneousMatrixToVector6(x);
+                x0=kine::homogeneousMatrixToVector6(x);
 
             Vector x_s = ekf_.stateVectorZero();
 
-            x_s.head(3)=x0.head(3);
+            x_s.segment(kine::pos,3)=x0.head(3);
 
-            x_s.segment(9,3)=x0.tail(3);
+            x_s.segment(kine::ori,3)=x0.tail(3);
 
             ekf_.setState(x_s,k_);
 
@@ -155,10 +155,10 @@ namespace flexibilityEstimation
         Vector v (getFlexibilityVector());
         Vector v2 (Matrix::Zero(6,1));
 
-        v2.head(3) = v.head(3);
-        v2.tail(3) = v.segment(9,3);
+        v2.head(3) = v.segment(kine::pos,3);
+        v2.tail(3) = v.segment(kine::ori,3);
 
-        return tools::kinematics::vector6ToHomogeneousMatrix(v2);
+        return kine::vector6ToHomogeneousMatrix(v2);
 
     }
 
@@ -167,7 +167,7 @@ namespace flexibilityEstimation
         Vector v(EKFFlexibilityEstimatorBase::getFlexibilityVector());
 
         ///regulate the part of orientation vector in the state vector
-        v.segment(9,3)=tools::kinematics::regulateOrientationVector(v.segment(9,3));
+        v.segment(kine::ori,3)=kine::regulateOrientationVector(v.segment(kine::ori,3));
 
         ekf_.setState(v,ekf_.getCurrentTime());
 
