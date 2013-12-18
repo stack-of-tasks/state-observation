@@ -176,6 +176,18 @@ namespace stateObservation
 
     };
 
+    namespace kine
+    {
+        ///indexes of the different components of a vector of the kinematic state
+        const unsigned pos = 0;
+        const unsigned linVel = 3;
+        const unsigned linAcc = 6;
+        const unsigned ori = 9;
+        const unsigned angVel = 12;
+        const unsigned angAcc = 15;
+
+    }
+
     namespace cst
     {
         ///Gravity Vector along Z
