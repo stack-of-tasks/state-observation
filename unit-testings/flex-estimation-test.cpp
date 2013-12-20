@@ -108,16 +108,22 @@ int test()
 
         ///The process noise initialization
         Matrix q1=Matrix::Zero(stateSize,stateSize);
-        q1(15,15) = q1(16,16) = q1(17,17) = 0.000001;
-        q1(12,12) = q1(13,13) = q1(14,14) = 0.0001;
-        q1(9,9) = q1(10,10) = q1(11,11) = 0.001;
+        q1(kine::angAcc,kine::angAcc)
+                    = q1(kine::angAcc+1,kine::angAcc+1)
+                    = q1(kine::angAcc+2,kine::angAcc+2) = 0.000001;
+        q1(kine::angVel,kine::angVel)
+                    = q1(kine::angVel+1,kine::angVel+1)
+                    = q1(kine::angVel+2,kine::angVel+2) = 0.0001;
+        q1(kine::ori,kine::ori)
+                    = q1(kine::ori+1,kine::ori+1)
+                    = q1(kine::ori+2,kine::ori+2) = 0.001;
 
         GaussianWhiteNoise processNoise(imu.getStateSize());
         processNoise.setStandardDeviation(q1);
         imu.setProcessNoise( & processNoise );
 
         ///The measurement noise initialization
-        Matrix r1=Matrix::Identity(measurementSize,measurementSize)*0.01;
+        Matrix r1=Matrix::Identity(measurementSize,measurementSize)*0.0001;
         GaussianWhiteNoise MeasurementNoise(imu.getMeasurementSize());
         MeasurementNoise.setStandardDeviation(r1);
         imu.setMeasurementNoise( & MeasurementNoise );
@@ -129,11 +135,11 @@ int test()
         ///initialization of the state vector
         Vector x0=Vector::Zero(stateSize,1);
 
-        x0[15]=x0[16]=x0[17]=0.00001;
+        x0[kine::angAcc]=x0[kine::angAcc+1]=x0[kine::angAcc+2]=0.00001;
 
-        x0[12]=x0[13]=x0[14]=0.0001;
+        x0[kine::angVel]=x0[kine::angVel+1]=x0[kine::angVel+2]=0.0001;
 
-        x0[9]=x0[10]=x0[11]=0.3;
+        x0[kine::ori]=x0[kine::ori+1]=x0[kine::ori+2]=0.3;
 
         //x0=x0*100;
 
@@ -146,25 +152,25 @@ int test()
         /// the input is constant over 10 time samples
         for (i=0;i<kmax/10.0;++i)
         {
-            uk[ 0]=0.4 * sin(M_PI/10*i);
-            uk[ 1]=0.6 * sin(M_PI/12*i);
-            uk[ 2]=0.2 * sin(M_PI/5*i);
+            uk[kine::pos     ]=0.4 * sin(M_PI/10*i);
+            uk[kine::pos+1   ]=0.6 * sin(M_PI/12*i);
+            uk[kine::pos+2   ]=0.2 * sin(M_PI/5*i);
 
-            uk[ 3]=0.1  * sin(M_PI/12*i);
-            uk[ 4]=0.07  * sin(M_PI/15*i);
-            uk[ 5]=0.05 * sin(M_PI/5*i);
+            uk[kine::linVel  ]=0.1  * sin(M_PI/12*i);
+            uk[kine::linVel+1]=0.07  * sin(M_PI/15*i);
+            uk[kine::linVel+2]=0.05 * sin(M_PI/5*i);
 
-            uk[ 6]=1  * sin(M_PI/12*i);
-            uk[ 7]=0.07  * sin(M_PI/15*i);
-            uk[ 8]=0.05 * sin(M_PI/10*i);
+            uk[kine::linAcc  ]=1  * sin(M_PI/12*i);
+            uk[kine::linAcc+1]=0.07  * sin(M_PI/15*i);
+            uk[kine::linAcc+2]=0.05 * sin(M_PI/10*i);
 
-            uk[ 9]=2  * sin(M_PI/12*i);
-            uk[10]=1.5  * sin(M_PI/18*i);
-            uk[11]=0.8 * sin(M_PI/6*i);
+            uk[kine::ori     ]=2  * sin(M_PI/12*i);
+            uk[kine::ori+1   ]=1.5  * sin(M_PI/18*i);
+            uk[kine::ori+2   ]=0.8 * sin(M_PI/6*i);
 
-            uk[12]=0.2  * sin(M_PI/12*i);
-            uk[13]=0.07  * sin(M_PI/12*i);
-            uk[14]=0.05 * sin(M_PI/5*i);
+            uk[kine::angVel  ]=0.2  * sin(M_PI/12*i);
+            uk[kine::angVel+1]=0.07  * sin(M_PI/12*i);
+            uk[kine::angVel+2]=0.05 * sin(M_PI/5*i);
 
             ///filling the 10 time samples of the constant input
             for (int j=0;j<10;++j)
@@ -191,7 +197,7 @@ int test()
 
             Vector3 orientationFlexV=x.segment(kine::ori,3);
             Vector3 angularVelocityFlex=x.segment(kine::angVel,3);
-            Vector3 angularAccelerationFlex=x.tail(kine::angAcc);
+            Vector3 angularAccelerationFlex=x.segment(kine::angAcc,3);
 
             Matrix3 orientationFlexR =
                 kine::rotationVectorToAngleAxis(orientationFlexV).matrix();
@@ -296,6 +302,6 @@ int main()
 {
 
 
-    return testConstant();
+    return test();
 
 }
