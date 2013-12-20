@@ -110,9 +110,8 @@ namespace stateObservation
         {
             Matrix3 omega_x = skewSymmetric(rotationVelocity);
             outputTranslation = fixedPoint - R * fixedPoint;
-            outputLinearVelocity = omega_x * R * fixedPoint,
-                                       outputLinearAcceleration =
-                                        (skewSymmetric(rotationAcceleration) + tools::square(omega_x))
+            outputLinearVelocity = -omega_x * R * fixedPoint;
+            outputLinearAcceleration =-(skewSymmetric(rotationAcceleration) + tools::square(omega_x))
                                            * R * fixedPoint;
         }
 
