@@ -98,7 +98,7 @@ int test()
 
     ///the initalization of a random estimation of the initial state
     Vector xh0=Vector::Random(stateSize,1)*3.14;
-    xh0[9]=3.14;
+    xh0[kine::ori]=3.14;
 
 
     ///computation and initialization of the covariance matrix of the initial state
@@ -111,7 +111,7 @@ int test()
 
 
     DiscreteTimeArray xh = examples::imuAttitudeTrajectoryReconstruction
-                           (y, u, xh0, p, q, r, dt);
+                                                    (y, u, xh0, p, q, r, dt);
 
 
     ///file of output

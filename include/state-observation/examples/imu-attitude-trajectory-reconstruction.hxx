@@ -52,7 +52,8 @@ DiscreteTimeArray imuAttitudeTrajectoryReconstruction
         if (i<y.getLastTime())
             filter.setInput(u[i],i);
 
-        ///get the jacobians by finite differences and provide them to the Kalman filter
+        ///get the jacobians by finite differences and provide
+        ///them to the Kalman filter
         Matrix a=filter.getAMatrixFD(dx);
         Matrix c= filter.getCMatrixFD(dx);
         filter.setA(a);
@@ -62,11 +63,12 @@ DiscreteTimeArray imuAttitudeTrajectoryReconstruction
         Vector xhk=filter.getEstimateState(i);
 
         ///regulate the part of orientation vector in the state vector
-        xhk.segment(kine::ori,3)=kine::regulateOrientationVector(xhk.segment(9,3));
+        xhk.segment(kine::ori,3)=kine::regulateOrientationVector
+                                                    (xhk.segment(kine::ori,3));
 
         ///give the new value of the state to the kalman filter.
-        ///This step is usually unnecessary, unless we modify the value of the state esimation
-        ///which is the case here.
+        ///This step is usually unnecessary, unless we modify the
+        ///value of the state esimation which is the case here.
         filter.setState(xhk,i);
 
         xh.setValue(xhk,i);
