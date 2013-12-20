@@ -180,10 +180,10 @@ namespace stateObservation
     {
         ///indexes of the different components of a vector of the kinematic state
         const unsigned pos = 0;
-        const unsigned linVel = 3;
-        const unsigned linAcc = 6;
-        const unsigned ori = 9;
-        const unsigned angVel = 12;
+        const unsigned linVel = 6;
+        const unsigned linAcc = 12;
+        const unsigned ori = 3;
+        const unsigned angVel = 9;
         const unsigned angAcc = 15;
 
     }
