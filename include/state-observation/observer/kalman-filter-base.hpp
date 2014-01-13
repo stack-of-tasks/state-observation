@@ -192,18 +192,21 @@ namespace stateObservation
         /// Get an identity matrix having the size of the P matrix
         Pmatrix getPmatrixIdentity() const;
 
-        ///checks whether or not a matrix has the dimensions of the P matrix
+        /// Checks whether or not a matrix has the dimensions of the P matrix
         bool checkPmatrix(const Pmatrix & ) const;
 
-        ///changes the dimension of the state vector:
+        /// Changes the dimension of the state vector:
         ///resets the internal container for the state vector and
         ///the containers for the matrices A, C, Q, P
         virtual void setStateSize(unsigned n);
 
-        ///changes the dimension of the measurement vector:
+        /// Changes the dimension of the measurement vector:
         ///resets the internal container for the measurement vectors and
         ///the containers for the matrices C, R
         virtual void setMeasureSize(unsigned m);
+
+        /// Get simulation of the measurement y_k using the state estimation
+        virtual Vector getSimulatedMeasurement(unsigned k);
 
     protected:
 

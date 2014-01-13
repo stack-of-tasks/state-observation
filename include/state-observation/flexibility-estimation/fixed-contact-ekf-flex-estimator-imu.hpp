@@ -40,7 +40,7 @@ namespace flexibilityEstimation
     public:
 
         ///The constructor, it requires the value of the time discretization period
-        explicit FixedContactEKFFlexEstimatorIMU( double d=0.005 );
+        explicit FixedContactEKFFlexEstimatorIMU( double dt=0.005 );
 
         ///Virtual destructor
         virtual ~FixedContactEKFFlexEstimatorIMU();

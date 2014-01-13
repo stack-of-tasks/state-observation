@@ -251,4 +251,9 @@ namespace stateObservation
             clearR();
         }
     }
+
+    Vector KalmanFilterBase::getSimulatedMeasurement(unsigned k)
+    {
+        return simulateSensor_(getEstimatedState(k),k);
+    }
 }
