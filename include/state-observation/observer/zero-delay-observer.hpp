@@ -101,7 +101,7 @@ namespace stateObservation
         ///y_{k_0+1} to y_{k} and u_{k_0} to u_{k-1}
         ///
         /// This method sets the current time to k
-        virtual ObserverBase::StateVector getEstimateState(unsigned k);
+        virtual ObserverBase::StateVector getEstimatedState(unsigned k);
 
         ///Get the value of the current time index
         virtual unsigned getCurrentTime()const;

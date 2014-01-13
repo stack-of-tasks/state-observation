@@ -60,7 +60,7 @@ DiscreteTimeArray imuAttitudeTrajectoryReconstruction
         filter.setC(c);
 
         ///get the estimation and give it to the array
-        Vector xhk=filter.getEstimateState(i);
+        Vector xhk=filter.getEstimatedState(i);
 
         ///regulate the part of orientation vector in the state vector
         xhk.segment(kine::ori,3)=kine::regulateOrientationVector

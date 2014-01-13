@@ -94,7 +94,7 @@ namespace stateObservation
 
     KalmanFilterBase::Pmatrix KalmanFilterBase::getStateCovariance(unsigned k)
     {
-        this->getEstimateState(k);
+        this->getEstimatedState(k);
         return pr_;
     }
 

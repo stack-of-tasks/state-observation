@@ -185,7 +185,7 @@ double testExtendedKalmanFilter()
         f.setC(c);
 
         ///get the estimation of the state at instant i;
-        xh=f.getEstimateState(i);
+        xh=f.getEstimatedState(i);
      }
 
     ekf::StateVector error=xh-xk[kmax];
@@ -357,7 +357,7 @@ private:
         f.setA(a);
         f.setC(c);
 
-        xh=f.getEstimateState(i);
+        xh=f.getEstimatedState(i);
     }
 
     ekf::StateVector error=xh-xk[kmax];
@@ -531,7 +531,7 @@ double testExtendedKalmanFilterZeroInput()
 
         f.setA(a);
         f.setC(c);
-        xh=f.getEstimateState(i);
+        xh=f.getEstimatedState(i);
 
     }
 
@@ -640,7 +640,7 @@ double testKalmanFilter()
         f.setInput(uk[i],i);
     }
 
-    filter::StateVector error=f.getEstimateState(kmax)-xk[kmax];
+    filter::StateVector error=f.getEstimatedState(kmax)-xk[kmax];
 
     return error.norm();
 }
@@ -733,7 +733,7 @@ double testKalmanFilterZeroInput()
         f.setMeasurement(yk[i-1],i);
     }
 
-    filter::StateVector error=f.getEstimateState(kmax)-xk[kmax];
+    filter::StateVector error=f.getEstimatedState(kmax)-xk[kmax];
 
     return error.norm();
 }

@@ -95,7 +95,7 @@ namespace stateObservation
             ///
             /// This method sets the current time to k
             virtual typename ObserverBase<n,m,p>::StateVector
-            getEstimateState(unsigned k);
+            getEstimatedState(unsigned k);
 
             ///Get the value of the current time index
             virtual unsigned getCurrentTime()const;

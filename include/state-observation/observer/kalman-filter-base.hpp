@@ -77,8 +77,6 @@ namespace stateObservation
         KalmanFilterBase(unsigned n,unsigned m,unsigned p=0)
             :ZeroDelayObserver(n,m,p){}
 
-
-
         /// Set the value of the jacobian df/dx
         virtual void setA(const Amatrix& A);
 

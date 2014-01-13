@@ -99,7 +99,7 @@ typename ObserverBase<n,m,p>::StateVector KalmanFilterBase<n,m,p>::oneStepEstima
 template <unsigned n,unsigned m, unsigned p>
 typename KalmanFilterBase<n,m,p>::Pmatrix KalmanFilterBase<n,m,p>::getStateCovariance(unsigned k)
 {
-    this->getEstimateState(k);
+    this->getEstimatedState(k);
     return p_();
 }
 

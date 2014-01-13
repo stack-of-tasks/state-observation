@@ -75,11 +75,11 @@ namespace flexibilityEstimation
                     ekf_.setA(ekf_.getAMatrixFD(dx_));
                     ekf_.setC(ekf_.getCMatrixFD(dx_));
 
-                    ekf_.getEstimateState(i);
+                    ekf_.getEstimatedState(i);
             }
         }
 
-        return ekf_.getEstimateState(k_);
+        return ekf_.getEstimatedState(k_);
     }
 
     const stateObservation::ExtendedKalmanFilter &

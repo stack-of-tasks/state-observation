@@ -9,8 +9,6 @@ namespace stateObservation
         BOOST_ASSERT(checkStateVector(x_k)
                             && "The size of the state vector is incorrect");
 
-
-
         x_.set(x_k,k);
         while (y_.size()>0 && y_.getFirstTime()<=k)
         {
@@ -81,7 +79,7 @@ namespace stateObservation
     }
 
     ObserverBase::StateVector
-    ZeroDelayObserver::getEstimateState(unsigned k)
+    ZeroDelayObserver::getEstimatedState(unsigned k)
     {
         unsigned k0=x_.getTime();
 

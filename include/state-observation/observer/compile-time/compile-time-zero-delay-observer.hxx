@@ -67,7 +67,7 @@ void ZeroDelayObserver<n,m,p>::clearInputs()
 
 template <unsigned n,unsigned m, unsigned p>
 typename ObserverBase<n,m,p>::StateVector
-ZeroDelayObserver<n,m,p>::getEstimateState(unsigned k)
+ZeroDelayObserver<n,m,p>::getEstimatedState(unsigned k)
 {
     unsigned k0=x_.getTime();
 

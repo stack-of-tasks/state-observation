@@ -153,7 +153,7 @@ namespace stateObservation
 
             ///Run the observer loop and gets the state estimation of the state at
             ///instant k
-            virtual StateVector getEstimateState(unsigned k)=0;
+            virtual StateVector getEstimatedState(unsigned k)=0;
 
             ///Reinitializes the whole observer
             ///default behavior is to call the three "ObserverBase::clear*" methods
