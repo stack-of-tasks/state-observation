@@ -19,13 +19,17 @@ namespace flexibilityEstimation
         ekf_.setMeasureSize(functor_.getMeasurementSize());
 
         R_=ekf_.getRmatrixIdentity();
-        R_=R_*1.e-8;
+        R_=R_*1e-16;
         ekf_.setR(R_);
+        updateCovarianceMatrix_();
 
         Q_=ekf_.getQmatrixIdentity();
-        Q_=Q_*1.e-4;
-        Q_.block(6,6,3,3)=Matrix3::Identity()*1.e-2;
-        Q_.block(15,15,3,3)=Matrix3::Identity()*1.e-2;
+        Q_=Q_*1.e-8;
+        Q_.block(kine::linVel,kine::linVel,3,3)=Matrix3::Identity()*1.e-4;
+        Q_.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-4;
+        Q_.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-2;
+        Q_.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-2;
+
         ekf_.setQ(Q_);
 
         Vector x0=ekf_.stateVectorZero();
@@ -46,6 +50,7 @@ namespace flexibilityEstimation
         finiteDifferencesJacobians_=true;
         functor_.setContactsNumber(i);
         ekf_.setMeasureSize(functor_.getMeasurementSize());
+        updateCovarianceMatrix_();
 
     }
 
@@ -64,7 +69,6 @@ namespace flexibilityEstimation
         Vector y2 = ekf_.measureVectorZero();
         y2.head(getMeasurementSize()) = y;
         ekf_.setMeasurement(y2,k_+1);
-        updateCovarianceMatrix_();
     }
 
     void FixedContactEKFFlexEstimatorIMU::setVirtualMeasurementsCovariance
