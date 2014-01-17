@@ -89,9 +89,12 @@ namespace stateObservation
         for (unsigned i=k0;i<k;++i)
         {
             oneStepEstimation_();
-            y_.popFront();
+            if (y_.getFirstTime()<k)
+                y_.popFront();
+
             if (p_>0)
-                u_.popFront();
+                if (u_.getFirstTime()<k)
+                    u_.popFront();
         }
 
         return x_();
