@@ -19,7 +19,9 @@ namespace flexibilityEstimation
         ekf_.setMeasureSize(functor_.getMeasurementSize());
 
         R_=ekf_.getRmatrixIdentity();
-        R_=R_*1e-16;
+        R_.block(0,0,3,3)=Matrix3::Identity()*1.e-6;//accelerometer
+        R_.block(3,3,3,3)=Matrix3::Identity()*1.e-6;//gyrometer
+
         ekf_.setR(R_);
         updateCovarianceMatrix_();
 
