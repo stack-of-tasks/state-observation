@@ -102,6 +102,9 @@ namespace flexibilityEstimation
         /// this method is pure virtual and reauires to be overloaded in implementation
         virtual unsigned getInputSize() const =0;
 
+        /// Gets a simulation of the
+        virtual Vector getSimulatedMeasurement();
+
 
     protected:
         virtual void setJacobians(const Matrix & A, const Matrix & C);

@@ -93,5 +93,13 @@ namespace flexibilityEstimation
         return ekf_;
     }
 
+    Vector EKFFlexibilityEstimatorBase::getSimulatedMeasurement()
+    {
+
+        getFlexibilityVector();
+
+        return ekf_.getSimulatedMeasurement(ekf_.getCurrentTime());
+    }
+
 }
 }
