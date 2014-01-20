@@ -79,7 +79,19 @@ namespace flexibilityEstimation
             }
         }
 
-        return ekf_.getEstimatedState(k_);
+        Vector x(ekf_.getEstimatedState(k_));
+
+        if (x!=x)
+        {
+            ekf_.setState(lastX_,k_);
+            resetCovarianceMatrices();
+        }
+        else
+        {
+            lastX_=x;
+        }
+
+        return x;
     }
 
     const stateObservation::ExtendedKalmanFilter &

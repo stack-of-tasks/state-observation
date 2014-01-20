@@ -120,6 +120,8 @@ namespace flexibilityEstimation
 
         Vector dx_;
 
+        Vector lastX_;
+
         unsigned k_;
 
     private:

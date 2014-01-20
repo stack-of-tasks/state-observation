@@ -21,6 +21,9 @@ namespace flexibilityEstimation
         FixedContactEKFFlexEstimatorIMU::resetCovarianceMatrices();
 
         Vector x0=ekf_.stateVectorZero();
+
+        lastX_=x0;
+
         ekf_.setState(x0,0);
 
         ekf_.setStateCovariance(Q_);
