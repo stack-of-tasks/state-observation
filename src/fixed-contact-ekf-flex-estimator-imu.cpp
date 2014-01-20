@@ -18,6 +18,25 @@ namespace flexibilityEstimation
 
         ekf_.setMeasureSize(functor_.getMeasurementSize());
 
+        FixedContactEKFFlexEstimatorIMU::resetCovarianceMatrices();
+
+        Vector x0=ekf_.stateVectorZero();
+        ekf_.setState(x0,0);
+
+        ekf_.setStateCovariance(Q_);
+
+        ekf_.setFunctor(& functor_);
+    }
+
+
+
+    FixedContactEKFFlexEstimatorIMU::~FixedContactEKFFlexEstimatorIMU()
+    {
+        //dtor
+    }
+
+    void FixedContactEKFFlexEstimatorIMU::resetCovarianceMatrices()
+    {
         R_=ekf_.getRmatrixIdentity();
         R_.block(0,0,3,3)=Matrix3::Identity()*1.e-6;//accelerometer
         R_.block(3,3,3,3)=Matrix3::Identity()*1.e-6;//gyrometer
@@ -34,17 +53,15 @@ namespace flexibilityEstimation
 
         ekf_.setQ(Q_);
 
-        Vector x0=ekf_.stateVectorZero();
-        ekf_.setState(x0,0);
+        Matrix P0 (ekf_.getQmatrixIdentity());
+        P0=P0*4;
+        P0.block(kine::linVel,kine::linVel,3,3)=Matrix3::Identity()*1.e-2;
+        P0.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-2;
+        P0.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-2;
+        P0.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-2;
 
-        ekf_.setStateCovariance(Q_);
+        ekf_.setStateCovariance(P0);
 
-        ekf_.setFunctor(& functor_);
-    }
-
-    FixedContactEKFFlexEstimatorIMU::~FixedContactEKFFlexEstimatorIMU()
-    {
-        //dtor
     }
 
     void FixedContactEKFFlexEstimatorIMU::setContactsNumber(unsigned i)

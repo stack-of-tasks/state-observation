@@ -105,6 +105,9 @@ namespace flexibilityEstimation
         /// Gets a simulation of the
         virtual Vector getSimulatedMeasurement();
 
+        ///Resets the covariance matrices to their original values
+        virtual void resetCovarianceMatrices()=0;
+
 
     protected:
         virtual void setJacobians(const Matrix & A, const Matrix & C);

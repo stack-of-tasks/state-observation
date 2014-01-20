@@ -80,6 +80,9 @@ namespace flexibilityEstimation
         /// sets the sampling period
         virtual void setSamplingPeriod(double);
 
+        ///Resets the covariance matrices to their original values
+        virtual void resetCovarianceMatrices();
+
 
     protected:
 
