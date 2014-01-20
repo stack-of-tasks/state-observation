@@ -14,6 +14,20 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
 
     flexibilityEstimation::FixedContactEKFFlexEstimatorIMU estimator;
 
+
+    Matrix R(estimator.getEKF().getRmatrixIdentity());
+    R=R*1.e-8;
+
+    Matrix Q(estimator.getEKF().getQmatrixIdentity());
+    Q=Q*1.e-4;
+    Q.block(6,6,3,3)=Matrix3::Identity()*1.e-2;
+    Q.block(15,15,3,3)=Matrix3::Identity()*1.e-2;
+
+    estimator.setNoiseCovariances(Q,R);
+
+    estimator.setFlexibilityGuessCovariance(Q);
+
+
     estimator.setContactsNumber(numberOfContacts);
 
     for (unsigned i = 0; i<numberOfContacts ; ++i)
