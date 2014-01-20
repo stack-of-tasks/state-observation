@@ -13,7 +13,7 @@ using namespace stateObservation;
 int testConstant()
 {
     /// The number of samples
-    const unsigned kmax=500;
+    const unsigned kmax=5000;
 
     ///sampling period
     const double dt=1e-3;
@@ -29,9 +29,13 @@ int testConstant()
 
     Vector3 contact(Vector3::Zero());
 
+    contact[0]=0.31123600000000001;
+    contact[1]=-0.35577300000000001;
+    contact[2]=1.1000000000000001;
+
     Vector yConstant = Vector::Zero(measurementSize,1);
-    yConstant[2]=9.81;
-    yConstant[3]=1;
+    yConstant[1]=9.8;
+
 
 
     Vector uConstant = Vector::Zero(inputSize,1);
@@ -67,8 +71,23 @@ int testConstant()
     ///the reconstruction of the state
     for (int i=xh.getFirstTime();i<=xh.getLastTime();++i)
     {
-       f << i<< xh[i].transpose()
+       f << i<<" "<< xh[i].transpose()
           << std::endl;
+
+       Vector v2 (Matrix::Zero(6,1));
+
+       v2.head(3) = Vector(xh[i]).segment(kine::pos,3);
+       v2.tail(3) = Vector(xh[i]).segment(kine::ori,3);
+
+       Matrix4 m= kine::vector6ToHomogeneousMatrix(v2);
+       Vector4 v;
+       v.head(3)=contact;
+       v[3]=1;
+
+       std::cout << m - kine::invertHomoMatrix(
+                            kine::invertHomoMatrix(m))
+                                        << std::endl << std::endl;
+
     }
 
     return 0;
