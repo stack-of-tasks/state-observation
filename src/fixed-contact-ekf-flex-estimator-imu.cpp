@@ -57,7 +57,7 @@ namespace flexibilityEstimation
         ekf_.setQ(Q_);
 
         Matrix P0 (ekf_.getQmatrixIdentity());
-        P0=P0*4;
+        P0=P0*1e-2;
         P0.block(kine::linVel,kine::linVel,3,3)=Matrix3::Identity()*1.e-2;
         P0.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-2;
         P0.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-2;
