@@ -3,6 +3,8 @@
 
 const double initialVirtualMeasurementCovariance=1.e-10;
 
+const double dxFactor = 1.0e-8;
+
 namespace stateObservation
 {
 namespace flexibilityEstimation
@@ -10,7 +12,7 @@ namespace flexibilityEstimation
     FixedContactEKFFlexEstimatorIMU::FixedContactEKFFlexEstimatorIMU(double dt):
         EKFFlexibilityEstimatorBase
             (stateSizeConst_,measurementSizeConst_,inputSizeConst_,
-                            Matrix::Constant(getStateSize(),1,1.0e-8)),
+                            Matrix::Constant(getStateSize(),1,dxFactor)),
         virtualMeasurementCovariance_(initialVirtualMeasurementCovariance),
         functor_(dt)
     {
@@ -40,11 +42,10 @@ namespace flexibilityEstimation
 
     void FixedContactEKFFlexEstimatorIMU::resetCovarianceMatrices()
     {
-        R_=ekf_.getRmatrixIdentity();
+        R_=Matrix::Identity(getMeasurementSize(),getMeasurementSize());
         R_.block(0,0,3,3)=Matrix3::Identity()*1.e-6;//accelerometer
         R_.block(3,3,3,3)=Matrix3::Identity()*1.e-6;//gyrometer
 
-        ekf_.setR(R_);
         updateCovarianceMatrix_();
 
         Q_=ekf_.getQmatrixIdentity();
