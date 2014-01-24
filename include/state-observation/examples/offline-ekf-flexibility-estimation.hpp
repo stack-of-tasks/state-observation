@@ -51,7 +51,9 @@ namespace stateObservation
             const Matrix & xh0,
             unsigned numberOfContacts,
             const std::vector<Vector3> & contactsPositions,
-            double dt);
+            double dt,
+            DiscreteTimeArray * ino=0x0,
+            DiscreteTimeArray * premea = 0x0);
 
 
         /*! \fn DiscreteTimeArray offlineEKFFlexibilityEstimation(

@@ -4,7 +4,9 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
             const Matrix & xh0,
             unsigned numberOfContacts,
             const std::vector<Vector3> & contactsPositions,
-            double dt)
+            double dt,
+            DiscreteTimeArray * ino,
+            DiscreteTimeArray * premea)
 {
 
         ///Sizes of the states for the state, the measurement, and the input vector
@@ -16,7 +18,7 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
 
 
     Matrix R(estimator.getEKF().getRmatrixIdentity());
-    R=R*1.e-8;
+    R=R*1.e-16;
 
     Matrix Q(estimator.getEKF().getQmatrixIdentity());
     Q=Q*1.e-4;
@@ -54,6 +56,16 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
 
         ///get the estimation and give it to the array
         xh.pushBack(estimator.getFlexibilityVector());
+
+        if (ino != 0)
+        {
+            ino->setValue(estimator.getInovation(),i);
+        }
+
+        if (premea != 0)
+        {
+            premea->setValue(estimator.getPredictedMeaurement(),i);
+        }
 
     }
 
