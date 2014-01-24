@@ -108,6 +108,12 @@ namespace flexibilityEstimation
         ///Resets the covariance matrices to their original values
         virtual void resetCovarianceMatrices()=0;
 
+        ///Get the last vector of inovation of the Kalman filter
+        virtual Vector getInovation();
+
+        ///Get the simulated measurement of the predicted state
+        virtual Vector getPredictedMeaurement();
+
 
     protected:
         virtual void setJacobians(const Matrix & A, const Matrix & C);
