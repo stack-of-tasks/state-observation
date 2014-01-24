@@ -30,21 +30,19 @@ namespace flexibilityEstimation
     {
         assertStateVector_(x);
 
-        Vector3 positionFlex=x.segment(kine::pos,3);
-        Vector3 velocityFlex=x.segment(kine::linVel,3);
-        Vector3 accelerationFlex=x.segment(kine::linAcc,3);
+        Vector3 positionFlex(x.segment(kine::pos,3));
+        Vector3 velocityFlex(x.segment(kine::linVel,3));
+        Vector3 accelerationFlex(x.segment(kine::linAcc,3));
 
-        Vector3 orientationFlexV=x.segment(kine::ori,3);
-        Vector3 angularVelocityFlex=x.segment(kine::angVel,3);
-        Vector3 angularAccelerationFlex=x.segment(kine::angAcc,3);
+        Vector3 orientationFlexV(x.segment(kine::ori,3));
+        Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
+        Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
 
-        Quaternion orientationFlex=computeQuaternion_(orientationFlexV);
+        Quaternion orientationFlex(computeQuaternion_(orientationFlexV));
 
         integrateKinematics
                 (positionFlex, velocityFlex, accelerationFlex, orientationFlex,
                  angularVelocityFlex, angularAccelerationFlex, dt_);
-
-
 
         //x_{k+1}
         Vector xk1(x);
@@ -57,7 +55,6 @@ namespace flexibilityEstimation
 
         xk1.segment(kine::ori,3) =  orientationFlexV;
         xk1.segment(kine::angVel,3) = angularVelocityFlex;
-
 
         if (processNoise_!=0x0)
             return processNoise_->addNoise(xk1);
@@ -82,42 +79,42 @@ namespace flexibilityEstimation
     {
         assertStateVector_(x);
 
-        Vector3 positionFlex=x.segment(kine::pos,3);
-        Vector3 velocityFlex=x.segment(kine::linVel,3);
-        Vector3 accelerationFlex=x.segment(kine::linAcc,3);
+        Vector3 positionFlex(x.segment(kine::pos,3));
+        Vector3 velocityFlex(x.segment(kine::linVel,3));
+        Vector3 accelerationFlex(x.segment(kine::linAcc,3));
 
-        Vector3 orientationFlexV=x.segment(kine::ori,3);
-        Vector3 angularVelocityFlex=x.segment(kine::angVel,3);
-        Vector3 angularAccelerationFlex=x.segment(kine::angAcc,3);
+        Vector3 orientationFlexV(x.segment(kine::ori,3));
+        Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
+        Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
 
-        Quaternion qFlex = computeQuaternion_(orientationFlexV);
-        Matrix3 rFlex = qFlex.toRotationMatrix();
+        Quaternion qFlex (computeQuaternion_(orientationFlexV));
+        Matrix3 rFlex (qFlex.toRotationMatrix());
 
 
         assertInputVector_(u);
 
-        Vector3 positionControl=u.segment(kine::pos,3);
-        Vector3 velocityControl=u.segment(kine::linVel,3);
-        Vector3 accelerationControl=u.segment(kine::linAcc,3);
+        Vector3 positionControl(u.segment(kine::pos,3));
+        Vector3 velocityControl(u.segment(kine::linVel,3));
+        Vector3 accelerationControl(u.segment(kine::linAcc,3));
 
-        Vector3 orientationControlV=u.segment(kine::ori,3);
-        Vector3 angularVelocityControl=u.segment(kine::angVel,3);
+        Vector3 orientationControlV(u.segment(kine::ori,3));
+        Vector3 angularVelocityControl(u.segment(kine::angVel,3));
 
-        Quaternion qControl=computeQuaternion_(orientationControlV);
+        Quaternion qControl(computeQuaternion_(orientationControlV));
 
         Quaternion q = qFlex * qControl;
 
-        Vector3 acceleration =
+        Vector3 acceleration (
          (kine::skewSymmetric(angularAccelerationFlex)
               + tools::square(kine::skewSymmetric(angularVelocityFlex)))
                   * rFlex * positionControl
          + 2*kine::skewSymmetric(angularVelocityFlex) * rFlex * velocityControl
-         + accelerationFlex + rFlex * accelerationControl;
+         + accelerationFlex + rFlex * accelerationControl);
 
-        Vector3 angularVelocity = angularVelocityFlex +
-                                    rFlex * angularVelocityControl;
+        Vector3 angularVelocity( angularVelocityFlex +
+                                    rFlex * angularVelocityControl);
 
-        Vector v=Vector::Zero(10,1);
+        Vector v(Vector::Zero(10,1));
 
         v[0]=q.w();
         v[1]=q.x();
@@ -129,7 +126,7 @@ namespace flexibilityEstimation
 
         sensor_.setState(v,k);
 
-        Vector y = Matrix::Zero(measurementSize_,1);
+        Vector y (Matrix::Zero(measurementSize_,1));
 
         y.head(sensor_.getMeasurementSize()) = sensor_.getMeasurements();
 
@@ -146,6 +143,7 @@ namespace flexibilityEstimation
     {
         processNoise_=n;
     }
+
     void IMUFixedContactDynamicalSystem::resetProcessNoise()
     {
         processNoise_=0x0;
