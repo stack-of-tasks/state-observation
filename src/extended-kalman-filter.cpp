@@ -114,13 +114,13 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
         {
             unsigned it=(i-1)%n_;
             x[it]=this->x_()(it,0);
-            x[i]=this->x_()(i,0)+dx[i];
-            xp=(f_->stateDynamics(x,u,k)-fx)/dx[i];
+            x[i]=this->x_()(i,0);
+            x[i]+=dx[i];
+            xp=f_->stateDynamics(x,u,k);
+            xp-=fx;
+            xp/=dx[i];
 
-            for (unsigned j=0;j<n_;++j)
-            {
-                a(j,i)=xp[j];
-            }
+            a.block(0,i,n_,1)=xp;
         }
 
         return a;
@@ -142,18 +142,18 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
 
         for (unsigned i=0;i<n_;++i)
         {
-
             xbar[(i-1)%n_]=xbarInit[(i-1)%n_];
-            xbar[i]=xbarInit[i]+dx[i];
+            xbar[i]=xbarInit[i];
+            xbar[i]+= dx[i];
 
             yp=simulateSensor_(xbar, k+1);
             yp-=y;
             yp/=dx[i];
 
-            for (unsigned j=0;j<m_;++j)
-            {
-                c(j,i)=yp[j];
-            }
+            //std::cout << "yi3" << yp.transpose() <<std::endl;
+
+            c.block(0,i,m_,1)=yp;
+
         }
 
         return c;
