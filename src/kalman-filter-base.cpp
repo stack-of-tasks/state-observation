@@ -73,23 +73,45 @@ namespace stateObservation
         BOOST_ASSERT(checkPmatrix(pr_) && "ERROR: The Matrix P is not initialized");
 
         //prediction
-        StateVector xbar=prediction_(k+1);
-        Pmatrix pbar=a_*pr_*a_.transpose()+q_;
+        oc_.xbar = prediction_(k+1);
+        oc_.pbar=q_;
+        oc_.pbar.noalias()  += a_*(pr_*a_.transpose());
+
+        predictedMeasurement_=simulateSensor_(oc_.xbar,k+1);
 
         //innovation
-        MeasureVector ino= this->y_[k+1] - simulateSensor_(xbar,k+1);
-        Rmatrix inoCov = c_ * pbar * c_.transpose() + r_;
+        oc_.inoMeas = this->y_[k+1] - predictedMeasurement_;
+        oc_.ctranspose = c_.transpose();
+
+        oc_.inoMeasCov =  r_;
+        oc_.inoMeasCov.noalias() +=  c_ * (oc_.pbar * oc_.ctranspose);
+
+        oc_.inoMeasCovInverse = oc_.inoMeasCov.inverse();
 
         //gain
-        Kmatrix kGain = (pbar * c_.transpose()) * inoCov.inverse();
+        oc_.kGain = oc_.pbar * (oc_.ctranspose * oc_.inoMeasCovInverse);
+
+        inovation_ = oc_.kGain*oc_.inoMeas;
+
+//        std::cout << "k " << k << std::endl << std::endl;
+//        std::cout << "C " << c_ << std::endl << std::endl;
+//        std::cout << "R " << r_ << std::endl << std::endl;
+//        std::cout << "pbar " << pbar << std::endl << std::endl;
+//        std::cout << "pbar * c_.transpose() " << pbar << std::endl << std::endl;
+//        std::cout << "inoCov " << inoCov << std::endl << std::endl;
+//        std::cout << "KGain " << kGain << std::endl << std::endl;
+//        std::cout << "inoCov " << inoCov << std::endl << std::endl;
 
         //update
-        StateVector xhat=xbar+kGain*ino;
+        oc_.xhat= oc_.xbar + inovation_;
 
-        this->x_.set(xhat,k+1);
-        pr_=(getPmatrixIdentity()-kGain*c_)*pbar;
+        this->x_.set(oc_.xhat,k+1);
+        pr_=oc_.stateIdentity;
+        pr_.noalias() -= oc_.kGain*c_;
 
-        return xhat;
+        pr_ *= oc_.pbar;
+
+        return oc_.xhat;
     }
 
     KalmanFilterBase::Pmatrix KalmanFilterBase::getStateCovariance(unsigned k)
@@ -235,6 +257,7 @@ namespace stateObservation
         if (n!=n_)
         {
             ZeroDelayObserver::setStateSize(n);
+            oc_.stateIdentity = Matrix::Identity(n,n);
             clearA();
             clearC();
             clearQ();
@@ -256,4 +279,15 @@ namespace stateObservation
     {
         return simulateSensor_(getEstimatedState(k),k);
     }
+
+    Vector KalmanFilterBase::getInovation()
+    {
+        return inovation_;
+    }
+
+    Vector KalmanFilterBase::getPredictedMeaurement()
+    {
+        return predictedMeasurement_;
+    }
+
 }

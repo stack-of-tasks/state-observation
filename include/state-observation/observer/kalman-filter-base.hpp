@@ -75,7 +75,10 @@ namespace stateObservation
         ///  \li m : size of the measurements vector
         ///  \li p : size of the input vector
         KalmanFilterBase(unsigned n,unsigned m,unsigned p=0)
-            :ZeroDelayObserver(n,m,p){}
+            :ZeroDelayObserver(n,m,p)
+        {
+            oc_.stateIdentity = Matrix::Identity(n,n);
+        }
 
         /// Set the value of the jacobian df/dx
         virtual void setA(const Amatrix& A);
@@ -208,6 +211,12 @@ namespace stateObservation
         /// Get simulation of the measurement y_k using the state estimation
         virtual Vector getSimulatedMeasurement(unsigned k);
 
+        ///Get the last vector of inovation of the Kalman filter
+        virtual Vector getInovation();
+
+        ///Get the simulated measurement of the predicted state
+        virtual Vector getPredictedMeaurement();
+
     protected:
 
         /// The type of Kalman gain matrix
@@ -236,6 +245,26 @@ namespace stateObservation
 
         /// Container for the covariance matrix of the estimation error
         Matrix pr_;
+
+        ///Vector of the simulated measurement of the predicted state
+        Vector predictedMeasurement_;
+
+        ///Vector containing the inovation of the Kalman filter
+        Vector inovation_;
+
+        struct optimizationContainer
+        {
+            Matrix stateIdentity;
+            Vector xbar;
+            Matrix pbar;
+            Vector xhat;
+            Vector inoMeas;
+            Matrix inoMeasCov;
+            Matrix inoMeasCovInverse;
+            Matrix ctranspose;
+            Matrix kGain;
+        } oc_;
+
 
     };
 
