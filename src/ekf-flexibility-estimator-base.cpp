@@ -81,17 +81,16 @@ namespace flexibilityEstimation
 
         Vector x(ekf_.getEstimatedState(k_));
 
-        if (x!=x)
+        if (x==x)//detect NaN values
+        {
+            return lastX_=x;
+        }
+        else //delete NaN values
         {
             ekf_.setState(lastX_,k_);
             resetCovarianceMatrices();
+            return lastX_;
         }
-        else
-        {
-            lastX_=x;
-        }
-
-        return x;
     }
 
     const stateObservation::ExtendedKalmanFilter &
@@ -111,6 +110,16 @@ namespace flexibilityEstimation
         getFlexibilityVector();
 
         return ekf_.getSimulatedMeasurement(ekf_.getCurrentTime());
+    }
+
+    Vector EKFFlexibilityEstimatorBase::getInovation()
+    {
+        return ekf_.getInovation();
+    }
+
+    Vector EKFFlexibilityEstimatorBase::getPredictedMeaurement()
+    {
+        return ekf_.getPredictedMeaurement();
     }
 
 }
