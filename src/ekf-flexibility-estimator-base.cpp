@@ -39,6 +39,18 @@ namespace flexibilityEstimation
         ekf_.setR(R);
     }
 
+    ///gets the covariance matrices for the process noises
+    Matrix EKFFlexibilityEstimatorBase::getProcessNoiseCovariance() const
+    {
+        return ekf_.getQ();
+    }
+
+    ///gets the covariance matrices for the sensor noises
+    Matrix EKFFlexibilityEstimatorBase::getMeasurementNoiseCovariance() const
+    {
+        return ekf_.getR();
+    }
+
     void EKFFlexibilityEstimatorBase::useFiniteDifferencesJacobians(Vector x)
     {
         finiteDifferencesJacobians_= true ;

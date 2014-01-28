@@ -97,12 +97,19 @@ namespace stateObservation
         /// Set the measurement noise covariance matrix
         virtual void setR(const Rmatrix& R);
 
+        /// Set the measurement noise covariance matrix
+        virtual Matrix getR() const ;
+
         /// Clear the measurement noise covariance matrix
         virtual void clearR();
 
 
         /// Set the process noise covariance matrix
         virtual void setQ(const Qmatrix& Q);
+
+        /// Set the process noise covariance matrix
+        virtual Matrix getQ() const;
+
 
         /// Clear the process noise covariance matrix
         virtual void clearQ();

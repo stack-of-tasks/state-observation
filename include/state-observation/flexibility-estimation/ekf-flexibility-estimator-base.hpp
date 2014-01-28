@@ -67,6 +67,12 @@ namespace flexibilityEstimation
         /// \li R sensor noise
         virtual void setNoiseCovariances(const Matrix & Q, const Matrix & R);
 
+        ///gets the covariance matrices for the process noises
+        virtual Matrix getProcessNoiseCovariance() const ;
+
+        ///gets the covariance matrices for the sensor noises
+        virtual Matrix getMeasurementNoiseCovariance() const ;
+
         /// Sets the value of the next sensor measurement y_{k+1}
         virtual void setMeasurement(const Vector & y);
 

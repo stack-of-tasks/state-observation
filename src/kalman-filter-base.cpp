@@ -32,6 +32,11 @@ namespace stateObservation
         r_=R;
     }
 
+    Matrix KalmanFilterBase::getR() const
+    {
+        return r_;
+    }
+
     void KalmanFilterBase::clearR()
     {
         r_.resize(0,0);
@@ -41,6 +46,11 @@ namespace stateObservation
     {
         BOOST_ASSERT(checkQmatrix(Q)&& "ERROR: The dimensions of the process noise covariance matrix Q are wrong");
         q_=Q;
+    }
+
+    Matrix KalmanFilterBase::getQ() const
+    {
+        return q_;
     }
 
     void KalmanFilterBase::clearQ()
