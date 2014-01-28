@@ -123,7 +123,7 @@ namespace stateObservation
         virtual void clearStateCovariance();
 
         /// Get the covariance matrix of the current time state estimation
-        virtual Pmatrix getStateCovariance(unsigned k);
+        virtual Pmatrix getStateCovariance() const;
 
         /// Resets all the observer
         virtual void reset();

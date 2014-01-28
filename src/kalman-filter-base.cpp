@@ -124,9 +124,8 @@ namespace stateObservation
         return oc_.xhat;
     }
 
-    KalmanFilterBase::Pmatrix KalmanFilterBase::getStateCovariance(unsigned k)
+    KalmanFilterBase::Pmatrix KalmanFilterBase::getStateCovariance() const
     {
-        this->getEstimatedState(k);
         return pr_;
     }
 

@@ -21,10 +21,16 @@ namespace flexibilityEstimation
         //dtor
     }
 
-    void EKFFlexibilityEstimatorBase::setFlexibilityGuessCovariance
+    void EKFFlexibilityEstimatorBase::setFlexibilityCovariance
                                                             (const Matrix & P)
     {
         ekf_.setStateCovariance(P);
+    }
+
+    Matrix EKFFlexibilityEstimatorBase::getFlexibilityCovariance
+                                                            () const
+    {
+        return ekf_.getStateCovariance();
     }
 
     void EKFFlexibilityEstimatorBase::setMeasurement(const Vector & y)
@@ -32,10 +38,13 @@ namespace flexibilityEstimation
         ekf_.setMeasurement(y,k_+1);
     }
 
-    void EKFFlexibilityEstimatorBase::setNoiseCovariances
-                                     (const Matrix & Q, const Matrix & R)
+    void EKFFlexibilityEstimatorBase::setProcessNoiseCovariance(const Matrix & Q)
     {
         ekf_.setQ(Q);
+    }
+
+    void EKFFlexibilityEstimatorBase::setMeasurementNoiseCovariance(const Matrix & R)
+    {
         ekf_.setR(R);
     }
 

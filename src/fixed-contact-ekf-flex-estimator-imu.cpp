@@ -95,9 +95,15 @@ namespace flexibilityEstimation
     }
 
     void FixedContactEKFFlexEstimatorIMU::setVirtualMeasurementsCovariance
-                                                                    (double c_)
+                                                                    (double c)
     {
-        virtualMeasurementCovariance_=c_;
+        virtualMeasurementCovariance_=c;
+        updateCovarianceMatrix_();
+    }
+
+    double FixedContactEKFFlexEstimatorIMU::getVirtualMeasurementsCovariance() const
+    {
+        return virtualMeasurementCovariance_;
     }
 
     void FixedContactEKFFlexEstimatorIMU::setFlexibilityGuess(const Matrix & x)
@@ -133,20 +139,35 @@ namespace flexibilityEstimation
         }
     }
 
-    void FixedContactEKFFlexEstimatorIMU::setNoiseCovariances
-                                            (const Matrix & Q, const Matrix & R)
+    void FixedContactEKFFlexEstimatorIMU::setMeasurementNoiseCovariance
+                                            (const Matrix & R)
     {
         BOOST_ASSERT(R.rows()==getMeasurementSize() &&
                      R.cols()==getMeasurementSize() &&
-                    "ERROR: The measurement noise covariance matrix Q has \
+                    "ERROR: The measurement noise covariance matrix R has \
                         incorrect size");
 
         R_=R;
         updateCovarianceMatrix_();
+    }
 
+
+    void FixedContactEKFFlexEstimatorIMU::setProcessNoiseCovariance
+                                            (const Matrix & Q)
+    {
         Q_=Q;
         ekf_.setQ(Q_);
+    }
 
+    Matrix FixedContactEKFFlexEstimatorIMU::getProcessNoiseCovariance() const
+    {
+        return Q_;
+    }
+
+
+    Matrix FixedContactEKFFlexEstimatorIMU::getMeasurementNoiseCovariance() const
+    {
+        return R_;
     }
 
     void FixedContactEKFFlexEstimatorIMU::updateCovarianceMatrix_()

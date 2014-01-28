@@ -60,12 +60,18 @@ namespace flexibilityEstimation
         virtual void setFlexibilityGuess(const Matrix &)=0;
 
         ///Sets the covariance matrix of the flexibility Guess
-        virtual void setFlexibilityGuessCovariance(const Matrix & P);
+        virtual void setFlexibilityCovariance(const Matrix & P);
 
-        ///Sets the covariance matrices for the process and the sensor noises
+        ///Gets the covariance matrix of the flexibility
+        virtual Matrix getFlexibilityCovariance() const;
+
+        ///Sets the covariance matrices for the process noises
         /// \li Q process noise
+        virtual void setProcessNoiseCovariance(const Matrix & Q);
+
+        ///Sets the covariance matrices for the sensor noises
         /// \li R sensor noise
-        virtual void setNoiseCovariances(const Matrix & Q, const Matrix & R);
+        virtual void setMeasurementNoiseCovariance(const Matrix & R);
 
         ///gets the covariance matrices for the process noises
         virtual Matrix getProcessNoiseCovariance() const ;

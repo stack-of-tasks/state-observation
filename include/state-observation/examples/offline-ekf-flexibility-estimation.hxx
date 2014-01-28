@@ -25,9 +25,11 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
     Q.block(6,6,3,3)=Matrix3::Identity()*1.e-2;
     Q.block(15,15,3,3)=Matrix3::Identity()*1.e-2;
 
-    estimator.setNoiseCovariances(Q,R);
 
-    estimator.setFlexibilityGuessCovariance(Q);
+    estimator.setFlexibilityCovariance(Q);
+
+    estimator.setMeasurementNoiseCovariance(R);
+    estimator.setProcessNoiseCovariance(Q);
 
 
     estimator.setContactsNumber(numberOfContacts);

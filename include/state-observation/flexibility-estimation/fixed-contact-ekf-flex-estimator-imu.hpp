@@ -57,8 +57,20 @@ namespace flexibilityEstimation
         ///Sets the covariance of the fictious measurements (not mandatory)
         virtual void setVirtualMeasurementsCovariance(double c_);
 
-        ///Sets the covariance matrices
-        virtual void setNoiseCovariances(const Matrix & Q, const Matrix & R);
+        ///Sets the covariance of the fictious measurements (not mandatory)
+        virtual double getVirtualMeasurementsCovariance() const;
+
+        ///Sets the process covariance matrice
+        virtual void setProcessNoiseCovariance(const Matrix & Q);
+
+        ///Sets the measurements covariance matrice
+        virtual void setMeasurementNoiseCovariance(const Matrix & R);
+
+        ///gets the covariance matrices for the process noises
+        virtual Matrix getProcessNoiseCovariance() const ;
+
+        ///gets the covariance matrices for the sensor noises
+        virtual Matrix getMeasurementNoiseCovariance() const ;
 
         ///Sets a value of the flexibility x_k provided from another source
         /// can be used for initialization of the estimator
