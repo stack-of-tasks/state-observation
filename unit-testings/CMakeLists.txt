@@ -11,6 +11,7 @@ ADD_EXECUTABLE(HRP2LAAS-IMU-Observation HRP2LAAS-IMU-Observation.cpp ${${PROJECT
 ADD_EXECUTABLE(flex-estimation-test flex-estimation-test.cpp ${${PROJECT_NAME}_ABSOLUTE_HEADERS})
 ADD_EXECUTABLE(simple-flex-estimation-test simple-flex-estimation-test.cpp ${${PROJECT_NAME}_ABSOLUTE_HEADERS})
 ADD_EXECUTABLE(real-offline-flexibility-estimator real-offline-flexibility-estimator.cpp ${${PROJECT_NAME}_ABSOLUTE_HEADERS})
+ADD_EXECUTABLE(other-tests other-tests.cpp)
 
 
 TARGET_LINK_LIBRARIES(test-kalman-filter ${Boost_LIBRARIES} ${PROJECT_NAME})
@@ -20,6 +21,7 @@ TARGET_LINK_LIBRARIES(HRP2LAAS-IMU-Observation ${Boost_LIBRARIES} ${PROJECT_NAME
 TARGET_LINK_LIBRARIES(flex-estimation-test ${Boost_LIBRARIES} ${PROJECT_NAME})
 TARGET_LINK_LIBRARIES(simple-flex-estimation-test ${Boost_LIBRARIES} ${PROJECT_NAME})
 TARGET_LINK_LIBRARIES(real-offline-flexibility-estimator ${Boost_LIBRARIES} ${PROJECT_NAME})
+TARGET_LINK_LIBRARIES(other-tests ${Boost_LIBRARIES} ${PROJECT_NAME})
 
 ADD_TEST(test-kalman-filter test-kalman-filter)
 ADD_TEST(test-kalman-filter-template test-kalman-filter-template)
