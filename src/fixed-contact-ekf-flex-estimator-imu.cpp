@@ -201,7 +201,7 @@ namespace flexibilityEstimation
     Matrix4 FixedContactEKFFlexEstimatorIMU::getFlexibility()
     {
         Vector v (getFlexibilityVector());
-        Vector v2 (Matrix::Zero(6,1));
+        Vector6 v2;
 
         v2.head(3) = v.segment(kine::pos,3);
         v2.tail(3) = v.segment(kine::ori,3);
@@ -212,14 +212,19 @@ namespace flexibilityEstimation
 
     Vector FixedContactEKFFlexEstimatorIMU::getFlexibilityVector()
     {
-        Vector v(EKFFlexibilityEstimatorBase::getFlexibilityVector());
+        if (ekf_.getMeasurementsNumber()>0)
+        {
+            lastX_ =EKFFlexibilityEstimatorBase::getFlexibilityVector();
 
-        ///regulate the part of orientation vector in the state vector
-        v.segment(kine::ori,3)=kine::regulateOrientationVector(v.segment(kine::ori,3));
+            ///regulate the part of orientation vector in the state vector
+            lastX_.segment(kine::ori,3)=
+                kine::regulateOrientationVector(lastX_.segment(kine::ori,3));
 
-        ekf_.setState(v,ekf_.getCurrentTime());
+            ekf_.setState(lastX_,ekf_.getCurrentTime());
 
-        return v;
+        }
+
+        return lastX_;
     }
 
     void FixedContactEKFFlexEstimatorIMU::setSamplingPeriod(double dt)
