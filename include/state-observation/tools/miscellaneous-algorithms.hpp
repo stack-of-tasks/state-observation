@@ -81,7 +81,7 @@ namespace stateObservation
         inline Vector6 homogeneousMatrixToVector6(const Matrix4 & M)
         {
             Vector6 v;
-            AngleAxis a = AngleAxis(Matrix3(M.block(0,0,3,3)));
+            AngleAxis a (AngleAxis(Matrix3(M.block(0,0,3,3))));
 
             v.head(3) = M.block(0,3,3,1);
             v.tail(3) = a.angle() * a.axis();
@@ -92,12 +92,10 @@ namespace stateObservation
         ///transforms a 6d vector (position theta mu) into a homogeneous matrix
         inline Matrix4 vector6ToHomogeneousMatrix(const Vector6 & v)
         {
-            Matrix4 M;
+            Matrix4 M(Matrix4::Identity());
             M.block(0,0,3,3) = rotationVectorToAngleAxis(Vector3(v.tail(3)))
                                 .toRotationMatrix();
             M.block(0,3,3,1) = v.head(3);
-            M(3,3) = 1.0;
-
             return M;
         }
 
@@ -121,7 +119,7 @@ namespace stateObservation
         inline Vector3 derivateRotationFD
         (const Quaternion & q1, const Quaternion & q2, double dt)
         {
-            AngleAxis aa (q2 * q1.inverse());
+            AngleAxis aa (q2 * q1.conjugate());
 
             double a=aa.angle();
 
