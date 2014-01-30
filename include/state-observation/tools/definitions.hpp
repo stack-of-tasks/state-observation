@@ -150,7 +150,7 @@ namespace stateObservation
 
         inline unsigned size() const;
 
-        ///Switch off the initalization flag, the value is no longer accessible
+        ///Resets the array the value is no longer accessible
         inline void reset();
 
         ///converts the array into a standard vector
@@ -158,6 +158,12 @@ namespace stateObservation
 
         ///checks whether the index is present in the array
         inline bool checkIndex(unsigned k) const;
+
+        ///gets the array from a file
+        ///the line starts with the time index and then the matrix is described
+        ///row by row
+        ///Warning : this resets the array
+        void getFromFile(char * filename, size_t rows, size_t cols=1);
 
     protected:
         ///Asserts that the index is present in the array
@@ -191,7 +197,7 @@ namespace stateObservation
     namespace cst
     {
         ///Gravity Vector along Z
-        const Vector gravity= 9.81 * Vector3::UnitZ();
+        const Vector gravity= 9.8 * Vector3::UnitZ();
 
         ///angles considered Zero
         const double epsilonAngle=1e-16;

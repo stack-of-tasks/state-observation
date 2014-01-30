@@ -1,4 +1,7 @@
+#include <fstream>
+
 #include <state-observation/tools/definitions.hpp>
+
 
 namespace stateObservation
 {
@@ -47,6 +50,41 @@ namespace stateObservation
             else
             {
                 v_.clear();
+            }
+        }
+    }
+
+    void DiscreteTimeArray::getFromFile(char * filename , size_t rows, size_t cols)
+    {
+        reset();
+
+        std::ifstream f;
+
+        f.open(filename);
+
+        Matrix m(Matrix::Zero(rows,cols));
+
+        bool continuation=true;
+
+        while (continuation)
+        {
+            unsigned k;
+
+            f >> k;
+
+            if (f.eof())
+                continuation=false;
+            else
+            {
+                for (size_t i = 0 ; i<rows; ++i)
+                {
+                    for (size_t j = 0 ; j<cols; ++j)
+                    {
+                        f >> m(i,j);
+                    }
+                }
+
+                setValue(m,k);
             }
         }
     }
