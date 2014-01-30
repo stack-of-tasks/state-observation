@@ -130,6 +130,50 @@ namespace stateObservation
             return (aa.angle()/dt)*aa.axis();
         }
 
+        inline Vector6 derivateHomogeneousMatrixFD
+                    (const Matrix4 & m1, const Matrix4 & m2, double dt )
+        {
+            Vector6 out;
+
+            Matrix3 r1 = m1.block(0,0,3,3);
+            Matrix3 r2 = m2.block(0,0,3,3);
+
+            AngleAxis aa (r2 * r1.transpose());
+
+            double a=aa.angle();
+
+            Vector3 v =  aa.axis();
+
+            out.tail(3) = (aa.angle()/dt)*aa.axis();
+
+            out.head(3) = (m2.block(0,3,3,1) - m1.block(0,3,3,1))/dt;
+
+            return out;
+        }
+
+        inline Vector6 derivatePoseThetaUFD
+                    (const Vector6 & v1, const Vector6 & v2, double dt )
+        {
+            Vector6 out;
+
+            Quaternion q1(rotationVectorToAngleAxis(v1.tail(3)));
+            Quaternion q2(rotationVectorToAngleAxis(v2.tail(3)));
+
+            AngleAxis aa (q2 * q1.conjugate());
+
+            double a=aa.angle();
+
+            Vector3 v =  aa.axis();
+
+            out.tail(3) = (aa.angle()/dt)*aa.axis();
+
+            out.head(3) = (v2.head(3) - v1.head(3))/dt;
+
+            return out;
+        }
+
+
+
         ///uses the derivation to reconstruct the velocities and accelerations given
         ///trajectories in positions and orientations only
         inline DiscreteTimeArray reconstructStateTrajectory
