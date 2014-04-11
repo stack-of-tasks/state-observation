@@ -31,7 +31,8 @@ namespace stateObservation
         template <class T>
         inline T derivate(const T & o1 , const T & o2 , double dt)
         {
-            return (o2-o1)/dt;
+            T o(o2-o1);
+            return o*(1/dt);
         }
     }
 
@@ -128,6 +129,16 @@ namespace stateObservation
             return (aa.angle()/dt)*aa.axis();
         }
 
+        ///derivates a quaternion using finite difference to get a angular velocity vector
+        inline Vector3 derivateRotationFD
+        (const Vector3 & o1, const Vector3 & o2, double dt)
+        {
+            Quaternion q1(rotationVectorToAngleAxis(o1));
+            Quaternion q2(rotationVectorToAngleAxis(o2));
+
+            return derivateRotationFD(q1, q2, dt);
+        }
+
         inline Vector6 derivateHomogeneousMatrixFD
                     (const Matrix4 & m1, const Matrix4 & m2, double dt )
         {
@@ -154,16 +165,7 @@ namespace stateObservation
         {
             Vector6 out;
 
-            Quaternion q1(rotationVectorToAngleAxis(v1.tail(3)));
-            Quaternion q2(rotationVectorToAngleAxis(v2.tail(3)));
-
-            AngleAxis aa (q2 * q1.conjugate());
-
-            double a=aa.angle();
-
-            Vector3 v =  aa.axis();
-
-            out.tail(3) = (aa.angle()/dt)*aa.axis();
+            out.tail(3) = derivateRotationFD(v1.tail(3), v2.tail(3), dt);
 
             out.head(3) = (v2.head(3) - v1.head(3))/dt;
 
