@@ -196,8 +196,10 @@ namespace stateObservation
 
     namespace cst
     {
+        const double gravityConstant = 9.8;
+
         ///Gravity Vector along Z
-        const Vector gravity= 9.8 * Vector3::UnitZ();
+        const Vector gravity= gravityConstant * Vector3::UnitZ();
 
         ///angles considered Zero
         const double epsilonAngle=1e-16;
