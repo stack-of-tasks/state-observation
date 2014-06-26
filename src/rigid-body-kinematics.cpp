@@ -16,8 +16,10 @@ namespace algorithm
                     Quaternion & orientation, Vector3 & rotationVelocityVector,
                         const Vector3 & rotationVelocityVectorRate, double dt)
     {
-        position +=  dt * velocity + 0.5 * dt * dt * acceleration;
+        //position +=  dt * velocity + 0.5 * dt * dt * acceleration;
+        position += dt*velocity+0.5*dt*dt*acceleration;
         velocity +=  dt * acceleration;
+
 
         orientation = Quaternion( kine::rotationVectorToAngleAxis
                                                     (rotationVelocityVector*dt) )

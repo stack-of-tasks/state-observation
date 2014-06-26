@@ -123,7 +123,7 @@ int test()
     {
         ///simulation of the signal
         /// the IMU dynamical system functor
-         flexibilityEstimation::IMUFixedContactDynamicalSystem imu(dt);
+         flexibilityEstimation::StableIMUFixedContactDynamicalSystem imu(dt);
 
         ///The process noise initialization
         Matrix q1=Matrix::Zero(stateSize,stateSize);
@@ -167,7 +167,7 @@ int test()
         Vector uk=Vector::Zero(imu.getInputSize(),1);
 
         int i;
-        ///construction of the input
+        /// construction of the input
         /// the input is constant over 10 time samples
         for (i=0;i<kmax/10.0;++i)
         {

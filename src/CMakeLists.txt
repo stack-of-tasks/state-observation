@@ -33,7 +33,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
 
 ADD_LIBRARY(${LIBRARY_NAME}
   SHARED
-  kalman-filter-base.cpp  
+  kalman-filter-base.cpp
   observer-base.cpp
   extended-kalman-filter.cpp
   linear-kalman-filter.cpp
@@ -53,7 +53,11 @@ ADD_LIBRARY(${LIBRARY_NAME}
   flexibility-estimator-base.cpp
   ekf-flexibility-estimator-base.cpp
   fixed-contact-ekf-flex-estimator-imu.cpp
+  model-base-ekf-flex-estimator-imu.cpp
   imu-fixed-contact-dynamical-system.cpp
+  stable-imu-fixed-contact-dynamical-system.cpp
+  dynamical-system.cpp
+  imu-elastic-local-frame-dynamical-system.cpp
   ${${PROJECT_NAME}_ABSOLUTE_HEADERS}
   )
 
@@ -64,5 +68,10 @@ SET_TARGET_PROPERTIES(${LIBRARY_NAME}
 
 INSTALL(TARGETS ${LIBRARY_NAME}
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+
+ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.0")
+INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
+SET(LINEAR_ALGEBRA_LIB_FOUND 1)
+SET(_EIGEN_MATRIX_FOUND_ 1)
 
 

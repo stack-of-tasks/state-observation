@@ -53,8 +53,9 @@ SET(${PROJECT_NAME}_HEADERS
   include/state-observation/sensors-simulation/algorithm/linear-acceleration.hpp
   include/state-observation/tools/definitions.hpp
   include/state-observation/tools/definitions.hxx
+  include/state-observation/tools/hrp2.hpp
   include/state-observation/tools/probability-law-simulation.hpp
-  include/state-observation/tools/miscellaneous-algorithms.hpp 
+  include/state-observation/tools/miscellaneous-algorithms.hpp
   include/state-observation/dynamical-system/dynamical-system-functor-base.hpp
   include/state-observation/dynamical-system/dynamical-system-simulator.hpp
   include/state-observation/dynamical-system/imu-dynamical-system.hpp
@@ -62,7 +63,10 @@ SET(${PROJECT_NAME}_HEADERS
   include/state-observation/flexibility-estimation/flexibility-estimator-base.hpp
   include/state-observation/flexibility-estimation/ekf-flexibility-estimator-base.hpp
   include/state-observation/flexibility-estimation/fixed-contact-ekf-flex-estimator-imu.hpp
+  include/state-observation/flexibility-estimation/model-base-ekf-flex-estimator-imu.hpp
   include/state-observation/flexibility-estimation/imu-fixed-contact-dynamical-system.hpp
+  include/state-observation/flexibility-estimation/stable-imu-fixed-contact-dynamical-system.hpp
+  include/state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp
   include/state-observation/examples/imu-attitude-trajectory-reconstruction.hpp
   include/state-observation/examples/imu-attitude-trajectory-reconstruction.hxx
   include/state-observation/examples/offline-ekf-flexibility-estimation.hpp

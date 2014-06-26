@@ -29,8 +29,15 @@
 #include <Eigen/Geometry>
 
 
+//Tracking NaN
+#include <fenv.h>
+
+#define PI 3.14159265
+
 namespace stateObservation
 {
+
+
     ///Dynamic sized scalar vector
     typedef Eigen::VectorXd Vector;
 
@@ -177,6 +184,11 @@ namespace stateObservation
         ///Warning : this resets the array
         void getFromFile(char * filename, size_t rows, size_t cols=1);
 
+        ///write the array in a a file
+        ///the line starts with the time index and then the matrix is described
+        ///row by row
+        void writeInFile(char * filename);
+
     protected:
         ///Asserts that the index is present in the array
         ///does nothing in release mode
@@ -198,13 +210,47 @@ namespace stateObservation
     {
         ///indexes of the different components of a vector of the kinematic state
         const unsigned pos = 0;
-        const unsigned linVel = 6;
-        const unsigned linAcc = 12;
         const unsigned ori = 3;
+        const unsigned linVel = 6;
         const unsigned angVel = 9;
+        const unsigned linAcc = 12;
         const unsigned angAcc = 15;
-
     }
+
+
+    namespace input
+    {
+        ///indexes of the different components of a vector of the input state
+        const unsigned posCom = 0;
+        const unsigned velCom = 3;
+        const unsigned accCom = 6;
+        const unsigned Inertia = 9;
+        const unsigned AngMoment = 15;
+        const unsigned dotInertia = 18;
+        const unsigned dotAngMoment = 24;
+        const unsigned contact1Pos = 27;
+        const unsigned contact2Pos = 30;
+        const unsigned contact3Pos = 33;
+        const unsigned contact4Pos = 36;
+        const unsigned posIMU = 39;
+        const unsigned oriIMU = 42;
+        const unsigned linVelIMU = 45;
+        const unsigned angVelIMU = 48;
+        const unsigned linAccIMU = 51;
+    }
+
+    //    namespace control
+//    {
+//        ///indexes of the different components of a vector of the control state
+//        const unsigned posCom = 0;
+//        const unsigned velCom = 3;
+//        const unsigned posFlex = 6;
+//        const unsigned oriFlex = 9;
+//        const unsigned linVelFlex = 12;
+//        const unsigned angVelFlex = 15;
+//        const unsigned Inertia = 18;
+//        const unsigned AngularMom = 21;
+//    }
 
     namespace cst
     {
@@ -215,7 +261,9 @@ namespace stateObservation
 
         ///angles considered Zero
         const double epsilonAngle=1e-16;
+
     }
+
 
     #include <state-observation/tools/definitions.hxx>
 }

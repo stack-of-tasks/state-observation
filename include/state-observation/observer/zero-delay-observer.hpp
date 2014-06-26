@@ -78,8 +78,7 @@ namespace stateObservation
         ///Set the value of the input vector at time index k. The
         ///inputs have to be inserted in chronological order without gaps.
         ///If there is no input in the system (p==0), this instruction has no effect
-        virtual void setInput(
-            const ObserverBase::InputVector& u_k,unsigned k);
+        virtual void setInput(const ObserverBase::InputVector& u_k,unsigned k);
 
         ///Remove all the given past values of the inputs
         ///If there is no input, this instruction has no effect

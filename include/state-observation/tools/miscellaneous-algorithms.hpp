@@ -67,6 +67,14 @@ namespace stateObservation
                 return AngleAxis(0.0 , Vector3::UnitZ());
         }
 
+        // Transform a unit vector to a rotation vector (skewsymetric -> rotation matrix)
+        inline Vector3 unitVectorToRotationVector(const Vector3 & v)
+        {
+           Vector3 theta(0,0,atan(v[0]/v[1]));
+
+           return theta;
+        }
+
         ///transform a 3d vector into a skew symmetric 3x3 matrix
         inline Matrix3 skewSymmetric(const Vector3 & v)
         {
@@ -76,6 +84,26 @@ namespace stateObservation
             -v[1],   v[0],    0;
 
             return R;
+        }
+
+        inline Matrix3 computeInertiaTensor(const Vector6 inputInertia)
+        {
+
+            const double Ixx=inputInertia[0];
+            const double Iyy=inputInertia[1];
+            const double Izz=inputInertia[2];
+            const double Ixy=inputInertia[3];
+            const double Ixz=inputInertia[4];
+            const double Iyz=inputInertia[5];
+
+            Matrix3 inertiaTensor;
+
+            inertiaTensor   <<    Ixx, Ixy, Ixz,
+                                  Ixy, Iyy, Iyz,
+                                  Ixz, Iyz, Izz;
+
+            return inertiaTensor;
+
         }
 
         ///transforms a homogeneous matrix into 6d vector (position theta mu)
@@ -270,6 +298,8 @@ namespace stateObservation
             m2.block(0,3,3,1) = - rt * m.block(0,3,3,1);
             return m2;
         }
+
+
     }
 
 }

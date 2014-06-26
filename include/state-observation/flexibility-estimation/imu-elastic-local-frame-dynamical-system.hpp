@@ -127,7 +127,7 @@ namespace flexibilityEstimation
         Quaternion computeQuaternion_(const Vector3 & x);
 
         static const unsigned stateSize_=18;
-        static const unsigned inputSize_=51;
+        static const unsigned inputSize_=54;
         static const unsigned measurementSizeBase_=6;
         unsigned nbContacts_;
 

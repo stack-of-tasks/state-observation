@@ -95,20 +95,22 @@ int test()
     Inert << 0.25*hrp2::m*hrp2::R*hrp2::R+0.33*hrp2::m*hrp2::H*hrp2::H, 0.25*hrp2::m*hrp2::R*hrp2::R+0.33*hrp2::m*hrp2::H*hrp2::H, 0.5*hrp2::m*hrp2::R*hrp2::R, 0.0, 0.0, 0.0;
     uk.segment(input::Inertia,6)=Inert;
 
+    std::cout << "Inertia" << Inert << "\n\n" << std::endl;
+
     // Position of the contacts
 //    uk.segment(input::LFootPos,3) <<    0,
 //                                        0.155,
 //                                        0; // Z compoent have to be 0
-    uk.segment(input::LFootPos,3) << 0.0094904630937003645, -0.095000000000000001, 1.9819700013135044e-07;
+    uk.segment(input::contact1Pos,3) << 0.0094904630937003645, -0.095000000000000001, 1.9819700013135044e-07;
 
 //    uk.segment(input::RFootPos,3) <<    0,
 //                                        -0.155,
 //                                        0; // Z compoent have to be 0
-    uk.segment(input::RFootPos,3) << 0.0094904630936998632, 0.095000000000000001, 1.9819700018686159e-07;
+    uk.segment(input::contact2Pos,3) << 0.0094904630936998632, 0.095000000000000001, 1.9819700018686159e-07;
 
     imu.setContactsNumber(2);
-    imu.setContactPosition(0,uk.segment(input::LFootPos,3));
-    imu.setContactPosition(1,uk.segment(input::RFootPos,3));
+    imu.setContactPosition(0,uk.segment(input::contact1Pos,3));
+    imu.setContactPosition(1,uk.segment(input::contact2Pos,3));
 
 
     // Linear position of the Com IN THE LOCAL FRAME (here for a full cylindar)

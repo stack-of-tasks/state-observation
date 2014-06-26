@@ -89,4 +89,30 @@ namespace stateObservation
         }
     }
 
+
+    void DiscreteTimeArray::writeInFile(char * filename)
+    {
+    	std::ofstream f;
+
+        f.open(filename);
+
+        for (size_t k=getFirstTime();k<=getLastTime();++k)
+        {
+
+            f << k;
+
+            Matrix & m = operator[](k);
+
+            for (size_t i = 0 ; i< m.rows(); ++i)
+            {
+            	for (size_t j = 0 ; j< m.cols(); ++j)
+                {
+            		f << " "<< m(i,j);
+                }
+            }
+
+            f << std::endl;
+        }
+    }
+
 }

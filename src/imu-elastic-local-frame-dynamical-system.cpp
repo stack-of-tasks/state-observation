@@ -116,8 +116,8 @@ namespace flexibilityEstimation
         Vector3 orientationFlex;
         Matrix3 R;
         double h;
-        Vector3 vLFootPos=u.segment(input::LFootPos,3);
-        Vector3 vRFootPos=u.segment(input::RFootPos,3);
+        Vector3 vLFootPos=u.segment(input::contact1Pos,3);
+        Vector3 vRFootPos=u.segment(input::contact2Pos,3);
 
         if (nbContacts==1)
         {
@@ -128,7 +128,6 @@ namespace flexibilityEstimation
             // Expression of the Orientation/Velocity of the flexibility in the (x,y,z) frame.
             orientationFlex=orientationFlexV;
             angularVelocityFlex=angularVelocityFlexV;
-
         }
         else if (nbContacts==2)
         {
@@ -165,7 +164,6 @@ namespace flexibilityEstimation
 
     void IMUElasticLocalFrameDynamicalSystem::test(const Vector& x)
     {
-
         Vector6 v;
         Vector3 u;
 
@@ -177,7 +175,6 @@ namespace flexibilityEstimation
 
         std::cout << m << std::endl;
         std::cout << mat << std::endl;
-
     }
 
 
@@ -259,12 +256,6 @@ namespace flexibilityEstimation
         Vector3 velocityFlex(x.segment(kine::linVel,3));            // tdot
         Vector3 orientationFlexV(x.segment(kine::ori,3));           // \Omega (position)
         Vector3 angularVelocityFlex(x.segment(kine::angVel,3));     // \omega (velocity)
-        // Input vector
-        Vector3 positionCom(u.segment(input::posCom,3));
-        Vector3 velocityCom(u.segment(input::velCom,3));
-        Vector3 accelerationCom(u.segment(input::accCom,3));
-        Vector3 AngMomentum(u.segment(input::AngMoment,3));
-        Vector3 dotAngMomentum(u.segment(input::dotAngMoment,3));
 
         // To be human readable
         const Vector3 Fc(computeFc(x));
@@ -273,6 +264,13 @@ namespace flexibilityEstimation
         const Matrix3 R (qFlex.toRotationMatrix());
         const Matrix3 Inertia(kine::computeInertiaTensor(u.segment(input::Inertia,6)));
         const Matrix3 dotInertia(kine::computeInertiaTensor(u.segment(input::dotInertia,6)));
+
+        // Input vector
+        Vector3 positionCom(u.segment(input::posCom,3));
+        Vector3 velocityCom(u.segment(input::velCom,3));
+        Vector3 accelerationCom(u.segment(input::accCom,3));
+        Vector3 AngMomentum(u.segment(input::AngMoment,3));
+        Vector3 dotAngMomentum(u.segment(input::dotAngMoment,3));
 
         AccLinear   =   1/hrp2::m*
                             (   Fc

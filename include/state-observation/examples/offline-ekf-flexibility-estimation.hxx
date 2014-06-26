@@ -27,7 +27,6 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
 
 
     estimator.setFlexibilityCovariance(Q);
-
     estimator.setMeasurementNoiseCovariance(R);
     estimator.setProcessNoiseCovariance(Q);
 

@@ -111,7 +111,7 @@ namespace stateObservation
 
     void ObserverBase::setInputSize(unsigned p)
     {
-        p=p_;
+        p_=p;
     }
 
     unsigned ObserverBase::getInputSize() const

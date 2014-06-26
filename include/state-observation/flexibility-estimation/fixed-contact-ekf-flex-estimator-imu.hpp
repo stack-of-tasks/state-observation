@@ -15,6 +15,7 @@
 #define FLEXBILITYESTMATOR_FIXEDCONTACTEKFFLEXIBILITYESTIMATOR_IMU_H
 
 #include <state-observation/flexibility-estimation/ekf-flexibility-estimator-base.hpp>
+#include <state-observation/flexibility-estimation/stable-imu-fixed-contact-dynamical-system.hpp>
 #include <state-observation/flexibility-estimation/imu-fixed-contact-dynamical-system.hpp>
 
 namespace stateObservation
@@ -102,6 +103,7 @@ namespace flexibilityEstimation
 
         virtual void updateCovarianceMatrix_();
 
+        //StableIMUFixedContactDynamicalSystem functor_;
         IMUFixedContactDynamicalSystem functor_;
 
         double virtualMeasurementCovariance_;
