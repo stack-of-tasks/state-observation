@@ -47,7 +47,7 @@ namespace flexibilityEstimation
 
         virtual Vector3 computeTc(const Vector& , const Vector& );
 
-        void test(const Vector& x);
+        void test();
 
         // computation of the acceleration angular
         virtual Vector3 computeAccelerationAngular
@@ -133,8 +133,7 @@ namespace flexibilityEstimation
 
         unsigned measurementSize_;
 
-        std::vector <Vector3,Eigen::aligned_allocator<Vector3> >
-            contactPositions_;
+        std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;
 
     private:
 

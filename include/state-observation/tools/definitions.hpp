@@ -228,15 +228,15 @@ namespace stateObservation
         const unsigned AngMoment = 15;
         const unsigned dotInertia = 18;
         const unsigned dotAngMoment = 24;
-        const unsigned contact1Pos = 27;
-        const unsigned contact2Pos = 30;
-        const unsigned contact3Pos = 33;
-        const unsigned contact4Pos = 36;
-        const unsigned posIMU = 39;
-        const unsigned oriIMU = 42;
-        const unsigned linVelIMU = 45;
-        const unsigned angVelIMU = 48;
-        const unsigned linAccIMU = 51;
+        const unsigned posIMU = 27;
+        const unsigned oriIMU = 30;
+        const unsigned linVelIMU = 33;
+        const unsigned angVelIMU = 36;
+        const unsigned linAccIMU = 39;
+        const unsigned contact1Pos = 42;
+        const unsigned contact2Pos = 45;
+        const unsigned contact3Pos = 48;
+        const unsigned contact4Pos = 51;
     }
 
     //    namespace control

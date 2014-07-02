@@ -89,7 +89,6 @@ namespace flexibilityEstimation
 
     Vector3 IMUElasticLocalFrameDynamicalSystem::computeTc(const stateObservation::Vector& x, const stateObservation::Vector& u)
     {
-
         // Isotropic stifness and viscosity for a simple contact case
         double kte=hrp2::angKe;
         double ktv=hrp2::angKv;
@@ -103,8 +102,12 @@ namespace flexibilityEstimation
         // Vector we want
         Vector3 Tc;
 
-        // Number of contacts
+        // Contacts gestion
         unsigned nbContacts = getContactsNumber();
+        Vector3 vLFootPos=u.segment(input::contact1Pos,3);
+        Vector3 vRFootPos=u.segment(input::contact2Pos,3);
+        Matrix3 R;
+        double h;
 
         // Flexibility state
         Vector3 positionFlex(x.segment(kine::pos,3));
@@ -114,10 +117,6 @@ namespace flexibilityEstimation
 
         Vector3 angularVelocityFlex;
         Vector3 orientationFlex;
-        Matrix3 R;
-        double h;
-        Vector3 vLFootPos=u.segment(input::contact1Pos,3);
-        Vector3 vRFootPos=u.segment(input::contact2Pos,3);
 
         if (nbContacts==1)
         {
@@ -129,7 +128,7 @@ namespace flexibilityEstimation
             orientationFlex=orientationFlexV;
             angularVelocityFlex=angularVelocityFlexV;
         }
-        else if (nbContacts==2)
+        else if (nbContacts==2) // For the moment, two foots
         {
             h=rotationMatrixFromCOntactsPositiontr(vLFootPos,vRFootPos,R);
 
@@ -162,19 +161,10 @@ namespace flexibilityEstimation
     }
 
 
-    void IMUElasticLocalFrameDynamicalSystem::test(const Vector& x)
+    void IMUElasticLocalFrameDynamicalSystem::test()
     {
-        Vector6 v;
-        Vector3 u;
 
-        v << 1,2,3,4,5,6;
-        u << 1,2,3;
 
-        Matrix4 m(kine::vector6ToHomogeneousMatrix(v));
-        Matrix3 mat(kine::skewSymmetric(u));
-
-        std::cout << m << std::endl;
-        std::cout << mat << std::endl;
     }
 
 
@@ -294,41 +284,22 @@ namespace flexibilityEstimation
 
         Vector3 positionFlex(x.segment(kine::pos,3));
         Vector3 velocityFlex(x.segment(kine::linVel,3));
-        //Vector3 accelerationFlex(x.segment(kine::linAcc,3));
-
-    //feenableexcept(FE_DIVBYZERO || FE_INVALID || FE_OVERFLOW || FE_UNDERFLOW); // FE_DIVBYZERO, FE_INEXACT, FE_INVALID, FE_OVERFLOW, FE_UNDERFLOW,  FE_ALL_EXCEPT
-    //fedisableexcept(FE_ALL_EXCEPT);
         Vector3 accelerationFlex(computeAccelerationLinear(x, u, k));
-    //fedisableexcept(FE_ALL_EXCEPT);
-
         Vector3 orientationFlexV(x.segment(kine::ori,3));
         Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
-        //Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
         Vector3 angularAccelerationFlex(computeAccelerationAngular(x, u, k));
-
         Quaternion orientationFlex(computeQuaternion_(orientationFlexV));
-
-//        Vector3 positionControl(u.segment(kine::pos,3));
-//        Vector3 velocityControl(u.segment(kine::linVel,3));
-//        Vector3 accelerationControl(u.segment(kine::linAcc,3));
-//
-//        Vector3 orientationControlV(u.segment(kine::ori,3));
-//        Vector3 angularVelocityControl(u.segment(kine::angVel,3));
 
         Vector3 positionControl(u.segment(input::posIMU,3));
         Vector3 velocityControl(u.segment(input::linVelIMU,3));
         Vector3 accelerationControl(u.segment(input::linAccIMU,3));
-
         Vector3 orientationControlV(u.segment(input::oriIMU,3));
         Vector3 angularVelocityControl(u.segment(input::angVelIMU,3));
 
-        integrateKinematics
-                (positionFlex, velocityFlex, accelerationFlex, orientationFlex,
-                 angularVelocityFlex, angularAccelerationFlex, dt_);
+        integrateKinematics(positionFlex, velocityFlex, accelerationFlex, orientationFlex,angularVelocityFlex, angularAccelerationFlex, dt_);
 
         //x_{k+1}
         Vector xk1(x);
-
 
         xk1.segment(kine::pos,3) = positionFlex;
         xk1.segment(kine::linVel,3) = velocityFlex;
@@ -345,9 +316,6 @@ namespace flexibilityEstimation
             return processNoise_->addNoise(xk1);
         else
             return xk1;
-
-
-
     }
 
     Quaternion IMUElasticLocalFrameDynamicalSystem::computeQuaternion_
@@ -370,66 +338,52 @@ namespace flexibilityEstimation
         Vector3 positionFlex(x.segment(kine::pos,3));
         Vector3 velocityFlex(x.segment(kine::linVel,3));
         Vector3 accelerationFlex(x.segment(kine::linAcc,3));
-
         Vector3 orientationFlexV(x.segment(kine::ori,3));
         Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
         Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
-
         Quaternion qFlex (computeQuaternion_(orientationFlexV));
         Matrix3 rFlex (qFlex.toRotationMatrix());
 
-
         assertInputVector_(u);
-
-//        Vector3 positionControl(u.segment(kine::pos,3));
-//        Vector3 velocityControl(u.segment(kine::linVel,3));
-//        Vector3 accelerationControl(u.segment(kine::linAcc,3));
-//
-//        Vector3 orientationControlV(u.segment(kine::ori,3));
-//        Vector3 angularVelocityControl(u.segment(kine::angVel,3));
 
         Vector3 positionControl(u.segment(input::posIMU,3));
         Vector3 velocityControl(u.segment(input::linVelIMU,3));
         Vector3 accelerationControl(u.segment(input::linAccIMU,3));
-
         Vector3 orientationControlV(u.segment(input::oriIMU,3));
         Vector3 angularVelocityControl(u.segment(input::angVelIMU,3));
-
         Quaternion qControl(computeQuaternion_(orientationControlV));
+
 
         Quaternion q = qFlex * qControl;
 
-        Vector3 acceleration (
-         (kine::skewSymmetric(angularAccelerationFlex)
-              + tools::square(kine::skewSymmetric(angularVelocityFlex)))
-                  * rFlex * positionControl
-         + 2*kine::skewSymmetric(angularVelocityFlex) * rFlex * velocityControl
-         + accelerationFlex + rFlex * accelerationControl);
+        // Translation sensor dynamic
+        Vector3 acceleration
+        (
+            (
+                kine::skewSymmetric(angularAccelerationFlex)
+                + tools::square(kine::skewSymmetric(angularVelocityFlex))
+            )*rFlex * positionControl
+            + 2*kine::skewSymmetric(angularVelocityFlex) * rFlex * velocityControl
+            + accelerationFlex + rFlex * accelerationControl
+        );
 
-        Vector3 angularVelocity( angularVelocityFlex +
-                                    rFlex * angularVelocityControl);
+        // Rotation sensor dynamic
+        Vector3 angularVelocity( angularVelocityFlex + rFlex * angularVelocityControl);
 
+
+        // Set sensor state before measurement
         Vector v(Vector::Zero(10,1));
-
         v[0]=q.w();
         v[1]=q.x();
         v[2]=q.y();
         v[3]=q.z();
-
         v.segment(4,3)=acceleration;
         v.tail(3)=angularVelocity;
-
         sensor_.setState(v,k);
 
+        // Measurement
         Vector y (Matrix::Zero(measurementSize_,1));
-
         y.head(sensor_.getMeasurementSize()) = sensor_.getMeasurements();
-
-        for (unsigned i=0; i<contactPositions_.size();++i)
-        {
-            y.segment(sensor_.getMeasurementSize()+i*3,3)=
-                rFlex * contactPositions_[i] + positionFlex - contactPositions_[i];
-        }
 
         return y;
     }
@@ -488,8 +442,6 @@ namespace flexibilityEstimation
 
     void IMUElasticLocalFrameDynamicalSystem::setContactsNumber(unsigned i)
     {
-        measurementSize_ = measurementSizeBase_ + 3 * i;
-        contactPositions_.resize(i, Vector3::Zero());
         nbContacts_=i;
     }
 
