@@ -50,9 +50,6 @@ namespace flexibilityEstimation
         ///Sets the number of contacts can be changed online
         void setContactsNumber(unsigned i);
 
-        ///Sets the position of the i-th contact
-        void setContactPosition(unsigned i, Vector3 position);
-
         /// Sets the value of the next sensor measurement y_{k+1}
         virtual void setMeasurement(const Vector & y);
 
@@ -91,6 +88,8 @@ namespace flexibilityEstimation
 
         virtual unsigned getInputSize() const ;
 
+        virtual void setInputSize(unsigned) ;
+
         /// sets the sampling period
         virtual void setSamplingPeriod(double);
 
@@ -112,7 +111,8 @@ namespace flexibilityEstimation
 
         static const unsigned stateSizeConst_=18;
         static const unsigned measurementSizeConst_=6;
-        static const unsigned inputSizeConst_=54;
+        static const unsigned inputSizeBase_=42;
+        unsigned inputSize_;
 
         double dt_;//sampling period
 

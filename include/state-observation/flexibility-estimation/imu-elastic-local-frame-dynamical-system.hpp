@@ -90,8 +90,12 @@ namespace flexibilityEstimation
 
         ///Gets the state size
         virtual unsigned getStateSize();
+
         ///Gets the input size
         virtual unsigned getInputSize();
+
+        ///Sets the input size
+        virtual void setInputSize(unsigned i);
 
         ///Gets the contact number
         ///virtual
@@ -127,7 +131,8 @@ namespace flexibilityEstimation
         Quaternion computeQuaternion_(const Vector3 & x);
 
         static const unsigned stateSize_=18;
-        static const unsigned inputSize_=54;
+        static const unsigned inputSizeBase_=42;
+        unsigned inputSize_;
         static const unsigned measurementSizeBase_=6;
         unsigned nbContacts_;
 

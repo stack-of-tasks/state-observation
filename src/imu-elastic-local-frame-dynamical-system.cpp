@@ -104,8 +104,6 @@ namespace flexibilityEstimation
 
         // Contacts gestion
         unsigned nbContacts = getContactsNumber();
-        Vector3 vLFootPos=u.segment(input::contact1Pos,3);
-        Vector3 vRFootPos=u.segment(input::contact2Pos,3);
         Matrix3 R;
         double h;
 
@@ -130,7 +128,8 @@ namespace flexibilityEstimation
         }
         else if (nbContacts==2) // For the moment, two foots
         {
-            h=rotationMatrixFromCOntactsPositiontr(vLFootPos,vRFootPos,R);
+            //h=rotationMatrixFromCOntactsPositiontr(vLFootPos,vRFootPos,R);
+            h=rotationMatrixFromCOntactsPositiontr(u.segment(input::contacts,3),u.segment(input::contacts+3,3),R);
 
             // Definittion of anisotropic stiffnes and viscosity in (j, perpendicular of j, z) frame.
             Ke << h*h*0.5*kfe,kte,h*h*0.5*kfe; // (perpendicular of j, j, z)
@@ -422,6 +421,11 @@ namespace flexibilityEstimation
     unsigned IMUElasticLocalFrameDynamicalSystem::getInputSize()
     {
         return inputSize_;
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setInputSize(unsigned i)
+    {
+        inputSize_=i;
     }
 
     unsigned IMUElasticLocalFrameDynamicalSystem::getMeasurementSize()

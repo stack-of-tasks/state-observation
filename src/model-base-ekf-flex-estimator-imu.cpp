@@ -11,7 +11,7 @@ namespace flexibilityEstimation
 {
     ModelBaseEKFFlexEstimatorIMU::ModelBaseEKFFlexEstimatorIMU(double dt):
         EKFFlexibilityEstimatorBase
-            (stateSizeConst_,measurementSizeConst_,inputSizeConst_,
+            (stateSizeConst_,measurementSizeConst_,inputSizeBase_,
                             Matrix::Constant(getStateSize(),1,dxFactor)),
         virtualMeasurementCovariance_(initialVirtualMeasurementCovariance),
         functor_(dt)
@@ -77,11 +77,6 @@ namespace flexibilityEstimation
 
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::setContactPosition
-                                            (unsigned i, Vector3 position)
-    {
-        functor_.setContactPosition(i,position);
-    }
 
     void ModelBaseEKFFlexEstimatorIMU::setMeasurement(const Vector & y)
     {
@@ -190,8 +185,16 @@ namespace flexibilityEstimation
 
     unsigned ModelBaseEKFFlexEstimatorIMU::getInputSize() const
     {
-        return inputSizeConst_;
+        return inputSize_;
     }
+
+    void ModelBaseEKFFlexEstimatorIMU::setInputSize(unsigned i)
+    {
+        inputSize_=i;
+        ekf_.setInputSize(i);
+        functor_.setInputSize(i);
+    }
+
 
     unsigned ModelBaseEKFFlexEstimatorIMU::getMeasurementSize() const
     {

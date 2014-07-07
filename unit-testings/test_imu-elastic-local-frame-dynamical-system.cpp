@@ -101,16 +101,16 @@ int test()
 //    uk.segment(input::LFootPos,3) <<    0,
 //                                        0.155,
 //                                        0; // Z compoent have to be 0
-    uk.segment(input::contact1Pos,3) << 0.0094904630937003645, -0.095000000000000001, 1.9819700013135044e-07;
+    uk.segment(input::contacts,3) << 0.0094904630937003645, -0.095000000000000001, 1.9819700013135044e-07;
 
 //    uk.segment(input::RFootPos,3) <<    0,
 //                                        -0.155,
 //                                        0; // Z compoent have to be 0
-    uk.segment(input::contact2Pos,3) << 0.0094904630936998632, 0.095000000000000001, 1.9819700018686159e-07;
+    uk.segment(input::contacts+3,3) << 0.0094904630936998632, 0.095000000000000001, 1.9819700018686159e-07;
 
     imu.setContactsNumber(2);
-    imu.setContactPosition(0,uk.segment(input::contact1Pos,3));
-    imu.setContactPosition(1,uk.segment(input::contact2Pos,3));
+    imu.setContactPosition(0,uk.segment(input::contacts,3));
+    imu.setContactPosition(1,uk.segment(input::contacts+3,3));
 
 
     // Linear position of the Com IN THE LOCAL FRAME (here for a full cylindar)

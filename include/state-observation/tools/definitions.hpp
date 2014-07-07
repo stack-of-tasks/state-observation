@@ -233,10 +233,8 @@ namespace stateObservation
         const unsigned linVelIMU = 33;
         const unsigned angVelIMU = 36;
         const unsigned linAccIMU = 39;
-        const unsigned contact1Pos = 42;
-        const unsigned contact2Pos = 45;
-        const unsigned contact3Pos = 48;
-        const unsigned contact4Pos = 51;
+        const unsigned contacts = 42;
+
     }
 
     //    namespace control
