@@ -77,11 +77,15 @@ namespace flexibilityEstimation
     void EKFFlexibilityEstimatorBase::setInput(const Vector & u)
     {
         ekf_.setInput(u,k_);
+        //cout << "k_: " << k_ << endl;
+
     }
 
     void EKFFlexibilityEstimatorBase::setMeasurementInput(const Vector & u)
     {
         ekf_.setInput(u,k_+1);
+
+        //cout << "input: " << ekf_.getInput(k_+1) << endl;
     }
 
     Vector EKFFlexibilityEstimatorBase::getFlexibilityVector()
@@ -100,6 +104,9 @@ namespace flexibilityEstimation
             }
             Vector x(ekf_.getEstimatedState(k_));
 
+            //std::cout << "A" << ekf_.getA() << std::endl;
+            //std::cout << "C" << ekf_.getC() << std::endl;
+
             if (x==x)//detect NaN values
             {
                 lastX_=x;
@@ -107,9 +114,11 @@ namespace flexibilityEstimation
             else //delete NaN values
             {
                 ekf_.setState(lastX_,k_);
-                resetCovarianceMatrices();
+                //resetCovarianceMatrices();
             }
         }
+
+        //cout << "lastX_ " << lastX_ << "\n" << endl;
         return lastX_;
 
     }
@@ -141,6 +150,11 @@ namespace flexibilityEstimation
     Vector EKFFlexibilityEstimatorBase::getPredictedMeaurement()
     {
         return ekf_.getPredictedMeaurement();
+    }
+
+    Vector EKFFlexibilityEstimatorBase::getPrediction()
+    {
+        return ekf_.getPrediction();
     }
 
 }

@@ -97,6 +97,8 @@ ExtendedKalmanFilter<n,m,p>::getAMatrixFD(const typename ObserverBase<n,m,p>::St
     if (p>0)
         u=this->u_[0]();
 
+      //  cout << "input2: " << u << endl;
+
     for (unsigned i=0;i<n;++i)
     {
         unsigned it=(i-1)%n;

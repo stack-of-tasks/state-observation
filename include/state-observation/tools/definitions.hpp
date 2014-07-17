@@ -34,6 +34,11 @@
 
 #define PI 3.14159265
 
+// basic file operations
+#include <iostream>
+#include <fstream>
+//using namespace std;
+
 namespace stateObservation
 {
 

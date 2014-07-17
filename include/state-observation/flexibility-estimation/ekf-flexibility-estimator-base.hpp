@@ -126,6 +126,9 @@ namespace flexibilityEstimation
         ///Get the simulated measurement of the predicted state
         virtual Vector getPredictedMeaurement();
 
+        ///Get the predicted state
+        virtual Vector getPrediction();
+
 
     protected:
         virtual void setJacobians(const Matrix & A, const Matrix & C);

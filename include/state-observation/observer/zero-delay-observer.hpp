@@ -146,7 +146,7 @@ namespace stateObservation
         ///Container for the measurements.
         DiscreteTimeArray y_;
 
-        ///Container for the actual measurements.
+        ///Container for the inputs.
         DiscreteTimeArray u_;
 
     };

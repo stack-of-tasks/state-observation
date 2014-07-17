@@ -16,13 +16,62 @@ namespace flexibilityEstimation
         virtualMeasurementCovariance_(initialVirtualMeasurementCovariance),
         functor_(dt)
     {
-        ekf_.setDirectInputStateFeedthrough(false);
+
+        //ekf_.setDirectInputStateFeedthrough(false);
+
+        ObserverBase::InputVector u;
+        u.resize(42);
+        u <<    0.0145673,
+                0.00153601,
+                0.807688,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                9.59691,
+                8.39051,
+                1.73881,
+                -0.00189139,
+                0.146455,
+                -0.0378545,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.1174,
+                0.0,
+                0.0,
+                0.0,
+                0.227298,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                22.7298,
+                0.0,
+                0.0,
+                0.0;
+
+        //setInput(u);
 
         ekf_.setMeasureSize(functor_.getMeasurementSize());
 
         ModelBaseEKFFlexEstimatorIMU::resetCovarianceMatrices();
 
         Vector x0=ekf_.stateVectorZero();
+        x0(2)=-0.011;
 
         lastX_=x0;
 
@@ -31,6 +80,8 @@ namespace flexibilityEstimation
         ekf_.setStateCovariance(Q_);
 
         ekf_.setFunctor(& functor_);
+
+        //std::cout << "toto2" << std::endl;
     }
 
 
@@ -72,7 +123,7 @@ namespace flexibilityEstimation
     {
         finiteDifferencesJacobians_=true;
         functor_.setContactsNumber(i);
-        ekf_.setMeasureSize(functor_.getMeasurementSize());
+        //ekf_.setMeasureSize(functor_.getMeasurementSize());
         updateCovarianceMatrix_();
 
     }
@@ -87,6 +138,7 @@ namespace flexibilityEstimation
         Vector y2 = ekf_.measureVectorZero();
         y2.head(getMeasurementSize()) = y;
         ekf_.setMeasurement(y2,k_+1);
+
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setVirtualMeasurementsCovariance
@@ -190,9 +242,28 @@ namespace flexibilityEstimation
 
     void ModelBaseEKFFlexEstimatorIMU::setInputSize(unsigned i)
     {
+
+        stateObservation::Vector saveu, newu;
+        unsigned saveInputSize;
+        int v, vmax;
+
+        saveInputSize=saveu.size();
+        saveu=ekf_.getInput(ekf_.getInputTime());
+
+        newu=Vector::Zero(i,1);
+
+//        vmax=min(saveu.size(),newu.size());
+//        for(v=0;v<vmax;++v)
+//        {
+//            newu(v)=saveu(v);
+//        }
+
         inputSize_=i;
         ekf_.setInputSize(i);
         functor_.setInputSize(i);
+
+        setInput(newu);
+
     }
 
 
@@ -215,13 +286,14 @@ namespace flexibilityEstimation
 
     Vector ModelBaseEKFFlexEstimatorIMU::getFlexibilityVector()
     {
+
         if (ekf_.getMeasurementsNumber()>0)
         {
+
             lastX_ =EKFFlexibilityEstimatorBase::getFlexibilityVector();
 
             ///regulate the part of orientation vector in the state vector
-            lastX_.segment(kine::ori,3)=
-                kine::regulateOrientationVector(lastX_.segment(kine::ori,3));
+            lastX_.segment(kine::ori,3)=kine::regulateOrientationVector(lastX_.segment(kine::ori,3));
 
             ekf_.setState(lastX_,ekf_.getCurrentTime());
 

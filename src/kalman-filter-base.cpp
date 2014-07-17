@@ -9,6 +9,11 @@ namespace stateObservation
         a_=A;
     }
 
+    Matrix KalmanFilterBase::getA() const
+    {
+        return a_;
+    }
+
     void KalmanFilterBase::clearA()
     {
         a_.resize(0,0);
@@ -25,6 +30,10 @@ namespace stateObservation
         c_.resize(0,0);
     }
 
+    Matrix KalmanFilterBase::getC() const
+    {
+        return c_;
+    }
 
     void KalmanFilterBase::setR( const Rmatrix& R)
     {
@@ -74,6 +83,7 @@ namespace stateObservation
     {
 
         unsigned k=this->x_.getTime();
+
         BOOST_ASSERT(this->y_.size()> 0 && this->y_.checkIndex(k+1) && "ERROR: The measurement vector is not set");
 
         BOOST_ASSERT(checkAmatrix(a_) && "ERROR: The Matrix A is not initialized" );
@@ -86,6 +96,9 @@ namespace stateObservation
         oc_.xbar = prediction_(k+1);
         oc_.pbar=q_;
         oc_.pbar.noalias()  += a_*(pr_*a_.transpose());
+
+       // std::cout << "a_ " << a_ << std::endl;
+       // std::cout << "pr_ " << pr_ << std::endl;
 
         predictedMeasurement_=simulateSensor_(oc_.xbar,k+1);
 
@@ -101,6 +114,13 @@ namespace stateObservation
         //gain
         oc_.kGain = oc_.pbar * (oc_.ctranspose * oc_.inoMeasCovInverse);
 
+        //std::cout << "oc_.kGain" << oc_.kGain << std::endl;
+
+        //std::cout << "q " << q_ << std::endl;
+        //std::cout << "a_" << a_ << std::endl;
+        //std::cout << "pr_" << pr_ << std::endl;
+        //std::cout << "oc_.inoMeasCov" << oc_.inoMeasCov << std::endl;
+
         inovation_ = oc_.kGain*oc_.inoMeas;
 
 //        std::cout << "k " << k << std::endl << std::endl;
@@ -112,6 +132,9 @@ namespace stateObservation
 //        std::cout << "KGain " << kGain << std::endl << std::endl;
 //        std::cout << "inoCov " << inoCov << std::endl << std::endl;
 
+       // std::cout << "oc_.kGain" << oc_.kGain << std::endl;
+       // std::cout << "oc_.inoMeas" << oc_.inoMeas << std::endl;
+
         //update
         oc_.xhat= oc_.xbar + inovation_;
 
@@ -120,6 +143,20 @@ namespace stateObservation
         pr_.noalias() -= oc_.kGain*c_;
 
         pr_ *= oc_.pbar;
+
+       // std::cout << "oc_.kGain" << oc_.kGain << std::endl;
+       // std::cout << "c_" << c_ << std::endl;
+
+       //std::cout << "xbar: " << oc_.xbar.transpose() << std::endl;
+       //std::cout << "xhat: " << oc_.xhat.transpose() << std::endl;
+       std::cout << "innovation: " << inovation_.transpose() << std::endl;
+       // cout << "inoMeas: " << oc_.inoMeas.transpose() << endl;
+       // cout << "y_k+1: " << this->y_[k+1].transpose() << endl;
+       // cout << "predicted measurement " << predictedMeasurement_.transpose() << endl;
+       // cout << "Kgain " << oc_.kGain.transpose() << endl;
+       // std::cout << " r_ " << r_ << std::endl;
+       // cout << "oc_.inoMeasCovInverse " << oc_.inoMeasCovInverse << endl;
+       // cout << endl;
 
         return oc_.xhat;
     }
@@ -292,6 +329,11 @@ namespace stateObservation
     Vector KalmanFilterBase::getInovation()
     {
         return inovation_;
+    }
+
+    Vector KalmanFilterBase::getPrediction()
+    {
+        return oc_.xbar;
     }
 
     Vector KalmanFilterBase::getPredictedMeaurement()

@@ -37,8 +37,11 @@ namespace stateObservation
         if (!this->xbar_.isSet() || this->xbar_.getTime()!=k)
         {
             ObserverBase::InputVector u;
+
+
             if ((p_>0) && (directInputStateProcessFeedthrough_))
             {
+
                 BOOST_ASSERT(this->u_.size()>0 && this->u_.checkIndex(k-1) &&
                                         "ERROR: The input vector is not set");
                 u=this->u_[k-1];
@@ -48,6 +51,8 @@ namespace stateObservation
                 u = inputVectorZero();
             }
 
+            //std::cout << "u" << u << std::endl;
+
             BOOST_ASSERT (f_!=0x0 && "ERROR: The Kalman filter functor is not set");
             xbar_.set(f_->stateDynamics(
                           this->x_(),
@@ -55,6 +60,9 @@ namespace stateObservation
                           this->x_.getTime()),
                       k);
         }
+
+        //std::cout << "xbar prediction: " << xbar_() << std::endl;
+
         return xbar_();
     }
 
@@ -110,6 +118,7 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
             else
                 u=inputVectorZero();
 
+
         for (unsigned i=0;i<n_;++i)
         {
             unsigned it=(i-1)%n_;
@@ -117,6 +126,7 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
             x[i]=this->x_()(i,0);
             x[i]+=dx[i];
             xp=f_->stateDynamics(x,u,k);
+
             xp-=fx;
             xp/=dx[i];
 

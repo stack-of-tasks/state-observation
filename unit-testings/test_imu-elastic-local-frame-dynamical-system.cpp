@@ -69,7 +69,7 @@ int test()
     ///Sizes of the states for the state, the measurement, and the input vector
     const unsigned stateSize=18;
     const unsigned measurementSize=6;
-    const unsigned inputSize=51;
+    const unsigned inputSize=48;
 
 
     ///The array containing all the states, the measurements and the inputs
@@ -79,6 +79,7 @@ int test()
     ///simulation of the signal
     /// the IMU dynamical system functor
     flexibilityEstimation::IMUElasticLocalFrameDynamicalSystem imu(dt);
+    imu.setInputSize(inputSize);
 
     ///the simulator initalization
     DynamicalSystemSimulator sim;
@@ -95,7 +96,9 @@ int test()
     Inert << 0.25*hrp2::m*hrp2::R*hrp2::R+0.33*hrp2::m*hrp2::H*hrp2::H, 0.25*hrp2::m*hrp2::R*hrp2::R+0.33*hrp2::m*hrp2::H*hrp2::H, 0.5*hrp2::m*hrp2::R*hrp2::R, 0.0, 0.0, 0.0;
     uk.segment(input::Inertia,6)=Inert;
 
-    std::cout << "Inertia" << Inert << "\n\n" << std::endl;
+    std::cout << "Inert " << Inert << std::endl;
+
+    // std::cout << "Inertia" << Inert << "\n\n" << std::endl;
 
     // Position of the contacts
 //    uk.segment(input::LFootPos,3) <<    0,
@@ -109,8 +112,8 @@ int test()
     uk.segment(input::contacts+3,3) << 0.0094904630936998632, 0.095000000000000001, 1.9819700018686159e-07;
 
     imu.setContactsNumber(2);
-    imu.setContactPosition(0,uk.segment(input::contacts,3));
-    imu.setContactPosition(1,uk.segment(input::contacts+3,3));
+    //imu.setContactPosition(0,uk.segment(input::contacts,3));
+    //imu.setContactPosition(1,uk.segment(input::contacts+3,3));
 
 
     // Linear position of the Com IN THE LOCAL FRAME (here for a full cylindar)
@@ -131,9 +134,9 @@ int test()
                 2*PI/180,
                 0;
    // h=rotationMatrixFromContactsPositionKine(uk.segment(input::LFootPos,3),uk.segment(input::RFootPos,3),R0);
-//x0.segment(kine::ori,3) << R0.transpose()*ori;
+    //x0.segment(kine::ori,3) << R0.transpose()*ori;
 
-x0.segment(kine::ori,3) << ori;
+    x0.segment(kine::ori,3) << ori;
 
     sim.setState(x0,0);
 

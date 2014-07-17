@@ -37,7 +37,8 @@ namespace flexibilityEstimation
     }
 
 
-    Vector3 IMUElasticLocalFrameDynamicalSystem::computeFc(const stateObservation::Vector& x){
+    Vector3 IMUElasticLocalFrameDynamicalSystem::computeFc(const stateObservation::Vector& x)
+    {
 
 
         // Vector we want
@@ -69,9 +70,14 @@ namespace flexibilityEstimation
 
         // Definition of the length and the unit vector between the two foots.
         Vrl=vLFootPos-vRFootPos;
+
+        //cout << "Vrl: " << Vrl << endl;
+
         j=kine::rotationVectorToAngleAxis(Vrl);
         h = j.angle(); // length between the ankles
         axis = j.axis(); // unit vector between the ankles
+
+        //cout << "h: " << h << ", axis: " << axis << endl;
 
         // Definition of the transformation (rotation) between (x,y,z) and (perpendicular of j, j, z).
         theta=kine::unitVectorToRotationVector(axis);
@@ -82,6 +88,13 @@ namespace flexibilityEstimation
         R <<    cos(thetay)*cos(thetaz), -cos(thetay)*sin(thetaz), sin(thetay),
                 sin(thetaz), cos(thetaz), 0,
                 -sin(thetay)*cos(thetaz), sin(thetay)*sin(thetaz), cos(thetay);
+
+        if(R!=R)
+        {
+            R <<    0,0,0,
+                    0,0,0,
+                    0,0,0;
+        }
 
         return h;
 
@@ -116,6 +129,8 @@ namespace flexibilityEstimation
         Vector3 angularVelocityFlex;
         Vector3 orientationFlex;
 
+        //cout << "nbContacts: " << nbContacts << endl;
+
         if (nbContacts==1)
         {
             // Definittion of isotropic stiffnes and viscosity in (x,y,z).
@@ -131,30 +146,54 @@ namespace flexibilityEstimation
             //h=rotationMatrixFromCOntactsPositiontr(vLFootPos,vRFootPos,R);
             h=rotationMatrixFromCOntactsPositiontr(u.segment(input::contacts,3),u.segment(input::contacts+3,3),R);
 
+            //cout << "contact1: " << u.segment(input::contacts,3) << "contact2: " << u.segment(input::contacts+3,3) << endl;
+
             // Definittion of anisotropic stiffnes and viscosity in (j, perpendicular of j, z) frame.
             Ke << h*h*0.5*kfe,kte,h*h*0.5*kfe; // (perpendicular of j, j, z)
             Kv << h*h*0.5*kfv,ktv,h*h*0.5*kfv; // (perpendicular of j, j, z)
 
             // Expression of the Orientation/Velocity of the flexibility in the (j, perpendicular of j, z).
             orientationFlex=R*orientationFlexV;
+
+           // std::cout << "R " << R << std::endl;
+           // std::cout << "orientationFlexV " << orientationFlexV.transpose() << std::endl;
+           // std::cout << "size u " << u.size() << std::endl;
+
             angularVelocityFlex=R*angularVelocityFlexV;
+
         }
+                   // cout << "Orientation flexV: " << orientationFlexV << endl;
+                   // cout << "Orientation flex: " << orientationFlex << endl;
+                   // cout << "R: " << R << endl;
 
         // Determination of the Tc vector in either the (x,y,z) or (j, perpendicular of j, z) frame.
         Tc =-Ke.cwiseProduct(orientationFlex);
+
+      //  std::cout << "Tc 0" << Tc << std::endl;
+
         Tc += -Kv.cwiseProduct(angularVelocityFlex);
+
+      //  std::cout << "Tc 1" << Tc << std::endl;
+
         Tc += kine::skewSymmetric(positionFlex)*computeFc(x);
+
+       // std::cout << "Tc 2" << Tc << std::endl;
 
         // Determination of the Tc vector in the (x,y,z) frame.
         if (nbContacts==1)
         {
+                    //cout << "Tc: " << Tc << endl;
             return Tc;
         }
         else if (nbContacts==2)
         {
             Tc=R.transpose()*Tc;
+                    //cout << "Tc: " << Tc << endl;
+          //  std::cout << "Tc 3" << Tc << std::endl;
             return Tc;
         }
+
+
 
 
     }
@@ -170,12 +209,10 @@ namespace flexibilityEstimation
     Vector3 IMUElasticLocalFrameDynamicalSystem::computeAccelerationAngular
     	(const Vector& x, const Vector& u, unsigned k)
     {
-   // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW); // FE_DIVBYZERO, FE_INEXACT, FE_INVALID, FE_OVERFLOW, FE_UNDERFLOW,  FE_ALL_EXCEPT
 
-    //fedisableexcept(FE_ALL_EXCEPT);
         // Vector we want
         Vector3 AccAngular;
-    //fedisableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);// || FE_INVALID || FE_OVERFLOW || FE_UNDERFLOW);
+
         // To simplify reading => to remplace by physics meaning of Mat and Vec.
         Matrix3 Mat;
         Vector3 Vec;
@@ -192,10 +229,7 @@ namespace flexibilityEstimation
         Vector3 AngMomentum(u.segment(input::AngMoment,3));
         Vector3 dotAngMomentum(u.segment(input::dotAngMoment,3));
 
-//        std::cout << "angularVelocityFlex" << angularVelocityFlex << std::endl;
-
         // To be human readable
-       // const Vector3 Fc(computeFc(x));
 
         const Vector3 Tc(computeTc(x,u));
         const Quaternion qFlex (computeQuaternion_(orientationFlexV));
@@ -204,10 +238,39 @@ namespace flexibilityEstimation
         const Matrix3 dotInertia(kine::computeInertiaTensor(u.segment(input::dotInertia,6)));
 
         Mat = R*Inertia*R.transpose();
+
+       // std::cout << "Mat 0 " << Mat << std::endl;
+
         Mat += hrp2::m*kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom);
+
+       // std::cout << "Mat 1 " << Mat << std::endl;
+
         Mat = Mat.inverse().eval();
 
-        Vec=Tc   -   (  (kine::skewSymmetric(angularVelocityFlex)*R*Inertia*R.transpose()+R*dotInertia*R.transpose())*angularVelocityFlex
+       // std::cout << "Mat 2 " << Mat << std::endl;
+
+//        Vec=Tc   -   (  (kine::skewSymmetric(angularVelocityFlex)*R*Inertia*R.transpose()+R*dotInertia*R.transpose())*angularVelocityFlex
+//                                +R*dotAngMomentum
+//                                +kine::skewSymmetric(angularVelocityFlex)*R*AngMomentum
+//                                +hrp2::m*kine::skewSymmetric(positionFlex)*
+//                                    (
+//                                        kine::skewSymmetric(angularVelocityFlex)*kine::skewSymmetric(angularVelocityFlex)*R*positionCom
+//                                        +2*kine::skewSymmetric(angularVelocityFlex)*R*velocityCom
+//                                        +R*accelerationCom
+//                                    )
+//                                +hrp2::m*kine::skewSymmetric(R*positionCom+positionFlex)*cst::gravity
+//                      )
+//                -   (kine::skewSymmetric(positionFlex)+kine::skewSymmetric(R*positionCom))*
+//                    (   computeFc(x)
+//                        -(  R*hrp2::m*accelerationCom
+//                            +2*kine::skewSymmetric(orientationFlexV)*R*velocityCom
+//                            +hrp2::m*kine::skewSymmetric(orientationFlexV)*kine::skewSymmetric(orientationFlexV)*R*positionCom
+//                            +hrp2::m*cst::gravity
+//                         )
+//                    );
+
+
+        Vec = -(kine::skewSymmetric(angularVelocityFlex)*R*Inertia*R.transpose()+R*dotInertia*R.transpose())*angularVelocityFlex
                                 +R*dotAngMomentum
                                 +kine::skewSymmetric(angularVelocityFlex)*R*AngMomentum
                                 +hrp2::m*kine::skewSymmetric(positionFlex)*
@@ -216,9 +279,11 @@ namespace flexibilityEstimation
                                         +2*kine::skewSymmetric(angularVelocityFlex)*R*velocityCom
                                         +R*accelerationCom
                                     )
-                                +hrp2::m*kine::skewSymmetric(R*positionCom+positionFlex)*cst::gravity
-                      )
-                -   (kine::skewSymmetric(positionFlex)+kine::skewSymmetric(R*positionCom))*
+                                +hrp2::m*kine::skewSymmetric(R*positionCom+positionFlex)*cst::gravity;
+
+               // std::cout << "Vec 0" << Vec << std::endl;
+
+        Vec -= (kine::skewSymmetric(positionFlex)+kine::skewSymmetric(R*positionCom))*
                     (   computeFc(x)
                         -(  R*hrp2::m*accelerationCom
                             +2*kine::skewSymmetric(orientationFlexV)*R*velocityCom
@@ -227,9 +292,23 @@ namespace flexibilityEstimation
                          )
                     );
 
+                      //  std::cout << "Vec 1" << Vec << std::endl;
+
+                Vec += Tc;
+
+              //  std::cout << "Vec fin" << Vec << std::endl;
+
+        if(Mat!=Mat)
+        {
+            Mat <<  0,0,0,
+                    0,0,0,
+                    0,0,0;
+        }
+
+       // std::cout << "Mat fin " << Mat << std::endl;
 
         AccAngular = Mat*Vec;
-//std::cout << "AccAng" << AccAngular << "\n\n" << std::endl;
+
         return AccAngular;
 
     }
@@ -261,15 +340,33 @@ namespace flexibilityEstimation
         Vector3 AngMomentum(u.segment(input::AngMoment,3));
         Vector3 dotAngMomentum(u.segment(input::dotAngMoment,3));
 
-        AccLinear   =   1/hrp2::m*
-                            (   Fc
-                                -(  R*hrp2::m*accelerationCom
+       //         std::cout << "x " << x.transpose() << std::endl;
+       // std::cout << "u " << u.transpose() << std::endl;
+
+//        AccLinear   =   1/hrp2::m*
+//                            (   Fc
+//                                -(  R*hrp2::m*accelerationCom
+//                                    +2*kine::skewSymmetric(orientationFlexV)*R*velocityCom
+//                                    +hrp2::m*kine::skewSymmetric(orientationFlexV)*kine::skewSymmetric(orientationFlexV)*R*positionCom
+//                                    +hrp2::m*cst::gravity
+//                                 )
+//                            )
+//                        +kine::skewSymmetric(R*positionCom)*computeAccelerationAngular(x,u,k);
+
+
+        AccLinear = Fc;
+        //std::cout << "accLinear Fc " << AccLinear.transpose() << std::endl;
+        AccLinear -= R*hrp2::m*accelerationCom
                                     +2*kine::skewSymmetric(orientationFlexV)*R*velocityCom
                                     +hrp2::m*kine::skewSymmetric(orientationFlexV)*kine::skewSymmetric(orientationFlexV)*R*positionCom
-                                    +hrp2::m*cst::gravity
-                                 )
-                            )
-                        +kine::skewSymmetric(R*positionCom)*computeAccelerationAngular(x,u,k);
+                                    +hrp2::m*cst::gravity;
+               // std::cout << "accLinear 1 " << AccLinear.transpose() << std::endl;
+        AccLinear /= hrp2::m;
+               // std::cout << "accLinear 2 " << AccLinear.transpose() << std::endl;
+        AccLinear += kine::skewSymmetric(R*positionCom)*computeAccelerationAngular(x,u,k);
+
+
+        //std::cout << "accLinear fin" << AccLinear.transpose() << std::endl;
 
         return AccLinear;
 
@@ -283,19 +380,17 @@ namespace flexibilityEstimation
 
         Vector3 positionFlex(x.segment(kine::pos,3));
         Vector3 velocityFlex(x.segment(kine::linVel,3));
-        Vector3 accelerationFlex(computeAccelerationLinear(x, u, k));
+        Vector3 accelerationFlex(x.segment(kine::linAcc,3));
         Vector3 orientationFlexV(x.segment(kine::ori,3));
         Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
-        Vector3 angularAccelerationFlex(computeAccelerationAngular(x, u, k));
+        Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
+
         Quaternion orientationFlex(computeQuaternion_(orientationFlexV));
 
-        Vector3 positionControl(u.segment(input::posIMU,3));
-        Vector3 velocityControl(u.segment(input::linVelIMU,3));
-        Vector3 accelerationControl(u.segment(input::linAccIMU,3));
-        Vector3 orientationControlV(u.segment(input::oriIMU,3));
-        Vector3 angularVelocityControl(u.segment(input::angVelIMU,3));
-
         integrateKinematics(positionFlex, velocityFlex, accelerationFlex, orientationFlex,angularVelocityFlex, angularAccelerationFlex, dt_);
+
+        accelerationFlex = computeAccelerationLinear(x, u, k);
+        angularAccelerationFlex = computeAccelerationAngular(x, u, k);
 
         //x_{k+1}
         Vector xk1(x);
@@ -310,6 +405,12 @@ namespace flexibilityEstimation
         xk1.segment(kine::ori,3) =  orientationFlexV;
         xk1.segment(kine::angVel,3) = angularVelocityFlex;
         xk1.segment(kine::angAcc,3) = angularAccelerationFlex;
+
+        std::cout << "xhk  " << x.transpose() << std::endl;
+        //std::cout << "u  " << u.transpose() << std::endl;
+       // std::cout << "accelerationFlex  " << accelerationFlex.transpose() << std::endl;
+       // std::cout << "angularAccelerationFlex  " << angularAccelerationFlex.transpose() << std::endl;
+       // std::cout << "xhk1 " << xk1.transpose() << std::endl;
 
          if (processNoise_!=0x0)
             return processNoise_->addNoise(xk1);
@@ -340,8 +441,10 @@ namespace flexibilityEstimation
         Vector3 orientationFlexV(x.segment(kine::ori,3));
         Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
         Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
+
         Quaternion qFlex (computeQuaternion_(orientationFlexV));
         Matrix3 rFlex (qFlex.toRotationMatrix());
+
 
         assertInputVector_(u);
 
@@ -383,6 +486,7 @@ namespace flexibilityEstimation
         // Measurement
         Vector y (Matrix::Zero(measurementSize_,1));
         y.head(sensor_.getMeasurementSize()) = sensor_.getMeasurements();
+
 
         return y;
     }

@@ -83,12 +83,16 @@ namespace stateObservation
         /// Set the value of the jacobian df/dx
         virtual void setA(const Amatrix& A);
 
+        virtual Matrix getA() const;
+
         /// Clear the jacobian df/dx
         virtual void clearA();
 
 
         /// Set the value of the Jacobian dh/dx
         virtual void setC(const Cmatrix& C);
+
+        virtual Matrix getC() const;
 
         /// Clear the jacobian dh/dx
         virtual void clearC();
@@ -220,6 +224,9 @@ namespace stateObservation
 
         ///Get the last vector of inovation of the Kalman filter
         virtual Vector getInovation();
+
+        ///Get the last vector of prediction of the Kalman filter
+        virtual Vector getPrediction();
 
         ///Get the simulated measurement of the predicted state
         virtual Vector getPredictedMeaurement();
