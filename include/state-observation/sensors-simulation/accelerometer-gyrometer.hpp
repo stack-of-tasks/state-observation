@@ -43,7 +43,8 @@ namespace stateObservation
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
             std::cout<<std::endl<<"AccelerometerGyrometer Constructor"<<std::endl;
 #endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
-        }
+
+       }
 
         ///Virtual destructor
         virtual ~AccelerometerGyrometer(){}

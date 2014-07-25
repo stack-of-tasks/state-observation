@@ -71,7 +71,7 @@ namespace flexibilityEstimation
         ModelBaseEKFFlexEstimatorIMU::resetCovarianceMatrices();
 
         Vector x0=ekf_.stateVectorZero();
-        x0(2)=-0.011;
+        x0(2)=-0.010835;
 
         lastX_=x0;
 
@@ -81,7 +81,8 @@ namespace flexibilityEstimation
 
         ekf_.setFunctor(& functor_);
 
-        //std::cout << "toto2" << std::endl;
+        on_=true;
+
     }
 
 
@@ -93,6 +94,8 @@ namespace flexibilityEstimation
 
     void ModelBaseEKFFlexEstimatorIMU::resetCovarianceMatrices()
     {
+        std::cout << "\n\n\n ============> RESET COVARIANCE MATRIX <=============== \n\n\n" << std::endl;
+
         R_=Matrix::Identity(getMeasurementSize(),getMeasurementSize());
         R_.block(0,0,3,3)=Matrix3::Identity()*1.e-6;//accelerometer
         R_.block(3,3,3,3)=Matrix3::Identity()*1.e-6;//gyrometer
@@ -123,7 +126,6 @@ namespace flexibilityEstimation
     {
         finiteDifferencesJacobians_=true;
         functor_.setContactsNumber(i);
-        //ekf_.setMeasureSize(functor_.getMeasurementSize());
         updateCovarianceMatrix_();
 
     }
@@ -274,9 +276,10 @@ namespace flexibilityEstimation
 
     Matrix4 ModelBaseEKFFlexEstimatorIMU::getFlexibility()
     {
-        Vector v (getFlexibilityVector());
-        Vector6 v2;
 
+        Vector v (getFlexibilityVector());
+
+        Vector6 v2;
         v2.head(3) = v.segment(kine::pos,3);
         v2.tail(3) = v.segment(kine::ori,3);
 
@@ -289,12 +292,18 @@ namespace flexibilityEstimation
 
         if (ekf_.getMeasurementsNumber()>0)
         {
-
-            lastX_ =EKFFlexibilityEstimatorBase::getFlexibilityVector();
+            if(on_==true)
+            {
+                lastX_ =EKFFlexibilityEstimatorBase::getFlexibilityVector();
+            }
+            else
+            {
+               // vector v(getEKF().getStateSize());
+                lastX_.setZero();
+            }
 
             ///regulate the part of orientation vector in the state vector
             lastX_.segment(kine::ori,3)=kine::regulateOrientationVector(lastX_.segment(kine::ori,3));
-
             ekf_.setState(lastX_,ekf_.getCurrentTime());
 
         }
@@ -305,6 +314,12 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::setSamplingPeriod(double dt)
     {
         dt_=dt;
+    }
+
+    /// Enable or disable the estimation
+    void ModelBaseEKFFlexEstimatorIMU::setOn(bool & b)
+    {
+        on_=b;
     }
 
 

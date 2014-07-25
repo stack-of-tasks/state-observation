@@ -93,6 +93,9 @@ namespace flexibilityEstimation
         /// sets the sampling period
         virtual void setSamplingPeriod(double);
 
+        /// Enable or disable the estimation
+        void setOn(bool & b);
+
         ///Resets the covariance matrices to their original values
         virtual void resetCovarianceMatrices();
 
@@ -115,6 +118,7 @@ namespace flexibilityEstimation
         unsigned inputSize_;
 
         double dt_;//sampling period
+        bool on_;
 
     private:
     };

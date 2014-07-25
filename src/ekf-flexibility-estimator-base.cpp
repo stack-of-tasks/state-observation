@@ -77,15 +77,11 @@ namespace flexibilityEstimation
     void EKFFlexibilityEstimatorBase::setInput(const Vector & u)
     {
         ekf_.setInput(u,k_);
-        //cout << "k_: " << k_ << endl;
-
     }
 
     void EKFFlexibilityEstimatorBase::setMeasurementInput(const Vector & u)
     {
         ekf_.setInput(u,k_+1);
-
-        //cout << "input: " << ekf_.getInput(k_+1) << endl;
     }
 
     Vector EKFFlexibilityEstimatorBase::getFlexibilityVector()
@@ -93,19 +89,16 @@ namespace flexibilityEstimation
         if (ekf_.getMeasurementsNumber()>0)
         {
             k_=ekf_.getMeasurementTime();
+            std::cout << "k " << k_ << std::endl;
 
             unsigned i;
             for (i=ekf_.getCurrentTime()+1; i<=k_; ++i)
             {
                     ekf_.setA(ekf_.getAMatrixFD(dx_));
                     ekf_.setC(ekf_.getCMatrixFD(dx_));
-
                     ekf_.getEstimatedState(i);
             }
             Vector x(ekf_.getEstimatedState(k_));
-
-            //std::cout << "A" << ekf_.getA() << std::endl;
-            //std::cout << "C" << ekf_.getC() << std::endl;
 
             if (x==x)//detect NaN values
             {
@@ -114,13 +107,10 @@ namespace flexibilityEstimation
             else //delete NaN values
             {
                 ekf_.setState(lastX_,k_);
-                //resetCovarianceMatrices();
+                resetCovarianceMatrices();
             }
         }
-
-        //cout << "lastX_ " << lastX_ << "\n" << endl;
         return lastX_;
-
     }
 
     const stateObservation::ExtendedKalmanFilter &

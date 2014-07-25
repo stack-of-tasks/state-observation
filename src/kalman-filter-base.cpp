@@ -133,7 +133,7 @@ namespace stateObservation
 //        std::cout << "inoCov " << inoCov << std::endl << std::endl;
 
        // std::cout << "oc_.kGain" << oc_.kGain << std::endl;
-       // std::cout << "oc_.inoMeas" << oc_.inoMeas << std::endl;
+        std::cout << "Norme erreur oc_.inoMeas " << sqrt(oc_.inoMeas.squaredNorm()) << std::endl;
 
         //update
         oc_.xhat= oc_.xbar + inovation_;
@@ -149,7 +149,7 @@ namespace stateObservation
 
        //std::cout << "xbar: " << oc_.xbar.transpose() << std::endl;
        //std::cout << "xhat: " << oc_.xhat.transpose() << std::endl;
-       std::cout << "innovation: " << inovation_.transpose() << std::endl;
+//       std::cout << "innovation: " << inovation_.transpose() << std::endl;
        // cout << "inoMeas: " << oc_.inoMeas.transpose() << endl;
        // cout << "y_k+1: " << this->y_[k+1].transpose() << endl;
        // cout << "predicted measurement " << predictedMeasurement_.transpose() << endl;
