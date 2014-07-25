@@ -41,7 +41,7 @@ namespace flexibilityEstimation
         ///virtual destructor
         virtual ~IMUElasticLocalFrameDynamicalSystem();
 
-        virtual Vector3 computeFc(const stateObservation::Vector& x);
+        virtual Vector3 computeFc(const stateObservation::Vector& x, const stateObservation::Vector& u);
 
         virtual double rotationMatrixFromContactsPositiont(const Vector3, const Vector3, Matrix3&);
 

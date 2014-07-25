@@ -39,6 +39,8 @@
 #include <fstream>
 //using namespace std;
 
+#define CONTACTSSIZE 6
+
 namespace stateObservation
 {
 

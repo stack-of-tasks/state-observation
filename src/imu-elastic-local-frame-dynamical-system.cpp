@@ -37,26 +37,55 @@ namespace flexibilityEstimation
     }
 
 
-    Vector3 IMUElasticLocalFrameDynamicalSystem::computeFc(const stateObservation::Vector& x)
+    Vector3 IMUElasticLocalFrameDynamicalSystem::computeFc(const stateObservation::Vector& x, const stateObservation::Vector& u)
     {
-        // Vector we want
+
+        unsigned nbContacts(getContactsNumber());
+        int i;
+
         Vector3 Fc;
-        double ke=hrp2::linKe;
-        double kv=hrp2::linKv;
+        Fc << 0,0,0;
 
-        // stifness ans viscosity
-        Vector3 Ke(ke,ke,ke);
-        Vector3 Kv(kv,kv,kv);
+        // Isotropic stifness and viscosity for a simple contact case
+        double kfe=hrp2::linKe;
+        double kfv=hrp2::linKv;
 
+        Matrix3 Kte, Ktv, Kfe, Kfv;
+
+        Matrix4 homoi;
+        Matrix3 Rci;
+        Vector3 tci;
+
+        // Flexibility state
         Vector3 positionFlex(x.segment(kine::pos,3));
         Vector3 velocityFlex(x.segment(kine::linVel,3));
         Vector3 orientationFlexV(x.segment(kine::ori,3));
-        Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
+        Vector3 angularVelocityFlexV(x.segment(kine::angVel,3));
 
-        Fc=-Ke.cwiseProduct(positionFlex);
-        //std::cout << "Fc1: " << Fc.transpose() << std::endl;
-        Fc +=-Kv.cwiseProduct(velocityFlex);
-        std::cout << "Fc: " << Fc.transpose() << std::endl;
+        Vector6 posFlex;
+        Matrix3 Rflex;
+        Vector3 tflex;
+        Matrix4 homoFlex(kine::vector6ToHomogeneousMatrix(posFlex));
+        posFlex << positionFlex,orientationFlexV;
+        Rflex = homoFlex.block(0,0,3,3);
+        tflex = homoFlex.block(0,3,3,1);
+
+        Kfe <<  kfe,0,0,
+                0,kfe,0,
+                0,0,kfe;
+
+        Kfv <<  kfv,0,0,
+                0,kfv,0,
+                0,0,kfv;
+
+        for(i=0;i<nbContacts;i++)
+        {
+            homoi = kine::vector6ToHomogeneousMatrix(u.segment(input::contacts+3*i,6));
+            Rci = homoi.block(0,0,3,3);
+            tci = homoi.block(0,3,3,1);
+
+            Fc += - Rci*Kfv*Rci.transpose()*(Rflex*tci+tflex-tci)-Rci*Kfe*Rci.transpose()*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);
+        }
 
         return Fc;
     }
@@ -98,25 +127,23 @@ namespace flexibilityEstimation
 
     Vector3 IMUElasticLocalFrameDynamicalSystem::computeTc(const stateObservation::Vector& x, const stateObservation::Vector& u)
     {
+
+        unsigned nbContacts(getContactsNumber());
+        int i;
+
+        Vector3 Tc;
+        Vector3 Fc(computeFc(x,u));
+        Tc << 0,0,0;
+
         // Isotropic stifness and viscosity for a simple contact case
         double kte=hrp2::angKe;
         double ktv=hrp2::angKv;
-        double kfe=hrp2::linKe;
-        double kfv=hrp2::linKv;
 
-        // anisotropic stifness and vicosity
-        Vector3 Ke;
-        Vector3 Kv;
+        Matrix3 Kte, Ktv, Kfe, Kfv;
 
-        // Vector we want
-        Vector3 Tc;
-        Vector3 Fc(computeFc(x));
-
-        // Contacts gestion
-        unsigned nbContacts = getContactsNumber();
-        Matrix3 R;
-        Vector3 t;
-        double h;
+        Matrix4 homoi;
+        Matrix3 Rci;
+        Vector3 tci;
 
         // Flexibility state
         Vector3 positionFlex(x.segment(kine::pos,3));
@@ -124,54 +151,30 @@ namespace flexibilityEstimation
         Vector3 orientationFlexV(x.segment(kine::ori,3));
         Vector3 angularVelocityFlexV(x.segment(kine::angVel,3));
 
-        Vector3 angularVelocityFlex;
-        Vector3 orientationFlex;
+        Vector6 posFlex;
+        Matrix3 Rflex;
+        Vector3 tflex;
+        Matrix4 homoFlex(kine::vector6ToHomogeneousMatrix(posFlex));
+        posFlex << positionFlex,orientationFlexV;
+        Rflex = homoFlex.block(0,0,3,3);
+        tflex = homoFlex.block(0,3,3,1);
 
-        if (nbContacts==1)
+        Kte <<  kte,0,0,
+                0,kte,0,
+                0,0,kte;
+
+        Ktv <<  ktv,0,0,
+                0,ktv,0,
+                0,0,ktv;
+
+        for(i=0;i<nbContacts;i++)
         {
-            // Definittion of isotropic stiffnes and viscosity in (x,y,z).
-            Ke << kte,kte,kte;
-            Kv << ktv,ktv,ktv;
+            homoi = kine::vector6ToHomogeneousMatrix(u.segment(input::contacts+3*i,6));
+            Rci = homoi.block(0,0,3,3);
+            tci = homoi.block(0,3,3,1);
 
-            // Expression of the Orientation/Velocity of the flexibility in the (x,y,z) frame.
-            orientationFlex=orientationFlexV;
-            angularVelocityFlex=angularVelocityFlexV;
-        }
-        else if (nbContacts==2) // For the moment, two foots
-        {
-            h=rotationMatrixFromContactsPositiont(u.segment(input::contacts,3),u.segment(input::contacts+3,3),R);
-            t=(u.segment(input::contacts,3)+u.segment(input::contacts+3,3))/2;
+            Tc += -Rci*Ktv*Rci.transpose()*orientationFlexV-Rci*Kte*Rci.transpose()*angularVelocityFlexV+kine::skewSymmetric(Rflex*tci+tflex)*Fc;
 
-            // Definittion of anisotropic stiffnes and viscosity in (j, perpendicular of j, z) frame.
-            Ke << h*h*0.5*kfe,kte,h*h*0.5*kfe; // (perpendicular of j, j, z)
-            Kv << h*h*0.5*kfv,ktv,h*h*0.5*kfv; // (perpendicular of j, j, z)
-
-            // Expression of the Orientation/Velocity of the flexibility in the (j, perpendicular of j, z).
-            orientationFlex=R*orientationFlexV+t;
-            angularVelocityFlex=R*angularVelocityFlexV+t;
-        }
-
-        // Determination of the Tc vector in either the (x,y,z) or (j, perpendicular of j, z) frame.
-        Tc =-Ke.cwiseProduct(orientationFlex);
-        //std::cout << "Ke: " << Ke.transpose() << std::endl;
-        //std::cout << "orientationFlex: " << orientationFlex.transpose() << std::endl;
-        //std::cout << "orientationFlexV: " << orientationFlexV.transpose() << std::endl;
-        //std::cout << "Tc1: " << Tc.transpose() << std::endl;
-        Tc += -Kv.cwiseProduct(angularVelocityFlex);
-        //std::cout << "Tc2: " << Tc.transpose() << std::endl;
-        Tc += kine::skewSymmetric(positionFlex)*Fc;
-        //std::cout << "Tc3: " << Tc.transpose() << std::endl;
-
-        // Determination of the Tc vector in the (x,y,z) frame.
-        if (nbContacts==1)
-        {
-            return Tc;
-        }
-        else if (nbContacts==2)
-        {
-            Tc=R.transpose()*Tc-t;
-            std::cout << "Tc: " << Tc.transpose() << std::endl;
-            return Tc;
         }
 
     }
@@ -244,7 +247,7 @@ namespace flexibilityEstimation
                 );
         //std::cout << "Vec 0 "  << Vec.transpose() << std::endl;
         Vec -= (kine::skewSymmetric(positionFlex)+kine::skewSymmetric(R*positionCom))*
-                    (   computeFc(x)
+                    (   computeFc(x,u)
                         -(  R*hrp2::m*accelerationCom
                             +2*kine::skewSymmetric(orientationFlexV)*R*velocityCom
                             +hrp2::m*kine::skewSymmetric(orientationFlexV)*kine::skewSymmetric(orientationFlexV)*R*positionCom
@@ -273,7 +276,7 @@ namespace flexibilityEstimation
         Vector3 angularVelocityFlex(x.segment(kine::angVel,3));     // \omega (velocity)
 
         // To be human readable
-        const Vector3 Fc(computeFc(x));
+        const Vector3 Fc(computeFc(x,u));
         //const Vector3 Tc(computeTc(x,u));
         const Quaternion qFlex (computeQuaternion_(orientationFlexV));
         const Matrix3 R (qFlex.toRotationMatrix());
