@@ -41,10 +41,12 @@ namespace flexibilityEstimation
     {
 
         unsigned nbContacts(getContactsNumber());
+        Fci.resize(3,nbContacts);
+        Fci.setZero();
         //std::cout << nbContacts << std::endl;
         int i;
 
-        Vector3 Fc;
+        Vector3 Fc, Fcu;
         Fc << 0,0,0;
 
         // Isotropic stifness and viscosity for a simple contact case
@@ -88,14 +90,14 @@ namespace flexibilityEstimation
             Rci = homoi.block(0,0,3,3);
             tci = homoi.block(0,3,3,1);
 
-            Fc += - Rci*Kfe*Rci.transpose()*(Rflex*tci+tflex-tci);
+            Fcu = - Rci*Kfe*Rci.transpose()*(Rflex*tci+tflex-tci);
 //            std::cout << "Fc" << i << "0 " << Fc.transpose() << std::endl;
 //            if(sqrt(Fc.squaredNorm())>100)
 //            {
 //                std::cout << "Rci*Kfe*Rci.transpose()" << Rci*Kfe*Rci.transpose() << std::endl;
 //                std::cout << "Rflex*tci+tflex-tci" << Rflex*tci+tflex-tci << std::endl;
 //            }
-            Fc += - Rci*Kfv*Rci.transpose()*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);
+            Fcu += - Rci*Kfv*Rci.transpose()*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);
 //            std::cout << "Fc" << i << "1 " << Fc.transpose() << std::endl;
 //            if(sqrt(Fc.squaredNorm())>100)
 //            {
@@ -113,6 +115,16 @@ namespace flexibilityEstimation
 //                std::cout << "angularVelocityFlexV" << angularVelocityFlexV.transpose() << std::endl;
 //                std::cout << "velocityFlex" << velocityFlex.transpose() << std::endl;
 //            }
+
+
+            Fci.block(0,i,3,1)=Fcu;
+            Fc += Fcu;
+
+//            if(i>0)
+//            {
+//                Fci.block(0,i,3,1)=Fc-Fci.block(0,i-1,3,1);
+//            }
+
         }
 
         return Fc;
@@ -155,7 +167,6 @@ namespace flexibilityEstimation
 
     Vector3 IMUElasticLocalFrameDynamicalSystem::computeTc(const stateObservation::Vector& x, const stateObservation::Vector& u)
     {
-
         unsigned nbContacts(getContactsNumber());
         int i;
 
@@ -204,19 +215,27 @@ namespace flexibilityEstimation
 
             Tc += -Rci*Kte*Rci.transpose()*orientationFlexV;
             Tc += -Rci*Ktv*Rci.transpose()*angularVelocityFlexV;
-            Tc += kine::skewSymmetric(Rflex*tci+tflex)*Fc;
-
-            std::cout << "Tc" << i << " " << Tc.transpose() << std::endl;
-            std::cout << "orientationFlexV" << i << " " << orientationFlexV.transpose() << std::endl;
+            Tc += kine::skewSymmetric(Rflex*tci+tflex)*Fci.block(0,i,3,1);
         }
+
+        return Tc;
 
     }
 
 
     void IMUElasticLocalFrameDynamicalSystem::test()
     {
+        Vector x, u;
+        x.resize(18);
+        u.resize(54);
+//        x << 1.95675e-08,-2.22298e-10,-0.0109575,1.54011e-12,1.35566e-10,3.81192e-23,1.41111e-06,-1.60311e-08,-0.0489989,6.56636e-12,-3.14893e-09,-9.62102e-11,-5.76107e-05,6.54491e-07,9.47828,-8.92673e-08,-8.41481e-06,-7.82905e-09;
+//        u << 0.0135673,0.001536,0.80771,-2.63605e-06,-1.09258e-08,5.71759e-08,2.71345,0.3072,161.542,1.55342e-318,-6.53681e-66,-6.39612e-66,-6.54978e-66,-6.53171e-66,-6.55957e-66,0,0,0,0,0,0,0,0,0,0,0,0,-0.098,-6.23712e-11,1.1174,1.56933e-22,-5.40778e-21,3.86235e-22,-2.99589e-06,-1.24742e-08,-4.76329e-18,3.13865e-20,-1.08156e-18,7.72471e-20,-0.000299589,-1.24742e-06,-4.76329e-16,0.00949046,-0.095,1.98197e-07,8.75907e-23,-0,7.17001e-22,0.00949046,0.095,1.98197e-07,6.29302e-23,1.01427e-16,-6.61701e-22;
 
+        x << 0,0,-0.0109575,0,0,0,0,0,-0.0489989,0,0,0,0,0,0,0,0,0;
+        u << 0.0135673,0.001536,0.80771,0,0,0,2.71345,0.3072,161.542,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.098,0,1.1174,0,0,0,0,0,0,0,0,0,-0.000299589,0,0,0.00949046,-0.095,0,0,-0,0,0.00949046,0.095,0,0,0,0;
 
+        std::cout << "AccAng" << computeAccelerationAngular(x,u,1) << std::endl;
+        std::cout << "AccLin" << computeAccelerationLinear(x,u,1) << std::endl;
     }
 
 
@@ -251,20 +270,22 @@ namespace flexibilityEstimation
         const Matrix3 dotInertia(kine::computeInertiaTensor(u.segment(input::dotInertia,6)));
 
         Mat = R*Inertia*R.transpose();
-        //std::cout << "Mat 0 "  << Mat << std::endl;
+        std::cout << "Mat 0 "  << Mat << std::endl;
         Mat += hrp2::m*kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom);
-        //std::cout << "Mat 1 "  << Mat << std::endl;
+        std::cout << "kine::skewSymmetric(R*positionCom)" << kine::skewSymmetric(R*positionCom) << std::endl;
+        std::cout << "kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom)" << kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom) << std::endl;
+        std::cout << "Mat 1 "  << Mat << std::endl;
         Mat = Mat.inverse().eval();
-        //std::cout << "Mat 2 "  << Mat << std::endl;
+        std::cout << "Mat 2 "  << Mat << std::endl;
 
-        if(Mat!=Mat)
+        if(Mat!=Mat)// || isinf(sqrt(Mat.squaredNorm())))
         {
             Mat <<  0,0,0,
                     0,0,0,
                     0,0,0;
         }
 
-        //std::cout << "Mat 3 "  << Mat << std::endl;
+        std::cout << "Mat 3 "  << Mat << std::endl;
 
         Vec = -(    (kine::skewSymmetric(angularVelocityFlex)*R*Inertia*R.transpose()+R*dotInertia*R.transpose())*angularVelocityFlex
                                 +R*dotAngMomentum
@@ -277,7 +298,7 @@ namespace flexibilityEstimation
                                     )
                                 +hrp2::m*kine::skewSymmetric(R*positionCom+positionFlex)*cst::gravity
                 );
-        //std::cout << "Vec 0 "  << Vec.transpose() << std::endl;
+        std::cout << "Vec 0 "  << Vec.transpose() << std::endl;
         Vec -= (kine::skewSymmetric(positionFlex)+kine::skewSymmetric(R*positionCom))*
                     (   computeFc(x,u)
                         -(  R*hrp2::m*accelerationCom
@@ -286,9 +307,9 @@ namespace flexibilityEstimation
                             +hrp2::m*cst::gravity
                          )
                     );
-        //std::cout << "Vec 1 "  << Vec.transpose() << std::endl;
+        std::cout << "Vec 1 "  << Vec.transpose() << std::endl;
         Vec += Tc;
-        //std::cout << "Vec 2 "  << Vec.transpose() << std::endl;
+        std::cout << "Vec 2 "  << Vec.transpose() << std::endl;
 
         AccAngular = Mat*Vec;
         return AccAngular;
@@ -326,18 +347,18 @@ namespace flexibilityEstimation
        // std::cout << "u " << u.transpose() << std::endl;
 
         AccLinear = Fc;
-        //std::cout << "accLinear Fc " << AccLinear.transpose() << std::endl;
+        std::cout << "accLinear Fc " << AccLinear.transpose() << std::endl;
         AccLinear -= R*hrp2::m*accelerationCom
                                     +2*kine::skewSymmetric(orientationFlexV)*R*velocityCom
                                     +hrp2::m*kine::skewSymmetric(orientationFlexV)*kine::skewSymmetric(orientationFlexV)*R*positionCom
                                     +hrp2::m*cst::gravity;
-               // std::cout << "accLinear 1 " << AccLinear.transpose() << std::endl;
+               std::cout << "accLinear 1 " << AccLinear.transpose() << std::endl;
         AccLinear /= hrp2::m;
-               // std::cout << "accLinear 2 " << AccLinear.transpose() << std::endl;
+                std::cout << "accLinear 2 " << AccLinear.transpose() << std::endl;
         AccLinear += kine::skewSymmetric(R*positionCom)*computeAccelerationAngular(x,u,k);
 
 
-        //std::cout << "accLinear fin" << AccLinear.transpose() << std::endl;
+        std::cout << "accLinear fin" << AccLinear.transpose() << std::endl;
 
         return AccLinear;
 
@@ -380,8 +401,9 @@ namespace flexibilityEstimation
         xk1.segment(kine::angVel,3) = angularVelocityFlex;
         xk1.segment(kine::angAcc,3) = angularAccelerationFlex;
 
-       // std::cout << "===> x  " << x.transpose() << std::endl;
-       // std::cout << "===> u  " << u.transpose() << std::endl;
+       std::cout << "===> x  " << x.transpose() << std::endl;
+       std::cout << "===> u  " << u.transpose() << std::endl;
+       std::cout << "===> xk1  " << xk1.transpose() << std::endl;
         //std::cout << "accelerationFlex  " << accelerationFlex.transpose() << std::endl;
         //std::cout << "angularAccelerationFlex  " << angularAccelerationFlex.transpose() << std::endl;
        // std::cout << "xhk1 " << xk1.transpose() << std::endl;
@@ -419,7 +441,6 @@ namespace flexibilityEstimation
         Quaternion qFlex (computeQuaternion_(orientationFlexV));
         Matrix3 rFlex (qFlex.toRotationMatrix());
 
-
         assertInputVector_(u);
 
         Vector3 positionControl(u.segment(input::posIMU,3));
@@ -427,25 +448,35 @@ namespace flexibilityEstimation
         Vector3 accelerationControl(u.segment(input::linAccIMU,3));
         Vector3 orientationControlV(u.segment(input::oriIMU,3));
         Vector3 angularVelocityControl(u.segment(input::angVelIMU,3));
+
         Quaternion qControl(computeQuaternion_(orientationControlV));
-
-
         Quaternion q = qFlex * qControl;
 
+//        std::cout << "Mesure x " << x.transpose() << std::endl;
+//        std::cout << "Mesure u " << u.transpose() << std::endl;
+
         // Translation sensor dynamic
-        Vector3 acceleration
-        (
-            (
-                kine::skewSymmetric(angularAccelerationFlex)
-                + tools::square(kine::skewSymmetric(angularVelocityFlex))
-            )*rFlex * positionControl
-            + 2*kine::skewSymmetric(angularVelocityFlex) * rFlex * velocityControl
-            + accelerationFlex + rFlex * accelerationControl
-        );
+        Vector3 acceleration;
+
+        acceleration << 0,0,0;
+
+        acceleration += 2*kine::skewSymmetric(angularVelocityFlex) * rFlex * velocityControl;
+
+//        std::cout << "acceleration " << acceleration.transpose() << std::endl;
+
+        acceleration += accelerationFlex + rFlex * accelerationControl;
+
+//        std::cout << "acceleration " << acceleration.transpose() << std::endl;
+
+        acceleration += (
+                    kine::skewSymmetric(angularAccelerationFlex)
+                    + tools::square(kine::skewSymmetric(angularVelocityFlex))
+                )*rFlex * positionControl;
+
+//        std::cout << "acceleration " << acceleration.transpose() << std::endl;
 
         // Rotation sensor dynamic
         Vector3 angularVelocity( angularVelocityFlex + rFlex * angularVelocityControl);
-
 
         // Set sensor state before measurement
         Vector v(Vector::Zero(10,1));
@@ -461,6 +492,8 @@ namespace flexibilityEstimation
         Vector y (Matrix::Zero(measurementSize_,1));
         y.head(sensor_.getMeasurementSize()) = sensor_.getMeasurements();
 
+//        std::cout << "===> v state sensor  " << v.transpose() << std::endl;
+//        std::cout << "===> y  " << y.transpose() << std::endl;
 
         return y;
     }

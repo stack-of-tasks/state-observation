@@ -54,6 +54,7 @@ namespace stateObservation
             //std::cout << "u" << u << std::endl;
 
             BOOST_ASSERT (f_!=0x0 && "ERROR: The Kalman filter functor is not set");
+            std::cout << "calcul stateDynmic" << std::endl;
             xbar_.set(f_->stateDynamics(
                           this->x_(),
                           u,
@@ -61,13 +62,14 @@ namespace stateObservation
                       k);
         }
 
-        //std::cout << "xbar prediction: " << xbar_() << std::endl;
+        std::cout << "Je suis passé dans prediction_ et xbar_=" << xbar_().transpose() << std::endl;
 
         return xbar_();
     }
 
     ObserverBase::StateVector ExtendedKalmanFilter::getPrediction()
     {
+        std::cout << "getPrediction -> prediction_" << std::endl;
         return prediction_(x_.getTime()+1);
     }
 
@@ -106,6 +108,7 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
     {
         unsigned k=this->x_.getTime();
         Amatrix a(getAmatrixZero());
+        std::cout << "getAMatrix -> prediction_" << std::endl;
         StateVector fx=prediction_(k+1);
         StateVector x=this->x_();
         StateVector xp;
@@ -125,6 +128,7 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
             x[it]=this->x_()(it,0);
             x[i]=this->x_()(i,0);
             x[i]+=dx[i];
+            std::cout << "getAMatrixFD -> stateDynamics " << std::endl;
             xp=f_->stateDynamics(x,u,k);
 
             xp-=fx;
@@ -141,8 +145,10 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
                                        &dx)
     {
         unsigned k=this->x_.getTime();
+
         Cmatrix c(getCmatrixZero());
 
+        std::cout << "getCMatrix -> prediction_" << std::endl;
         StateVector xbar=prediction_(k+1);
         StateVector xbarInit = xbar;
 

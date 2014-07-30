@@ -107,7 +107,7 @@ int test()
 //    uk.segment(input::RFootPos,3) <<    0,
 //                                        -0.155,
 //                                        0; // Z compoent have to be 0
-    uk.segment(input::contacts+3,6) << 0.0094904630936998632, 0.095000000000000001, 1.9819700018686159e-07,0,0,0;
+    uk.segment(input::contacts+6,6) << 0.0094904630936998632, 0.095000000000000001, 1.9819700018686159e-07,0,0,0;
 
     imu.setContactsNumber(2);
     //imu.setContactPosition(0,uk.segment(input::contacts,3));
@@ -117,7 +117,7 @@ int test()
     // Linear position of the Com IN THE LOCAL FRAME (here for a full cylindar)
     uk.segment(input::posCom,3) <<  0,
                                     0,
-                                    hrp2::H*0.5;
+                                    0.8;//hrp2::H*0.5;
 
     /// State initialization
 
@@ -125,10 +125,10 @@ int test()
 
     x0.segment(kine::pos,3) <<  0,
                                 0,
-                                -9.8*hrp2::m/hrp2::linKe; // flexibility excited by the weight
+                                -9.8*hrp2::m / (2*hrp2::linKe); // flexibility excited by the weight
 
     // To put a well interpretable excitation despite of a rotated axe for the abnkles.
-    ori    <<   0,//-2*PI/180,
+    ori    <<   -2*PI/180,
                 2*PI/180,
                 0;
    // h=rotationMatrixFromContactsPositionKine(uk.segment(input::LFootPos,3),uk.segment(input::RFootPos,3),R0);
@@ -152,18 +152,16 @@ int test()
     imu.setSamplingPeriod(dt);
 
 
-    sim.simulateDynamicsTo(kmax);
+//    sim.simulateDynamicsTo(kmax);
 
-    x = sim.getStateArray(1,kmax);
-
-
-    x.writeInFile("state.dat");
-    u.writeInFile("input.dat");
+//    x = sim.getStateArray(1,kmax);
+//
+//
+//    x.writeInFile("state.dat");
+//    u.writeInFile("input.dat");
     //std::cout <<x[kmax].norm ()<< " "<< x[kmax].transpose() << std::endl;
 
-    // imu.test(x0); // test unitaires
-
-
+    imu.test(); // test unitaires
 }
 
 int main()

@@ -244,18 +244,6 @@ namespace stateObservation
 
     }
 
-    //    namespace control
-//    {
-//        ///indexes of the different components of a vector of the control state
-//        const unsigned posCom = 0;
-//        const unsigned velCom = 3;
-//        const unsigned posFlex = 6;
-//        const unsigned oriFlex = 9;
-//        const unsigned linVelFlex = 12;
-//        const unsigned angVelFlex = 15;
-//        const unsigned Inertia = 18;
-//        const unsigned AngularMom = 21;
-//    }
 
     namespace cst
     {

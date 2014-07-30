@@ -136,6 +136,8 @@ namespace flexibilityEstimation
         static const unsigned measurementSizeBase_=6;
         unsigned nbContacts_;
 
+        Matrix Fci;
+
         unsigned measurementSize_;
 
         std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;

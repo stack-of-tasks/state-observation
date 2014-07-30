@@ -93,6 +93,7 @@ namespace stateObservation
         BOOST_ASSERT(checkPmatrix(pr_) && "ERROR: The Matrix P is not initialized");
 
         //prediction
+        std::cout << "onestepEstimation -> prediction_" << std::endl;
         oc_.xbar = prediction_(k+1);
         oc_.pbar=q_;
         oc_.pbar.noalias()  += a_*(pr_*a_.transpose());
@@ -133,7 +134,11 @@ namespace stateObservation
 //        std::cout << "inoCov " << inoCov << std::endl << std::endl;
 
        // std::cout << "oc_.kGain" << oc_.kGain << std::endl;
+
+        std::cout << "prediction_(k+1) " << prediction_(k+1).transpose() << std::endl;
+        std::cout << "predictedMeasurement_ " << predictedMeasurement_.transpose() << std::endl;
         std::cout << "Norme erreur oc_.inoMeas " << sqrt(oc_.inoMeas.squaredNorm()) << std::endl;
+
 
         //update
         oc_.xhat= oc_.xbar + inovation_;

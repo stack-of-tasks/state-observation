@@ -19,7 +19,7 @@ namespace flexibilityEstimation
 
         //ekf_.setDirectInputStateFeedthrough(false);
 
-        ObserverBase::InputVector u;
+        Vector u;
         u.resize(42);
         u <<    0.0145673,
                 0.00153601,
@@ -64,7 +64,7 @@ namespace flexibilityEstimation
                 0.0,
                 0.0;
 
-        //setInput(u);
+        //ekf_.setInput(u);
 
         ekf_.setMeasureSize(functor_.getMeasurementSize());
 
@@ -72,9 +72,9 @@ namespace flexibilityEstimation
 
         Vector x0=ekf_.stateVectorZero();
         x0(2)=-0.010835;
+        x0(14)=-9.8;
 
         lastX_=x0;
-
         ekf_.setState(x0,0);
 
         ekf_.setStateCovariance(Q_);

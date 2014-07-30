@@ -107,6 +107,7 @@ namespace flexibilityEstimation
             else //delete NaN values
             {
                 ekf_.setState(lastX_,k_);
+                std::cout << "\n\n\n\n\n Need to reset covariance matrix \n\n\n\n\n" << std::endl;
                 resetCovarianceMatrices();
             }
         }
