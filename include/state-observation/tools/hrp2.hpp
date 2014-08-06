@@ -39,7 +39,7 @@ namespace stateObservation
     {
         /// ATTENTION: spécifique à hrp2: mettre ca ds un fichier a part plus tard.
         /// mass of the robot
-        const double m=59.8; // 58 ds la doc
+        const double m=56.8679920;//59.8;//59.8; // 58 ds la doc
         const double H=1.54;
         const double R=0.31;
 
@@ -48,8 +48,8 @@ namespace stateObservation
 //        const Vector3 linKv(200,200,200);
 //        const Vector3 angKv(20,20,20);
 //
-        const double linKe=53200;
-        const double angKe=510;
+        const double linKe=10000;//53200;
+        const double angKe=100;//510;
         const double linKv=600; //200
         const double angKv=20;
     }

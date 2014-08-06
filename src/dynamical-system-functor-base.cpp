@@ -6,7 +6,7 @@ namespace stateObservation
     DynamicalSystemFunctorBase::DynamicalSystemFunctorBase()
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
-        std::cout<<std::endl<<"DynamicalSystemFunctorBase Constructor"<<std::endl;
+       // std::cout<<std::endl<<"DynamicalSystemFunctorBase Constructor"<<std::endl;
 #endif //STATEOBSERVATION_VERBOUS_CONSTRUCTORS
         //ctor
     }

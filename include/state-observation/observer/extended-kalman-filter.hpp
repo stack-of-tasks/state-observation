@@ -60,7 +60,7 @@ namespace stateObservation
 
         {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
-            std::cout<<std::endl<<"ExtendedKalmanFilter Constructor"<<std::endl;
+           // std::cout<<std::endl<<"ExtendedKalmanFilter Constructor"<<std::endl;
 #endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
 
             if (p==0)

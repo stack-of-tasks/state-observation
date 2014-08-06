@@ -48,7 +48,7 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
     ///the reconstruction of the state
     for (int i=y.getFirstTime();i<=y.getLastTime();++i)
     {
-        std::cout << i << std::endl;
+        //std::cout << i << std::endl;
 
         ///introduction of the measurement
         estimator.setMeasurement(y[i]);

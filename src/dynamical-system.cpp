@@ -24,7 +24,7 @@ namespace flexibilityEstimation
         measurementSize_(measurementSizeBase_)
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
-        std::cout<<std::endl<<"DynamicalSystem Constructor"<<std::endl;
+       // std::cout<<std::endl<<"DynamicalSystem Constructor"<<std::endl;
 #endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
     }
 

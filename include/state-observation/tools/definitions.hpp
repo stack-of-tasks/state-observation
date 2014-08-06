@@ -37,7 +37,6 @@
 // basic file operations
 #include <iostream>
 #include <fstream>
-//using namespace std;
 
 #define CONTACTSSIZE 6
 
