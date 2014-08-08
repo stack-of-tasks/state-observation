@@ -136,6 +136,18 @@ namespace stateObservation
         ///gets the value with the given time index, non const version
         inline Matrix  & operator[](unsigned timeIndex);
 
+        ///gets the first value
+        inline const Matrix & front() const;
+
+        ///gets the first value
+        inline Matrix& front();
+
+        ///gets the last value
+        inline const Matrix & back() const;
+
+        ///gets the last value
+        inline Matrix & back();
+
         ///removes all the elements with larger or equal indexes than timeIndex
         void truncate(unsigned timeIndex);
 

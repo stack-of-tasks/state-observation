@@ -85,6 +85,31 @@ Matrix & DiscreteTimeArray::operator[](unsigned time)
     return v_[time - k_];
 }
 
+
+///gets the first value
+const Matrix & DiscreteTimeArray::front() const
+{
+    return v_.front();
+}
+
+///gets the first value
+Matrix& DiscreteTimeArray::front()
+{
+    return v_.front();
+}
+
+///gets the last value
+const Matrix & DiscreteTimeArray::back() const
+{
+    return v_.back();
+}
+
+///gets the last value
+Matrix & DiscreteTimeArray::back()
+{
+    return v_.back();
+}
+
 ///Get the time index
 unsigned DiscreteTimeArray::getLastTime()const
 {
@@ -149,4 +174,5 @@ void DiscreteTimeArray::resize(unsigned i, const Matrix & m )
 
     v_.resize(i,m);
 }
+
 
