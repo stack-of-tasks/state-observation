@@ -159,13 +159,13 @@ namespace stateObservation
        // std::cout << "oc_.kGain" << oc_.kGain << std::endl;
        // std::cout << "c_" << c_ << std::endl;
 
-        std::cout << "\n\n\n" << k << std::endl;
-        std::cout << "xbar: " << oc_.xbar.transpose() << std::endl;
-       //std::cout << "xhat: " << oc_.xhat.transpose() << std::endl;
-       std::cout << "Mesures" << this->y_[k+1].transpose() << std::endl;
-       std::cout << "Mesures predites" << predictedMeasurement_.transpose() << std::endl;
-       std::cout << "inoMeas: " << oc_.inoMeas.transpose() << std::endl;
-       std::cout << "innovation: " << inovation_.transpose() << std::endl;
+//        std::cout << "\n\n\n" << k << std::endl;
+//        std::cout << "xbar: " << oc_.xbar.transpose() << std::endl;
+//       std::cout << "xhat: " << oc_.xhat.transpose() << std::endl;
+//       std::cout << "Mesures" << this->y_[k+1].transpose() << std::endl;
+//       std::cout << "Mesures predites" << predictedMeasurement_.transpose() << std::endl;
+//       std::cout << "inoMeas: " << oc_.inoMeas.transpose() << std::endl;
+//       std::cout << "innovation: " << inovation_.transpose() << std::endl;
 
        // cout << "y_k+1: " << this->y_[k+1].transpose() << endl;
        // cout << "predicted measurement " << predictedMeasurement_.transpose() << endl;

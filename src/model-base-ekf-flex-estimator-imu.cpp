@@ -19,9 +19,9 @@ namespace flexibilityEstimation
 
         //ekf_.setDirectInputStateFeedthrough(false);
 
-        Vector u;
-        u.resize(42);
-        u <<    0.0145673,
+        Vector u0;
+        u0.resize(42);
+        u0 <<    0.0145673,
                 0.00153601,
                 0.807688,
                 0.0,
@@ -64,7 +64,8 @@ namespace flexibilityEstimation
                 0.0,
                 0.0;
 
-        //ekf_.setInput(u);
+//        std::cout << "Input getlasttime" << this->getEKF().getInputTime() << std::endl;
+
 
         ekf_.setMeasureSize(functor_.getMeasurementSize());
 
@@ -94,31 +95,32 @@ namespace flexibilityEstimation
 
     void ModelBaseEKFFlexEstimatorIMU::resetCovarianceMatrices()
     {
-        std::cout << "\n\n\n ============> RESET COVARIANCE MATRIX <=============== \n\n\n" << std::endl;
 
-        R_=Matrix::Identity(getMeasurementSize(),getMeasurementSize());
-        R_.block(0,0,3,3)=Matrix3::Identity()*1.e-6;//accelerometer
-        R_.block(3,3,3,3)=Matrix3::Identity()*1.e-6;//gyrometer
+//            std::cout << "\n\n\n ============> RESET COVARIANCE MATRIX <=============== \n\n\n" << std::endl;
 
-        updateCovarianceMatrix_();
+            R_=Matrix::Identity(getMeasurementSize(),getMeasurementSize());
+            R_.block(0,0,3,3)=Matrix3::Identity()*1.e-6;//accelerometer
+            R_.block(3,3,3,3)=Matrix3::Identity()*1.e-6;//gyrometer
 
-        Q_=ekf_.getQmatrixIdentity();
-        Q_=Q_*1.e-8;
-        Q_.block(kine::linVel,kine::linVel,3,3)=Matrix3::Identity()*1.e-4;
-        Q_.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-4;
-        Q_.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-2;
-        Q_.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-2;
+            updateCovarianceMatrix_();
 
-        ekf_.setQ(Q_);
+            Q_=ekf_.getQmatrixIdentity();
+            Q_=Q_*1.e-8;
+            Q_.block(kine::linVel,kine::linVel,3,3)=Matrix3::Identity()*1.e-4;
+            Q_.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-4;
+            Q_.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-2;
+            Q_.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-2;
 
-        Matrix P0 (ekf_.getQmatrixIdentity());
-        P0=P0*1e-2;
-        P0.block(kine::linVel,kine::linVel,3,3)=Matrix3::Identity()*1.e-2;
-        P0.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-2;
-        P0.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-2;
-        P0.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-2;
+            ekf_.setQ(Q_);
 
-        ekf_.setStateCovariance(P0);
+            Matrix P0 (ekf_.getQmatrixIdentity());
+            P0=P0*1e-2;
+            P0.block(kine::linVel,kine::linVel,3,3)=Matrix3::Identity()*1.e-2;
+            P0.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-2;
+            P0.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-2;
+            P0.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-2;
+
+            ekf_.setStateCovariance(P0);
 
     }
 

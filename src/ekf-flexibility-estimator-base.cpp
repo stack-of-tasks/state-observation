@@ -108,7 +108,11 @@ namespace flexibilityEstimation
             {
                 ekf_.setState(lastX_,k_);
                // std::cout << "\n\n\n\n\n Need to reset covariance matrix \n\n\n\n\n" << std::endl;
-                resetCovarianceMatrices();
+//                std::cout << "k_: " << k_ << std::endl;
+                if(k_>1) //the first iteration give always nan without initialization
+                {
+                    resetCovarianceMatrices();
+                }
             }
         }
         return lastX_;

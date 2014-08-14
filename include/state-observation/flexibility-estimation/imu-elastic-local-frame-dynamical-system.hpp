@@ -117,6 +117,9 @@ namespace flexibilityEstimation
         ///Gets the nimber of contacts
         unsigned getContactsNumber(void);
 
+        Vector3 getFc(unsigned k);
+        Vector3 getFc(unsigned i, unsigned k);
+
     protected:
 
         stateObservation::AccelerometerGyrometer sensor_;
@@ -141,6 +144,8 @@ namespace flexibilityEstimation
         unsigned measurementSize_;
 
         std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;
+
+        Vector3 calculationState;
 
     private:
 

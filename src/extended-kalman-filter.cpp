@@ -45,13 +45,14 @@ namespace stateObservation
                 BOOST_ASSERT(this->u_.size()>0 && this->u_.checkIndex(k-1) &&
                                         "ERROR: The input vector is not set");
                 u=this->u_[k-1];
+//                std::cout << "u pour etat bie mis depuis l'indice " << k-1 << std::endl;
             }
             else
             {
                 u = inputVectorZero();
             }
 
-            //std::cout << "u" << u << std::endl;
+//            std::cout << "u pour la prediction de l'etat" << u.transpose() << std::endl;
 
             BOOST_ASSERT (f_!=0x0 && "ERROR: The Kalman filter functor is not set");
            // std::cout << "calcul stateDynmic" << std::endl;
@@ -97,6 +98,7 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
             {
                 u=inputVectorZero();
             }
+//            std::cout << "u pour la prediction des mesures" << u.transpose() << std::endl;
         }
 
         return f_->measureDynamics(x,u,k);

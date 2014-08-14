@@ -47,7 +47,7 @@ namespace stateObservation
             if (n2 > (3./2.) * M_PI * (3./2.) * M_PI )
             {
                 double n=sqrt(n2);
-                unsigned k =  ceil((n - M_PI) / (2*M_PI)) ;
+                unsigned k =  unsigned(ceil((n - M_PI) / (2*M_PI))) ;
                 return (v / n) * ( n - k*2*M_PI );
             }
             else
