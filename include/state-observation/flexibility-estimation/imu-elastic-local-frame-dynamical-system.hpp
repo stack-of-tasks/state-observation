@@ -50,8 +50,7 @@ namespace flexibilityEstimation
         void test();
 
         // computation of the acceleration angular
-        virtual Vector3 computeAccelerationAngular
-        (const Vector& , const Vector& , unsigned );
+        virtual void computeAccelerationAngular(const Vector& , const Vector& , unsigned );
 
         // computation of the acceleration linear
         virtual Vector3 computeAccelerationLinear
@@ -117,8 +116,10 @@ namespace flexibilityEstimation
         ///Gets the nimber of contacts
         unsigned getContactsNumber(void);
 
-        Vector3 getFc(unsigned k, const Vector& x, const Vector& u);
-        Vector3 getFc(unsigned i, unsigned k, const Vector& x, const Vector& u);
+        virtual Vector3 getFc(unsigned k, const Vector& x, const Vector& u);
+        virtual Vector3 getFc(unsigned i, unsigned k, const Vector& x, const Vector& u);
+
+        virtual Vector3 getAccelerationAngular(const Vector& , const Vector& , unsigned );
 
     protected:
 
@@ -146,6 +147,7 @@ namespace flexibilityEstimation
         std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;
 
         Vector3 calculationState;
+        Vector3 AccAngular;
 
     private:
 

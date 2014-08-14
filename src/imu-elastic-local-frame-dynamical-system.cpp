@@ -95,14 +95,14 @@ namespace flexibilityEstimation
             Rci = homoi.block(0,0,3,3);
             tci = homoi.block(0,3,3,1);
 
-            Fcu.noalias() = - Rci*Kfe*Rci.transpose()*(Rflex*tci+tflex-tci);
+            Fcu = - Rci*Kfe*Rci.transpose()*(Rflex*tci+tflex-tci);
 //            std::cout << "Fc" << i << "0 " << Fc.transpose() << std::endl;
 //            if(sqrt(Fc.squaredNorm())>100)
 //            {
 //                std::cout << "Rci*Kfe*Rci.transpose()" << Rci*Kfe*Rci.transpose() << std::endl;
 //                std::cout << "Rflex*tci+tflex-tci" << Rflex*tci+tflex-tci << std::endl;
 //            }
-            Fcu.noalias() += - Rci*Kfv*Rci.transpose()*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);
+            Fcu += - Rci*Kfv*Rci.transpose()*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);
 //            std::cout << "Fc" << i << "1 " << Fc.transpose() << std::endl;
 //            if(sqrt(Fc.squaredNorm())>100)
 //            {
@@ -220,9 +220,9 @@ namespace flexibilityEstimation
 
 //            std::cout << "conttact" << i+1 << "\t Rci: " << Rci << "\n tci: " << tci.transpose() << std::endl;
 
-            Tc.noalias() += -Rci*Kte*Rci.transpose()*orientationFlexV;
-            Tc.noalias() += -Rci*Ktv*Rci.transpose()*angularVelocityFlexV;
-            Tc.noalias() += kine::skewSymmetric(Rflex*tci+tflex)*Fci;
+            Tc += -Rci*Kte*Rci.transpose()*orientationFlexV;
+            Tc += -Rci*Ktv*Rci.transpose()*angularVelocityFlexV;
+            Tc += kine::skewSymmetric(Rflex*tci+tflex)*Fci;
 
 //            std::cout << "Tc" << Tc << std::endl;
 
@@ -249,7 +249,7 @@ namespace flexibilityEstimation
     }
 
 
-    Vector3 IMUElasticLocalFrameDynamicalSystem::computeAccelerationAngular
+    void IMUElasticLocalFrameDynamicalSystem::computeAccelerationAngular
     	(const Vector& x, const Vector& u, unsigned k)
     {
 
@@ -257,7 +257,7 @@ namespace flexibilityEstimation
         bool q;
 
         // Vector we want
-        Vector3 AccAngular;
+        //Vector3 AccAngular;
 
         // To simplify reading => to remplace by physics meaning of Mat and Vec.
         Matrix3 Mat;
@@ -293,28 +293,8 @@ namespace flexibilityEstimation
       //  std::cout << "kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom)\n" << kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom) << std::endl;
       //  std::cout << "Mat 1 \n"  << Mat << std::endl;
 
-        q=false;
-        for(i=0;i<3;i++)
-        {
-            for(j=0;j<3;j++)
-            {
-                if(Mat(i,j)<=0)
-                {
-                    q=false;//true;
-                }
-            }
-        }
 
-        if(q==true)
-        {
-            Mat <<  0,0,0,
-                    0,0,0,
-                    0,0,0;
-        }
-        else
-        {
-            Mat = Mat.inverse().eval();
-        }
+       Mat = Mat.inverse().eval();
 
 
       //  std::cout << "Mat 2 \n"  << Mat << std::endl;
@@ -354,7 +334,6 @@ namespace flexibilityEstimation
 
         AccAngular = Mat*Vec;
 //        std::cout << "Acc angular" << Mat*Vec << std::endl;
-        return AccAngular;
 
     }
 
@@ -363,6 +342,7 @@ namespace flexibilityEstimation
     {
         // Vector we want
         Vector3 AccLinear;
+        Vector3 AccelerationAngular(getAccelerationAngular(x,u,k));
 
         // State vector
         Vector3 orientationFlexV(x.segment(kine::ori,3));           // \Omega (position)
@@ -390,7 +370,7 @@ namespace flexibilityEstimation
 //               std::cout << "accLinear 1 " << AccLinear.transpose() << std::endl;
         AccLinear /= hrp2::m;
 //                std::cout << "accLinear 2 " << AccLinear.transpose() << std::endl;
-        AccLinear += kine::skewSymmetric(R*positionCom)*computeAccelerationAngular(x,u,k);
+        AccLinear += kine::skewSymmetric(R*positionCom)*AccelerationAngular;
 
 
 //        std::cout << "accLinear fin" << AccLinear.transpose() << std::endl;
@@ -418,7 +398,7 @@ namespace flexibilityEstimation
         integrateKinematics(positionFlex, velocityFlex, accelerationFlex, orientationFlex,angularVelocityFlex, angularAccelerationFlex, dt_);
 
         accelerationFlex = computeAccelerationLinear(x, u, k);
-        angularAccelerationFlex = computeAccelerationAngular(x, u, k);
+        angularAccelerationFlex = getAccelerationAngular(x, u, k);
 //        std::cout << "accelerationFlex" << accelerationFlex.transpose() << std::endl;
 //        std::cout << "angularAccelerationFlec" << angularAccelerationFlex.transpose() << std::endl;
 
@@ -644,6 +624,21 @@ namespace flexibilityEstimation
             computeFc(x,u);
             calculationState(i+1)=k;
             return Fci.block(0,i,3,1);
+        }
+    }
+
+    Vector3 IMUElasticLocalFrameDynamicalSystem::getAccelerationAngular(const Vector& x, const Vector& u , unsigned k)
+    {
+        if(calculationState(0)==k)
+        {
+            return AccAngular;
+        }
+        else
+        {
+            // on calcul tous les Fci, on met à jour calculationState et on retourne le Fci voulu;
+            computeAccelerationAngular(x,u,k);
+            calculationState(0)=k;
+            return AccAngular;
         }
     }
 }
