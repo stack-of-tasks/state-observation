@@ -41,11 +41,11 @@ namespace flexibilityEstimation
         ///virtual destructor
         virtual ~IMUElasticLocalFrameDynamicalSystem();
 
-        virtual Vector3 computeFc(const stateObservation::Vector& x, const stateObservation::Vector& u);
+        virtual void computeFc(const stateObservation::Vector& x, const stateObservation::Vector& u);
 
         virtual double rotationMatrixFromContactsPositiont(const Vector3, const Vector3, Matrix3&);
 
-        virtual Vector3 computeTc(const Vector& , const Vector& );
+        virtual Vector3 computeTc(const Vector& , const Vector& , unsigned);
 
         void test();
 
@@ -117,8 +117,8 @@ namespace flexibilityEstimation
         ///Gets the nimber of contacts
         unsigned getContactsNumber(void);
 
-        Vector3 getFc(unsigned k);
-        Vector3 getFc(unsigned i, unsigned k);
+        Vector3 getFc(unsigned k, const Vector& x, const Vector& u);
+        Vector3 getFc(unsigned i, unsigned k, const Vector& x, const Vector& u);
 
     protected:
 

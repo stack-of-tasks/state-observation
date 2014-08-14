@@ -42,7 +42,7 @@ namespace flexibilityEstimation
     }
 
 
-    Vector3 IMUElasticLocalFrameDynamicalSystem::computeFc(const stateObservation::Vector& x, const stateObservation::Vector& u)
+    void IMUElasticLocalFrameDynamicalSystem::computeFc(const stateObservation::Vector& x, const stateObservation::Vector& u)
     {
 
         unsigned nbContacts(getContactsNumber());
@@ -123,7 +123,6 @@ namespace flexibilityEstimation
 
 
             Fci.block(0,i,3,1)=Fcu;
-            Fc += Fcu;
 
 //            if(i>0)
 //            {
@@ -132,7 +131,6 @@ namespace flexibilityEstimation
 
         }
 
-        return Fc;
     }
 
     double IMUElasticLocalFrameDynamicalSystem::rotationMatrixFromContactsPositiont(const Vector3 contact1, const Vector3 contact2, Matrix3& R )
@@ -170,7 +168,7 @@ namespace flexibilityEstimation
         return h;
     }
 
-    Vector3 IMUElasticLocalFrameDynamicalSystem::computeTc(const stateObservation::Vector& x, const stateObservation::Vector& u)
+    Vector3 IMUElasticLocalFrameDynamicalSystem::computeTc(const stateObservation::Vector& x, const stateObservation::Vector& u, unsigned k)
     {
         unsigned nbContacts(getContactsNumber());
         unsigned i;
@@ -188,6 +186,7 @@ namespace flexibilityEstimation
         Matrix4 homoi;
         Matrix3 Rci;
         Vector3 tci;
+        Vector3 Fci;
 
         // Flexibility state
         Vector3 positionFlex(x.segment(kine::pos,3));
@@ -217,12 +216,13 @@ namespace flexibilityEstimation
             homoi = kine::vector6ToHomogeneousMatrix(u.segment(input::contacts+6*i,6));
             Rci = homoi.block(0,0,3,3);
             tci = homoi.block(0,3,3,1);
+            Fci = getFc(i,k,x,u);
 
 //            std::cout << "conttact" << i+1 << "\t Rci: " << Rci << "\n tci: " << tci.transpose() << std::endl;
 
             Tc.noalias() += -Rci*Kte*Rci.transpose()*orientationFlexV;
             Tc.noalias() += -Rci*Ktv*Rci.transpose()*angularVelocityFlexV;
-            Tc.noalias() += kine::skewSymmetric(Rflex*tci+tflex)*Fci.block(0,i,3,1);
+            Tc.noalias() += kine::skewSymmetric(Rflex*tci+tflex)*Fci;
 
 //            std::cout << "Tc" << Tc << std::endl;
 
@@ -276,8 +276,8 @@ namespace flexibilityEstimation
         Vector3 dotAngMomentum(u.segment(input::dotAngMoment,3));
 
         // To be human readable
-        const Vector3 Fc(computeFc(x,u)); // first because Tc neef Fci where i is the indice of the contact.
-        const Vector3 Tc(computeTc(x,u));
+        const Vector3 Fc(getFc(k,x,u)); // first because Tc neef Fci where i is the indice of the contact.
+        const Vector3 Tc(computeTc(x,u,k));
         const Quaternion qFlex (computeQuaternion_(orientationFlexV));
         const Matrix3 R (qFlex.toRotationMatrix());
         const Matrix3 Inertia(kine::computeInertiaTensor(u.segment(input::Inertia,6)));
@@ -368,7 +368,7 @@ namespace flexibilityEstimation
         Vector3 orientationFlexV(x.segment(kine::ori,3));           // \Omega (position)
 
         // To be human readable
-        const Vector3 Fc(computeFc(x,u));
+        const Vector3 Fc(getFc(k,x,u));
         //std::cout << "Fc: " << Fc.transpose() << std::endl;
         const Quaternion qFlex (computeQuaternion_(orientationFlexV));
         const Matrix3 R (qFlex.toRotationMatrix());
@@ -615,7 +615,7 @@ namespace flexibilityEstimation
         return  nbContacts_;
     }
 
-    Vector3 IMUElasticLocalFrameDynamicalSystem::getFc(unsigned k)
+    Vector3 IMUElasticLocalFrameDynamicalSystem::getFc(unsigned k, const Vector& x, const Vector& u)
     {
         Vector3 Fc;
         unsigned nbContacts(getContactsNumber());
@@ -626,13 +626,13 @@ namespace flexibilityEstimation
 
         for(i=0;i<nbContacts;++i)
         {
-            Fc += getFc(i, k);
+            Fc += getFc(i, k, x, u);
         }
 
         return Fc;
     }
 
-    Vector3 IMUElasticLocalFrameDynamicalSystem::getFc(unsigned i, unsigned k)
+    Vector3 IMUElasticLocalFrameDynamicalSystem::getFc(unsigned i, unsigned k, const Vector& x, const Vector& u)
     {
         if(calculationState(i+1)==k)
         {
@@ -641,7 +641,7 @@ namespace flexibilityEstimation
         else
         {
             // on calcul tous les Fci, on met à jour calculationState et on retourne le Fci voulu;
-            // compute Fci
+            computeFc(x,u);
             calculationState(i+1)=k;
             return Fci.block(0,i,3,1);
         }
