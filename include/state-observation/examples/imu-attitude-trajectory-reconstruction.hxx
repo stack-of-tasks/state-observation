@@ -43,7 +43,7 @@ DiscreteTimeArray imuAttitudeTrajectoryReconstruction
     xh.setValue(xh0,y.getFirstTime()-1);
 
     ///the reconstruction of the state
-    for (int i=y.getFirstTime();i<=y.getLastTime();++i)
+    for (unsigned i=y.getFirstTime();i<=y.getLastTime();++i)
     {
         ///introduction of the measurement
         filter.setMeasurement(y[i],i);

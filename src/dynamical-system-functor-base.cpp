@@ -18,11 +18,11 @@ namespace stateObservation
 
     bool DynamicalSystemFunctorBase::checkStateVector(const Vector & v)
     {
-        return (v.rows()==getStateSize() && v.cols()==1);
+        return (unsigned(v.rows())==getStateSize() && v.cols()==1);
     }
 
     bool DynamicalSystemFunctorBase::checkInputvector(const Vector & v)
     {
-        return (v.rows()==getInputSize() && v.cols()==1);
+        return (unsigned(v.rows())==getInputSize() && unsigned(v.cols())==1);
     }
 }

@@ -101,7 +101,7 @@ namespace stateObservation
 
     bool LinearKalmanFilter::checkBmatrix(const Bmatrix & a) const
     {
-        return (a.rows()==n_ && a.cols()==p_);
+        return (unsigned(a.rows())==n_ && unsigned(a.cols())==p_);
     }
 
     LinearKalmanFilter::Dmatrix LinearKalmanFilter::getDmatrixConstant(double c) const
@@ -121,7 +121,7 @@ namespace stateObservation
 
     bool LinearKalmanFilter::checkDmatrix(const Dmatrix & a) const
     {
-        return (a.rows()==m_ && a.cols()==p_);
+        return (unsigned(a.rows())==m_ && unsigned(a.cols())==p_);
     }
 
 

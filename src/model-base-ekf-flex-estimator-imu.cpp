@@ -135,7 +135,7 @@ namespace flexibilityEstimation
 
     void ModelBaseEKFFlexEstimatorIMU::setMeasurement(const Vector & y)
     {
-        BOOST_ASSERT((getMeasurementSize()==y.size()) &&
+        BOOST_ASSERT((getMeasurementSize()==unsigned(y.size())) &&
                 "ERROR: The measurement vector has incorrect size");
 
 
@@ -193,7 +193,7 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::setMeasurementNoiseCovariance
                                             (const Matrix & R)
     {
-        BOOST_ASSERT(R.rows()==getMeasurementSize() &&
+        BOOST_ASSERT(unsigned(R.rows())==getMeasurementSize() &&
                      R.cols()==getMeasurementSize() &&
                     "ERROR: The measurement noise covariance matrix R has \
                         incorrect size");
@@ -226,7 +226,7 @@ namespace flexibilityEstimation
         Matrix R = ekf_.getRmatrixIdentity();
         R.block(0,0, getMeasurementSize() , getMeasurementSize())=R_;
 
-        for (int i= getMeasurementSize() ; i<ekf_.getMeasureSize() ; ++i)
+        for (unsigned i= getMeasurementSize() ; i<ekf_.getMeasureSize() ; ++i)
         {
             R(i,i)=virtualMeasurementCovariance_;
         }

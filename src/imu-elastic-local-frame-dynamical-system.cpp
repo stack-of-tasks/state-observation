@@ -285,9 +285,9 @@ namespace flexibilityEstimation
 
        // std::cout << "Input again" << u.transpose() << std::endl;
 
-        Mat.noalias() = R*Inertia*R.transpose();
+        Mat.noalias() = Inertia;
      //   std::cout << "Mat 0 \n"  << Mat << std::endl;
-        Mat.noalias() += hrp2::m*kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom);
+        Mat.noalias() += hrp2::m*kine::skewSymmetric(positionCom)*kine::skewSymmetric(positionCom);
      //   std::cout << "R\n" << R << "\npositionCom\n" << positionCom << std::endl;
       //  std::cout << "kine::skewSymmetric(R*positionCom)\n" << kine::skewSymmetric(R*positionCom) << std::endl;
       //  std::cout << "kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom)\n" << kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom) << std::endl;
@@ -295,6 +295,7 @@ namespace flexibilityEstimation
 
 
        Mat.noalias() = Mat.inverse().eval();
+       Mat = R*Mat*R.transpose();
 
 
       //  std::cout << "Mat 2 \n"  << Mat << std::endl;
@@ -311,23 +312,8 @@ namespace flexibilityEstimation
         Vec.noalias() = -(    (kine::skewSymmetric(angularVelocityFlex)*R*Inertia*R.transpose()+R*dotInertia*R.transpose())*angularVelocityFlex
                                 +R*dotAngMomentum
                                 +kine::skewSymmetric(angularVelocityFlex)*R*AngMomentum
-//                                +hrp2::m*kine::skewSymmetric(positionFlex)*
-//                                    (
-//                                        kine::skewSymmetric(angularVelocityFlex)*kine::skewSymmetric(angularVelocityFlex)*R*positionCom
-//                                        +2*kine::skewSymmetric(angularVelocityFlex)*R*velocityCom
-//                                        +R*accelerationCom
-//                                    )
-//                                +hrp2::m*kine::skewSymmetric(R*positionCom+positionFlex)*cst::gravity
-                );
+                            );
 //        std::cout << "Vec 0 "  << Vec.transpose() << std::endl;
-//        Vec.noalias() -= (kine::skewSymmetric(positionFlex)+kine::skewSymmetric(R*positionCom))*
-//                    (   Fc
-//                        -(  R*hrp2::m*accelerationCom
-//                            +2*hrp2::m*kine::skewSymmetric(orientationFlexV)*R*velocityCom
-//                            +hrp2::m*kine::skewSymmetric(orientationFlexV)*kine::skewSymmetric(orientationFlexV)*R*positionCom
-//                            +hrp2::m*cst::gravity
-//                         )
-//                    );
 
         Vec.noalias() += kine::skewSymmetric(R*positionCom)*
                             (kine::skewSymmetric(angularVelocityFlex)*kine::skewSymmetric(angularVelocityFlex)*R*positionCom+2*kine::skewSymmetric(angularVelocityFlex)*R*velocityCom +R*accelerationCom)

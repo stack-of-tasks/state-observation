@@ -140,15 +140,15 @@ namespace stateObservation
 //        std::cout << "Norme erreur oc_.inoMeas " << sqrt(oc_.inoMeas.squaredNorm()) << std::endl;
 
 
-        //update
-        if(k<0)
-        {
-            oc_.xhat= oc_.xbar + inovation_;
-        }
-        else
-        {
+//        //update
+//        if(k<0)
+//        {
+//            oc_.xhat= oc_.xbar + inovation_;
+//        }
+//        else
+//        {
             oc_.xhat= oc_.xbar;
-        }
+//        }
 
         this->x_.set(oc_.xhat,k+1);
         pr_=oc_.stateIdentity;
@@ -216,7 +216,7 @@ namespace stateObservation
 
     bool KalmanFilterBase::checkAmatrix(const Amatrix & a) const
     {
-        return (a.rows()==n_ && a.cols()==n_);
+        return (unsigned(a.rows())==n_ && unsigned(a.cols())==n_);
     }
 
     KalmanFilterBase::Cmatrix KalmanFilterBase::getCmatrixConstant(double c) const
@@ -236,7 +236,7 @@ namespace stateObservation
 
     bool KalmanFilterBase::checkCmatrix(const Cmatrix & a) const
     {
-        return (a.rows()==m_ && a.cols()==n_);
+        return (unsigned(a.rows())==m_ && unsigned(a.cols())==n_);
     }
 
     KalmanFilterBase::Qmatrix KalmanFilterBase::getQmatrixConstant(double c) const
@@ -261,7 +261,7 @@ namespace stateObservation
 
     bool KalmanFilterBase::checkQmatrix(const Qmatrix & a) const
     {
-        return (a.rows()==n_ && a.cols()==n_);
+        return (unsigned(a.rows())==n_ && unsigned(a.cols())==n_);
     }
 
     KalmanFilterBase::Rmatrix KalmanFilterBase::getRmatrixConstant(double c) const
@@ -286,7 +286,7 @@ namespace stateObservation
 
     bool KalmanFilterBase::checkRmatrix(const Rmatrix & a) const
     {
-        return (a.rows()==m_ && a.cols()==m_);
+        return (unsigned(a.rows())==m_ && (unsigned(a.cols()))==m_);
     }
 
     KalmanFilterBase::Pmatrix KalmanFilterBase::getPmatrixConstant(double c) const
@@ -311,7 +311,7 @@ namespace stateObservation
 
     bool KalmanFilterBase::checkPmatrix(const Pmatrix & a) const
     {
-        return (a.rows()==n_ && a.cols()==n_);
+        return (unsigned(a.rows())==n_ && unsigned(a.cols())==n_);
     }
 
     void KalmanFilterBase::setStateSize(unsigned n)

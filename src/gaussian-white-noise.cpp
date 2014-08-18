@@ -61,11 +61,11 @@ namespace stateObservation
 
     void GaussianWhiteNoise::checkMatrix_(const Matrix & m) const
     {
-        BOOST_ASSERT(m.rows()==dim_ && m.cols()==dim_ && "ERROR: Matrix incorrecly dimemsioned");
+        BOOST_ASSERT(unsigned(m.rows())==dim_ && unsigned(m.cols())==dim_ && "ERROR: Matrix incorrecly dimemsioned");
     }
 
     void GaussianWhiteNoise::checkVector_(const Vector & v) const
     {
-        BOOST_ASSERT(v.rows()==dim_ && v.cols()==1 && "ERROR: Vector incorrecly dimemsioned");
+        BOOST_ASSERT(unsigned(v.rows())==dim_ && unsigned(v.cols())==1 && "ERROR: Vector incorrecly dimemsioned");
     }
 }

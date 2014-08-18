@@ -118,10 +118,12 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
         InputVector u;
 
         if (p_>0)
+        {
             if (directInputStateProcessFeedthrough_)
                 u=this->u_[k];
             else
                 u=inputVectorZero();
+        }
 
 
         for (unsigned i=0;i<n_;++i)

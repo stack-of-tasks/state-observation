@@ -42,7 +42,7 @@ namespace stateObservation
 
     bool ObserverBase::checkStateVector(const StateVector & v) const
     {
-        return (v.rows()==n_ && v.cols()==1);
+        return (unsigned(v.rows())==n_ && unsigned(v.cols())==1);
     }
 
 
@@ -63,7 +63,7 @@ namespace stateObservation
 
     bool ObserverBase::checkMeasureVector(const MeasureVector & v) const
     {
-        return (v.rows()==m_ && v.cols()==1);
+        return (unsigned(v.rows())==m_ && unsigned(v.cols())==1);
     }
 
 
@@ -84,7 +84,7 @@ namespace stateObservation
 
     bool ObserverBase::checkInputVector(const InputVector & v) const
     {
-        return (v.rows()==p_ && v.cols()==1);
+        return (unsigned(v.rows())==p_ && unsigned(v.cols())==1);
     }
 
 
