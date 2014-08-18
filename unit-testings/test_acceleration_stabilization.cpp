@@ -33,7 +33,7 @@ int test()
 
         ///simulation of the signal
         /// the IMU dynamical system functor
-        flexibilityEstimation::StableIMUFixedContactDynamicalSystem imu(dt);
+        flexibilityEstimation::IMUFixedContactDynamicalSystem imu(dt);
 
         ///the simulator initalization
         DynamicalSystemSimulator sim;

@@ -14,34 +14,6 @@
 
 using namespace stateObservation;
 
-    double rotationMatrixFromContactsPositionKine(const Vector3 vLFootPos, const Vector3 vRFootPos, Matrix3& R )
-    {
-
-        Vector3 Vrl, axis, theta;
-        AngleAxis j;
-        double h, thetay, thetaz;
-
-        // Definition of the length and the unit vector between the two foots.
-        Vrl=vLFootPos-vRFootPos;
-        j=kine::rotationVectorToAngleAxis(Vrl);
-        h = j.angle(); // length between the ankles
-        axis = j.axis(); // unit vector between the ankles
-
-         //Definition of the transformation (rotation) between (x,y,z) and (perpendicular of j, j, z).
-        theta=kine::unitVectorToRotationVector(axis);
-        thetay = theta[1];
-        thetaz = theta[2];
-
-
-        R <<    cos(thetay)*cos(thetaz), -cos(thetay)*sin(thetaz), sin(thetay),
-                sin(thetaz), cos(thetaz), 0,
-                -sin(thetay)*cos(thetaz), sin(thetay)*sin(thetaz), cos(thetay);
-
-        return h;
-
-    }
-
-
 int test()
 {
 

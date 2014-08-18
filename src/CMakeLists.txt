@@ -56,7 +56,6 @@ ADD_LIBRARY(${LIBRARY_NAME}
   model-base-ekf-flex-estimator-imu.cpp
   imu-fixed-contact-dynamical-system.cpp
   stable-imu-fixed-contact-dynamical-system.cpp
-  dynamical-system.cpp
   imu-elastic-local-frame-dynamical-system.cpp
   ${${PROJECT_NAME}_ABSOLUTE_HEADERS}
   )

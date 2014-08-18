@@ -123,7 +123,7 @@ int test()
     {
         ///simulation of the signal
         /// the IMU dynamical system functor
-         flexibilityEstimation::StableIMUFixedContactDynamicalSystem imu(dt);
+         flexibilityEstimation::IMUFixedContactDynamicalSystem imu(dt);
 
         ///The process noise initialization
         Matrix q1=Matrix::Zero(stateSize,stateSize);

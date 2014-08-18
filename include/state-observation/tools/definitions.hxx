@@ -139,8 +139,6 @@ void DiscreteTimeArray::reset()
 
 bool DiscreteTimeArray::checkIndex(unsigned time) const
 {
-    //cout << v_.size() << k_ << k_+v_.size() << time << endl;
-
     return (v_.size()>0 && k_<=time && k_+v_.size() > time);
 }
 

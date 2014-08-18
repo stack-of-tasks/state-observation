@@ -48,7 +48,7 @@ DiscreteTimeArray getMeasurements(char * accelerometerSignal,  char * gyrometerS
 int test(const DiscreteTimeArray & y)
 {
 
-//    std::cout << "Starting observation" <<std::endl;
+    std::cout << "Starting observation" <<std::endl;
 
     ///sampling period
     const double dt=5e-3;
@@ -103,7 +103,7 @@ int test(const DiscreteTimeArray & y)
          << y[i].transpose() << std::endl;
     }
 
-//    std::cout << "Error " << estimatedError * 180 / M_PI << ", test: " ;
+    std::cout << "Error " << estimatedError * 180 / M_PI << ", test: " ;
 
     if (estimatedError * 180 / M_PI > 0.1)
     {

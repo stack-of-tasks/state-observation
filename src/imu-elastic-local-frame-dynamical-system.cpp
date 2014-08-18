@@ -133,41 +133,6 @@ namespace flexibilityEstimation
 
     }
 
-    double IMUElasticLocalFrameDynamicalSystem::rotationMatrixFromContactsPositiont(const Vector3 contact1, const Vector3 contact2, Matrix3& R )
-    {
-
-        Vector3 Vrl, axis, theta;
-        AngleAxis j;
-        double h, thetay, thetaz;
-
-        // Definition of the length and the unit vector between the two feet.
-        Vrl=contact1-contact2;
-        if(Vrl(1)<0) Vrl=-Vrl ; // make sure the axis will be in the right side
-
-        j=kine::rotationVectorToAngleAxis(Vrl);
-        h = j.angle(); // length between the ankles
-        axis = j.axis(); // unit vector between the ankles
-
-        // Taking care for the first iteration were there is no still contacts position
-        if(axis(2) == 1 && axis(1) == 0 && axis(0) == 0)
-        {
-           axis <<  0,
-                    1,
-                    0;
-           h=0.19;
-        }
-
-        // Definition of the transformation (rotation) between (x,y,z) and (perpendicular of j, j, z).
-        /// In this case there is onlys z rotation
-        theta=kine::unitVectorToRotationVector(axis);
-        thetaz = theta[2];
-        R <<    cos(thetaz),-sin(thetaz),0,
-                sin(thetaz),cos(thetaz),0,
-                0,0,1;
-
-        return h;
-    }
-
     Vector3 IMUElasticLocalFrameDynamicalSystem::computeTc(const stateObservation::Vector& x, const stateObservation::Vector& u, unsigned k)
     {
         unsigned nbContacts(getContactsNumber());

@@ -67,14 +67,6 @@ namespace stateObservation
                 return AngleAxis(0.0 , Vector3::UnitZ());
         }
 
-        // Transform a unit vector to a rotation vector (skewsymetric -> rotation matrix)
-        inline Vector3 unitVectorToRotationVector(const Vector3 & v)
-        {
-           Vector3 theta(0,0,atan(v[0]/v[1]));
-
-           return theta;
-        }
-
         ///transform a 3d vector into a skew symmetric 3x3 matrix
         inline Matrix3 skewSymmetric(const Vector3 & v)
         {

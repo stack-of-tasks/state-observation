@@ -42,10 +42,6 @@ namespace stateObservation
                                 (must be [current_time+1])");
 
         y_.setValue(y_k,k);
-
-//        cout << "tata (" << y_k.rows() << "," << y_k.cols() << ")" << endl;
-//        cout << "vecteur (" <<  getMeasurement(k).rows() << "," << getMeasurement(k).cols() << ")" << endl;
-
     }
 
     void ZeroDelayObserver::clearMeasurements()
@@ -56,10 +52,6 @@ namespace stateObservation
     void ZeroDelayObserver::setInput
                     (const ObserverBase::InputVector& u_k,unsigned k)
     {
-
-    // if(k%100==0)
-       // cout << "\n\n\n\n\n ======> k: " << k << endl;
-
         if (p_>0)
         {
             BOOST_ASSERT(checkInputVector(u_k)
@@ -78,21 +70,6 @@ namespace stateObservation
 
             u_.setValue(u_k,k);
         }
-
-//        if (u_.size()>0 && y_.size()>0)
-//       {
-//            cout << "time setinput toto " << this->u_.getFirstTime() << ' ' << u_.getLastTime() << " " << k << endl;
-//            cout << "input time: " << u_.getLastTime() << "\nmeasurement time: " << y_.getLastTime() << endl;
-//       }
-//       else
-//       {
-//            if(u_.size()<=0)
-//                cout << "empty input" << endl;
-//
-//            if(y_.size()<=0)
-//                cout << "empty  measurement" << endl;
-//       }
-
     }
 
     void ZeroDelayObserver::clearInputs()
@@ -119,8 +96,6 @@ namespace stateObservation
                 if (u_.getFirstTime()<k)
                     u_.popFront();
         }
-
-       // std::cout << "x_ getEstsimatedState " << x_() << std::endl;
 
         return x_();
     }
@@ -174,11 +149,6 @@ namespace stateObservation
 
     unsigned ZeroDelayObserver::getMeasurementsNumber()const
     {
-
-//        cout << "y_.size(): " << y_.size() << endl;
-//        Vector measure(getMeasurement(y_.getLastTime()));
-//        cout << "y_: (" << measure.rows() << "," << measure.cols() << ") " << endl;
-
         return y_.size();
     }
 
@@ -210,3 +180,4 @@ namespace stateObservation
         }
     }
 }
+

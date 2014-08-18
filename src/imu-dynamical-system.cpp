@@ -11,7 +11,7 @@ namespace stateObservation
         quaternion_(Quaternion::Identity())
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
-      //  std::cout<<std::endl<<"IMUFixedContactDynamicalSystem Constructor"<<std::endl;
+       std::cout<<std::endl<<"IMUFixedContactDynamicalSystem Constructor"<<std::endl;
 #endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
         //ctor
     }

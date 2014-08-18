@@ -43,8 +43,6 @@ namespace flexibilityEstimation
 
         virtual void computeFc(const stateObservation::Vector& x, const stateObservation::Vector& u);
 
-        virtual double rotationMatrixFromContactsPositiont(const Vector3, const Vector3, Matrix3&);
-
         virtual Vector3 computeTc(const Vector& , const Vector& , unsigned);
 
         void test();

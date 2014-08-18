@@ -29,13 +29,10 @@
 #include <Eigen/Geometry>
 
 
-//Tracking NaN
-#include <fenv.h>
 
 #define PI 3.14159265
 
 // basic file operations
-#include <iostream>
 #include <fstream>
 
 #define CONTACTSSIZE 6

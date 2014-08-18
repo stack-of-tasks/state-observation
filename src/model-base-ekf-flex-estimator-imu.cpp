@@ -296,7 +296,38 @@ namespace flexibilityEstimation
         {
             if(on_==true)
             {
-                lastX_ =EKFFlexibilityEstimatorBase::getFlexibilityVector();
+                //lastX_ =EKFFlexibilityEstimatorBase::getFlexibilityVector();//obsolete
+                if (ekf_.getMeasurementsNumber()>0)
+                {
+                    k_=ekf_.getMeasurementTime();
+                   // std::cout << "\n\n\n\n\n k " << k_ << std::endl;
+
+                    unsigned i;
+                    for (i=ekf_.getCurrentTime()+1; i<=k_; ++i)
+                    {
+                        ekf_.setA(ekf_.getAMatrixFD(dx_));
+                        ekf_.setC(ekf_.getCMatrixFD(dx_));
+                        ekf_.getEstimatedState(i);
+                    }
+                    Vector x(ekf_.getEstimatedState(k_));
+
+                    if (x==x)//detect NaN values
+                    {
+                        lastX_=x;
+                    }
+                    else //delete NaN values
+                    {
+                        ekf_.setState(lastX_,k_);
+               // std::cout << "\n\n\n\n\n Need to reset covariance matrix \n\n\n\n\n" << std::endl;
+//                std::cout << "k_: " << k_ << std::endl;
+                        if(k_>1) //the first iteration give always nan without initialization
+                        {
+                            resetCovarianceMatrices();
+                        }
+
+                    }
+                }
+                
             }
             else
             {

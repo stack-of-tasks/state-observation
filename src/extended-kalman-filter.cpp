@@ -45,17 +45,14 @@ namespace stateObservation
                 BOOST_ASSERT(this->u_.size()>0 && this->u_.checkIndex(k-1) &&
                                         "ERROR: The input vector is not set");
                 u=this->u_[k-1];
-//                std::cout << "u pour etat bie mis depuis l'indice " << k-1 << std::endl;
             }
             else
             {
                 u = inputVectorZero();
             }
 
-//            std::cout << "u pour la prediction de l'etat" << u.transpose() << std::endl;
 
             BOOST_ASSERT (f_!=0x0 && "ERROR: The Kalman filter functor is not set");
-           // std::cout << "calcul stateDynmic" << std::endl;
             xbar_.set(f_->stateDynamics(
                           this->x_(),
                           u,
@@ -63,14 +60,12 @@ namespace stateObservation
                       k);
         }
 
-        //std::cout << "Je suis passé dans prediction_ et xbar_=" << xbar_().transpose() << std::endl;
 
         return xbar_();
     }
 
     ObserverBase::StateVector ExtendedKalmanFilter::getPrediction()
     {
-      //  std::cout << "getPrediction -> prediction_" << std::endl;
         return prediction_(x_.getTime()+1);
     }
 
@@ -98,7 +93,6 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
             {
                 u=inputVectorZero();
             }
-//            std::cout << "u pour la prediction des mesures" << u.transpose() << std::endl;
         }
 
         return f_->measureDynamics(x,u,k);
@@ -110,7 +104,6 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
     {
         unsigned k=this->x_.getTime();
         Amatrix a(getAmatrixZero());
-       // std::cout << "getAMatrix -> prediction_" << std::endl;
         StateVector fx=prediction_(k+1);
         StateVector x=this->x_();
         StateVector xp;
@@ -132,7 +125,6 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
             x[it]=this->x_()(it,0);
             x[i]=this->x_()(i,0);
             x[i]+=dx[i];
-          //  std::cout << "getAMatrixFD -> stateDynamics " << std::endl;
             xp=f_->stateDynamics(x,u,k);
 
             xp-=fx;
@@ -152,7 +144,6 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
 
         Cmatrix c(getCmatrixZero());
 
-      //  std::cout << "getCMatrix -> prediction_" << std::endl;
         StateVector xbar=prediction_(k+1);
         StateVector xbarInit = xbar;
 
@@ -170,8 +161,7 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
             yp-=y;
             yp/=dx[i];
 
-            //std::cout << "yi3" << yp.transpose() <<std::endl;
-
+ 
             c.block(0,i,m_,1)=yp;
 
         }

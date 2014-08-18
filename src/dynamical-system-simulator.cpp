@@ -1,5 +1,5 @@
 #include <state-observation/dynamical-system/dynamical-system-simulator.hpp>
-#include <iostream>
+
 
 namespace stateObservation
 {
@@ -93,8 +93,6 @@ namespace stateObservation
         for (unsigned i=x_.getLastTime(); i <k ; ++i)
         {
             simulateDynamics();
-            //std::cout << "\n" << i << "\n" << std::endl;
-           // std::cout <<x_[i].norm ()<< "\t "<< x_[i].transpose() << std::endl;
         }
     }
 
