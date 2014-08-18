@@ -95,14 +95,14 @@ namespace flexibilityEstimation
             Rci = homoi.block(0,0,3,3);
             tci = homoi.block(0,3,3,1);
 
-            Fcu = - Rci*Kfe*Rci.transpose()*(Rflex*tci+tflex-tci);
+            Fcu.noalias() = - Rci*Kfe*Rci.transpose()*(Rflex*tci+tflex-tci);
 //            std::cout << "Fc" << i << "0 " << Fc.transpose() << std::endl;
 //            if(sqrt(Fc.squaredNorm())>100)
 //            {
 //                std::cout << "Rci*Kfe*Rci.transpose()" << Rci*Kfe*Rci.transpose() << std::endl;
 //                std::cout << "Rflex*tci+tflex-tci" << Rflex*tci+tflex-tci << std::endl;
 //            }
-            Fcu += - Rci*Kfv*Rci.transpose()*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);
+            Fcu.noalias() += - Rci*Kfv*Rci.transpose()*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);
 //            std::cout << "Fc" << i << "1 " << Fc.transpose() << std::endl;
 //            if(sqrt(Fc.squaredNorm())>100)
 //            {
@@ -220,9 +220,9 @@ namespace flexibilityEstimation
 
 //            std::cout << "conttact" << i+1 << "\t Rci: " << Rci << "\n tci: " << tci.transpose() << std::endl;
 
-            Tc += -Rci*Kte*Rci.transpose()*orientationFlexV;
-            Tc += -Rci*Ktv*Rci.transpose()*angularVelocityFlexV;
-            Tc += kine::skewSymmetric(Rflex*tci+tflex)*Fci;
+            Tc.noalias() += -Rci*Kte*Rci.transpose()*orientationFlexV;
+            Tc.noalias() += -Rci*Ktv*Rci.transpose()*angularVelocityFlexV;
+            Tc.noalias() += kine::skewSymmetric(Rflex*tci+tflex)*Fci;
 
 //            std::cout << "Tc" << Tc << std::endl;
 
@@ -285,16 +285,16 @@ namespace flexibilityEstimation
 
        // std::cout << "Input again" << u.transpose() << std::endl;
 
-        Mat = R*Inertia*R.transpose();
+        Mat.noalias() = R*Inertia*R.transpose();
      //   std::cout << "Mat 0 \n"  << Mat << std::endl;
-        Mat += hrp2::m*kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom);
+        Mat.noalias() += hrp2::m*kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom);
      //   std::cout << "R\n" << R << "\npositionCom\n" << positionCom << std::endl;
       //  std::cout << "kine::skewSymmetric(R*positionCom)\n" << kine::skewSymmetric(R*positionCom) << std::endl;
       //  std::cout << "kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom)\n" << kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom) << std::endl;
       //  std::cout << "Mat 1 \n"  << Mat << std::endl;
 
 
-       Mat = Mat.inverse().eval();
+       Mat.noalias() = Mat.inverse().eval();
 
 
       //  std::cout << "Mat 2 \n"  << Mat << std::endl;
@@ -308,7 +308,7 @@ namespace flexibilityEstimation
 //
 //        std::cout << "Mat 3 "  << Mat << std::endl;
 
-        Vec = -(    (kine::skewSymmetric(angularVelocityFlex)*R*Inertia*R.transpose()+R*dotInertia*R.transpose())*angularVelocityFlex
+        Vec.noalias() = -(    (kine::skewSymmetric(angularVelocityFlex)*R*Inertia*R.transpose()+R*dotInertia*R.transpose())*angularVelocityFlex
                                 +R*dotAngMomentum
                                 +kine::skewSymmetric(angularVelocityFlex)*R*AngMomentum
                                 +hrp2::m*kine::skewSymmetric(positionFlex)*
@@ -320,19 +320,19 @@ namespace flexibilityEstimation
                                 +hrp2::m*kine::skewSymmetric(R*positionCom+positionFlex)*cst::gravity
                 );
 //        std::cout << "Vec 0 "  << Vec.transpose() << std::endl;
-        Vec -= (kine::skewSymmetric(positionFlex)+kine::skewSymmetric(R*positionCom))*
+        Vec.noalias() -= (kine::skewSymmetric(positionFlex)+kine::skewSymmetric(R*positionCom))*
                     (   Fc
                         -(  R*hrp2::m*accelerationCom
-                            +2*kine::skewSymmetric(orientationFlexV)*R*velocityCom
+                            +2*hrp2::m*kine::skewSymmetric(orientationFlexV)*R*velocityCom
                             +hrp2::m*kine::skewSymmetric(orientationFlexV)*kine::skewSymmetric(orientationFlexV)*R*positionCom
                             +hrp2::m*cst::gravity
                          )
                     );
 //        std::cout << "Vec 1 "  << Vec.transpose() << std::endl;
-        Vec += Tc;
+        Vec.noalias() += Tc;
 //        std::cout << "Vec 2 "  << Vec.transpose() << std::endl;
 
-        AccAngular = Mat*Vec;
+        AccAngular.noalias() = Mat*Vec;
 //        std::cout << "Acc angular" << Mat*Vec << std::endl;
 
     }
@@ -361,16 +361,16 @@ namespace flexibilityEstimation
        //         std::cout << "x " << x.transpose() << std::endl;
        // std::cout << "u " << u.transpose() << std::endl;
 
-        AccLinear = Fc;
+        AccLinear.noalias() = Fc;
 //        std::cout << "accLinear Fc " << AccLinear.transpose() << std::endl;
-        AccLinear -=  R*hrp2::m*accelerationCom
-                                    +2*kine::skewSymmetric(orientationFlexV)*R*velocityCom
+        AccLinear.noalias() -=  R*hrp2::m*accelerationCom
+                                    +2*hrp2::m*kine::skewSymmetric(orientationFlexV)*R*velocityCom
                                     +hrp2::m*kine::skewSymmetric(orientationFlexV)*kine::skewSymmetric(orientationFlexV)*R*positionCom
                                     +hrp2::m*cst::gravity;
 //               std::cout << "accLinear 1 " << AccLinear.transpose() << std::endl;
         AccLinear /= hrp2::m;
 //                std::cout << "accLinear 2 " << AccLinear.transpose() << std::endl;
-        AccLinear += kine::skewSymmetric(R*positionCom)*AccelerationAngular;
+        AccLinear.noalias() += kine::skewSymmetric(R*positionCom)*AccelerationAngular;
 
 
 //        std::cout << "accLinear fin" << AccLinear.transpose() << std::endl;
