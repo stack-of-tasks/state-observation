@@ -133,22 +133,9 @@ namespace stateObservation
 //        std::cout << "KGain " << kGain << std::endl << std::endl;
 //        std::cout << "inoCov " << inoCov << std::endl << std::endl;
 
-//        std::cout << "oc_.kGain" << oc_.kGain << std::endl;
-
-//        std::cout << "prediction_(k+1) " << prediction_(k+1).transpose() << std::endl;
-//        std::cout << "predictedMeasurement_ " << predictedMeasurement_.transpose() << std::endl;
-//        std::cout << "Norme erreur oc_.inoMeas " << sqrt(oc_.inoMeas.squaredNorm()) << std::endl;
-
-
-//        //update
-//        if(k<0)
-//        {
-//            oc_.xhat= oc_.xbar + inovation_;
-//        }
-//        else
-//        {
-            oc_.xhat= oc_.xbar;
-//        }
+        //update
+        oc_.xhat= oc_.xbar;
+        oc_.xhat+= inovation_;
 
         this->x_.set(oc_.xhat,k+1);
         pr_=oc_.stateIdentity;
