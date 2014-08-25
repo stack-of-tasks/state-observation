@@ -21,6 +21,13 @@ namespace flexibilityEstimation
 
         ModelBaseEKFFlexEstimatorIMU::resetCovarianceMatrices();
 
+        Vector dx = Matrix::Constant(getStateSize(),1,dxFactor);
+
+        dx.segment(kine::ori,3) = Vector3::Constant(1e-4) ;
+        dx.segment(kine::angVel,3) = Vector3::Constant(1e-4) ;
+
+        ModelBaseEKFFlexEstimatorIMU::useFiniteDifferencesJacobians(dx);
+
         Vector x0=ekf_.stateVectorZero();
         x0(2)=-0.010835;
         x0(14)=-9.8;
