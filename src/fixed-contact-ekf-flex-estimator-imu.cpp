@@ -24,8 +24,8 @@ namespace flexibilityEstimation
 
         Vector dx = Matrix::Constant(getStateSize(),1,dxFactor);
 
-        dx.segment(kine::ori,3) =  Vector3::Constant(1e-4) ;
-        dx.segment(kine::angVel,3) =  Vector3::Constant(1e-4) ;
+        dx.segment(kine::ori,3) = Vector3::Constant(1e-4) ;
+        dx.segment(kine::angVel,3) = Vector3::Constant(1e-4) ;
 
         FixedContactEKFFlexEstimatorIMU::useFiniteDifferencesJacobians(dx);
 

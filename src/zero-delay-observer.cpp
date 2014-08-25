@@ -33,7 +33,7 @@ namespace stateObservation
         BOOST_ASSERT(checkMeasureVector(y_k)
                 && "The size of the measure vector is incorrect");
         if (y_.size()>0)
-            BOOST_ASSERT (y_.getLastTime()==k-1
+            BOOST_ASSERT ((y_.getLastTime()==k-1 || y_.checkIndex(k))
                 && "ERROR: The time is set incorrectly for \
                                 the measurements (order or gap)");
         else
@@ -58,7 +58,7 @@ namespace stateObservation
                         && "The size of the input vector is incorrect");
 
             if (u_.size()>0)
-                BOOST_ASSERT (u_.getLastTime()==k-1
+                BOOST_ASSERT ((u_.getLastTime()==k-1 || u_.checkIndex(k))
                         && "ERROR: The time is set incorrectly \
                                 for the inputs (order or gap)");
             else
