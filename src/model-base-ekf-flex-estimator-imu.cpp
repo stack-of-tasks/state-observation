@@ -17,56 +17,6 @@ namespace flexibilityEstimation
         functor_(dt)
     {
 
-        //ekf_.setDirectInputStateFeedthrough(false);
-
-        Vector u0;
-        u0.resize(42);
-        u0 <<    0.0145673,
-                0.00153601,
-                0.807688,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                9.59691,
-                8.39051,
-                1.73881,
-                -0.00189139,
-                0.146455,
-                -0.0378545,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                1.1174,
-                0.0,
-                0.0,
-                0.0,
-                0.227298,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                22.7298,
-                0.0,
-                0.0,
-                0.0;
-
-//        std::cout << "Input getlasttime" << this->getEKF().getInputTime() << std::endl;
-
-
         ekf_.setMeasureSize(functor_.getMeasurementSize());
 
         ModelBaseEKFFlexEstimatorIMU::resetCovarianceMatrices();
@@ -106,10 +56,10 @@ namespace flexibilityEstimation
 
             Q_=ekf_.getQmatrixIdentity();
             Q_=Q_*1.e-8;
-            Q_.block(kine::linVel,kine::linVel,3,3)=Matrix3::Identity()*1.e-4;
-            Q_.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-4;
-            Q_.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-2;
-            Q_.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-2;
+            Q_.block(kine::linVel,kine::linVel,3,3)=Matrix3::Identity()*1.e-8;
+            Q_.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-8;
+            Q_.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-4;
+            Q_.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-4;
 
             ekf_.setQ(Q_);
 
@@ -256,11 +206,11 @@ namespace flexibilityEstimation
 
         newu=Vector::Zero(i,1);
 
-//        vmax=min(saveu.size(),newu.size());
-//        for(v=0;v<vmax;++v)
-//        {
-//            newu(v)=saveu(v);
-//        }
+        vmax=std::min(saveu.size(),newu.size());
+        for(v=0;v<vmax;++v)
+        {
+            newu(v)=saveu(v);
+        }
 
         inputSize_=i;
         ekf_.setInputSize(i);

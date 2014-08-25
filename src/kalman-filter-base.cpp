@@ -135,8 +135,7 @@ namespace stateObservation
 
         //update
         oc_.xhat= oc_.xbar;
-        if(k>1000)
-            oc_.xhat+= inovation_;
+        oc_.xhat+= inovation_;
 
         this->x_.set(oc_.xhat,k+1);
         pr_=oc_.stateIdentity;

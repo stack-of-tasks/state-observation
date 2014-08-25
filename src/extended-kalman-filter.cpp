@@ -118,7 +118,6 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
                 u=inputVectorZero();
         }
 
-
         for (unsigned i=0;i<n_;++i)
         {
             unsigned it=(i-1)%n_;
@@ -150,6 +149,7 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
         MeasureVector y=simulateSensor_( xbar, k+1);
 
         MeasureVector yp;
+
 
         for (unsigned i=0;i<n_;++i)
         {
