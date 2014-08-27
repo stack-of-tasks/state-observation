@@ -33,7 +33,8 @@ int test()
 
   /// Initializations
     // Dimensions things
-    const unsigned kmax=14012;
+    const unsigned kinit=0;
+    const unsigned kmax=14000;
     const unsigned measurementSize=6;
     const unsigned inputSize=54;
     const unsigned stateSize=18;
@@ -103,9 +104,7 @@ int test()
              -1.18496e-06,
              -4.52691e-16;
 
-   /// Definitions of test vectors
-     // State: what we want
-     DiscreteTimeArray x;
+   /// Definitions of input vectors
      // Measurement
      DiscreteTimeArray y;
      y.getFromFile("source_measurement.dat",1,measurementSize);
@@ -113,31 +112,102 @@ int test()
      DiscreteTimeArray u;
      u.getFromFile("source_input.dat",1,inputSize);
 
+   /// Definition of ouptut vectors
+     // State: what we want
+     DiscreteTimeArray x_output;
+     // Measurement
+     DiscreteTimeArray y_output;
+     // Input
+     DiscreteTimeArray u_output;
+
+
+
     stateObservation::flexibilityEstimation::ModelBaseEKFFlexEstimatorIMU est;
     est.setSamplingPeriod(dt);
     est.setInput(u0);
     est.setMeasurementInput(u0);
+ //   est.getEKF().setState(x0,0);
 
     est.setMeasurementNoiseCovariance(Cov);
 
     est.setContactsNumber(contactNbr);
     est.setInputSize(inputSize);
 
+//    u0.resize(inputSize);
+//    u0 <<  0.013567,
+//            0.001536,
+//            0.80771,
+//            -4.85723e-16,
+//            4.33681e-18,
+//            -1.08843e-14,
+//            0,
+//            0,
+//            0,
+//            48.1348,
+//            46.9498,
+//            1.76068,
+//            -0.0863332,
+//            -0.594861,
+//            -0.0402246,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            -0.0980005,
+//            -1.25418e-09,
+//            1.1174,
+//            2.25124e-24,
+//            1.21594e-20,
+//            -8.70945e-22,
+//            4.82571e-18,
+//            9.83976e-18,
+//            -1.08802e-14,
+//            -4.54866e-24,
+//            -2.45645e-20,
+//            1.75948e-21,
+//            1.97163e-15,
+//            5.58275e-21,
+//            -2.46868e-20,
+//            0.00949046,
+//            -0.095,
+//            1.98197e-07,
+//            -2.06795e-24,
+//            -7.44034e-16,
+//            -1.73252e-24,
+//            0.00949046,
+//            0.095,
+//            1.98197e-07,
+//            -1.39829e-24,
+//            -4.00152e-16,
+//            -7.3383e-25;
+//    est.setInput(u0);
+//    est.setMeasurementInput(u0);
+
     Vector flexibility;
     flexibility.resize(18);
 
-    for (int k=2;k<kmax;++k)
+    for (int k=kinit+2;k<kmax;++k)
     {
         est.setMeasurement(y[k].transpose());
         est.setMeasurementInput(u[k].transpose());
 
         flexibility = est.getFlexibilityVector();
-        x.setValue(flexibility,k);
+        x_output.setValue(flexibility,k);
+        y_output.setValue(y[k],k);
+        u_output.setValue(u[k],k);
     }
 
-    x.writeInFile("state.dat");
-    y.writeInFile("measurement.dat");
-    u.writeInFile("input.dat");
+    x_output.writeInFile("state.dat");
+    y_output.writeInFile("measurement.dat");
+    u_output.writeInFile("input.dat");
 
     std::cout << "Fin du test" << std::endl;
 

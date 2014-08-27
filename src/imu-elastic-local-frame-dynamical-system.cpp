@@ -241,7 +241,7 @@ namespace flexibilityEstimation
         Vector3 dotAngMomentum(u.segment(input::dotAngMoment,3));
 
         // To be human readable
-        const Vector3 Fc(getFc(k,x,u)); // first because Tc neef Fci where i is the indice of the contact.
+        const Vector3 Fc(getFc(k,x,u));
         const Vector3 Tc(computeTc(x,u,k));
         const Quaternion qFlex (computeQuaternion_(orientationFlexV));
         const Matrix3 R (qFlex.toRotationMatrix());
@@ -573,12 +573,14 @@ namespace flexibilityEstimation
         if(calculationState(i+1)==k)
         {
             return Fci.block(0,i,3,1);
+            std::cout << calculationState.transpose() << std::endl;
         }
         else
         {
             // on calcul tous les Fci, on met à jour calculationState et on retourne le Fci voulu;
             computeFc(x,u);
             calculationState(i+1)=k;
+            std::cout << calculationState.transpose() << std::endl;
             return Fci.block(0,i,3,1);
         }
     }
@@ -588,12 +590,14 @@ namespace flexibilityEstimation
         if(calculationState(0)==k)
         {
             return AccAngular;
+            std::cout << calculationState.transpose() << std::endl;
         }
         else
         {
             // on calcul tous les Fci, on met à jour calculationState et on retourne le Fci voulu;
             computeAccelerationAngular(x,u,k);
             calculationState(0)=k;
+            std::cout << calculationState.transpose() << std::endl;
             return AccAngular;
         }
     }
