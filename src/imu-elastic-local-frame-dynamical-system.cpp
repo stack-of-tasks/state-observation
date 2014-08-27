@@ -353,6 +353,9 @@ namespace flexibilityEstimation
 
         integrateKinematics(positionFlex, velocityFlex, accelerationFlex, orientationFlex,angularVelocityFlex, angularAccelerationFlex, dt_);
 
+        calculationState << -1,
+                            -1,
+                            -1;
         accelerationFlex = computeAccelerationLinear(x, u, k);
         angularAccelerationFlex = getAccelerationAngular(x, u, k);
 //        std::cout << "accelerationFlex" << accelerationFlex.transpose() << std::endl;
@@ -570,34 +573,30 @@ namespace flexibilityEstimation
 
     Vector3 IMUElasticLocalFrameDynamicalSystem::getFc(unsigned i, unsigned k, const Vector& x, const Vector& u)
     {
-        if(calculationState(i+1)==k)
+        if(calculationState(i+1)!=-1)
         {
-            return Fci.block(0,i,3,1);
-            std::cout << calculationState.transpose() << std::endl;
+            return Fci.block(0,i,3,1);  
         }
         else
         {
             // on calcul tous les Fci, on met à jour calculationState et on retourne le Fci voulu;
             computeFc(x,u);
             calculationState(i+1)=k;
-            std::cout << calculationState.transpose() << std::endl;
             return Fci.block(0,i,3,1);
         }
     }
 
     Vector3 IMUElasticLocalFrameDynamicalSystem::getAccelerationAngular(const Vector& x, const Vector& u , unsigned k)
     {
-        if(calculationState(0)==k)
+        if(calculationState(0)!=-1)
         {
             return AccAngular;
-            std::cout << calculationState.transpose() << std::endl;
         }
         else
         {
             // on calcul tous les Fci, on met à jour calculationState et on retourne le Fci voulu;
             computeAccelerationAngular(x,u,k);
             calculationState(0)=k;
-            std::cout << calculationState.transpose() << std::endl;
             return AccAngular;
         }
     }
