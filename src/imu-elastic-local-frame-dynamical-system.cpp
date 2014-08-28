@@ -241,7 +241,7 @@ namespace flexibilityEstimation
         Vector3 dotAngMomentum(u.segment(input::dotAngMoment,3));
 
         // To be human readable
-        const Vector3 Fc(getFc(k,x,u)); // first because Tc neef Fci where i is the indice of the contact.
+        const Vector3 Fc(getFc(k,x,u));
         const Vector3 Tc(computeTc(x,u,k));
         const Quaternion qFlex (computeQuaternion_(orientationFlexV));
         const Matrix3 R (qFlex.toRotationMatrix());
@@ -353,6 +353,9 @@ namespace flexibilityEstimation
 
         integrateKinematics(positionFlex, velocityFlex, accelerationFlex, orientationFlex,angularVelocityFlex, angularAccelerationFlex, dt_);
 
+        calculationState << -1,
+                            -1,
+                            -1;
         accelerationFlex = computeAccelerationLinear(x, u, k);
         angularAccelerationFlex = getAccelerationAngular(x, u, k);
 //        std::cout << "accelerationFlex" << accelerationFlex.transpose() << std::endl;
@@ -570,9 +573,9 @@ namespace flexibilityEstimation
 
     Vector3 IMUElasticLocalFrameDynamicalSystem::getFc(unsigned i, unsigned k, const Vector& x, const Vector& u)
     {
-        if(calculationState(i+1)==k)
+        if(calculationState(i+1)!=-1)
         {
-            return Fci.block(0,i,3,1);
+            return Fci.block(0,i,3,1);  
         }
         else
         {
@@ -585,7 +588,7 @@ namespace flexibilityEstimation
 
     Vector3 IMUElasticLocalFrameDynamicalSystem::getAccelerationAngular(const Vector& x, const Vector& u , unsigned k)
     {
-        if(calculationState(0)==k)
+        if(calculationState(0)!=-1)
         {
             return AccAngular;
         }
