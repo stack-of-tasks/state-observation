@@ -49,9 +49,9 @@ namespace stateObservation
 //        const Vector3 angKv(20,20,20);
 
         const double linKe=40000;//53200;
-        const double angKe=510;//510;
+        const double angKe=600;//510;
         const double linKv=600; //200
-        const double angKv=30;
+        const double angKv=60;
     }
 
 }
