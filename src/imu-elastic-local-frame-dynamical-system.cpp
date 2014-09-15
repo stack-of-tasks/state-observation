@@ -95,14 +95,14 @@ namespace flexibilityEstimation
             Rci = homoi.block(0,0,3,3);
             tci = homoi.block(0,3,3,1);
 
-            Fcu.noalias() = - Rci*Kfe*Rci.transpose()*(Rflex*tci+tflex-tci);
+            Fcu.noalias() = - Rci*Kfe*Rci.transpose()*(Rflex*tci+tflex-tci);//- Kfe*(Rflex*tci+tflex-tci);//
 //            std::cout << "Fc" << i << "0 " << Fc.transpose() << std::endl;
 //            if(sqrt(Fc.squaredNorm())>100)
 //            {
 //                std::cout << "Rci*Kfe*Rci.transpose()" << Rci*Kfe*Rci.transpose() << std::endl;
 //                std::cout << "Rflex*tci+tflex-tci" << Rflex*tci+tflex-tci << std::endl;
 //            }
-            Fcu.noalias() += - Rci*Kfv*Rci.transpose()*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);
+            Fcu.noalias() += - Rci*Kfv*Rci.transpose()*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);//- Kfv*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);//
 //            std::cout << "Fc" << i << "1 " << Fc.transpose() << std::endl;
 //            if(sqrt(Fc.squaredNorm())>100)
 //            {
@@ -188,8 +188,6 @@ namespace flexibilityEstimation
             Tc.noalias() += -Rci*Kte*Rci.transpose()*orientationFlexV;
             Tc.noalias() += -Rci*Ktv*Rci.transpose()*angularVelocityFlexV;
             Tc.noalias() += kine::skewSymmetric(Rflex*tci+tflex)*Fci;
-
-//            std::cout << "Tc" << Tc << std::endl;
 
         }
 

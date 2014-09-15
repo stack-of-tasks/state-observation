@@ -30,7 +30,6 @@ namespace flexibilityEstimation
 
         Vector x0=ekf_.stateVectorZero();
         x0(2)=-0.010835;
-        x0(14)=-9.8;
 
         lastX_=x0;
         ekf_.setState(x0,0);
