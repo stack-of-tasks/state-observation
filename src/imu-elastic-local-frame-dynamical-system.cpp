@@ -8,7 +8,7 @@
 #include <state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
-#include <iostream>
+//#include <iostream>
 
 
 namespace stateObservation
