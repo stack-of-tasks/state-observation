@@ -8,7 +8,7 @@
 #include <state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
-//#include <iostream>
+#include <iostream>
 
 
 namespace stateObservation
@@ -54,12 +54,6 @@ namespace flexibilityEstimation
         Vector3 Fc, Fcu;
         Fc << 0,0,0;
 
-        // Isotropic stifness and viscosity for a simple contact case
-        double kfe=hrp2::linKe;
-        double kfv=hrp2::linKv;
-
-        Matrix3 Kte, Ktv, Kfe, Kfv;
-
         Matrix4 homoi;
         Matrix3 Rci;
         Vector3 tci;
@@ -79,14 +73,8 @@ namespace flexibilityEstimation
         Rflex = homoFlex.block(0,0,3,3);
         tflex = homoFlex.block(0,3,3,1);
 
-
-        Kfe <<  kfe,0,0,
-                0,kfe,0,
-                0,0,kfe;
-
-        Kfv <<  kfv,0,0,
-                0,kfv,0,
-                0,0,kfv;
+        std::cout << "Kfe_=" << Kfe_ << std::endl;
+        std::cout << "Kfv_=" << Kfv_ << std::endl;
 
         for(i=0;i<nbContacts;i++)
         {
@@ -95,40 +83,10 @@ namespace flexibilityEstimation
             Rci = homoi.block(0,0,3,3);
             tci = homoi.block(0,3,3,1);
 
-            Fcu.noalias() = - Rci*Kfe*Rci.transpose()*(Rflex*tci+tflex-tci);//- Kfe*(Rflex*tci+tflex-tci);//
-//            std::cout << "Fc" << i << "0 " << Fc.transpose() << std::endl;
-//            if(sqrt(Fc.squaredNorm())>100)
-//            {
-//                std::cout << "Rci*Kfe*Rci.transpose()" << Rci*Kfe*Rci.transpose() << std::endl;
-//                std::cout << "Rflex*tci+tflex-tci" << Rflex*tci+tflex-tci << std::endl;
-//            }
-            Fcu.noalias() += - Rci*Kfv*Rci.transpose()*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);//- Kfv*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);//
-//            std::cout << "Fc" << i << "1 " << Fc.transpose() << std::endl;
-//            if(sqrt(Fc.squaredNorm())>100)
-//            {
-//                std::cout << "Rci*Kfv*Rci.transpose()" << Rci*Kfv*Rci.transpose() << std::endl;
-//                std::cout << "kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex" << kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex << std::endl;
-//            }
-
-//            std::cout << "Fc" << i << " " << Fc.transpose() << std::endl;
-//            if(sqrt(Fc.squaredNorm())>100)
-//            {
-//                std::cout << "Rci" << Rci << std::endl;
-//                std::cout << "tci" << tci.transpose() << std::endl;
-//                std::cout << "Rflex" << Rflex << std::endl;
-//                std::cout << "tflex" << tflex.transpose() << std::endl;
-//                std::cout << "angularVelocityFlexV" << angularVelocityFlexV.transpose() << std::endl;
-//                std::cout << "velocityFlex" << velocityFlex.transpose() << std::endl;
-//            }
-
+            Fcu.noalias() = - Rci*Kfe_*Rci.transpose()*(Rflex*tci+tflex-tci);
+            Fcu.noalias() += - Rci*Kfv_*Rci.transpose()*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);
 
             Fci.block(0,i,3,1)=Fcu;
-
-//            if(i>0)
-//            {
-//                Fci.block(0,i,3,1)=Fc-Fci.block(0,i-1,3,1);
-//            }
-
         }
 
     }
@@ -141,12 +99,6 @@ namespace flexibilityEstimation
         Vector3 Tc;
         //Vector3 Fc(computeFc(x,u));
         Tc << 0,0,0;
-
-        // Isotropic stifness and viscosity for a simple contact case
-        double kte=hrp2::angKe;
-        double ktv=hrp2::angKv;
-
-        Matrix3 Kte, Ktv, Kfe, Kfv;
 
         Matrix4 homoi;
         Matrix3 Rci;
@@ -168,13 +120,9 @@ namespace flexibilityEstimation
         Rflex = homoFlex.block(0,0,3,3);
         tflex = homoFlex.block(0,3,3,1);
 
-        Kte <<  kte,0,0,
-                0,kte,0,
-                0,0,kte;
+        std::cout << "Kte_=" << Kte_ << std::endl;
+        std::cout << "Ktv_=" << Ktv_ << std::endl;
 
-        Ktv <<  ktv,0,0,
-                0,ktv,0,
-                0,0,ktv;
 
         for(i=0;i<nbContacts;i++)
         {
@@ -183,10 +131,8 @@ namespace flexibilityEstimation
             tci = homoi.block(0,3,3,1);
             Fci = getFc(i,k,x,u);
 
-//            std::cout << "conttact" << i+1 << "\t Rci: " << Rci << "\n tci: " << tci.transpose() << std::endl;
-
-            Tc.noalias() += -Rci*Kte*Rci.transpose()*orientationFlexV;
-            Tc.noalias() += -Rci*Ktv*Rci.transpose()*angularVelocityFlexV;
+            Tc.noalias() += -Rci*Kte_*Rci.transpose()*orientationFlexV;
+            Tc.noalias() += -Rci*Ktv_*Rci.transpose()*angularVelocityFlexV;
             Tc.noalias() += kine::skewSymmetric(Rflex*tci+tflex)*Fci;
 
         }
@@ -248,29 +194,12 @@ namespace flexibilityEstimation
 
        // std::cout << "Input again" << u.transpose() << std::endl;
 
-        Mat.noalias() = Inertia;
-     //   std::cout << "Mat 0 \n"  << Mat << std::endl;
-        Mat.noalias() += hrp2::m*kine::skewSymmetric(positionCom)*kine::skewSymmetric(positionCom);
-     //   std::cout << "R\n" << R << "\npositionCom\n" << positionCom << std::endl;
-      //  std::cout << "kine::skewSymmetric(R*positionCom)\n" << kine::skewSymmetric(R*positionCom) << std::endl;
-      //  std::cout << "kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom)\n" << kine::skewSymmetric(R*positionCom)*kine::skewSymmetric(R*positionCom) << std::endl;
-      //  std::cout << "Mat 1 \n"  << Mat << std::endl;
-
+       Mat.noalias() = Inertia;
+       Mat.noalias() += hrp2::m*kine::skewSymmetric(positionCom)*kine::skewSymmetric(positionCom);
 
        Mat.noalias() = Mat.inverse().eval();
        Mat = R*Mat*R.transpose();
 
-
-      //  std::cout << "Mat 2 \n"  << Mat << std::endl;
-
-//        if(Mat!=Mat)// || isinf(sqrt(Mat.squaredNorm())))
-//        {
-//            Mat <<  0,0,0,
-//                    0,0,0,
-//                    0,0,0;
-//        }
-//
-//        std::cout << "Mat 3 "  << Mat << std::endl;
 
         Vec.noalias() = -(    (kine::skewSymmetric(angularVelocityFlex)*R*Inertia*R.transpose()+R*dotInertia*R.transpose())*angularVelocityFlex
                                 +R*dotAngMomentum
@@ -372,13 +301,6 @@ namespace flexibilityEstimation
         xk1.segment(kine::ori,3) =  orientationFlexV;
         xk1.segment(kine::angVel,3) = angularVelocityFlex;
         xk1.segment(kine::angAcc,3) = angularAccelerationFlex;
-
-//       std::cout << "===> x  " << x.transpose() << std::endl;
-//       std::cout << "===> u  " << u.transpose() << std::endl;
-//       std::cout << "===> xk1  " << xk1.transpose() << std::endl;
-        //std::cout << "accelerationFlex  " << accelerationFlex.transpose() << std::endl;
-        //std::cout << "angularAccelerationFlex  " << angularAccelerationFlex.transpose() << std::endl;
-       // std::cout << "xhk1 " << xk1.transpose() << std::endl;
 
          if (processNoise_!=0x0)
             return processNoise_->addNoise(xk1);
@@ -597,6 +519,27 @@ namespace flexibilityEstimation
             calculationState(0)=k;
             return AccAngular;
         }
+    }
+
+
+    void IMUElasticLocalFrameDynamicalSystem::setKfe(const Matrix3 & m)
+    {
+        Kfe_=m;
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setKfv(const Matrix3 & m)
+    {
+        Kfv_=m;
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setKte(const Matrix3 & m)
+    {
+        Kte_=m;
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setKtv(const Matrix3 & m)
+    {
+        Ktv_=m;
     }
 }
 }

@@ -119,6 +119,13 @@ namespace flexibilityEstimation
 
         virtual Vector3 getAccelerationAngular(const Vector& , const Vector& , unsigned );
 
+        virtual void setKfe(const Matrix3 & m);
+        virtual void setKfv(const Matrix3 & m);
+        virtual void setKte(const Matrix3 & m);
+        virtual void setKtv(const Matrix3 & m);
+
+
+
     protected:
 
         stateObservation::AccelerometerGyrometer sensor_;
@@ -147,6 +154,7 @@ namespace flexibilityEstimation
         Vector3 calculationState;
         Vector3 AccAngular;
 
+        Matrix3 Kfe_, Kte_, Kfv_, Ktv_;
     private:
 
     public:

@@ -40,6 +40,8 @@ namespace flexibilityEstimation
 
         on_=true;
 
+
+
     }
 
 
@@ -311,6 +313,25 @@ namespace flexibilityEstimation
         on_=b;
     }
 
+    void ModelBaseEKFFlexEstimatorIMU::setKfe(const Matrix3 & m)
+    {
+        functor_.setKfe(m);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setKfv(const Matrix3 & m)
+    {
+        functor_.setKfv(m);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setKte(const Matrix3 & m)
+    {
+        functor_.setKte(m);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setKtv(const Matrix3 & m)
+    {
+        functor_.setKtv(m);
+    }
 
 }
 }

@@ -96,6 +96,11 @@ namespace flexibilityEstimation
         /// Enable or disable the estimation
         void setOn(bool & b);
 
+        virtual void setKfe(const Matrix3 & m);
+        virtual void setKfv(const Matrix3 & m);
+        virtual void setKte(const Matrix3 & m);
+        virtual void setKtv(const Matrix3 & m);
+
         ///Resets the covariance matrices to their original values
         virtual void resetCovarianceMatrices();
 
