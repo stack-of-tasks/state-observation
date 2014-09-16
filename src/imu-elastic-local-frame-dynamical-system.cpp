@@ -8,7 +8,7 @@
 #include <state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
-#include <iostream>
+//#include <iostream>
 
 
 namespace stateObservation
@@ -73,8 +73,8 @@ namespace flexibilityEstimation
         Rflex = homoFlex.block(0,0,3,3);
         tflex = homoFlex.block(0,3,3,1);
 
-        std::cout << "Kfe_=" << Kfe_ << std::endl;
-        std::cout << "Kfv_=" << Kfv_ << std::endl;
+//        std::cout << "Kfe_=" << Kfe_ << std::endl;
+//        std::cout << "Kfv_=" << Kfv_ << std::endl;
 
         for(i=0;i<nbContacts;i++)
         {
@@ -120,8 +120,8 @@ namespace flexibilityEstimation
         Rflex = homoFlex.block(0,0,3,3);
         tflex = homoFlex.block(0,3,3,1);
 
-        std::cout << "Kte_=" << Kte_ << std::endl;
-        std::cout << "Ktv_=" << Ktv_ << std::endl;
+//        std::cout << "Kte_=" << Kte_ << std::endl;
+//        std::cout << "Ktv_=" << Ktv_ << std::endl;
 
 
         for(i=0;i<nbContacts;i++)
