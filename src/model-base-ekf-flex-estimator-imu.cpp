@@ -248,7 +248,7 @@ namespace flexibilityEstimation
 
     }
 
-    timespec diff(timespec start, timespec end)
+    timespec diff(const timespec & start, const timespec & end)
     {
             timespec temp;
             if ((end.tv_nsec-start.tv_nsec)<0) {
@@ -305,7 +305,7 @@ namespace flexibilityEstimation
                 clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
 
                 computeFlexibilityTime_=(double)diff(time1,time2).tv_nsec-(double)diff(time1,time3).tv_nsec;
-                
+
             }
             else
             {
