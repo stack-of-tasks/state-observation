@@ -81,6 +81,8 @@ namespace flexibilityEstimation
         /// Gets an estimation of the flexibility in the form of a state vector \hat{x_{k+1}}
         virtual Vector getFlexibilityVector();
 
+        virtual double& getComputeFlexibilityTime();
+
 
         virtual unsigned getMeasurementSize() const ;
 
@@ -95,6 +97,11 @@ namespace flexibilityEstimation
 
         /// Enable or disable the estimation
         void setOn(bool & b);
+
+        virtual void setKfe(const Matrix3 & m);
+        virtual void setKfv(const Matrix3 & m);
+        virtual void setKte(const Matrix3 & m);
+        virtual void setKtv(const Matrix3 & m);
 
         ///Resets the covariance matrices to their original values
         virtual void resetCovarianceMatrices();
@@ -119,6 +126,7 @@ namespace flexibilityEstimation
 
         double dt_;//sampling period
         bool on_;
+        double computeFlexibilityTime_;
 
     private:
     };

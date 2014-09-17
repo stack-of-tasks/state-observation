@@ -1,6 +1,7 @@
 #include <state-observation/flexibility-estimation/model-base-ekf-flex-estimator-imu.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
+
 const double initialVirtualMeasurementCovariance=1.e-10;
 
 const double dxFactor = 1.0e-8;
@@ -30,7 +31,6 @@ namespace flexibilityEstimation
 
         Vector x0=ekf_.stateVectorZero();
         x0(2)=-0.010835;
-        x0(14)=-9.8;
 
         lastX_=x0;
         ekf_.setState(x0,0);
@@ -40,6 +40,8 @@ namespace flexibilityEstimation
         ekf_.setFunctor(& functor_);
 
         on_=true;
+
+
 
     }
 
@@ -246,11 +248,27 @@ namespace flexibilityEstimation
 
     }
 
+    timespec diff(timespec start, timespec end)
+    {
+            timespec temp;
+            if ((end.tv_nsec-start.tv_nsec)<0) {
+                    temp.tv_sec = end.tv_sec-start.tv_sec-1;
+                    temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
+            } else {
+                    temp.tv_sec = end.tv_sec-start.tv_sec;
+                    temp.tv_nsec = end.tv_nsec-start.tv_nsec;
+            }
+            return temp;
+    }
+
     Vector ModelBaseEKFFlexEstimatorIMU::getFlexibilityVector()
     {
+        timespec time1, time2, time3;
 
         if (ekf_.getMeasurementsNumber()>0)
         {
+            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
             if(on_==true)
             {
                 //lastX_ =EKFFlexibilityEstimatorBase::getFlexibilityVector();//obsolete
@@ -284,6 +302,9 @@ namespace flexibilityEstimation
 
                     }
                 }
+                clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+
+                computeFlexibilityTime_=(double)diff(time1,time2).tv_nsec-(double)diff(time1,time3).tv_nsec;
                 
             }
             else
@@ -312,6 +333,30 @@ namespace flexibilityEstimation
         on_=b;
     }
 
+    void ModelBaseEKFFlexEstimatorIMU::setKfe(const Matrix3 & m)
+    {
+        functor_.setKfe(m);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setKfv(const Matrix3 & m)
+    {
+        functor_.setKfv(m);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setKte(const Matrix3 & m)
+    {
+        functor_.setKte(m);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setKtv(const Matrix3 & m)
+    {
+        functor_.setKtv(m);
+    }
+
+    double& ModelBaseEKFFlexEstimatorIMU::getComputeFlexibilityTime()
+    {
+        return computeFlexibilityTime_;
+    }
 
 }
 }
