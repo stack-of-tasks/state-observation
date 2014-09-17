@@ -81,6 +81,8 @@ namespace flexibilityEstimation
         /// Gets an estimation of the flexibility in the form of a state vector \hat{x_{k+1}}
         virtual Vector getFlexibilityVector();
 
+        virtual double& getComputeFlexibilityTime();
+
 
         virtual unsigned getMeasurementSize() const ;
 
@@ -124,6 +126,7 @@ namespace flexibilityEstimation
 
         double dt_;//sampling period
         bool on_;
+        double computeFlexibilityTime_;
 
     private:
     };
