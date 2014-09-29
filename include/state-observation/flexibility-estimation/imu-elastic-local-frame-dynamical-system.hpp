@@ -124,7 +124,7 @@ namespace flexibilityEstimation
         virtual void setKte(const Matrix3 & m);
         virtual void setKtv(const Matrix3 & m);
 
-
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     protected:
 
@@ -134,10 +134,10 @@ namespace flexibilityEstimation
 
         double dt_;
 
-        Vector3Unaligned orientationVector_;
-        QuaternionUnaligned quaternion_;
+        Vector3 orientationVector_;
+        Matrix3 curRotation_;
 
-        Quaternion computeQuaternion_(const Vector3 & x);
+        Matrix3 computeRotation_(const Vector3 & x);
 
         static const unsigned stateSize_=18;
         static const unsigned inputSizeBase_=42;
@@ -156,6 +156,7 @@ namespace flexibilityEstimation
 
         Matrix3 Kfe_, Kte_, Kfv_, Ktv_;
     private:
+
 
     public:
     };

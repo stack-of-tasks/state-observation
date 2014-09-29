@@ -22,16 +22,18 @@ namespace flexibilityEstimation
    IMUElasticLocalFrameDynamicalSystem::
     	IMUElasticLocalFrameDynamicalSystem(double dt):
         processNoise_(0x0), dt_(dt),orientationVector_(Vector3::Zero()),
-        quaternion_(Quaternion::Identity()),
+        curRotation_(Matrix3::Identity()),
         measurementSize_(measurementSizeBase_)
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
        // std::cout<<std::endl<<"IMUElasticLocalFrameDynamicalSystem Constructor"<<std::endl;
 #endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
 
-       calculationState <<  -1,
+      calculationState <<  -1,
                            -1,
                            -1;
+
+      sensor_.setMatrixMode(true);
 
     }
 
@@ -187,8 +189,7 @@ namespace flexibilityEstimation
         // To be human readable
         const Vector3 Fc(getFc(k,x,u));
         const Vector3 Tc(computeTc(x,u,k));
-        const Quaternion qFlex (computeQuaternion_(orientationFlexV));
-        const Matrix3 R (qFlex.toRotationMatrix());
+        const Matrix3 R (computeRotation_(orientationFlexV));
         const Matrix3 Inertia(kine::computeInertiaTensor(u.segment(input::Inertia,6)));
         const Matrix3 dotInertia(kine::computeInertiaTensor(u.segment(input::dotInertia,6)));
 
@@ -233,8 +234,7 @@ namespace flexibilityEstimation
         // To be human readable
         const Vector3 Fc(getFc(k,x,u));
         //std::cout << "Fc: " << Fc.transpose() << std::endl;
-        const Quaternion qFlex (computeQuaternion_(orientationFlexV));
-        const Matrix3 R (qFlex.toRotationMatrix());
+        const Matrix3 R (computeRotation_(orientationFlexV));
 
         // Input vector
         Vector3 positionCom(u.segment(input::posCom,3));
@@ -276,7 +276,7 @@ namespace flexibilityEstimation
         Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
 
 
-        Quaternion orientationFlex(computeQuaternion_(orientationFlexV));
+        Matrix3 orientationFlex(computeRotation_(orientationFlexV));
 
         integrateKinematics(positionFlex, velocityFlex, accelerationFlex, orientationFlex,angularVelocityFlex, angularAccelerationFlex, dt_);
 
@@ -308,16 +308,16 @@ namespace flexibilityEstimation
             return xk1;
     }
 
-    Quaternion IMUElasticLocalFrameDynamicalSystem::computeQuaternion_
+    inline Matrix3 IMUElasticLocalFrameDynamicalSystem::computeRotation_
                 (const Vector3 & x)
     {
         if (orientationVector_!=x)
         {
             orientationVector_ = x;
-            quaternion_ = kine::rotationVectorToAngleAxis(x);
+            curRotation_ = kine::rotationVectorToAngleAxis(x).toRotationMatrix();
         }
 
-        return quaternion_;
+        return curRotation_;
     }
 
     Vector IMUElasticLocalFrameDynamicalSystem::measureDynamics
@@ -332,8 +332,7 @@ namespace flexibilityEstimation
         Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
         Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
 
-        Quaternion qFlex (computeQuaternion_(orientationFlexV));
-        Matrix3 rFlex (qFlex.toRotationMatrix());
+        Matrix3 rFlex (computeRotation_(orientationFlexV));
 
         assertInputVector_(u);
 
@@ -343,8 +342,8 @@ namespace flexibilityEstimation
         Vector3 orientationControlV(u.segment(input::oriIMU,3));
         Vector3 angularVelocityControl(u.segment(input::angVelIMU,3));
 
-        Quaternion qControl(computeQuaternion_(orientationControlV));
-        Quaternion q = qFlex * qControl;
+        Matrix3 rControl(computeRotation_(orientationControlV));
+        Matrix3 r = rFlex * rControl;
 
 //        std::cout << "Mesure x " << x.transpose() << std::endl;
 //        std::cout << "Mesure u " << u.transpose() << std::endl;
@@ -373,13 +372,10 @@ namespace flexibilityEstimation
         Vector3 angularVelocity( angularVelocityFlex + rFlex * angularVelocityControl);
 
         // Set sensor state before measurement
-        Vector v(Vector::Zero(10,1));
-        v[0]=q.w();
-        v[1]=q.x();
-        v[2]=q.y();
-        v[3]=q.z();
-        v.segment(4,3)=acceleration;
-        v.tail(3)=angularVelocity;
+        Vector v(Vector::Zero(15,1));
+        v.head<9>() = Eigen::Map<Eigen::Matrix<double, 9, 1> >(&rFlex(0,0));
+        v.segment<3>(9)=acceleration;
+        v.tail<3>()=angularVelocity;
         sensor_.setState(v,k);
 
         // Measurement
@@ -495,7 +491,7 @@ namespace flexibilityEstimation
     {
         if(calculationState(i+1)!=-1)
         {
-            return Fci.block(0,i,3,1);  
+            return Fci.block(0,i,3,1);
         }
         else
         {
