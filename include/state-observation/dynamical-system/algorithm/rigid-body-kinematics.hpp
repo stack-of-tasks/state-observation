@@ -15,6 +15,7 @@
 #define StATEOBSERVATIONRIGIDBODYKINEMATICS_H
 
 #include <state-observation/tools/definitions.hpp>
+#include <state-observation/tools/miscellaneous-algorithms.hpp>
 
 namespace stateObservation
 {
@@ -41,20 +42,28 @@ namespace stateObservation
 #endif //STATEOBSERVATION_VERBOUS_CONSTRUCTORS
             }
 
-            ///virtual destructor for derivation
-            virtual ~RigidBodyKinematics();
+            ///The algorithm that integrates the accelerations, given these
+            ///accelerations velocities and positions.
+            void integrateKinematics
+            (Vector3 & position, Vector3 & velocity, const Vector3 & acceleration,
+             Matrix3 & orientation, Vector3 & rotationVelocity,
+             const Vector3 & rotationAcceleration, double dt);
 
             ///The algorithm that integrates the accelerations, given these
             ///accelerations velocities and positions.
-            virtual void integrateKinematics
+            void integrateKinematics
             (Vector3 & position, Vector3 & velocity, const Vector3 & acceleration,
              Quaternion & orientation, Vector3 & rotationVelocity,
              const Vector3 & rotationAcceleration, double dt);
+
+
 
         protected:
         private:
         };
     }
 }
+
+#include <state-observation/dynamical-system/algorithm/rigid-body-kinematics.hxx>
 
 #endif // StATEOBSERVATIONRIGIDBODYKINEMATICS_H
