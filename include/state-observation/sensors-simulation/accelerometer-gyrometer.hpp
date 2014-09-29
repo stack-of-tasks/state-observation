@@ -38,13 +38,7 @@ namespace stateObservation
         protected algorithm::RotationVelocity
     {
     public:
-        AccelerometerGyrometer()
-        {
-#ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
-           std::cout<<std::endl<<"AccelerometerGyrometer Constructor"<<std::endl;
-#endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
-
-       }
+        AccelerometerGyrometer();
 
         ///Virtual destructor
         virtual ~AccelerometerGyrometer(){}
@@ -55,11 +49,21 @@ namespace stateObservation
         ///Gets the measurements vector size
         virtual unsigned getMeasurementSize() const;
 
+        void setMatrixMode(bool matrixMode);
+
 
     protected:
         virtual Vector computeNoiselessMeasurement_();
 
+        Matrix3 r_;
+        Vector3 acc_;
+        Vector3 omega_;
+        Vector output_;
+
+        bool matrixMode_;
+
         static const int stateSize_= 10;
+        static const int stateSizeMatrix_= 15;
 
         static const int measurementSize_=6;
 

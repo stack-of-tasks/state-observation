@@ -2,9 +2,29 @@
 
 namespace stateObservation
 {
+    AccelerometerGyrometer::AccelerometerGyrometer():
+    r_(Matrix3::Zero()),
+    acc_(Vector3::Zero()),
+    omega_(Vector3::Zero()),
+    output_(Vector::Zero(measurementSize_,1))
+    {
+#ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
+      std::cout<<std::endl<<"AccelerometerGyrometer Constructor"<<std::endl;
+#endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
+
+      matrixMode_=false;
+
+
+
+    }
+
+
     unsigned AccelerometerGyrometer::getStateSize() const
     {
+      if (!matrixMode_)
         return stateSize_;
+      else
+        return stateSizeMatrix_;
     }
 
     unsigned AccelerometerGyrometer::getMeasurementSize() const
@@ -14,18 +34,32 @@ namespace stateObservation
 
     Vector AccelerometerGyrometer::computeNoiselessMeasurement_()
     {
+      if (!matrixMode_)
+      {
         Quaternion q(state_[0],state_[1],state_[2],state_[3]);
-        Matrix3 r(q.toRotationMatrix());
+        r_=q.toRotationMatrix();
 
-        Vector3 acceleration = state_.segment(4,3);
-        Vector3 rotationVector = state_.tail(3);
+        acc_= state_.segment(4,3);
+        omega_= state_.tail(3);
+      }
+      else
+      {
+        r_=Eigen::Map<Matrix3>(&state_[0]);
+        acc_= state_.segment<3>(9);
+        omega_ = state_.tail<3>();
+      }
 
-        Vector output=Vector::Zero(measurementSize_,1);
+      output_.head<3>()=accelerationMeasure(acc_,r_);
+      output_.tail<3>()=rotationVelocityMeasure(omega_, r_);
 
-        output.head(3)=accelerationMeasure(acceleration,r);
-        output.tail(3)=rotationVelocityMeasure(rotationVector, r);
 
-        return output;
+      return output_;
     }
+
+    void AccelerometerGyrometer::setMatrixMode(bool matrixMode)
+    {
+      matrixMode_=matrixMode;
+    }
+
 
 }
