@@ -70,23 +70,45 @@ namespace stateObservation
         ///transform a 3d vector into a skew symmetric 3x3 matrix
         inline Matrix3 skewSymmetric(const Vector3 & v)
         {
-            Matrix3 R ;
-            R << 0,     -v[2],    v[1],
-            v[2],   0,      -v[0],
-            -v[1],   v[0],    0;
+            //R <<     0, -v[2],  v[1],
+            //      v[2],     0, -v[0],
+            //     -v[1],  v[0],     0;
+
+
+            Matrix3 R;
+
+            R(0,0)=   R(1,1) = R(2,2) = 0.;
+            R(0,1)= -( R(1,0)= v[2] );
+            R(2,0)= -( R(0,2)= v[1] );
+            R(1,2)= -( R(2,1)= v[0] );
 
             return R;
         }
 
+        ///transform a 3d vector into a squared skew symmetric 3x3 matrix
+        inline Matrix3 skewSymmetric2(const Vector3 & v)
+        {
+            Matrix3 R( v * v.transpose());
+
+            double n = R.trace();
+
+            R(0,0) -= n;
+            R(1,1) -= n;
+            R(2,2) -= n;
+
+            return R;
+        }
+
+
         inline Matrix3 computeInertiaTensor(const Vector6 inputInertia)
         {
 
-            const double Ixx=inputInertia[0];
-            const double Iyy=inputInertia[1];
-            const double Izz=inputInertia[2];
-            const double Ixy=inputInertia[3];
-            const double Ixz=inputInertia[4];
-            const double Iyz=inputInertia[5];
+            const double & Ixx=inputInertia[0];
+            const double & Iyy=inputInertia[1];
+            const double & Izz=inputInertia[2];
+            const double & Ixy=inputInertia[3];
+            const double & Ixz=inputInertia[4];
+            const double & Iyz=inputInertia[5];
 
             Matrix3 inertiaTensor;
 
