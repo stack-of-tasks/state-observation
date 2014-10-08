@@ -42,19 +42,23 @@ namespace stateObservation
 #endif //STATEOBSERVATION_VERBOUS_CONSTRUCTORS
             }
 
-            ///The algorithm that integrates the accelerations, given these
-            ///accelerations velocities and positions.
+            ///integrates the position/orientation and their time derivatives, given the
+            ///accelerations, and initial velocities and positions.
             void integrateKinematics
             (Vector3 & position, Vector3 & velocity, const Vector3 & acceleration,
              Matrix3 & orientation, Vector3 & rotationVelocity,
              const Vector3 & rotationAcceleration, double dt);
 
-            ///The algorithm that integrates the accelerations, given these
-            ///accelerations velocities and positions.
+            ///integrates the position/orientation and their time derivatives, given the
+            ///accelerations, and initial velocities and positions.
             void integrateKinematics
             (Vector3 & position, Vector3 & velocity, const Vector3 & acceleration,
              Quaternion & orientation, Vector3 & rotationVelocity,
              const Vector3 & rotationAcceleration, double dt);
+
+             ///integrates the postition/orientation given the velocities
+             void integrateConfiguration(Vector3 & position, const Vector3 & velocity,
+             Matrix3 & orientation, const Vector3 & rotationVelocity, double dt);
 
 
 
