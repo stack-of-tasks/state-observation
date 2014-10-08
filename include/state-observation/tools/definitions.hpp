@@ -233,8 +233,8 @@ namespace stateObservation
         const unsigned posCom = 0;
         const unsigned velCom = 3;
         const unsigned accCom = 6;
-        const unsigned Inertia = 9;
-        const unsigned AngMoment = 15;
+        const unsigned inertia = 9;
+        const unsigned angMoment = 15;
         const unsigned dotInertia = 18;
         const unsigned dotAngMoment = 24;
         const unsigned posIMU = 27;
