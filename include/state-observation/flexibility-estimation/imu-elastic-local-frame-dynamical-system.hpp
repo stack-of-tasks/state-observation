@@ -124,6 +124,8 @@ namespace flexibilityEstimation
         virtual void setKte(const Matrix3 & m);
         virtual void setKtv(const Matrix3 & m);
 
+        virtual void setRobotMass(double d);
+
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     protected:
@@ -133,6 +135,9 @@ namespace flexibilityEstimation
         stateObservation::NoiseBase * processNoise_;
 
         double dt_;
+
+        double robotMass_;
+        double robotMassInv_;
 
         Vector3 orientationVector_;
         Matrix3 curRotation_;
@@ -145,7 +150,8 @@ namespace flexibilityEstimation
         static const unsigned measurementSizeBase_=6;
         unsigned nbContacts_;
 
-        Matrix Fci;
+        Vector fc_;
+        Vector tc_;
 
         unsigned measurementSize_;
 
@@ -155,6 +161,9 @@ namespace flexibilityEstimation
         Vector3 AccAngular;
 
         Matrix3 Kfe_, Kte_, Kfv_, Ktv_;
+
+        unsigned kcurrent_;
+        bool disp;
     private:
 
 

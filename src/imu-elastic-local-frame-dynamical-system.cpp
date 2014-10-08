@@ -23,7 +23,9 @@ namespace flexibilityEstimation
     	IMUElasticLocalFrameDynamicalSystem(double dt):
         processNoise_(0x0), dt_(dt),orientationVector_(Vector3::Zero()),
         curRotation_(Matrix3::Identity()),
-        measurementSize_(measurementSizeBase_)
+        measurementSize_(measurementSizeBase_),
+        robotMassInv_(1/hrp2::m),
+        robotMass_(hrp2::m)
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
        // std::cout<<std::endl<<"IMUElasticLocalFrameDynamicalSystem Constructor"<<std::endl;
@@ -35,12 +37,21 @@ namespace flexibilityEstimation
 
       sensor_.setMatrixMode(true);
 
+      kcurrent_=-1;
+      disp=true;
+
     }
 
     IMUElasticLocalFrameDynamicalSystem::
                     ~IMUElasticLocalFrameDynamicalSystem()
     {
         //dtor
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setRobotMass(double m)
+    {
+      robotMass_ = m;
+      robotMassInv_=1/m;
     }
 
 
@@ -465,7 +476,7 @@ namespace flexibilityEstimation
     }
 
 
-    unsigned IMUElasticLocalFrameDynamicalSystem::getContactsNumber(void)
+    inline unsigned IMUElasticLocalFrameDynamicalSystem::getContactsNumber(void) const
     {
         return  nbContacts_;
     }
