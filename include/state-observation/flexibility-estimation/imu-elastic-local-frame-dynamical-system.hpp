@@ -41,18 +41,12 @@ namespace flexibilityEstimation
         ///virtual destructor
         virtual ~IMUElasticLocalFrameDynamicalSystem();
 
-        virtual void computeFc(const stateObservation::Vector& x, const stateObservation::Vector& u);
-
-        virtual Vector3 computeTc(const Vector& , const Vector& , unsigned);
-
         void test();
 
-        // computation of the acceleration angular
-        virtual void computeAccelerationAngular(const Vector& , const Vector& , unsigned );
-
         // computation of the acceleration linear
-        virtual Vector3 computeAccelerationLinear
-    	(const Vector& , const Vector& , unsigned );
+        virtual Vector3 computeAccelerations
+            (const Vector& u, const Vector3& position, const Vector3& linVelocity, Vector3& linearAcceleration,
+            const Vector3 &oriVector ,const Matrix3& orientation, const Vector3& angularVel, Vector3& angularAcceleration);
 
         ///Description of the state dynamics
         virtual stateObservation::Vector stateDynamics
@@ -112,12 +106,14 @@ namespace flexibilityEstimation
         virtual Vector3 getContactPosition(unsigned i);
 
         ///Gets the nimber of contacts
-        unsigned getContactsNumber(void);
+        unsigned getContactsNumber(void) const;
 
-        virtual Vector3 getFc(unsigned k, const Vector& x, const Vector& u);
-        virtual Vector3 getFc(unsigned i, unsigned k, const Vector& x, const Vector& u);
+        virtual void getForcesAndMoments(const Vector & contactsPosRot,
+                               const Vector3& position, const Vector3& linVelocity,
+                               const Vector3& oriVector, const Matrix3& orientation,
+                               const Vector3& angVel,
+                               Vector3& forces, Vector3& moments);
 
-        virtual Vector3 getAccelerationAngular(const Vector& , const Vector& , unsigned );
 
         virtual void setKfe(const Matrix3 & m);
         virtual void setKfv(const Matrix3 & m);

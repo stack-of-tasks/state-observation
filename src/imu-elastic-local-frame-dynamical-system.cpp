@@ -8,7 +8,7 @@
 #include <state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
-//#include <iostream>
+#include <iostream>
 
 
 namespace stateObservation
@@ -55,103 +55,96 @@ namespace flexibilityEstimation
     }
 
 
-    void IMUElasticLocalFrameDynamicalSystem::computeFc(const stateObservation::Vector& x, const stateObservation::Vector& u)
+    void IMUElasticLocalFrameDynamicalSystem::getForcesAndMoments
+                              (const Vector & contactsPosRot,
+                               const Vector3& position, const Vector3& linVelocity,
+                               const Vector3& oriVector, const Matrix3& orientation,
+                               const Vector3& angVel,
+                               Vector3& forces, Vector3& moments)
     {
+      unsigned nbContacts(getContactsNumber());
+      fc_.resize(nbContacts*3);
+      tc_.resize(nbContacts*3);
+      forces.setZero();
+      moments.setZero();
+      Matrix3 Rci;
+      Matrix3 Rcit;
+      Vector3 contactPos;
+      Vector3 contactOri;
 
-        unsigned nbContacts(getContactsNumber());
-        Fci.resize(3,nbContacts);
-        Fci.setZero();
-        //std::cout << nbContacts << std::endl;
-        unsigned i;
+      Vector3 forcei;
+      Vector3 momenti;
+      Vector3 globalContactPos;
 
-        Vector3 Fc, Fcu;
-        Fc << 0,0,0;
+      if (disp)
+      {
+        std::cout << "Forces and moments ============="<<std::endl;
 
-        Matrix4 homoi;
-        Matrix3 Rci;
-        Vector3 tci;
+        std::cout << "oriVector "<<oriVector.transpose()<<std::endl;
+        std::cout << "angVel "<< angVel.transpose()<<std::endl;
+        std::cout << "position "<<position.transpose()<<std::endl;
+        std::cout << "linVelocity "<<linVelocity.transpose()<<std::endl;
+      }
 
-        // Flexibility state
-        Vector3 positionFlex(x.segment(kine::pos,3));
-        Vector3 velocityFlex(x.segment(kine::linVel,3));
-        Vector3 orientationFlexV(x.segment(kine::ori,3));
-        Vector3 angularVelocityFlexV(x.segment(kine::angVel,3));
+      for (int i = 0; i<nbContacts ; ++i)
+      {
+        if (disp)
+          std::cout << "contactNumber ============== "<<i <<std::endl;
 
-        Vector6 posFlex;
-        Matrix3 Rflex;
-        Vector3 tflex;
+        contactPos = contactsPosRot.segment<3>(6*i);
+        contactOri = contactsPosRot.segment<3>(6*i+3);
 
-        posFlex << positionFlex,orientationFlexV;
-        Matrix4 homoFlex(kine::vector6ToHomogeneousMatrix(posFlex));
-        Rflex = homoFlex.block(0,0,3,3);
-        tflex = homoFlex.block(0,3,3,1);
+        Rci = computeRotation_(contactOri);
+        Rcit= Rci.transpose();
 
-//        std::cout << "Kfe_=" << Kfe_ << std::endl;
-//        std::cout << "Kfv_=" << Kfv_ << std::endl;
+        globalContactPos = position ;
+        globalContactPos.noalias() += orientation*contactPos ;
 
-        for(i=0;i<nbContacts;i++)
+        forcei.noalias() = - Rci*Kfe_*Rcit*(globalContactPos-contactPos);
+        forcei.noalias() += - Rci*Kfv_*Rcit*(kine::skewSymmetric(angVel)*orientation*contactPos+linVelocity);
+
+        fc_.segment<3>(3*i)= forcei;
+
+        forces += forcei;
+
+        momenti.noalias() = -Rci*Kte_*Rcit*oriVector;
+        momenti.noalias() += -Rci*Ktv_*Rcit*angVel;
+        momenti.noalias() += kine::skewSymmetric(globalContactPos)*forcei;
+
+        tc_.segment<3>(3*i)= momenti;
+
+        moments += momenti;
+
+        if (disp)
         {
-            homoi = kine::vector6ToHomogeneousMatrix(u.segment(input::contacts+6*i,6));
-                                            //std::cout << u.segment(input::contacts+6*i,6) << std::endl;
-            Rci = homoi.block(0,0,3,3);
-            tci = homoi.block(0,3,3,1);
 
-            Fcu.noalias() = - Rci*Kfe_*Rci.transpose()*(Rflex*tci+tflex-tci);
-            Fcu.noalias() += - Rci*Kfv_*Rci.transpose()*(kine::skewSymmetric(angularVelocityFlexV)*Rflex*tci+velocityFlex);
+          std::cout << "contactPos "<<contactPos.transpose()<<std::endl;
+          std::cout << "globalContactPos "<<globalContactPos.transpose()<<std::endl;
+          std::cout << "globalContactPos-contactPos "<<(globalContactPos-contactPos).transpose()<<std::endl;
+          std::cout << "omega^orientation*contactPos+v "<<(kine::skewSymmetric(angVel)*orientation*contactPos+linVelocity).transpose()<<std::endl;
+          std::cout << "RKpR'*dsup_i"<<(- Rci*Kfe_*Rcit*(globalContactPos-contactPos)).transpose() <<std::endl;
+          std::cout << "RKdR'*dotsup_i"<<((- Rci*Kfv_*Rcit*(kine::skewSymmetric(angVel)*orientation*contactPos+linVelocity))).transpose() <<std::endl;
+          std::cout << "contactOri "<<contactOri.transpose()<<std::endl;
 
-            Fci.block(0,i,3,1)=Fcu;
+
+        //std::cout << "orientation "<<std::endl<<orientation<<std::endl;
+
+          std::cout << "forcei "<<forcei.transpose()<<std::endl;
+          std::cout << "momenti "<<momenti.transpose()<<std::endl;
         }
 
-    }
 
-    Vector3 IMUElasticLocalFrameDynamicalSystem::computeTc(const stateObservation::Vector& x, const stateObservation::Vector& u, unsigned k)
-    {
-        unsigned nbContacts(getContactsNumber());
-        unsigned i;
+      }
 
-        Vector3 Tc;
-        //Vector3 Fc(computeFc(x,u));
-        Tc << 0,0,0;
+      if (disp)
+      {
+        std::cout << "Total ============== "<<std::endl;
 
-        Matrix4 homoi;
-        Matrix3 Rci;
-        Vector3 tci;
-        Vector3 Fci;
+        std::cout << "forces "<<forces.transpose()<<std::endl;
+        std::cout << "moments "<<moments.transpose()<<std::endl;
 
-        // Flexibility state
-        Vector3 positionFlex(x.segment(kine::pos,3));
-        Vector3 velocityFlex(x.segment(kine::linVel,3));
-        Vector3 orientationFlexV(x.segment(kine::ori,3));
-        Vector3 angularVelocityFlexV(x.segment(kine::angVel,3));
-
-        Vector6 posFlex;
-        Matrix3 Rflex;
-        Vector3 tflex;
-
-        posFlex << positionFlex,orientationFlexV;
-        Matrix4 homoFlex(kine::vector6ToHomogeneousMatrix(posFlex));
-        Rflex = homoFlex.block(0,0,3,3);
-        tflex = homoFlex.block(0,3,3,1);
-
-//        std::cout << "Kte_=" << Kte_ << std::endl;
-//        std::cout << "Ktv_=" << Ktv_ << std::endl;
-
-
-        for(i=0;i<nbContacts;i++)
-        {
-            homoi = kine::vector6ToHomogeneousMatrix(u.segment(input::contacts+6*i,6));
-            Rci = homoi.block(0,0,3,3);
-            tci = homoi.block(0,3,3,1);
-            Fci = getFc(i,k,x,u);
-
-            Tc.noalias() += -Rci*Kte_*Rci.transpose()*orientationFlexV;
-            Tc.noalias() += -Rci*Ktv_*Rci.transpose()*angularVelocityFlexV;
-            Tc.noalias() += kine::skewSymmetric(Rflex*tci+tflex)*Fci;
-
-        }
-
-        return Tc;
-
+        std::cout << "End ============== "<<std::endl;
+      }
     }
 
 
@@ -171,111 +164,106 @@ namespace flexibilityEstimation
     }
 
 
-    void IMUElasticLocalFrameDynamicalSystem::computeAccelerationAngular
-    	(const Vector& x, const Vector& u, unsigned k)
+    Vector3 IMUElasticLocalFrameDynamicalSystem::computeAccelerations
+      (const Vector& u, const Vector3& position, const Vector3& linVelocity, Vector3& linearAcceleration,
+        const Vector3 &oriVector ,const Matrix3& orientation, const Vector3& angularVel, Vector3& angularAcceleration)
     {
+        Vector3 positionCom(u.segment<3>(input::posCom));
+        Vector3 velocityCom(u.segment<3>(input::velCom));
+        Vector3 accelerationCom(u.segment<3>(input::accCom));
+        Vector3 AngMomentum(u.segment<3>(input::angMoment));
+        Vector3 dotAngMomentum(u.segment<3>(input::dotAngMoment));
+        Vector contact(u.tail(6*getContactsNumber()));
 
-        int i,j;
-        bool q;
+        if (disp)
+        {
+          std::cout << "positionCom "<<positionCom.transpose()<<std::endl;
+          std::cout << "velocityCom "<< velocityCom.transpose()<<std::endl;
+          std::cout << "accelerationCom "<<accelerationCom.transpose()<<std::endl;
+        }
 
-        // Vector we want
-        //Vector3 AccAngular;
+        const Matrix3 Inertia(kine::computeInertiaTensor(u.segment<6>(input::inertia)));
+        const Matrix3 dotInertia(kine::computeInertiaTensor(u.segment<6>(input::dotInertia)));
 
-        // To simplify reading => to remplace by physics meaning of Mat and Vec.
-        Matrix3 Mat;
-        Vector3 Vec;
+        Vector3 fc;
+        Vector3 tc;
 
-        // State vector
-        Vector3 positionFlex(x.segment(kine::pos,3));               // t
-        Vector3 velocityFlex(x.segment(kine::linVel,3));            // tdot
-        Vector3 orientationFlexV(x.segment(kine::ori,3));           // Omega (position)
-        Vector3 angularVelocityFlex(x.segment(kine::angVel,3));     // omega (velocity)
-        // Input vector
-        Vector3 positionCom(u.segment(input::posCom,3));
-        Vector3 velocityCom(u.segment(input::velCom,3));
-        Vector3 accelerationCom(u.segment(input::accCom,3));
-        Vector3 AngMomentum(u.segment(input::AngMoment,3));
-        Vector3 dotAngMomentum(u.segment(input::dotAngMoment,3));
+        Matrix3 skewV(kine::skewSymmetric(angularVel));
+        Matrix3 skewV2(kine::skewSymmetric2(angularVel));
+        Matrix3 skewVR(skewV * orientation);
+        Matrix3 skewV2R(skewV2 * orientation);
 
-        // To be human readable
-        const Vector3 Fc(getFc(k,x,u));
-        const Vector3 Tc(computeTc(x,u,k));
-        const Matrix3 R (computeRotation_(orientationFlexV));
-        const Matrix3 Inertia(kine::computeInertiaTensor(u.segment(input::Inertia,6)));
-        const Matrix3 dotInertia(kine::computeInertiaTensor(u.segment(input::dotInertia,6)));
+        Matrix3 orientationT=orientation.transpose();
 
-       // std::cout << "Input again" << u.transpose() << std::endl;
+        getForcesAndMoments (contact, position, linVelocity, oriVector, orientation,
+                             angularVel, fc, tc);
 
-       Mat.noalias() = Inertia;
-       Mat.noalias() += hrp2::m*kine::skewSymmetric(positionCom)*kine::skewSymmetric(positionCom);
+        Vector3 vf (robotMassInv_*fc);
+        vf.noalias() -= orientation*accelerationCom;
+        vf.noalias() -= 2*skewVR*velocityCom;
+        vf.noalias() -= skewV2R*positionCom;
+        vf.noalias() -= cst::gravity;
 
-       Mat.noalias() = Mat.inverse().eval();
-       Mat = R*Mat*R.transpose();
-
-
-        Vec.noalias() = -(    (kine::skewSymmetric(angularVelocityFlex)*R*Inertia*R.transpose()+R*dotInertia*R.transpose())*angularVelocityFlex
-                                +R*dotAngMomentum
-                                +kine::skewSymmetric(angularVelocityFlex)*R*AngMomentum
-                            );
-//        std::cout << "Vec 0 "  << Vec.transpose() << std::endl;
-
-        Vec.noalias() += kine::skewSymmetric(R*positionCom)*
-                            (kine::skewSymmetric(angularVelocityFlex)*kine::skewSymmetric(angularVelocityFlex)*R*positionCom+2*kine::skewSymmetric(angularVelocityFlex)*R*velocityCom +R*accelerationCom)
-                         -kine::skewSymmetric(R*positionCom+positionFlex)*Fc;
-
-//        std::cout << "Vec 1 "  << Vec.transpose() << std::endl;
-        Vec.noalias() += Tc;
-//        std::cout << "Vec 2 "  << Vec.transpose() << std::endl;
-
-        AccAngular.noalias() = Mat*Vec;
-//        std::cout << "Acc angular" << Mat*Vec << std::endl;
-
-    }
-
-    Vector3 IMUElasticLocalFrameDynamicalSystem::computeAccelerationLinear
-    	(const Vector& x, const Vector& u, unsigned k)
-    {
-        // Vector we want
-        Vector3 AccLinear;
-        Vector3 AccelerationAngular(getAccelerationAngular(x,u,k));
-
-        // State vector
-        Vector3 orientationFlexV(x.segment(kine::ori,3));           // \Omega (position)
-
-        // To be human readable
-        const Vector3 Fc(getFc(k,x,u));
-        //std::cout << "Fc: " << Fc.transpose() << std::endl;
-        const Matrix3 R (computeRotation_(orientationFlexV));
-
-        // Input vector
-        Vector3 positionCom(u.segment(input::posCom,3));
-        Vector3 velocityCom(u.segment(input::velCom,3));
-        Vector3 accelerationCom(u.segment(input::accCom,3));
-
-       //         std::cout << "x " << x.transpose() << std::endl;
-       // std::cout << "u " << u.transpose() << std::endl;
-
-        AccLinear.noalias() = Fc;
-//        std::cout << "accLinear Fc " << AccLinear.transpose() << std::endl;
-        AccLinear.noalias() -=  R*hrp2::m*accelerationCom
-                                    +2*hrp2::m*kine::skewSymmetric(orientationFlexV)*R*velocityCom
-                                    +hrp2::m*kine::skewSymmetric(orientationFlexV)*kine::skewSymmetric(orientationFlexV)*R*positionCom
-                                    +hrp2::m*cst::gravity;
-//               std::cout << "accLinear 1 " << AccLinear.transpose() << std::endl;
-        AccLinear /= hrp2::m;
-//                std::cout << "accLinear 2 " << AccLinear.transpose() << std::endl;
-        AccLinear.noalias() += kine::skewSymmetric(R*positionCom)*AccelerationAngular;
+        Vector3 vt (tc);
+        vt.noalias() -= skewVR * (Inertia* (orientationT * angularVel));
+        vt.noalias() -= orientation * (dotInertia * (orientationT * angularVel)) ;
+        vt.noalias() -= orientation * dotAngMomentum;
+        vt.noalias() -= skewVR * AngMomentum;
+        vt.noalias() -= robotMass_* (kine::skewSymmetric(position) *
+                            (skewV2R * positionCom + 2*(skewVR * velocityCom) + orientation * accelerationCom ));
+        vt.noalias() -= robotMass_* kine::skewSymmetric(orientation * positionCom + position) * cst::gravity;
 
 
-//        std::cout << "accLinear fin" << AccLinear.transpose() << std::endl;
+        angularAcceleration = (orientation*Inertia*orientationT + robotMass_*kine::skewSymmetric2(orientation * positionCom)).inverse()
+                                *(vt - robotMass_*kine::skewSymmetric(orientation * positionCom + position)*vf);
 
-        return AccLinear;
 
+        linearAcceleration = vf;
+        linearAcceleration += kine::skewSymmetric(orientation*positionCom)*angularAcceleration;
+
+        if (disp)
+        {
+
+          std::cout << "robotMassInv_*fc " << robotMassInv_*fc.transpose()<<std::endl;
+          std::cout << "orientation*accelerationCom " << (orientation*accelerationCom).transpose()<<std::endl;
+          std::cout << "2*skewVR*velocityCom " << (2*skewVR*velocityCom).transpose()<<std::endl;
+          std::cout << "skewV2R*positionCom " << (skewV2R*positionCom).transpose()<<std::endl;
+          std::cout << "cst::gravity " << (cst::gravity).transpose()<<std::endl;
+          std::cout << "vf "<<vf.transpose()<<std::endl;
+
+          std::cout << "w^ R I RT w "  << (skewVR * (Inertia* (orientationT * angularVel))).transpose()<<std::endl;
+          std::cout << " R dotI RT w " << (orientation * (dotInertia * (orientationT * angularVel)) ).transpose()<<std::endl;
+          std::cout << " R * dotAngMomentum " << (orientation * dotAngMomentum ).transpose()<<std::endl;
+          std::cout << " m * (t)^(w^w^Rc+2w^Rcdot + Rcddot) " << (robotMass_* (kine::skewSymmetric(position) *
+                        (skewV2R * positionCom + 2*(skewVR * velocityCom) + orientation * accelerationCom )) ).transpose()<<std::endl;
+          std::cout <<  "m*c ^g " <<(robotMass_* kine::skewSymmetric(orientation * positionCom + position) * cst::gravity).transpose()<<std::endl;
+          std::cout << "vt "<<vt.transpose()<<std::endl;
+
+          std::cout << "(R*I*RT + m*[R * cl]x)^-1 " <<std::endl << (orientation*Inertia*orientationT + robotMass_*kine::skewSymmetric2(orientation * positionCom)).inverse()<<std::endl;
+
+          std::cout << "c "<<(orientation * positionCom + position).transpose()<<std::endl;
+          std::cout << "c^vf "<<(kine::skewSymmetric(orientation * positionCom + position)*vf).transpose()<<std::endl;
+          std::cout << "mc^vf "<<(robotMass_*kine::skewSymmetric(orientation * positionCom + position)*vf).transpose()<<std::endl;
+          std::cout << "vt-mc^vf "<<(vt - robotMass_*kine::skewSymmetric(orientation * positionCom + position)*vf).transpose()<<std::endl;
+          std::cout << "R*cl "<<(orientation*positionCom).transpose()<<std::endl;
+          std::cout << "(R*cl)^omegadot "<<(kine::skewSymmetric(orientation*positionCom)*angularAcceleration).transpose()<<std::endl;
+          std::cout << "linearAcceleration "<<linearAcceleration.transpose()<<std::endl;
+          std::cout << "angularAcceleration "<<angularAcceleration.transpose()<<std::endl;
+
+        }
     }
 
     Vector IMUElasticLocalFrameDynamicalSystem::stateDynamics
         (const Vector& x, const Vector& u, unsigned k)
     {
+        if (kcurrent_!= k )
+        {
+          std::cout <<std::endl << "k "<<k<<std::endl;
+          kcurrent_ = k;
+          disp =true;
+        }
+        else
+          disp =false;
 
         assertStateVector_(x);
 
@@ -285,33 +273,54 @@ namespace flexibilityEstimation
         Vector3 orientationFlexV(x.segment(kine::ori,3));
         Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
         Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
-
+        Vector3 newLinearAcceleration;
+        Vector3 newAngularAcceleration;
 
         Matrix3 orientationFlex(computeRotation_(orientationFlexV));
 
-        integrateKinematics(positionFlex, velocityFlex, accelerationFlex, orientationFlex,angularVelocityFlex, angularAccelerationFlex, dt_);
+         if (false)
+        {
+        std::cout << "accelerationFlex "<<accelerationFlex.transpose()<<std::endl;
+        std::cout << "angularAccelerationFlex "<<angularAccelerationFlex.transpose()<<std::endl;
+        }
 
-        calculationState << -1,
-                            -1,
-                            -1;
-        accelerationFlex = computeAccelerationLinear(x, u, k);
-        angularAccelerationFlex = getAccelerationAngular(x, u, k);
+
+
+        //compute new acceleration with the current flex position and velocity and input
+        computeAccelerations (u, positionFlex, velocityFlex, newLinearAcceleration,
+                       orientationFlexV, orientationFlex, angularVelocityFlex, newAngularAcceleration);
+
+        //integrate kinematics with the last acceleration
+        integrateKinematics(positionFlex, velocityFlex, newLinearAcceleration,
+            orientationFlex,angularVelocityFlex, newAngularAcceleration, dt_);
+
+
 //        std::cout << "accelerationFlex" << accelerationFlex.transpose() << std::endl;
 //        std::cout << "angularAccelerationFlec" << angularAccelerationFlex.transpose() << std::endl;
 
         //x_{k+1}
+         if (false)
+        {
+        std::cout << "newLinearAcceleration "<<newLinearAcceleration.transpose()<<std::endl;
+        std::cout << "newAngularAcceleration "<<newAngularAcceleration.transpose()<<std::endl;
+        std::cout << "velocityFlex "<<velocityFlex.transpose()<<std::endl;
+        std::cout << "angularVelocityFlex "<<angularVelocityFlex.transpose()<<std::endl;
+        std::cout << "positionFlex "<<positionFlex.transpose()<<std::endl;
+        std::cout << "orientationFlexV "<<orientationFlexV.transpose()<<std::endl;
+        }
+
         Vector xk1(x);
 
         xk1.segment(kine::pos,3) = positionFlex;
         xk1.segment(kine::linVel,3) = velocityFlex;
-        xk1.segment(kine::linAcc,3) = accelerationFlex;
+        xk1.segment(kine::linAcc,3) = newLinearAcceleration;
 
         AngleAxis orientationAA(orientationFlex);
         orientationFlexV=orientationAA.angle()*orientationAA.axis();
 
         xk1.segment(kine::ori,3) =  orientationFlexV;
         xk1.segment(kine::angVel,3) = angularVelocityFlex;
-        xk1.segment(kine::angAcc,3) = angularAccelerationFlex;
+        xk1.segment(kine::angAcc,3) = newAngularAcceleration;
 
          if (processNoise_!=0x0)
             return processNoise_->addNoise(xk1);
@@ -480,54 +489,6 @@ namespace flexibilityEstimation
     {
         return  nbContacts_;
     }
-
-    Vector3 IMUElasticLocalFrameDynamicalSystem::getFc(unsigned k, const Vector& x, const Vector& u)
-    {
-        Vector3 Fc;
-        unsigned nbContacts(getContactsNumber());
-        unsigned i;
-        Fc  <<  0,
-                0,
-                0;
-
-        for(i=0;i<nbContacts;++i)
-        {
-            Fc += getFc(i, k, x, u);
-        }
-
-        return Fc;
-    }
-
-    Vector3 IMUElasticLocalFrameDynamicalSystem::getFc(unsigned i, unsigned k, const Vector& x, const Vector& u)
-    {
-        if(calculationState(i+1)!=-1)
-        {
-            return Fci.block(0,i,3,1);
-        }
-        else
-        {
-            // on calcul tous les Fci, on met à jour calculationState et on retourne le Fci voulu;
-            computeFc(x,u);
-            calculationState(i+1)=k;
-            return Fci.block(0,i,3,1);
-        }
-    }
-
-    Vector3 IMUElasticLocalFrameDynamicalSystem::getAccelerationAngular(const Vector& x, const Vector& u , unsigned k)
-    {
-        if(calculationState(0)!=-1)
-        {
-            return AccAngular;
-        }
-        else
-        {
-            // on calcul tous les Fci, on met à jour calculationState et on retourne le Fci voulu;
-            computeAccelerationAngular(x,u,k);
-            calculationState(0)=k;
-            return AccAngular;
-        }
-    }
-
 
     void IMUElasticLocalFrameDynamicalSystem::setKfe(const Matrix3 & m)
     {
