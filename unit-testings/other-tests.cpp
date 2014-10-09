@@ -10,19 +10,19 @@ const double dt = 5e-3;
 
 int homoMatrixDerivationTestFromFile(char * homo, char * vel, const std::string & prefix)
 {
-    DiscreteTimeArray velocities;
+    IndexedMatrixArray velocities;
     velocities.getFromFile(vel,6);
-    DiscreteTimeArray homoMatrices;
+    IndexedMatrixArray homoMatrices;
     homoMatrices.getFromFile(homo,4,4);
 
-    DiscreteTimeArray computedVelocities;
+    IndexedMatrixArray computedVelocities;
 
     std::ofstream f,f1,f2;
     f.open((prefix + "output.dat").c_str());
     f1.open((prefix + "computed.dat").c_str());
     f2.open((prefix + "real.dat").c_str());
 
-    for (size_t i=homoMatrices.getFirstTime();i<homoMatrices.getLastTime()-1;++i)
+    for (size_t i=homoMatrices.getFirstIndex();i<homoMatrices.getLastIndex()-1;++i)
     {
         computedVelocities.setValue(kine::derivateHomogeneousMatrixFD(
                             homoMatrices[i],homoMatrices[i+1],dt),i);

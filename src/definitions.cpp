@@ -5,13 +5,13 @@
 
 namespace stateObservation
 {
-    DiscreteTimeMatrix::DiscreteTimeMatrix(const Matrix& v,unsigned k):
+    IndexedMatrix::IndexedMatrix(const Matrix& v,unsigned k):
             k_(k),
             v_(v)
     {
     }
 
-    DiscreteTimeMatrix::DiscreteTimeMatrix():
+    IndexedMatrix::IndexedMatrix():
             k_(0),
             v_(Matrix::Zero(0,0))
     {
@@ -19,12 +19,12 @@ namespace stateObservation
 
 
     ///Default constructor
-    DiscreteTimeArray::DiscreteTimeArray():
+    IndexedMatrixArray::IndexedMatrixArray():
             k_(0)
     {
     }
 
-    std::vector<Matrix> DiscreteTimeArray::getArray() const
+    std::vector<Matrix> IndexedMatrixArray::getArray() const
     {
         std::vector<Matrix> v;
 
@@ -36,13 +36,13 @@ namespace stateObservation
         return v;
     }
 
-    void DiscreteTimeArray::truncate(unsigned time)
+    void IndexedMatrixArray::truncate(unsigned time)
     {
         if (v_.size()>0)
         {
-            if (time > getFirstTime())
+            if (time > getFirstIndex())
             {
-                for (unsigned i=getLastTime(); i>=time ;--i)
+                for (unsigned i=getLastIndex(); i>=time ;--i)
                 {
                     v_.pop_back();
                 }
@@ -54,7 +54,7 @@ namespace stateObservation
         }
     }
 
-    void DiscreteTimeArray::getFromFile(char * filename , size_t rows, size_t cols)
+    void IndexedMatrixArray::getFromFile(char * filename , size_t rows, size_t cols)
     {
         reset();
 
@@ -90,13 +90,13 @@ namespace stateObservation
     }
 
 
-    void DiscreteTimeArray::writeInFile(char * filename)
+    void IndexedMatrixArray::writeInFile(char * filename)
     {
     	std::ofstream f;
 
         f.open(filename);
 
-        for (size_t k=getFirstTime();k<=getLastTime();++k)
+        for (size_t k=getFirstIndex();k<=getLastIndex();++k)
         {
 
             f << k;

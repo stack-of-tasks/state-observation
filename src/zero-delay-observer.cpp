@@ -10,13 +10,13 @@ namespace stateObservation
                             && "The size of the state vector is incorrect");
 
         x_.set(x_k,k);
-        while (y_.size()>0 && y_.getFirstTime()<=k)
+        while (y_.size()>0 && y_.getFirstIndex()<=k)
         {
             y_.popFront();
         }
 
         if (p_>0)
-            while (u_.size()>0 && u_.getFirstTime()<k)
+            while (u_.size()>0 && u_.getFirstIndex()<k)
             {
                 u_.popFront();
             }
@@ -33,7 +33,7 @@ namespace stateObservation
         BOOST_ASSERT(checkMeasureVector(y_k)
                 && "The size of the measure vector is incorrect");
         if (y_.size()>0)
-            BOOST_ASSERT ((y_.getLastTime()==k-1 || y_.checkIndex(k))
+            BOOST_ASSERT ((y_.getLastIndex()==k-1 || y_.checkIndex(k))
                 && "ERROR: The time is set incorrectly for \
                                 the measurements (order or gap)");
         else
@@ -58,7 +58,7 @@ namespace stateObservation
                         && "The size of the input vector is incorrect");
 
             if (u_.size()>0)
-                BOOST_ASSERT ((u_.getLastTime()==k-1 || u_.checkIndex(k))
+                BOOST_ASSERT ((u_.getLastIndex()==k-1 || u_.checkIndex(k))
                         && "ERROR: The time is set incorrectly \
                                 for the inputs (order or gap)");
             else
@@ -89,11 +89,11 @@ namespace stateObservation
         for (unsigned i=k0;i<k;++i)
         {
             oneStepEstimation_();
-            if (y_.getFirstTime()<k)
+            if (y_.getFirstIndex()<k)
                 y_.popFront();
 
             if (p_>0)
-                if (u_.getFirstTime()<k)
+                if (u_.getFirstIndex()<k)
                     u_.popFront();
         }
 
@@ -115,7 +115,7 @@ namespace stateObservation
     {
         if (u_.size()>0)
         {
-            return u_.getLastTime();
+            return u_.getLastIndex();
         }
         else
         {
@@ -127,7 +127,7 @@ namespace stateObservation
     {
         if (u_.size()>0)
         {
-            return u_.getLastTime();
+            return u_.getLastIndex();
         }
         else
         {
@@ -144,7 +144,7 @@ namespace stateObservation
     {
         BOOST_ASSERT(y_.size()>0
                 && "ERROR: There is no measurements registered (past measurements are erased)");
-        return y_.getLastTime();
+        return y_.getLastIndex();
     }
 
     unsigned ZeroDelayObserver::getMeasurementsNumber()const

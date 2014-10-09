@@ -74,14 +74,14 @@ namespace stateObservation
         ///to the time k
         virtual Vector getState( unsigned k );
 
-        ///Gives a DiscreteTimeArray of the measurements starting at startingTime
+        ///Gives a IndexedMatrixArray of the measurements starting at startingTime
         ///and having the given  duration
-        virtual DiscreteTimeArray getMeasurementArray
+        virtual IndexedMatrixArray getMeasurementArray
                     (unsigned startingTime, unsigned duration);
 
-        ///Gives a DiscreteTimeArray of the states starting at startingTime
+        ///Gives a IndexedMatrixArray of the states starting at startingTime
         ///and having the given  duration
-        virtual DiscreteTimeArray getStateArray
+        virtual IndexedMatrixArray getStateArray
                     (unsigned startingTime, unsigned duration);
 
         ///resets all the states, the measurements and the inputs
@@ -93,9 +93,9 @@ namespace stateObservation
     protected:
         DynamicalSystemFunctorBase * f_;
 
-        DiscreteTimeArray x_;
+        IndexedMatrixArray x_;
 
-        DiscreteTimeArray y_;
+        IndexedMatrixArray y_;
 
         std::map<unsigned, Vector> u_;
 

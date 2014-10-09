@@ -61,8 +61,8 @@ int test()
 
 
     ///The array containing all the states, the measurements and the inputs
-    DiscreteTimeArray x;
-    DiscreteTimeArray u;
+    IndexedMatrixArray x;
+    IndexedMatrixArray u;
 
     ///simulation of the signal
     /// the IMU dynamical system functor

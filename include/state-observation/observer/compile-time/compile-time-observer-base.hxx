@@ -1,5 +1,5 @@
 template<unsigned r,unsigned c>
-DiscreteTimeMatrix<r, c>::DiscreteTimeMatrix(const MatrixT& v,unsigned k):
+IndexedMatrix<r, c>::IndexedMatrix(const MatrixT& v,unsigned k):
         isSet_(true),
         k_(k),
         v_(v)
@@ -7,14 +7,14 @@ DiscreteTimeMatrix<r, c>::DiscreteTimeMatrix(const MatrixT& v,unsigned k):
 }
 
 template<unsigned r,unsigned c>
-DiscreteTimeMatrix<r, c>::DiscreteTimeMatrix():
+IndexedMatrix<r, c>::IndexedMatrix():
         isSet_(false),
         k_(0)
 {
 }
 
 template<unsigned r,unsigned c>
-void DiscreteTimeMatrix<r, c>::set(const MatrixT& v,unsigned k)
+void IndexedMatrix<r, c>::set(const MatrixT& v,unsigned k)
 {
     k_=k;
     v_=v;
@@ -22,28 +22,28 @@ void DiscreteTimeMatrix<r, c>::set(const MatrixT& v,unsigned k)
 }
 
 template<unsigned r,unsigned c>
-void DiscreteTimeMatrix<r, c>::reset()
+void IndexedMatrix<r, c>::reset()
 {
     k_=0;
     isSet_=false;
 }
 
 template<unsigned r,unsigned c>
-typename DiscreteTimeMatrix<r, c>::MatrixT DiscreteTimeMatrix<r, c>::operator()()const
+typename IndexedMatrix<r, c>::MatrixT IndexedMatrix<r, c>::operator()()const
 {
     check_();
     return v_;
 }
 
 template<unsigned r,unsigned c>
-const unsigned & DiscreteTimeMatrix<r, c>::getTime()const
+const unsigned & IndexedMatrix<r, c>::getTime()const
 {
     check_();
     return k_;
 }
 
 template<unsigned r,unsigned c>
-const bool & DiscreteTimeMatrix<r, c>::isSet()const
+const bool & IndexedMatrix<r, c>::isSet()const
 {
     return isSet_;
 }
@@ -57,7 +57,7 @@ void ObserverBase<n,m,p>::reset()
 }
 
 template<unsigned r,unsigned c>
-void DiscreteTimeMatrix<r, c>::check_()const
+void IndexedMatrix<r, c>::check_()const
 {
     BOOST_ASSERT(isSet_ && "Error : Matrix not initialized");
 }

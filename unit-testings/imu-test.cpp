@@ -20,9 +20,9 @@ int test()
     const unsigned inputSize=6;
 
     ///The array containing all the states, the measurements and the inputs
-    DiscreteTimeArray x;
-    DiscreteTimeArray y;
-    DiscreteTimeArray u;
+    IndexedMatrixArray x;
+    IndexedMatrixArray y;
+    IndexedMatrixArray u;
 
     ///The covariance matrix of the process noise and the measurement noise
     Matrix q;
@@ -110,7 +110,7 @@ int test()
     p=p*p.transpose();
 
 
-    DiscreteTimeArray xh = examples::imuAttitudeTrajectoryReconstruction
+    IndexedMatrixArray xh = examples::imuAttitudeTrajectoryReconstruction
                                                     (y, u, xh0, p, q, r, dt);
 
 
@@ -121,7 +121,7 @@ int test()
     double dx;
 
     ///the reconstruction of the state
-    for (int i=y.getFirstTime();i<=y.getLastTime();++i)
+    for (int i=y.getFirstIndex();i<=y.getLastIndex();++i)
     {
         ///display part, useless
         Vector3 g;

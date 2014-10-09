@@ -132,20 +132,20 @@ namespace stateObservation
             (const typename ObserverBase<n,m,p>::StateVector& x, unsigned k)=0;
 
             /// The internal type for storing the jacobian matrix of the process
-            typedef DiscreteTimeMatrix<n,n> Amat_;
+            typedef IndexedMatrix<n,n> Amat_;
 
             /// The internal type for storing the jacobian matrix of the measurement
-            typedef DiscreteTimeMatrix<m,n> Cmat_;
+            typedef IndexedMatrix<m,n> Cmat_;
 
             /// The internal type for storing the process noise covariance matrices
-            typedef DiscreteTimeMatrix<n,n> Qmat_;
+            typedef IndexedMatrix<n,n> Qmat_;
 
             /// The internal type for storing the measurement noise covariance matrices
-            typedef DiscreteTimeMatrix<m,m> Rmat_;
+            typedef IndexedMatrix<m,m> Rmat_;
 
             /// The internal type for storing the covariance matrix of the
             /// estimation error
-            typedef DiscreteTimeMatrix<n,n> Pmat_;
+            typedef IndexedMatrix<n,n> Pmat_;
 
             /// Containers for the jacobian matrix of the process
             Amat_ a_;

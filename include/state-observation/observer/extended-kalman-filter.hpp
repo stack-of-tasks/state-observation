@@ -115,7 +115,7 @@ namespace stateObservation
         virtual MeasureVector simulateSensor_(const StateVector& x, unsigned k);
 
         /// container for the prediction
-        DiscreteTimeMatrix xbar_;
+        IndexedMatrix xbar_;
 
         /// boolean that provides if theris a need of not for input for the masurement
         bool directInputOutputFeedthrough_;

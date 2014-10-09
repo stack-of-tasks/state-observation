@@ -28,8 +28,8 @@ int test()
     for (unsigned i = 0; i<1; ++i)
     {
     	///The array containing all the states, the measurements and the inputs
-    	DiscreteTimeArray x;
-    	DiscreteTimeArray u;
+    	IndexedMatrixArray x;
+    	IndexedMatrixArray u;
 
         ///simulation of the signal
         /// the IMU dynamical system functor

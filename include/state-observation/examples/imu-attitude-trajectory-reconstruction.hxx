@@ -1,7 +1,7 @@
-DiscreteTimeArray imuAttitudeTrajectoryReconstruction
+IndexedMatrixArray imuAttitudeTrajectoryReconstruction
     (
-    const DiscreteTimeArray & y,
-    const DiscreteTimeArray & u,
+    const IndexedMatrixArray & y,
+    const IndexedMatrixArray & u,
     const Vector & xh0,
     const Matrix & p,
     const Matrix & q,
@@ -22,13 +22,13 @@ DiscreteTimeArray imuAttitudeTrajectoryReconstruction
     filter.setFunctor(& imuFunctor);
 
     ///the initalization of the estimation of the initial state
-    filter.setState(xh0,y.getFirstTime()-1);
+    filter.setState(xh0,y.getFirstIndex()-1);
 
     ///computation and initialization of the covariance matrix of the initial state
     filter.setStateCovariance(p);
 
     ///set initial input
-    filter.setInput(u[y.getFirstTime()-1],y.getFirstTime()-1);
+    filter.setInput(u[y.getFirstIndex()-1],y.getFirstIndex()-1);
 
     ///The covariance matrix of the process noise and the measurement noise
     /// for the extended Kalman filter
@@ -39,17 +39,17 @@ DiscreteTimeArray imuAttitudeTrajectoryReconstruction
     Vector dx=filter.stateVectorConstant(1)*1e-8;
 
     ///the array of the state estimations over time
-    DiscreteTimeArray xh;
-    xh.setValue(xh0,y.getFirstTime()-1);
+    IndexedMatrixArray xh;
+    xh.setValue(xh0,y.getFirstIndex()-1);
 
     ///the reconstruction of the state
-    for (unsigned i=y.getFirstTime();i<=y.getLastTime();++i)
+    for (unsigned i=y.getFirstIndex();i<=y.getLastIndex();++i)
     {
         ///introduction of the measurement
         filter.setMeasurement(y[i],i);
 
         ///introduction of the input
-        if (i<y.getLastTime())
+        if (i<y.getLastIndex())
             filter.setInput(u[i],i);
 
         ///get the jacobians by finite differences and provide
@@ -77,8 +77,8 @@ DiscreteTimeArray imuAttitudeTrajectoryReconstruction
     return xh;
 }
 
-DiscreteTimeArray imuAttitudeTrajectoryReconstruction(
-    const DiscreteTimeArray & y,
+IndexedMatrixArray imuAttitudeTrajectoryReconstruction(
+    const IndexedMatrixArray & y,
     const Vector & xh0,
     const Matrix & p,
     const Matrix & q,
@@ -88,8 +88,8 @@ DiscreteTimeArray imuAttitudeTrajectoryReconstruction(
     const unsigned inputSize=6;
 
     ///initialization of a zero input
-    DiscreteTimeArray u;
-    for (int k=y.getFirstTime()-1; k<y.getLastTime(); ++k)
+    IndexedMatrixArray u;
+    for (int k=y.getFirstIndex()-1; k<y.getLastIndex(); ++k)
     {
         u.setValue(Vector::Zero(inputSize,1),k);
     }

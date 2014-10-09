@@ -1,12 +1,12 @@
-stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
-            const stateObservation::DiscreteTimeArray & y,
-            const stateObservation::DiscreteTimeArray & u,
+stateObservation::IndexedMatrixArray offlineEKFFlexibilityEstimation(
+            const stateObservation::IndexedMatrixArray & y,
+            const stateObservation::IndexedMatrixArray & u,
             const Matrix & xh0,
             unsigned numberOfContacts,
             const std::vector<Vector3> & contactsPositions,
             double dt,
-            DiscreteTimeArray * ino,
-            DiscreteTimeArray * premea)
+            IndexedMatrixArray * ino,
+            IndexedMatrixArray * premea)
 {
 
         ///Sizes of the states for the state, the measurement, and the input vector
@@ -42,11 +42,11 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
     estimator.setFlexibilityGuess(xh0);
 
     ///the array of the state estimations over time
-    stateObservation::DiscreteTimeArray xh;
-    xh.setValue(xh0,y.getFirstTime()-1);
+    stateObservation::IndexedMatrixArray xh;
+    xh.setValue(xh0,y.getFirstIndex()-1);
 
     ///the reconstruction of the state
-    for (int i=y.getFirstTime();i<=y.getLastTime();++i)
+    for (int i=y.getFirstIndex();i<=y.getLastIndex();++i)
     {
         //std::cout << i << std::endl;
 
@@ -74,8 +74,8 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
 }
 
 
-stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
-            const stateObservation::DiscreteTimeArray & y,
+stateObservation::IndexedMatrixArray offlineEKFFlexibilityEstimation(
+            const stateObservation::IndexedMatrixArray & y,
             const Matrix & xh0,
             unsigned numberOfContacts,
             const std::vector<Vector3> & contactsPositions,
@@ -84,8 +84,8 @@ stateObservation::DiscreteTimeArray offlineEKFFlexibilityEstimation(
     const unsigned inputSize=15;
 
     ///initialization of a zero input
-    stateObservation::DiscreteTimeArray u;
-    for (int k=y.getFirstTime()-1; k<=y.getLastTime(); ++k)
+    stateObservation::IndexedMatrixArray u;
+    for (int k=y.getFirstIndex()-1; k<=y.getLastIndex(); ++k)
     {
         u.setValue(Vector::Zero(inputSize,1),k);
     }

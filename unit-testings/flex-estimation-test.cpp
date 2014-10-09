@@ -24,8 +24,8 @@ int testConstant()
     const unsigned inputSize=15;
 
     ///The array containing all the states, the measurements and the inputs
-    DiscreteTimeArray y;
-    DiscreteTimeArray u;
+    IndexedMatrixArray y;
+    IndexedMatrixArray u;
 
     Vector3 contact(Vector3::Zero());
 
@@ -58,7 +58,7 @@ int testConstant()
 
     contactPositions.push_back(contact);
 
-    stateObservation::DiscreteTimeArray xh=
+    stateObservation::IndexedMatrixArray xh=
         stateObservation::examples::offlineEKFFlexibilityEstimation
         (y,u,xh0,1,contactPositions,dt);
 
@@ -69,7 +69,7 @@ int testConstant()
     double error;
 
     ///the reconstruction of the state
-    for (int i=xh.getFirstTime();i<=xh.getLastTime();++i)
+    for (int i=xh.getFirstIndex();i<=xh.getLastIndex();++i)
     {
        f << i<<" "<< xh[i].transpose()
           << std::endl;
@@ -109,9 +109,9 @@ int test()
     const unsigned inputSize=15;
 
     ///The array containing all the states, the measurements and the inputs
-    DiscreteTimeArray x;
-    DiscreteTimeArray y;
-    DiscreteTimeArray u;
+    IndexedMatrixArray x;
+    IndexedMatrixArray y;
+    IndexedMatrixArray u;
 
     ///The covariance matrix of the process noise and the measurement noise
     Matrix q;
@@ -252,7 +252,7 @@ int test()
     contactPositions.push_back(contact);
 
 
-    stateObservation::DiscreteTimeArray xh=
+    stateObservation::IndexedMatrixArray xh=
         stateObservation::examples::offlineEKFFlexibilityEstimation
         (y,u,xh0,1,contactPositions,dt);
 
@@ -263,7 +263,7 @@ int test()
     double error;
 
     ///the reconstruction of the state
-    for (int i=y.getFirstTime();i<=y.getLastTime();++i)
+    for (int i=y.getFirstIndex();i<=y.getLastIndex();++i)
     {
         ///display part, useless
         Vector3 g;

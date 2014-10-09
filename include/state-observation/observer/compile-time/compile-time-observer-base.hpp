@@ -31,7 +31,7 @@ namespace stateObservation
     namespace compileTime
     {
         /**
-         * \class    DiscreteTimeMatrix
+         * \class    IndexedMatrix
          * \brief    This class describes a structure composed by a matrix
          *           of a given size and a time-index parameter. It can tell also if
          *           it initialized or not.
@@ -44,7 +44,7 @@ namespace stateObservation
          *
          */
         template<unsigned r,unsigned c>
-        class DiscreteTimeMatrix
+        class IndexedMatrix
         {
         public:
 
@@ -52,10 +52,10 @@ namespace stateObservation
             typedef Eigen::Matrix<double, r,c> MatrixT;
 
             ///Default constructor
-            DiscreteTimeMatrix();
+            IndexedMatrix();
 
             ///A constructor with a given matrix value and a time index
-            DiscreteTimeMatrix(const MatrixT& v, unsigned k);
+            IndexedMatrix(const MatrixT& v, unsigned k);
 
             ///Set the value of the matrix and the time sample
             inline void set(const MatrixT& v,unsigned k);
@@ -162,13 +162,13 @@ namespace stateObservation
         protected:
 
             ///Internal (protected) typedefs the timed states.
-            typedef DiscreteTimeMatrix<n,1> State;
+            typedef IndexedMatrix<n,1> State;
 
             ///Internal (protected) typedefs the timed measurements.
-            typedef DiscreteTimeMatrix<m,1> Measure;
+            typedef IndexedMatrix<m,1> Measure;
 
             ///Internal (protected) typedefs the timed inputs.
-            typedef DiscreteTimeMatrix<p,1> Input;
+            typedef IndexedMatrix<p,1> Input;
         };
 
 #include <state-observation/observer/compile-time/compile-time-observer-base.hxx>

@@ -25,9 +25,9 @@ namespace stateObservation
     namespace examples
     {
 
-        /*! \fn DiscreteTimeArray imuAttitudeTrajectoryReconstruction(
-         *   const DiscreteTimeArray & y,
-         *   const DiscreteTimeArray & u,
+        /*! \fn IndexedMatrixArray imuAttitudeTrajectoryReconstruction(
+         *   const IndexedMatrixArray & y,
+         *   const IndexedMatrixArray & u,
          *   const Vector & xh0,
          *   const Matrix & p,
          *   const Matrix & q,
@@ -52,9 +52,9 @@ namespace stateObservation
          *  \param dt the time discretization period
          */
 
-        DiscreteTimeArray imuAttitudeTrajectoryReconstruction(
-            const DiscreteTimeArray & y,
-            const DiscreteTimeArray & u,
+        IndexedMatrixArray imuAttitudeTrajectoryReconstruction(
+            const IndexedMatrixArray & y,
+            const IndexedMatrixArray & u,
             const Vector & xh0,
             const Matrix & p,
             const Matrix & q,
@@ -62,8 +62,8 @@ namespace stateObservation
             double dt);
 
 
-        /*! \fn DiscreteTimeArray imuAttitudeTrajectoryReconstruction(
-         *   const DiscreteTimeArray & y,
+        /*! \fn IndexedMatrixArray imuAttitudeTrajectoryReconstruction(
+         *   const IndexedMatrixArray & y,
          *   const Vector & xh0,
          *   const Matrix & p,
          *   const Matrix & q,
@@ -86,8 +86,8 @@ namespace stateObservation
          *  \param r the covariance matrix of the measurement noise
          *  \param dt the time discretization period
          */
-        DiscreteTimeArray imuAttitudeTrajectoryReconstruction(
-            const DiscreteTimeArray & y,
+        IndexedMatrixArray imuAttitudeTrajectoryReconstruction(
+            const IndexedMatrixArray & y,
             const Vector & xh0,
             const Matrix & p,
             const Matrix & q,

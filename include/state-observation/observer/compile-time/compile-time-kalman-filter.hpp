@@ -83,10 +83,10 @@ namespace stateObservation
             virtual typename ObserverBase<n,m,p>::MeasureVector simulateSensor_(const typename ObserverBase<n,m,p>::StateVector& x, unsigned k);
 
             /// The type of the timed Input-State matrix
-            typedef DiscreteTimeMatrix<n,p>  Bmat_;
+            typedef IndexedMatrix<n,p>  Bmat_;
 
             /// The type of the timed Input-Measurement matrix
-            typedef DiscreteTimeMatrix<m,p>  Dmat_;
+            typedef IndexedMatrix<m,p>  Dmat_;
 
             /// The container of the Input-State matrix
             Dmat_ d_;

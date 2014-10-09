@@ -106,19 +106,19 @@ int test()
 
    /// Definitions of input vectors
      // Measurement
-     DiscreteTimeArray y;
+     IndexedMatrixArray y;
      y.getFromFile("source_measurement.dat",1,measurementSize);
      // Input
-     DiscreteTimeArray u;
+     IndexedMatrixArray u;
      u.getFromFile("source_input.dat",1,inputSize);
 
    /// Definition of ouptut vectors
      // State: what we want
-     DiscreteTimeArray x_output;
+     IndexedMatrixArray x_output;
      // Measurement
-     DiscreteTimeArray y_output;
+     IndexedMatrixArray y_output;
      // Input
-     DiscreteTimeArray u_output;
+     IndexedMatrixArray u_output;
 
 
 

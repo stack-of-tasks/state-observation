@@ -141,13 +141,13 @@ namespace stateObservation
         ///while the measurements and iputs are put in lists
 
         ///The state estimation of the observer (only one state is recorded)
-        DiscreteTimeMatrix x_;
+        IndexedMatrix x_;
 
         ///Container for the measurements.
-        DiscreteTimeArray y_;
+        IndexedMatrixArray y_;
 
         ///Container for the inputs.
-        DiscreteTimeArray u_;
+        IndexedMatrixArray u_;
 
     };
 

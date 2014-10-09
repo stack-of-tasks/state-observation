@@ -20,7 +20,7 @@ namespace stateObservation
 
     void DynamicalSystemSimulator::setState( const Vector & x, unsigned k)
     {
-        BOOST_ASSERT((x_.size()==0 || (x_.getFirstTime()<=k && x_.getLastTime()+1>=k)) &&
+        BOOST_ASSERT((x_.size()==0 || (x_.getFirstIndex()<=k && x_.getLastIndex()+1>=k)) &&
             "ERROR: Only consecutive states can be set. If you want to restart a new dynamics please call resetDynamics before");
         x_.truncate(k);
         x_.setValue(x,k);
@@ -33,9 +33,9 @@ namespace stateObservation
 
     Vector DynamicalSystemSimulator::getMeasurement( unsigned k )
     {
-        BOOST_ASSERT((y_.size()==0 || y_.getFirstTime()<k) &&
+        BOOST_ASSERT((y_.size()==0 || y_.getFirstIndex()<k) &&
             "ERROR: Only future measurements can be obtained");
-        if (y_.getLastTime()<=k)
+        if (y_.getLastIndex()<=k)
             simulateDynamicsTo(k);
 
         return y_[k];
@@ -43,9 +43,9 @@ namespace stateObservation
 
     Vector DynamicalSystemSimulator::getState( unsigned k )
     {
-        BOOST_ASSERT((x_.size()==0 || x_.getFirstTime()<=k) &&
+        BOOST_ASSERT((x_.size()==0 || x_.getFirstIndex()<=k) &&
             "ERROR: Only future measurements can be obtained");
-        if (x_.getLastTime()<k)
+        if (x_.getLastIndex()<k)
             simulateDynamicsTo(k-1);
 
         return x_[k];
@@ -53,12 +53,12 @@ namespace stateObservation
 
     Vector DynamicalSystemSimulator::getCurrentState() const
     {
-        return x_[x_.getLastTime()];
+        return x_[x_.getLastIndex()];
     }
 
     unsigned DynamicalSystemSimulator::getCurrentTime() const
     {
-        return x_.getLastTime();
+        return x_.getLastIndex();
     }
 
     Vector DynamicalSystemSimulator::getInput(unsigned k)const
@@ -80,7 +80,7 @@ namespace stateObservation
         BOOST_ASSERT(f_!=0x0 &&
             "ERROR: A dynamics functor must be set");
 
-        unsigned k=x_.getLastTime();
+        unsigned k=x_.getLastIndex();
         Vector u=getInput(k);
         y_.setValue(f_->measureDynamics(x_[k],u,k),k);
         x_.setValue(f_->stateDynamics(x_[k],u,k),k+1);
@@ -89,17 +89,17 @@ namespace stateObservation
 
     void DynamicalSystemSimulator::simulateDynamicsTo(unsigned k)
     {
-        for (unsigned i=x_.getLastTime(); i <k ; ++i)
+        for (unsigned i=x_.getLastIndex(); i <k ; ++i)
         {
             simulateDynamics();
         }
     }
 
-    DiscreteTimeArray DynamicalSystemSimulator::getMeasurementArray
+    IndexedMatrixArray DynamicalSystemSimulator::getMeasurementArray
                     (unsigned startingTime, unsigned duration)
     {
-        BOOST_ASSERT(startingTime>y_.getFirstTime() && "ERROR: The starting time is too early, try later starting time");
-        DiscreteTimeArray a;
+        BOOST_ASSERT(startingTime>y_.getFirstIndex() && "ERROR: The starting time is too early, try later starting time");
+        IndexedMatrixArray a;
 
         for (unsigned i= startingTime; i<startingTime+duration;++i)
         {
@@ -108,12 +108,12 @@ namespace stateObservation
         return a;
     }
 
-    DiscreteTimeArray DynamicalSystemSimulator::getStateArray
+    IndexedMatrixArray DynamicalSystemSimulator::getStateArray
                     (unsigned startingTime, unsigned duration)
     {
-        BOOST_ASSERT(startingTime>x_.getFirstTime() && "ERROR: The starting time is too early, try later starting time");
+        BOOST_ASSERT(startingTime>x_.getFirstIndex() && "ERROR: The starting time is too early, try later starting time");
 
-        DiscreteTimeArray a;
+        IndexedMatrixArray a;
 
         for (unsigned i= startingTime; i<startingTime+duration;++i)
         {

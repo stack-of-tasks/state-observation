@@ -5,7 +5,7 @@
 
 using namespace stateObservation;
 
-DiscreteTimeArray getMeasurements(char * accelerometerSignal,  char * gyrometerSignal)
+IndexedMatrixArray getMeasurements(char * accelerometerSignal,  char * gyrometerSignal)
 {
     std::ifstream facc;
     std::ifstream fgyr;
@@ -18,7 +18,7 @@ DiscreteTimeArray getMeasurements(char * accelerometerSignal,  char * gyrometerS
 
     Vector yk=Vector::Zero(6,1);
 
-    DiscreteTimeArray y;
+    IndexedMatrixArray y;
 
     bool continuation=true;
 
@@ -45,7 +45,7 @@ DiscreteTimeArray getMeasurements(char * accelerometerSignal,  char * gyrometerS
     return y;
 }
 
-int test(const DiscreteTimeArray & y)
+int test(const IndexedMatrixArray & y)
 {
 
     std::cout << "Starting observation" <<std::endl;
@@ -66,7 +66,7 @@ int test(const DiscreteTimeArray & y)
     Matrix q = Matrix::Identity(stateSize,stateSize)*0.01;
     Matrix r = Matrix::Identity(measurementSize,measurementSize)*100;
 
-    DiscreteTimeArray xh = examples::imuAttitudeTrajectoryReconstruction
+    IndexedMatrixArray xh = examples::imuAttitudeTrajectoryReconstruction
                                         (y, xh0, p, q, r, dt);
 
     ///file of output
@@ -76,7 +76,7 @@ int test(const DiscreteTimeArray & y)
     double estimatedError=0;
 
     ///the reconstruction of the state
-    for (int i=xh.getFirstTime()+1;i<=xh.getLastTime();++i)
+    for (int i=xh.getFirstIndex()+1;i<=xh.getLastIndex();++i)
     {
         ///display part,
         Vector3 gh;

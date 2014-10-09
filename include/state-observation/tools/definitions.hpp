@@ -81,21 +81,21 @@ namespace stateObservation
     typedef Eigen::AngleAxis<double> AngleAxis;
 
     /**
-     * \class    DiscreteTimeMatrix
+     * \class    IndexedMatrix
      * \brief    This class describes a structure composed by a matrix
      *           of a given size and a time-index parameter. It can tell also if
      *           it initialized or not.
      *
      *
      */
-    class DiscreteTimeMatrix
+    class IndexedMatrix
     {
     public:
         ///Default constructor
-        DiscreteTimeMatrix();
+        IndexedMatrix();
 
         ///A constructor with a given matrix value and a time index
-        DiscreteTimeMatrix(const Matrix& v, unsigned k);
+        IndexedMatrix(const Matrix& v, unsigned k);
 
         ///Set the value of the matrix and the time sample
         inline void set(const Matrix& v,unsigned k);
@@ -122,17 +122,17 @@ namespace stateObservation
     };
 
     /**
-     * \class    DiscreteTimeMatrix
+     * \class    IndexedMatrix
      * \brief    This class describes a structure that enables to store array of matrices
      *           with time indexation.
      *
      */
 
-    class DiscreteTimeArray
+    class IndexedMatrixArray
     {
         public:
         ///Default constructor
-        DiscreteTimeArray();
+        IndexedMatrixArray();
 
         ///Sets the vector v at the time index k
         ///It checks the time index, the array must have contiguous indexes
@@ -147,10 +147,10 @@ namespace stateObservation
         inline void popFront();
 
         ///gets the value with the given time index
-        inline Matrix operator[](unsigned timeIndex) const;
+        inline Matrix operator[](unsigned index) const;
 
         ///gets the value with the given time index, non const version
-        inline Matrix  & operator[](unsigned timeIndex);
+        inline Matrix  & operator[](unsigned index);
 
         ///gets the first value
         inline const Matrix & front() const;
@@ -171,10 +171,10 @@ namespace stateObservation
         inline void resize(unsigned i, const Matrix & m= Matrix::Zero(0,0));
 
         ///Get the time index
-        inline unsigned getLastTime() const;
+        inline unsigned getLastIndex() const;
 
         ///Get the time index
-        inline unsigned getFirstTime() const;
+        inline unsigned getFirstIndex() const;
 
         inline unsigned size() const;
 
