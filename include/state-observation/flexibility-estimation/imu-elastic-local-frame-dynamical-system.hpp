@@ -45,8 +45,16 @@ namespace flexibilityEstimation
 
         // computation of the acceleration linear
         virtual Vector3 computeAccelerations
-            (const Vector& u, const Vector3& position, const Vector3& linVelocity, Vector3& linearAcceleration,
-            const Vector3 &oriVector ,const Matrix3& orientation, const Vector3& angularVel, Vector3& angularAcceleration);
+             (const Vector3& positionCom, const Vector3& velocityCom,
+              const Vector3& accelerationCom, const Vector3& AngMomentum,
+              const Vector3& dotAngMomentum,
+              const Matrix3& Inertia, const Matrix3& dotInertia,
+              const IndexedMatrixArray& contactPos,
+              const IndexedMatrixArray& contactOri,
+              const Vector3& position, const Vector3& linVelocity,
+              Vector3& linearAcceleration,  const Vector3 &oriVector ,
+              const Matrix3& orientation, const Vector3& angularVel,
+              Vector3& angularAcceleration);
 
         ///Description of the state dynamics
         virtual stateObservation::Vector stateDynamics
@@ -108,11 +116,24 @@ namespace flexibilityEstimation
         ///Gets the nimber of contacts
         unsigned getContactsNumber(void) const;
 
-        virtual void getForcesAndMoments(const Vector & contactsPosRot,
+        virtual void getForcesAndMoments
+                              (const IndexedMatrixArray& contactPosArray,
+                               const IndexedMatrixArray& contactOriArray,
                                const Vector3& position, const Vector3& linVelocity,
                                const Vector3& oriVector, const Matrix3& orientation,
                                const Vector3& angVel,
                                Vector3& forces, Vector3& moments);
+
+        virtual void iterateDynamics
+             (const Vector3& positionCom, const Vector3& velocityCom,
+              const Vector3& accelerationCom, const Vector3& AngMomentum,
+              const Vector3& dotAngMomentum,
+              const Matrix3& Inertia, const Matrix3& dotInertia,
+              const IndexedMatrixArray& contactPos,
+              const IndexedMatrixArray& contactOri,
+              Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
+              Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration
+              );
 
 
         virtual void setKfe(const Matrix3 & m);
@@ -157,6 +178,9 @@ namespace flexibilityEstimation
         Vector3 AccAngular;
 
         Matrix3 Kfe_, Kte_, Kfv_, Ktv_;
+
+        IndexedMatrixArray contactPosV_;
+        IndexedMatrixArray contactOriV_;
 
         unsigned kcurrent_;
         bool disp;
