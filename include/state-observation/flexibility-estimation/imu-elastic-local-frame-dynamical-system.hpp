@@ -124,7 +124,7 @@ namespace flexibilityEstimation
                                const Vector3& angVel,
                                Vector3& forces, Vector3& moments);
 
-        virtual void iterateDynamics
+        virtual void iterateDynamicsEuler
              (const Vector3& positionCom, const Vector3& velocityCom,
               const Vector3& accelerationCom, const Vector3& AngMomentum,
               const Vector3& dotAngMomentum,
@@ -132,7 +132,20 @@ namespace flexibilityEstimation
               const IndexedMatrixArray& contactPos,
               const IndexedMatrixArray& contactOri,
               Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
-              Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration
+              Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+              double dt
+              );
+
+        virtual void iterateDynamicsRK4
+             (const Vector3& positionCom, const Vector3& velocityCom,
+              const Vector3& accelerationCom, const Vector3& AngMomentum,
+              const Vector3& dotAngMomentum,
+              const Matrix3& Inertia, const Matrix3& dotInertia,
+              const IndexedMatrixArray& contactPos,
+              const IndexedMatrixArray& contactOri,
+              Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
+              Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+              double dt
               );
 
 
@@ -183,7 +196,7 @@ namespace flexibilityEstimation
         IndexedMatrixArray contactOriV_;
 
         unsigned kcurrent_;
-        bool disp;
+
     private:
 
 
