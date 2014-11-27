@@ -5,6 +5,8 @@
  *      Author: alexis
  */
 
+
+
 #include <state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
@@ -418,6 +420,7 @@ namespace flexibilityEstimation
 
         assertInputVector_(u);
 
+
         Vector3 positionControl(u.segment(input::posIMU,3));
         Vector3 velocityControl(u.segment(input::linVelIMU,3));
         Vector3 accelerationControl(u.segment(input::linAccIMU,3));
@@ -425,6 +428,7 @@ namespace flexibilityEstimation
         Vector3 angularVelocityControl(u.segment(input::angVelIMU,3));
 
         Matrix3 rControl(computeRotation_(orientationControlV));
+
         Matrix3 r = rFlex * rControl;
 
         // Translation sensor dynamic
@@ -444,7 +448,7 @@ namespace flexibilityEstimation
 
         // Set sensor state before measurement
         Vector v(Vector::Zero(15,1));
-        v.head<9>() = Eigen::Map<Eigen::Matrix<double, 9, 1> >(&rFlex(0,0));
+        v.head<9>() = Eigen::Map<Eigen::Matrix<double, 9, 1> >(&r(0,0));
         v.segment<3>(9)=acceleration;
         v.tail<3>()=angularVelocity;
         sensor_.setState(v,k);
