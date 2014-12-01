@@ -8,6 +8,8 @@
 #include <state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
+#include <iostream>
+
 namespace stateObservation
 {
 namespace flexibilityEstimation
@@ -27,10 +29,6 @@ namespace flexibilityEstimation
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
        // std::cout<<std::endl<<"IMUElasticLocalFrameDynamicalSystem Constructor"<<std::endl;
 #endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
-
-      calculationState <<  -1,
-                           -1,
-                           -1;
 
       sensor_.setMatrixMode(true);
 
@@ -105,22 +103,6 @@ namespace flexibilityEstimation
     }
 
 
-    void IMUElasticLocalFrameDynamicalSystem::test()
-    {
-        Vector x, u;
-        x.resize(18);
-        u.resize(54);
-//        x << 1.95675e-08,-2.22298e-10,-0.0109575,1.54011e-12,1.35566e-10,3.81192e-23,1.41111e-06,-1.60311e-08,-0.0489989,6.56636e-12,-3.14893e-09,-9.62102e-11,-5.76107e-05,6.54491e-07,9.47828,-8.92673e-08,-8.41481e-06,-7.82905e-09;
-//        u << 0.0135673,0.001536,0.80771,-2.63605e-06,-1.09258e-08,5.71759e-08,2.71345,0.3072,161.542,1.55342e-318,-6.53681e-66,-6.39612e-66,-6.54978e-66,-6.53171e-66,-6.55957e-66,0,0,0,0,0,0,0,0,0,0,0,0,-0.098,-6.23712e-11,1.1174,1.56933e-22,-5.40778e-21,3.86235e-22,-2.99589e-06,-1.24742e-08,-4.76329e-18,3.13865e-20,-1.08156e-18,7.72471e-20,-0.000299589,-1.24742e-06,-4.76329e-16,0.00949046,-0.095,1.98197e-07,8.75907e-23,-0,7.17001e-22,0.00949046,0.095,1.98197e-07,6.29302e-23,1.01427e-16,-6.61701e-22;
-
-        x << 0,0,-0.0109575,0,0,0,0,0,-0.0489989,0,0,0,0,0,0,0,0,0;
-        u << 0.0135673,0.001536,0.80771,0,0,0,2.71345,0.3072,161.542,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.098,0,1.1174,0,0,0,0,0,0,0,0,0,-0.000299589,0,0,0.00949046,-0.095,0,0,-0,0,0.00949046,0.095,0,0,0,0;
-
-//        std::cout << "AccAng" << computeAccelerationAngular(x,u,1) << std::endl;
-//        std::cout << "AccLin" << computeAccelerationLinear(x,u,1) << std::endl;
-    }
-
-
     Vector3 IMUElasticLocalFrameDynamicalSystem::computeAccelerations
        (const Vector3& positionCom, const Vector3& velocityCom,
         const Vector3& accelerationCom, const Vector3& AngMomentum,
@@ -141,6 +123,7 @@ namespace flexibilityEstimation
         Matrix3 skewV2(kine::skewSymmetric2(angularVel));
         Matrix3 skewVR(skewV * orientation);
         Matrix3 skewV2R(skewV2 * orientation);
+
 
         Matrix3 orientationT=orientation.transpose();
 
@@ -163,6 +146,9 @@ namespace flexibilityEstimation
                             (skewV2R * positionCom + 2*(skewVR * velocityCom) + orientation * accelerationCom ));
         vt.noalias() -= robotMass_* kine::skewSymmetric(orientation * positionCom + position) * cst::gravity;
 
+
+       // std::cout << "It=" << orientation*Inertia*orientationT << std::endl;
+        // std::cout << "com=" << robotMass_*kine::skewSymmetric2(orientation * positionCom) << std::endl;
 
         angularAcceleration = (orientation*Inertia*orientationT + robotMass_*kine::skewSymmetric2(orientation * positionCom)).inverse()
                                 *(vt - robotMass_*kine::skewSymmetric(orientation * positionCom + position)*vf);
@@ -441,28 +427,17 @@ namespace flexibilityEstimation
         Matrix3 rControl(computeRotation_(orientationControlV));
         Matrix3 r = rFlex * rControl;
 
-//        std::cout << "Mesure x " << x.transpose() << std::endl;
-//        std::cout << "Mesure u " << u.transpose() << std::endl;
-
         // Translation sensor dynamic
         Vector3 acceleration;
 
         acceleration << 0,0,0;
 
         acceleration += 2*kine::skewSymmetric(angularVelocityFlex) * rFlex * velocityControl;
-
-//        std::cout << "acceleration " << acceleration.transpose() << std::endl;
-
         acceleration += accelerationFlex + rFlex * accelerationControl;
-
-//        std::cout << "acceleration " << acceleration.transpose() << std::endl;
-
         acceleration += (
                     kine::skewSymmetric(angularAccelerationFlex)
                     + tools::square(kine::skewSymmetric(angularVelocityFlex))
                 )*rFlex * positionControl;
-
-//        std::cout << "acceleration " << acceleration.transpose() << std::endl;
 
         // Rotation sensor dynamic
         Vector3 angularVelocity( angularVelocityFlex + rFlex * angularVelocityControl);
@@ -477,9 +452,6 @@ namespace flexibilityEstimation
         // Measurement
         Vector y (Matrix::Zero(measurementSize_,1));
         y.head(sensor_.getMeasurementSize()) = sensor_.getMeasurements();
-
-//        std::cout << "===> v state sensor  " << v.transpose() << std::endl;
-//        std::cout << "===> y  " << y.transpose() << std::endl;
 
         return y;
     }

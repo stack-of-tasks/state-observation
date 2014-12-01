@@ -207,8 +207,6 @@ namespace flexibilityEstimation
 
         std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;
 
-        Vector3 calculationState;
-        Vector3 AccAngular;
 
         Matrix3 Kfe_, Kte_, Kfv_, Ktv_;
 
