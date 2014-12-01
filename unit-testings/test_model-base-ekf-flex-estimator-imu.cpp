@@ -13,6 +13,19 @@
 
 using namespace stateObservation;
 
+timespec diff(const timespec & start, const timespec & end)
+{
+        timespec temp;
+        if ((end.tv_nsec-start.tv_nsec)<0) {
+                temp.tv_sec = end.tv_sec-start.tv_sec-1;
+                temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
+        } else {
+                temp.tv_sec = end.tv_sec-start.tv_sec;
+                temp.tv_nsec = end.tv_nsec-start.tv_nsec;
+        }
+        return temp;
+}
+
 int test()
 {
     std::cout << "Debut du test" << std::endl;
@@ -32,7 +45,7 @@ int test()
             0,0,0,0,0,unitCov;
 
   /// Initializations
-    // Dimensions things
+    // Dimensions
     const unsigned kinit=0;
     const unsigned kmax=1400;
     const unsigned measurementSize=6;
@@ -194,8 +207,18 @@ int test()
     Vector flexibility;
     flexibility.resize(18);
 
+    timespec time1, time2, time3;
+    IndexedMatrixArray computationTime_output;
+    double computationTime_moy=0;
+    Vector computeTime;
+    computeTime.resize(1);
+
+
     for (int k=kinit+2;k<kmax;++k)
     {
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+
         est.setMeasurement(y[k].transpose());
         est.setMeasurementInput(u[k].transpose());
 
@@ -203,13 +226,22 @@ int test()
         x_output.setValue(flexibility,k);
         y_output.setValue(y[k],k);
         u_output.setValue(u[k],k);
+
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
+        computeTime[0]=(double)diff(time1,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
+        computationTime_output.setValue(computeTime,k);
+        computationTime_moy+=computeTime[0];
     }
+
+    computeTime[0]=computationTime_moy/(kmax-kinit);
+    computationTime_output.setValue(computeTime,kmax);
+    computationTime_output.writeInFile("computationTime.dat");
 
     x_output.writeInFile("state.dat");
     y_output.writeInFile("measurement.dat");
     u_output.writeInFile("input.dat");
 
-    std::cout << "Fin du test" << std::endl;
+  //  std::cout << "Fin du test" << std::endl;
 
 }
 
