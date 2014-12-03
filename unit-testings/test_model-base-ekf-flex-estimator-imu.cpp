@@ -8,7 +8,7 @@
 
 #include <state-observation/flexibility-estimation/model-base-ekf-flex-estimator-imu.hpp>
 
-#include <time.h>
+#include <sys/time.h>
 
 
 using namespace stateObservation;
@@ -207,7 +207,7 @@ int test()
     Vector flexibility;
     flexibility.resize(18);
 
-    timespec time1, time2, time3;
+    timeval t0, t1;
     IndexedMatrixArray computationTime_output;
     double computationTime_moy=0;
     Vector computeTime;
@@ -216,8 +216,7 @@ int test()
 
     for (int k=kinit+2;k<kmax;++k)
     {
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+        gettimeofday(&t0, 0);
 
         est.setMeasurement(y[k].transpose());
         est.setMeasurementInput(u[k].transpose());
@@ -227,8 +226,9 @@ int test()
         y_output.setValue(y[k],k);
         u_output.setValue(u[k],k);
 
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
-        computeTime[0]=(double)diff(time1,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
+
+        gettimeofday(&t1, 0);
+        computeTime[0] = (t1.tv_sec-t0.tv_sec)*1000000 + t1.tv_usec-t0.tv_usec;
         computationTime_output.setValue(computeTime,k);
         computationTime_moy+=computeTime[0];
     }
