@@ -16,6 +16,7 @@
 #include <state-observation/sensors-simulation/accelerometer-gyrometer.hpp>
 #include <state-observation/dynamical-system/algorithm/rigid-body-kinematics.hpp>
 #include <state-observation/tools/hrp2.hpp>
+#include <state-observation/contacts-models/contact-model.hpp>
 
 namespace stateObservation
 {
@@ -116,14 +117,6 @@ namespace flexibilityEstimation
         ///Gets the nimber of contacts
         unsigned getContactsNumber(void) const;
 
-        virtual void getForcesAndMoments
-                              (const IndexedMatrixArray& contactPosArray,
-                               const IndexedMatrixArray& contactOriArray,
-                               const Vector3& position, const Vector3& linVelocity,
-                               const Vector3& oriVector, const Matrix3& orientation,
-                               const Vector3& angVel,
-                               Vector3& forces, Vector3& moments);
-
         virtual void iterateDynamicsEuler
              (const Vector3& positionCom, const Vector3& velocityCom,
               const Vector3& accelerationCom, const Vector3& AngMomentum,
@@ -180,18 +173,15 @@ namespace flexibilityEstimation
         static const unsigned measurementSizeBase_=6;
         unsigned nbContacts_;
 
-        Vector fc_;
-        Vector tc_;
-
         unsigned measurementSize_;
 
-        std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;
 
-
-        Matrix3 Kfe_, Kte_, Kfv_, Ktv_;
-
+        stateObservation::ContactModel contactModel;
+        Vector fc_;
+        Vector tc_;
         IndexedMatrixArray contactPosV_;
         IndexedMatrixArray contactOriV_;
+        std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;
 
         unsigned kcurrent_;
 
