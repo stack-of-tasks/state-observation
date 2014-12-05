@@ -73,7 +73,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/state-observation/examples/imu-attitude-trajectory-reconstruction.hxx
   include/state-observation/examples/offline-ekf-flexibility-estimation.hpp
   include/state-observation/examples/offline-ekf-flexibility-estimation.hxx
-  include/state-observation/contacts-models/contact-model.hpp
 )
 SET(CXX_DISABLE_WERROR TRUE)
 

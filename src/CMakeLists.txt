@@ -57,7 +57,6 @@ ADD_LIBRARY(${LIBRARY_NAME}
   stable-imu-fixed-contact-dynamical-system.cpp
   imu-elastic-local-frame-dynamical-system.cpp
   bidim-elastic-inv-pendulum-dyn-sys.cpp
-  contact-model.cpp
   ${${PROJECT_NAME}_ABSOLUTE_HEADERS}
   )
 
