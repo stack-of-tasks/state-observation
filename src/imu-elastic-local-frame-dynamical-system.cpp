@@ -24,6 +24,14 @@ namespace flexibilityEstimation
    IMUElasticLocalFrameDynamicalSystem::
     	IMUElasticLocalFrameDynamicalSystem(double dt):
         processNoise_(0x0), dt_(dt),
+                    orientationVector0(Vector3::Zero()),
+            curRotation0(Matrix3::Identity()),
+            orientationVector1(Vector3::Zero()),
+            curRotation1(Matrix3::Identity()),
+            orientationVector2(Vector3::Zero()),
+            curRotation2(Matrix3::Identity()),
+            orientationVector3(Vector3::Zero()),
+            curRotation3(Matrix3::Identity()),
         measurementSize_(measurementSizeBase_),
         robotMassInv_(1/hrp2::m),
         robotMass_(hrp2::m)
@@ -481,8 +489,8 @@ namespace flexibilityEstimation
     inline Matrix3& IMUElasticLocalFrameDynamicalSystem::computeRotation_
                 (const Vector3 & x, int i)
     {
-        Vector3 & oriV = op_.orientationVector(i);
-        Matrix3 & oriR = op_.curRotation(i);
+        Vector3 & oriV = orientationVector(i);
+        Matrix3 & oriR = curRotation(i);
         if (oriV!=x)
         {
             oriV = x;
