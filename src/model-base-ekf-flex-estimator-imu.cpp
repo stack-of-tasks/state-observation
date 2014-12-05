@@ -269,7 +269,7 @@ namespace flexibilityEstimation
         if (ekf_.getMeasurementsNumber()>0)
         {
             clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
+            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
             if(on_==true)
             {
                 //lastX_ =EKFFlexibilityEstimatorBase::getFlexibilityVector();//obsolete
@@ -303,9 +303,9 @@ namespace flexibilityEstimation
 
                     }
                 }
-                clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+                clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
 
-                computeFlexibilityTime_=(double)diff(time1,time2).tv_nsec-(double)diff(time1,time3).tv_nsec;
+                computeFlexibilityTime_=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
 
             }
             else

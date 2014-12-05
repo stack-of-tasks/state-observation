@@ -216,19 +216,27 @@ int test()
 
     for (int k=kinit+2;k<kmax;++k)
     {
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+
 
         est.setMeasurement(y[k].transpose());
         est.setMeasurementInput(u[k].transpose());
 
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+
+
+
         flexibility = est.getFlexibilityVector();
+
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
+        computeTime[0]=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
+
         x_output.setValue(flexibility,k);
         y_output.setValue(y[k],k);
         u_output.setValue(u[k],k);
 
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
-        computeTime[0]=(double)diff(time1,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
+
+        computeTime[0]=est.getComputeFlexibilityTime();
         computationTime_output.setValue(computeTime,k);
         computationTime_moy+=computeTime[0];
     }
