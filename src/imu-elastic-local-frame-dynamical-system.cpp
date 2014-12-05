@@ -436,41 +436,43 @@ namespace flexibilityEstimation
           contactOriV_.setValue(contact.segment<3>(6*i+3),i);
         }
 
-        Vector3 positionCom(u.segment<3>(input::posCom));
-        Vector3 velocityCom(u.segment<3>(input::velCom));
-        Vector3 accelerationCom(u.segment<3>(input::accCom));
-        Vector3 AngMomentum(u.segment<3>(input::angMoment));
-        Vector3 dotAngMomentum(u.segment<3>(input::dotAngMoment));
+        op_.positionCom=u.segment<3>(input::posCom);
+        op_.velocityCom=u.segment<3>(input::velCom);
+        op_.accelerationCom=u.segment<3>(input::accCom);
+        op_.AngMomentum=u.segment<3>(input::angMoment);
+        op_.dotAngMomentum=u.segment<3>(input::dotAngMoment);
 
 
         int subsample=1;
         for (int i=0; i<subsample; ++i)
         {
-          iterateDynamicsEuler (positionCom, velocityCom,
-                          accelerationCom, AngMomentum, dotAngMomentum,
-                          inertia, dotInertia,  contactPosV_, contactOriV_,
-                          positionFlex, velocityFlex, accelerationFlex,
-                          orientationFlexV, angularVelocityFlex,
-                          angularAccelerationFlex, dt_/subsample);
+          iterateDynamicsEuler (op_.positionCom, op_.velocityCom,
+                          op_.accelerationCom, op_.AngMomentum, op_.dotAngMomentum,
+                          op_.inertia, op_.dotInertia,  op_.contactPosV, op_.contactOriV,
+                          op_.positionFlex, op_.velocityFlex, op_.accelerationFlex,
+                          op_.orientationFlexV, op_.angularVelocityFlex,
+                          op_.angularAccelerationFlex, dt_/subsample);
         }
 
         //x_{k+1}
 
-        Vector xk1(x);
+        Vector& xk1 = op_.xk1;
 
-        xk1.segment(kine::pos,3) = positionFlex;
-        xk1.segment(kine::linVel,3) = velocityFlex;
-        xk1.segment(kine::linAcc,3) = accelerationFlex;
+        xk1=x;
+
+        xk1.segment<3>(kine::pos) = op_.positionFlex;
+        xk1.segment<3>(kine::linVel) = op_.velocityFlex;
+        xk1.segment<3>(kine::linAcc) = op_.accelerationFlex;
 
 
 
-        xk1.segment(kine::ori,3) =  orientationFlexV;
-        xk1.segment(kine::angVel,3) = angularVelocityFlex;
-        xk1.segment(kine::angAcc,3) = angularAccelerationFlex;
+        xk1.segment<3>(kine::ori) =  op_.orientationFlexV;
+        xk1.segment<3>(kine::angVel) = op_.angularVelocityFlex;
+        xk1.segment<3>(kine::angAcc) = op_.angularAccelerationFlex;
 
         if (processNoise_!=0x0)
             return processNoise_->addNoise(xk1);
-        else
+         else
             return xk1;
     }
 
