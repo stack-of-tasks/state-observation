@@ -210,7 +210,7 @@ namespace flexibilityEstimation
         double robotMass_;
         double robotMassInv_;
 
-        Matrix& computeRotation_(const Vector3 & x, int i);
+        Matrix3& computeRotation_(const Vector3 & x, int i);
 
         static const unsigned stateSize_=18;
         static const unsigned inputSizeBase_=42;
@@ -265,9 +265,50 @@ namespace flexibilityEstimation
           EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
           //optimization of orientation transformation between vector3 to rotation matrix
+          Matrix3 curRotation0;
+          Vector3 orientationVector0;
+          Matrix3 curRotation1;
+          Vector3 orientationVector1;
+          Matrix3 curRotation2;
+          Vector3 orientationVector2;
+          Matrix3 curRotation3;
+          Vector3 orientationVector3;
 
-          IndexedMatrixArray orientationVector;
-          IndexedMatrixArray curRotation;
+
+          Optimization():
+            orientationVector0(Vector3::Zero()),
+            curRotation0(Matrix3::Identity()),
+            orientationVector1(Vector3::Zero()),
+            curRotation1(Matrix3::Identity()),
+            orientationVector2(Vector3::Zero()),
+            curRotation2(Matrix3::Identity()),
+            orientationVector3(Vector3::Zero()),
+            curRotation3(Matrix3::Identity())
+            {}
+
+          inline Vector3& orientationVector(int i)
+          {
+            if (i==0)
+              return orientationVector0;
+            if (i==1)
+              return orientationVector1;
+            if (i==2)
+              return orientationVector2;
+            if (i==3)
+              return orientationVector3;
+          }
+
+          inline Matrix3& curRotation(int i)
+          {
+            if (i==0)
+              return curRotation0;
+            if (i==1)
+              return curRotation1;
+            if (i==2)
+              return curRotation2;
+
+            return curRotation3;
+          }
 
         } op_;
 

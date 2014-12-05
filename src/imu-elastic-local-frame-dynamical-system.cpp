@@ -39,8 +39,6 @@ namespace flexibilityEstimation
       sensor_.setMatrixMode(true);
       contactModel_=0;
 
-      op_.orientationVector.resize(1,Vector3::Zero());
-      op_.curRotation.resize(1,Matrix3::Identity());
 
       kcurrent_=-1;
 
@@ -433,9 +431,6 @@ namespace flexibilityEstimation
 
         unsigned nbContacts(getContactsNumber());
 
-        op_.orientationVector.resize(2+nbContacts,Vector3::Zero());
-        op_.curRotation.resize(2+nbContacts,Matrix3::Identity());
-
         for (int i = 0; i<nbContacts ; ++i)
         {
           op_.contactPosV.setValue(u.segment<3>(input::contacts + 6*i),i);
@@ -483,11 +478,11 @@ namespace flexibilityEstimation
     }
 
 
-    inline Matrix& IMUElasticLocalFrameDynamicalSystem::computeRotation_
+    inline Matrix3& IMUElasticLocalFrameDynamicalSystem::computeRotation_
                 (const Vector3 & x, int i)
     {
-        Matrix & oriV = op_.orientationVector[i];
-        Matrix & oriR = op_.curRotation[i];
+        Vector3 & oriV = op_.orientationVector(i);
+        Matrix3 & oriR = op_.curRotation(i);
         if (oriV!=x)
         {
             oriV = x;
@@ -519,7 +514,7 @@ namespace flexibilityEstimation
         Vector3 orientationControlV(u.segment(input::oriIMU,3));
         Vector3 angularVelocityControl(u.segment(input::angVelIMU,3));
 
-        Matrix3 rControl(computeRotation_(orientationControlV,2));
+        Matrix3 rControl(computeRotation_(orientationControlV,1));
 
         Matrix3 r = rFlex * rControl;
 
