@@ -216,7 +216,7 @@ namespace flexibilityEstimation
         Matrix3 skewV2R(skewV2 * orientation);
 
 
-        Matrix3 orientationT=orientation.transpose();
+        Matrix3 orientationT(orientation.transpose());
 
         computeForcesAndMoments (contactPosV, contactOriV,
                           position, linVelocity, oriVector, orientation,
@@ -268,7 +268,7 @@ namespace flexibilityEstimation
 
         computeAccelerations (positionCom, velocityCom,
         accelerationCom, AngMomentum, dotAngMomentum,
-        inertia, dotInertia,  contactPosV_, contactOriV_, position, linVelocity, linearAcceleration,
+        inertia, dotInertia,  contactPos, contactOri, position, linVelocity, linearAcceleration,
                        oriVector, orientationFlex, angularVel, angularAcceleration);
 
 
@@ -417,15 +417,16 @@ namespace flexibilityEstimation
     {
         assertStateVector_(x);
 
-        Vector3 positionFlex(x.segment(kine::pos,3));
-        Vector3 velocityFlex(x.segment(kine::linVel,3));
-        Vector3 accelerationFlex(x.segment(kine::linAcc,3));
-        Vector3 orientationFlexV(x.segment(kine::ori,3));
-        Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
-        Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
+        op_.positionFlex=x.segment(kine::pos,3);
+        op_.velocityFlex=x.segment(kine::linVel,3);
+        op_.accelerationFlex=x.segment(kine::linAcc,3);
+        op_.orientationFlexV=x.segment(kine::ori,3);
+        op_.angularVelocityFlex=x.segment(kine::angVel,3);
+        op_.angularAccelerationFlex=x.segment(kine::angAcc,3);
 
-        const Matrix3 inertia(kine::computeInertiaTensor(u.segment<6>(input::inertia)));
-        const Matrix3 dotInertia(kine::computeInertiaTensor(u.segment<6>(input::dotInertia)));
+
+        kine::computeInertiaTensor(u.segment<6>(input::inertia),op_.inertia);
+        kine::computeInertiaTensor(u.segment<6>(input::dotInertia),op_.dotInertia);
 
         unsigned nbContacts(getContactsNumber());
         Vector contact(u.tail(6*getContactsNumber()));

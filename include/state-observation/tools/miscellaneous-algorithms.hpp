@@ -34,6 +34,12 @@ namespace stateObservation
             T o(o2-o1);
             return o*(1/dt);
         }
+
+        template <typename T> inline
+        int signum(T x)
+        {
+          return (T(0) < x) - (x < T(0));
+        }
     }
 
     namespace kine
@@ -100,7 +106,7 @@ namespace stateObservation
         }
 
 
-        inline Matrix3 computeInertiaTensor(const Vector6 inputInertia)
+        inline Matrix3 computeInertiaTensor(const Vector6 inputInertia, Matrix3& inertiaTensor)
         {
 
             const double & Ixx=inputInertia[0];
@@ -109,8 +115,6 @@ namespace stateObservation
             const double & Ixy=inputInertia[3];
             const double & Ixz=inputInertia[4];
             const double & Iyz=inputInertia[5];
-
-            Matrix3 inertiaTensor;
 
             inertiaTensor   <<    Ixx, Ixy, Ixz,
                                   Ixy, Iyy, Iyz,
@@ -312,14 +316,6 @@ namespace stateObservation
             m2.block(0,3,3,1) = - rt * m.block(0,3,3,1);
             return m2;
         }
-
-
-        template <typename T> inline
-        int signum(T x)
-        {
-          return (T(0) < x) - (x < T(0));
-        }
-
 
     }
 

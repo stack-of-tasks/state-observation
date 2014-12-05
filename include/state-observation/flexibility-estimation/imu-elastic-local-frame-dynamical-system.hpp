@@ -233,10 +233,46 @@ namespace flexibilityEstimation
 
         Matrix3 Kfe_, Kte_, Kfv_, Ktv_;
 
-        IndexedMatrixArray contactPosV_;
-        IndexedMatrixArray contactOriV_;
+
 
         unsigned kcurrent_;
+
+
+        struct Optimization
+        {
+
+
+          Vector3 positionFlex;
+          Vector3 velocityFlex;
+          Vector3 accelerationFlex;
+          Vector3 orientationFlexV;
+          Vector3 angularVelocityFlex;
+          Vector3 angularAccelerationFlex;
+
+          Vector xk1;
+
+          Vector3 positionCom;
+          Vector3 velocityCom;
+          Vector3 accelerationCom;
+          Vector3 AngMomentum;
+          Vector3 dotAngMomentum;
+
+
+          IndexedMatrixArray contactPosV;
+          IndexedMatrixArray contactOriV;
+
+
+          Matrix3 inertia;
+          Matrix3 dotInertia;
+
+          EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+          //optimization of orientation transformation between vector3 to rotation matrix
+
+          IndexedMatrixArray orientationVector;
+          IndexedMatrixArray curRotation;
+
+        } op_;
 
     private:
 
