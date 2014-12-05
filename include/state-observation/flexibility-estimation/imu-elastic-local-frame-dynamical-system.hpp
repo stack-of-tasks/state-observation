@@ -210,10 +210,7 @@ namespace flexibilityEstimation
         double robotMass_;
         double robotMassInv_;
 
-        Vector3 orientationVector_;
-        Matrix3 curRotation_;
-
-        Matrix3 computeRotation_(const Vector3 & x);
+        Matrix& computeRotation_(const Vector3 & x, int i);
 
         static const unsigned stateSize_=18;
         static const unsigned inputSizeBase_=42;

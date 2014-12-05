@@ -23,8 +23,7 @@ namespace flexibilityEstimation
 
    IMUElasticLocalFrameDynamicalSystem::
     	IMUElasticLocalFrameDynamicalSystem(double dt):
-        processNoise_(0x0), dt_(dt),orientationVector_(Vector3::Zero()),
-        curRotation_(Matrix3::Identity()),
+        processNoise_(0x0), dt_(dt),
         measurementSize_(measurementSizeBase_),
         robotMassInv_(1/hrp2::m),
         robotMass_(hrp2::m)
@@ -39,6 +38,10 @@ namespace flexibilityEstimation
 
       sensor_.setMatrixMode(true);
       contactModel_=0;
+
+      op_.orientationVector.resize(1,Vector3::Zero());
+      op_.curRotation.resize(1,Matrix3::Identity());
+
       kcurrent_=-1;
 
     }
@@ -257,7 +260,7 @@ namespace flexibilityEstimation
               double dt)
     {
 
-        Matrix3 orientationFlex(computeRotation_(oriVector));
+        Matrix3 orientationFlex(computeRotation_(oriVector,0));
         //compute new acceleration with the current flex position and velocity and input
 
 
@@ -288,7 +291,7 @@ namespace flexibilityEstimation
               double dt)
     {
 
-        Matrix3 orientationFlex(computeRotation_(oriVector));
+        Matrix3 orientationFlex(computeRotation_(oriVector,0));
 
         Vector3 linAcc1;
         Vector3 angAcc1;
@@ -429,11 +432,14 @@ namespace flexibilityEstimation
         kine::computeInertiaTensor(u.segment<6>(input::dotInertia),op_.dotInertia);
 
         unsigned nbContacts(getContactsNumber());
-        Vector contact(u.tail(6*getContactsNumber()));
+
+        op_.orientationVector.resize(2+nbContacts,Vector3::Zero());
+        op_.curRotation.resize(2+nbContacts,Matrix3::Identity());
+
         for (int i = 0; i<nbContacts ; ++i)
         {
-          contactPosV_.setValue(contact.segment<3>(6*i),i);
-          contactOriV_.setValue(contact.segment<3>(6*i+3),i);
+          op_.contactPosV.setValue(u.segment<3>(input::contacts + 6*i),i);
+          op_.contactOriV.setValue(u.segment<3>(input::contacts +6*i+3),i);
         }
 
         op_.positionCom=u.segment<3>(input::posCom);
@@ -476,16 +482,19 @@ namespace flexibilityEstimation
             return xk1;
     }
 
-    inline Matrix3 IMUElasticLocalFrameDynamicalSystem::computeRotation_
-                (const Vector3 & x)
+
+    inline Matrix& IMUElasticLocalFrameDynamicalSystem::computeRotation_
+                (const Vector3 & x, int i)
     {
-        if (orientationVector_!=x)
+        Matrix & oriV = op_.orientationVector[i];
+        Matrix & oriR = op_.curRotation[i];
+        if (oriV!=x)
         {
-            orientationVector_ = x;
-            curRotation_ = kine::rotationVectorToAngleAxis(x).toRotationMatrix();
+            oriV = x;
+            oriR = kine::rotationVectorToAngleAxis(x).toRotationMatrix();
         }
 
-        return curRotation_;
+        return oriR;
     }
 
     Vector IMUElasticLocalFrameDynamicalSystem::measureDynamics
@@ -500,7 +509,7 @@ namespace flexibilityEstimation
         Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
         Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
 
-        Matrix3 rFlex (computeRotation_(orientationFlexV));
+        Matrix3 rFlex (computeRotation_(orientationFlexV,0));
 
         assertInputVector_(u);
 
@@ -510,7 +519,7 @@ namespace flexibilityEstimation
         Vector3 orientationControlV(u.segment(input::oriIMU,3));
         Vector3 angularVelocityControl(u.segment(input::angVelIMU,3));
 
-        Matrix3 rControl(computeRotation_(orientationControlV));
+        Matrix3 rControl(computeRotation_(orientationControlV,2));
 
         Matrix3 r = rFlex * rControl;
 
