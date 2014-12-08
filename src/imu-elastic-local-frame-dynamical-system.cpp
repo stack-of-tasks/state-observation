@@ -38,6 +38,7 @@ namespace flexibilityEstimation
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
        // std::cout<<std::endl<<"IMUElasticLocalFrameDynamicalSystem Constructor"<<std::endl;
+
 #endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
       Kfe_=40000*Matrix3::Identity();
       Kte_=600*Matrix3::Identity();
@@ -505,45 +506,46 @@ namespace flexibilityEstimation
     {
         assertStateVector_(x);
 
-        Vector3 positionFlex(x.segment(kine::pos,3));
-        Vector3 velocityFlex(x.segment(kine::linVel,3));
-        Vector3 accelerationFlex(x.segment(kine::linAcc,3));
-        Vector3 orientationFlexV(x.segment(kine::ori,3));
-        Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
-        Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
+        op_.positionFlex=x.segment(kine::pos,3);
+        op_.velocityFlex=x.segment(kine::linVel,3);
+        op_.accelerationFlex=x.segment(kine::linAcc,3);
+        op_.orientationFlexV=x.segment(kine::ori,3);
+        op_.angularVelocityFlex=x.segment(kine::angVel,3);
+        op_.angularAccelerationFlex=x.segment(kine::angAcc,3);
 
-        Matrix3 rFlex (computeRotation_(orientationFlexV,0));
+        op_.rFlex =computeRotation_(op_.orientationFlexV,0);
 
         assertInputVector_(u);
 
-        Vector3 positionControl(u.segment(input::posIMU,3));
-        Vector3 velocityControl(u.segment(input::linVelIMU,3));
-        Vector3 accelerationControl(u.segment(input::linAccIMU,3));
-        Vector3 orientationControlV(u.segment(input::oriIMU,3));
-        Vector3 angularVelocityControl(u.segment(input::angVelIMU,3));
 
-        Matrix3 rControl(computeRotation_(orientationControlV,1));
+        op_.positionControl=u.segment(input::posIMU,3);
+        op_.velocityControl=u.segment(input::linVelIMU,3);
+        op_.accelerationControl=u.segment(input::linAccIMU,3);
+        op_.orientationControlV=u.segment(input::oriIMU,3);
+        op_.angularVelocityControl=u.segment(input::angVelIMU,3);
 
-        Matrix3 r = rFlex * rControl;
+        op_.rControl=computeRotation_(op_.orientationControlV,1);
+
+        op_.rimu = op_.rFlex * op_.rControl;
 
         // Translation sensor dynamic
         Vector3 acceleration;
 
         acceleration << 0,0,0;
 
-        acceleration += 2*kine::skewSymmetric(angularVelocityFlex) * rFlex * velocityControl;
-        acceleration += accelerationFlex + rFlex * accelerationControl;
+        acceleration += 2*kine::skewSymmetric(op_.angularVelocityFlex) * op_.rFlex * op_.velocityControl;
+        acceleration += op_.accelerationFlex + op_.rFlex * op_.accelerationControl;
         acceleration += (
-                    kine::skewSymmetric(angularAccelerationFlex)
-                    + tools::square(kine::skewSymmetric(angularVelocityFlex))
-                )*rFlex * positionControl;
+                    kine::skewSymmetric(op_.angularAccelerationFlex)
+                    + tools::square(kine::skewSymmetric(op_.angularVelocityFlex))
+                )*op_.rFlex * op_.positionControl;
 
         // Rotation sensor dynamic
-        Vector3 angularVelocity( angularVelocityFlex + rFlex * angularVelocityControl);
+        Vector3 angularVelocity( op_.angularVelocityFlex + op_.rFlex * op_.angularVelocityControl);
 
         // Set sensor state before measurement
         Vector v(Vector::Zero(15,1));
-        v.head<9>() = Eigen::Map<Eigen::Matrix<double, 9, 1> >(&r(0,0));
+        v.head<9>() = Eigen::Map<Eigen::Matrix<double, 9, 1> >(&op_.rimu(0,0));
         v.segment<3>(9)=acceleration;
         v.tail<3>()=angularVelocity;
 

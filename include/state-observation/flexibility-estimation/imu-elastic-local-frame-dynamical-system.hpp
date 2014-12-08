@@ -218,8 +218,8 @@ namespace flexibilityEstimation
               return orientationVector1;
             if (i==2)
               return orientationVector2;
-            if (i==3)
-              return orientationVector3;
+
+            return orientationVector3;
         }
 
         inline Matrix3& curRotation(int i)
@@ -279,6 +279,8 @@ namespace flexibilityEstimation
           Vector3 angularVelocityFlex;
           Vector3 angularAccelerationFlex;
 
+          Matrix3 rFlex;
+
           Vector xk1;
 
           Vector3 positionCom;
@@ -287,6 +289,15 @@ namespace flexibilityEstimation
           Vector3 AngMomentum;
           Vector3 dotAngMomentum;
 
+          Vector3 positionControl;
+          Vector3 velocityControl;
+          Vector3 accelerationControl;
+          Vector3 orientationControlV;
+          Vector3 angularVelocityControl;
+
+          Matrix3 rControl;
+
+          Matrix3 rimu;
 
           IndexedMatrixArray contactPosV;
           IndexedMatrixArray contactOriV;
