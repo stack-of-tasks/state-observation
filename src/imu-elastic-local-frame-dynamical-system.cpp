@@ -31,6 +31,10 @@ namespace flexibilityEstimation
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
        // std::cout<<std::endl<<"IMUElasticLocalFrameDynamicalSystem Constructor"<<std::endl;
 #endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
+      Kfe_=40000*Matrix3::Identity();
+      Kte_=600*Matrix3::Identity();
+      Kfv_=600*Matrix3::Identity();
+      Ktv_=60*Matrix3::Identity();
 
       sensor_.setMatrixMode(true);
 
@@ -148,13 +152,8 @@ namespace flexibilityEstimation
                             (skewV2R * positionCom + 2*(skewVR * velocityCom) + orientation * accelerationCom ));
         vt.noalias() -= robotMass_* kine::skewSymmetric(orientation * positionCom + position) * cst::gravity;
 
-
-       // std::cout << "It=" << orientation*Inertia*orientationT << std::endl;
-        // std::cout << "com=" << robotMass_*kine::skewSymmetric2(orientation * positionCom) << std::endl;
-
         angularAcceleration = (orientation*Inertia*orientationT + robotMass_*kine::skewSymmetric2(orientation * positionCom)).inverse()
                                 *(vt - robotMass_*kine::skewSymmetric(orientation * positionCom + position)*vf);
-
 
         linearAcceleration = vf;
         linearAcceleration += kine::skewSymmetric(orientation*positionCom)*angularAcceleration;
@@ -386,7 +385,7 @@ namespace flexibilityEstimation
         xk1.segment(kine::angVel,3) = angularVelocityFlex;
         xk1.segment(kine::angAcc,3) = angularAccelerationFlex;
 
-         if (processNoise_!=0x0)
+        if (processNoise_!=0x0)
             return processNoise_->addNoise(xk1);
         else
             return xk1;
@@ -420,7 +419,6 @@ namespace flexibilityEstimation
 
         assertInputVector_(u);
 
-
         Vector3 positionControl(u.segment(input::posIMU,3));
         Vector3 velocityControl(u.segment(input::linVelIMU,3));
         Vector3 accelerationControl(u.segment(input::linAccIMU,3));
@@ -451,6 +449,7 @@ namespace flexibilityEstimation
         v.head<9>() = Eigen::Map<Eigen::Matrix<double, 9, 1> >(&r(0,0));
         v.segment<3>(9)=acceleration;
         v.tail<3>()=angularVelocity;
+
         sensor_.setState(v,k);
 
         // Measurement
