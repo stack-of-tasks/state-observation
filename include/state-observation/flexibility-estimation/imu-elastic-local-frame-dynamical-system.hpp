@@ -17,6 +17,7 @@
 #include <state-observation/dynamical-system/algorithm/rigid-body-kinematics.hpp>
 #include <state-observation/tools/hrp2.hpp>
 
+
 namespace stateObservation
 {
 namespace flexibilityEstimation

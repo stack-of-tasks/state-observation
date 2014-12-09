@@ -8,8 +8,6 @@
 #include <state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
-#include <iostream>
-
 namespace stateObservation
 {
 namespace flexibilityEstimation
@@ -32,8 +30,8 @@ namespace flexibilityEstimation
 
       sensor_.setMatrixMode(true);
       contactModel_=0;
-
       kcurrent_=-1;
+
     }
 
     IMUElasticLocalFrameDynamicalSystem::
@@ -54,8 +52,8 @@ namespace flexibilityEstimation
    }
 
     void IMUElasticLocalFrameDynamicalSystem::getElastPendulumForcesAndMoments
-                              (const IndexedMatrixArray& PrArray,
-                               const IndexedMatrixArray& PeArray,
+                              (const IndexedMatrixArray& PeArray,
+                               const IndexedMatrixArray& PrArray,
                                const Vector3& position, const Vector3& linVelocity,
                                const Vector3& oriVector, const Matrix3& orientation,
                                const Vector3& angVel,
@@ -74,14 +72,17 @@ namespace flexibilityEstimation
 
         Vector3 contactOriUnitVector;
 
+        double stringLength;
+        double modifiedStringLength;
+
 
         for (int i = 0; i<nbContacts ; ++i)
         {
             globalContactPos = position ;
             globalContactPos.noalias() += orientation*PrArray[i] ;
 
-            double stringLength=(PrArray[i]-PeArray[i]).norm();
-            double modifiedStringLength=(globalContactPos-PeArray[i]).norm();
+            stringLength=(PrArray[i]-PeArray[i]).norm();
+            modifiedStringLength=(globalContactPos-PeArray[i]).norm();
             contactOriUnitVector= (PeArray[i] - globalContactPos)/modifiedStringLength;
 
             forcei.noalias() = - Kfe_*(modifiedStringLength-stringLength)*contactOriUnitVector;
@@ -124,14 +125,11 @@ namespace flexibilityEstimation
         Vector3 momenti;
         Vector3 globalContactPos;
   
-  
-  
-  
         for (int i = 0; i<nbContacts ; ++i)
         {
           contactPos = contactPosArray[i];
   
-          Rci = contactOriArray[i];
+          Rci = computeRotation_(contactOriArray[i]);
           Rcit= Rci.transpose();
   
           globalContactPos = position ;
@@ -172,7 +170,7 @@ namespace flexibilityEstimation
         case 2 : getElastPendulumForcesAndMoments(position1, position2, position, linVelocity, oriVector, orientation, angVel, forces, moments);
                  break;
 
-        default: BOOST_ASSERT("ERROR: Contacts model is not well set");
+        default: BOOST_ASSERT(false && "ERROR: Contacts model is not well set");
         }
     }
 
@@ -412,7 +410,6 @@ namespace flexibilityEstimation
         Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
         Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
 
-
         const Matrix3 inertia(kine::computeInertiaTensor(u.segment<6>(input::inertia)));
         const Matrix3 dotInertia(kine::computeInertiaTensor(u.segment<6>(input::dotInertia)));
 
@@ -421,7 +418,7 @@ namespace flexibilityEstimation
         for (int i = 0; i<nbContacts ; ++i)
         {
           contactPosV_.setValue(contact.segment<3>(6*i),i);
-          contactOriV_.setValue(computeRotation_(contact.segment<3>(6*i+3)),i);
+          contactOriV_.setValue(contact.segment<3>(6*i+3),i);
         }
 
         Vector3 positionCom(u.segment<3>(input::posCom));
@@ -429,6 +426,7 @@ namespace flexibilityEstimation
         Vector3 accelerationCom(u.segment<3>(input::accCom));
         Vector3 AngMomentum(u.segment<3>(input::angMoment));
         Vector3 dotAngMomentum(u.segment<3>(input::dotAngMoment));
+
 
         int subsample=1;
         for (int i=0; i<subsample; ++i)
@@ -440,9 +438,6 @@ namespace flexibilityEstimation
                           orientationFlexV, angularVelocityFlex,
                           angularAccelerationFlex, dt_/subsample);
         }
-
-//        std::cout << "accelerationFlex" << accelerationFlex.transpose() << std::endl;
-//        std::cout << "angularAccelerationFlec" << angularAccelerationFlex.transpose() << std::endl;
 
         //x_{k+1}
 

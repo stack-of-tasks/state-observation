@@ -50,6 +50,8 @@ namespace flexibilityEstimation
         ///Sets the number of contacts can be changed online
         void setContactsNumber(unsigned i);
 
+        void setContactModelNumber(unsigned nb);
+
         /// Sets the value of the next sensor measurement y_{k+1}
         virtual void setMeasurement(const Vector & y);
 
