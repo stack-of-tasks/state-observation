@@ -28,7 +28,7 @@ timespec diff(const timespec & start, const timespec & end)
 
 int test()
 {
-    std::cout << "Debut du test" << std::endl;
+    std::cout << "Starting" << std::endl;
 
   /// sampling period
     const double dt=5e-3;
@@ -117,12 +117,20 @@ int test()
              -1.24742e-06,
              -4.7647e-16;
 
+    stateObservation::flexibilityEstimation::ModelBaseEKFFlexEstimatorIMU est;
+    est.setSamplingPeriod(dt);
+    est.setInput(u0);
+    est.setMeasurementInput(u0);
+ //   est.getEKF().setState(x0,0);
+
    /// Definitions of input vectors
      // Measurement
      IndexedMatrixArray y;
+    std::cout << "Loading measurements file" << std::endl;
      y.getFromFile("source_measurement.dat",1,measurementSize);
      // Input
      IndexedMatrixArray u;
+     std::cout << "Loading input file" << std::endl;
      u.getFromFile("source_input.dat",1,inputSize);
 
    /// Definition of ouptut vectors
@@ -135,11 +143,7 @@ int test()
 
 
 
-    stateObservation::flexibilityEstimation::ModelBaseEKFFlexEstimatorIMU est;
-    est.setSamplingPeriod(dt);
-    est.setInput(u0);
-    est.setMeasurementInput(u0);
- //   est.getEKF().setState(x0,0);
+
 
     est.setMeasurementNoiseCovariance(Cov);
 
@@ -213,7 +217,7 @@ int test()
     Vector computeTime;
     computeTime.resize(1);
 
-
+    std::cout << "Beginning reconstruction "<<std::endl;
     for (int k=kinit+2;k<kmax;++k)
     {
 
@@ -223,6 +227,8 @@ int test()
 
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+
+
 
 
 
@@ -249,7 +255,8 @@ int test()
     y_output.writeInFile("measurement.dat");
     u_output.writeInFile("input.dat");
 
-  //  std::cout << "Fin du test" << std::endl;
+    std::cout << "The end" << std::endl;
+
 
 }
 
