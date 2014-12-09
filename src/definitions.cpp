@@ -56,11 +56,14 @@ namespace stateObservation
 
     void IndexedMatrixArray::getFromFile(char * filename , size_t rows, size_t cols)
     {
-        reset();
+      reset();
 
-        std::ifstream f;
+      std::ifstream f;
 
-        f.open(filename);
+      f.open(filename);
+
+      if (f.is_open())
+      {
 
         Matrix m(Matrix::Zero(rows,cols));
 
@@ -68,25 +71,25 @@ namespace stateObservation
 
         while (continuation)
         {
-            unsigned k;
+          int k;
+          f >> k;
 
-            f >> k;
-
-            if (f.eof())
-                continuation=false;
-            else
+          if (f.eof())
+            continuation=false;
+          else
+          {
+            for (size_t i = 0 ; i<rows; ++i)
             {
-                for (size_t i = 0 ; i<rows; ++i)
-                {
-                    for (size_t j = 0 ; j<cols; ++j)
-                    {
-                        f >> m(i,j);
-                    }
-                }
-
-                setValue(m,k);
+              for (size_t j = 0 ; j<cols; ++j)
+              {
+                f >> m(i,j);
+              }
             }
+
+            setValue(m,k);
+          }
         }
+      }
     }
 
 
