@@ -32,31 +32,27 @@ namespace stateObservation
 
     ObserverBase::StateVector ExtendedKalmanFilter::prediction_(unsigned k)
     {
-
-
         if (!this->xbar_.isSet() || this->xbar_.getTime()!=k)
         {
-            ObserverBase::InputVector u;
-
+            opt.u_;
 
             if ((p_>0) && (directInputStateProcessFeedthrough_))
             {
 
                 BOOST_ASSERT(this->u_.size()>0 && this->u_.checkIndex(k-1) &&
                                         "ERROR: The input vector is not set");
-                u=this->u_[k-1];
+                opt.u_=this->u_[k-1];
             }
             else
             {
-                u = inputVectorZero();
+                opt.u_ = inputVectorZero();
             }
-
 
             BOOST_ASSERT (f_!=0x0 && "ERROR: The Kalman filter functor is not set");
             xbar_.set(f_->stateDynamics(
-                          this->x_(),
-                          u,
-                          this->x_.getTime()),
+                      this->x_(),
+                      opt.u_,
+                      this->x_.getTime()),
                       k);
         }
 
@@ -72,8 +68,8 @@ namespace stateObservation
     ObserverBase::MeasureVector ExtendedKalmanFilter::simulateSensor_(const ObserverBase::StateVector& x, unsigned k)
     {
         BOOST_ASSERT (f_!=0x0 && "ERROR: The Kalman filter functor is not set");
-        ObserverBase::InputVector u;
-        unsigned i;
+        opt.u_;
+
         if (p_>0)
         {
             if (directInputOutputFeedthrough_)
@@ -87,15 +83,15 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
 
             if (u_.checkIndex(k))
             {
-                u=u_[k];
+                opt.u_=u_[k];
             }
             else
             {
-                u=inputVectorZero();
+                opt.u_=inputVectorZero();
             }
         }
 
-        return f_->measureDynamics(x,u,k);
+        return f_->measureDynamics(x,opt.u_,k);
     }
 
     KalmanFilterBase::Amatrix// ExtendedKalmanFilter<n,m,p>::Amatrix does not work
@@ -103,36 +99,32 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
                                        &dx)
     {
         unsigned k=this->x_.getTime();
-        Amatrix a(getAmatrixZero());
-        StateVector fx=prediction_(k+1);
-        StateVector x=this->x_();
-        StateVector xp;
-
-        InputVector u;
+        opt.a_=getAmatrixZero();
+        opt.xbar_=prediction_(k+1);
+        opt.x_=this->x_();
 
         if (p_>0)
         {
             if (directInputStateProcessFeedthrough_)
-                u=this->u_[k];
+                opt.u_=this->u_[k];
             else
-                u=inputVectorZero();
+                opt.u_=inputVectorZero();
         }
 
         for (unsigned i=0;i<n_;++i)
         {
             unsigned it=(i-1)%n_;
-            x[it]=this->x_()(it,0);
-            x[i]=this->x_()(i,0);
-            x[i]+=dx[i];
-            xp=f_->stateDynamics(x,u,k);
+            opt.x_[it]=this->x_()(it,0);
+            opt.x_[i]+=dx[i];
+            opt.xp_=f_->stateDynamics(opt.x_,opt.u_,k);
 
-            xp-=fx;
-            xp/=dx[i];
+            opt.xp_-=opt.xbar_;
+            opt.xp_/=dx[i];
 
-            a.block(0,i,n_,1)=xp;
+            opt.a_.block(0,i,n_,1)=opt.xp_;
         }
 
-        return a;
+        return opt.a_;
     }
 
     KalmanFilterBase::Cmatrix
@@ -141,32 +133,28 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
     {
         unsigned k=this->x_.getTime();
 
-        Cmatrix c(getCmatrixZero());
+        opt.c_.resize(m_,n_);
 
-        StateVector xbar=prediction_(k+1);
-        StateVector xbarInit = xbar;
+        opt.xbar_=prediction_(k+1);
+        opt.xp_ = opt.xbar_;
 
-        MeasureVector y=simulateSensor_( xbar, k+1);
-
-        MeasureVector yp;
-
+        opt.y_=simulateSensor_( opt.xbar_, k+1);
 
         for (unsigned i=0;i<n_;++i)
         {
-            xbar[(i-1)%n_]=xbarInit[(i-1)%n_];
-            xbar[i]=xbarInit[i];
-            xbar[i]+= dx[i];
+            unsigned it=(i-1)%n_;
+            opt.xp_[(i-1)%n_]=opt.xbar_[(i-1)%n_];
+            opt.xp_[i]+= dx[i];
 
-            yp=simulateSensor_(xbar, k+1);
-            yp-=y;
-            yp/=dx[i];
+            opt.yp_=simulateSensor_(opt.xp_, k+1);
+            opt.yp_-=opt.y_;
+            opt.yp_/=dx[i];
 
- 
-            c.block(0,i,m_,1)=yp;
+            opt.c_.block(0,i,m_,1)=opt.yp_;
 
         }
 
-        return c;
+        return opt.c_;
     }
 
     void ExtendedKalmanFilter::reset()

@@ -125,6 +125,20 @@ namespace stateObservation
 
         /// pointer on the dynamics functor
         DynamicalSystemFunctorBase* f_;
+
+        //optimization
+        struct Optimization
+        {
+          ObserverBase::InputVector u_;
+          KalmanFilterBase::Amatrix a_;
+          KalmanFilterBase::Cmatrix c_;
+          ObserverBase::StateVector x_;
+          ObserverBase::StateVector xbar_;
+          ObserverBase::StateVector xp_;
+          ObserverBase::MeasureVector y_;
+          ObserverBase::MeasureVector yp_;
+
+        } opt;
     };
 
 }
