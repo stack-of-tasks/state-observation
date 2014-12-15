@@ -119,7 +119,7 @@ namespace flexibilityEstimation
 
         virtual void setContactModelNumber(unsigned nb);
 
-        virtual void getElastFeetContactForcesAndMoments
+        virtual void computeElastFeetContactForcesAndMoments
                               (const IndexedMatrixArray& contactPosArray,
                                const IndexedMatrixArray& contactOriArray,
                                const Vector3& position, const Vector3& linVelocity,
@@ -127,7 +127,7 @@ namespace flexibilityEstimation
                                const Vector3& angVel,
                                Vector3& forces, Vector3& moments);
 
-        virtual void getElastPendulumForcesAndMoments
+        virtual void computeElastPendulumForcesAndMoments
                               (const IndexedMatrixArray& PrArray,
                                const IndexedMatrixArray& PeArray,
                                const Vector3& position, const Vector3& linVelocity,
@@ -135,13 +135,15 @@ namespace flexibilityEstimation
                                const Vector3& angVel,
                                Vector3& forces, Vector3& moments);
 
-        virtual void getForcesAndMoments
+        virtual void computeForcesAndMoments
                               (const IndexedMatrixArray& position1,
                                const IndexedMatrixArray& position2,
                                const Vector3& position, const Vector3& linVelocity,
                                const Vector3& oriVector, const Matrix3& orientation,
                                const Vector3& angVel,
                                Vector3& forces, Vector3& moments);
+
+        virtual Vector getForcesAndMoments();
 
         virtual void iterateDynamicsEuler
              (const Vector3& positionCom, const Vector3& velocityCom,

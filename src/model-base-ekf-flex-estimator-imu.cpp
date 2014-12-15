@@ -1,6 +1,8 @@
 #include <state-observation/flexibility-estimation/model-base-ekf-flex-estimator-imu.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
+#include <iostream>
+
 const double initialVirtualMeasurementCovariance=1.e-10;
 
 const double dxFactor = 1.0e-8;
@@ -182,6 +184,11 @@ namespace flexibilityEstimation
     Matrix ModelBaseEKFFlexEstimatorIMU::getMeasurementNoiseCovariance() const
     {
         return R_;
+    }
+
+    Vector ModelBaseEKFFlexEstimatorIMU::getForcesAndMoments()
+    {
+        return functor_.getForcesAndMoments();
     }
 
     void ModelBaseEKFFlexEstimatorIMU::updateCovarianceMatrix_()

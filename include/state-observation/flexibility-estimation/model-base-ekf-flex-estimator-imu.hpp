@@ -73,6 +73,8 @@ namespace flexibilityEstimation
         ///gets the covariance matrices for the sensor noises
         virtual Matrix getMeasurementNoiseCovariance() const ;
 
+        virtual Vector getForcesAndMoments();
+
         ///Sets a value of the flexibility x_k provided from another source
         /// can be used for initialization of the estimator
         virtual void setFlexibilityGuess(const Matrix & x);
