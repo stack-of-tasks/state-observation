@@ -55,11 +55,7 @@ namespace flexibilityEstimation
         /// Sets the value of the next sensor measurement y_{k+1}
         virtual void setMeasurement(const Vector & y);
 
-        ///Sets the covariance of the fictious measurements (not mandatory)
-        virtual void setVirtualMeasurementsCovariance(double c_);
 
-        ///Sets the covariance of the fictious measurements (not mandatory)
-        virtual double getVirtualMeasurementsCovariance() const;
 
         ///Sets the process covariance matrice
         virtual void setProcessNoiseCovariance(const Matrix & Q);
@@ -119,7 +115,7 @@ namespace flexibilityEstimation
 
         IMUElasticLocalFrameDynamicalSystem functor_;
 
-        double virtualMeasurementCovariance_;
+        Vector x_;
 
         Matrix R_,Q_;
 

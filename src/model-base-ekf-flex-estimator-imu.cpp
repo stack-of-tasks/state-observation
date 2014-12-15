@@ -15,7 +15,6 @@ namespace flexibilityEstimation
         EKFFlexibilityEstimatorBase
             (stateSizeConst_,measurementSizeConst_,inputSizeBase_,
                             Matrix::Constant(getStateSize(),1,dxFactor)),
-        virtualMeasurementCovariance_(initialVirtualMeasurementCovariance),
         functor_(dt)
     {
 
@@ -104,22 +103,8 @@ namespace flexibilityEstimation
                 "ERROR: The measurement vector has incorrect size");
 
 
-        Vector y2 = ekf_.measureVectorZero();
-        y2.head(getMeasurementSize()) = y;
-        ekf_.setMeasurement(y2,k_+1);
+        ekf_.setMeasurement(y,k_+1);
 
-    }
-
-    void ModelBaseEKFFlexEstimatorIMU::setVirtualMeasurementsCovariance
-                                                                    (double c)
-    {
-        virtualMeasurementCovariance_=c;
-        updateCovarianceMatrix_();
-    }
-
-    double ModelBaseEKFFlexEstimatorIMU::getVirtualMeasurementsCovariance() const
-    {
-        return virtualMeasurementCovariance_;
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setFlexibilityGuess(const Matrix & x)
@@ -193,15 +178,7 @@ namespace flexibilityEstimation
 
     void ModelBaseEKFFlexEstimatorIMU::updateCovarianceMatrix_()
     {
-        Matrix R = ekf_.getRmatrixIdentity();
-        R.block(0,0, getMeasurementSize() , getMeasurementSize())=R_;
-
-        for (unsigned i= getMeasurementSize() ; i<ekf_.getMeasureSize() ; ++i)
-        {
-            R(i,i)=virtualMeasurementCovariance_;
-        }
-
-        ekf_.setR(R);
+        ekf_.setR(R_);
     }
 
     unsigned ModelBaseEKFFlexEstimatorIMU::getStateSize() const
@@ -282,11 +259,9 @@ namespace flexibilityEstimation
             clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
             if(on_==true)
             {
-                //lastX_ =EKFFlexibilityEstimatorBase::getFlexibilityVector();//obsolete
                 if (ekf_.getMeasurementsNumber()>0)
                 {
                     k_=ekf_.getMeasurementTime();
-                   // std::cout << "\n\n\n\n\n k " << k_ << std::endl;
 
                     unsigned i;
                     for (i=ekf_.getCurrentTime()+1; i<=k_; ++i)
@@ -295,39 +270,35 @@ namespace flexibilityEstimation
                         ekf_.setC(ekf_.getCMatrixFD(dx_));
                         ekf_.getEstimatedState(i);
                     }
-                    Vector x(ekf_.getEstimatedState(k_));
+                    x_=ekf_.getEstimatedState(k_);
 
-                    if (x==x)//detect NaN values
+                    if (x_==x_)//detect NaN values
                     {
-                        lastX_=x;
+                        lastX_=x_;
+
+                        ///regulate the part of orientation vector in the state vector
+                        lastX_.segment(kine::ori,3)=kine::regulateOrientationVector(lastX_.segment(kine::ori,3));
+                        ekf_.setState(lastX_,ekf_.getCurrentTime());
                     }
                     else //delete NaN values
                     {
                         ekf_.setState(lastX_,k_);
-               // std::cout << "\n\n\n\n\n Need to reset covariance matrix \n\n\n\n\n" << std::endl;
-//                std::cout << "k_: " << k_ << std::endl;
+
                         if(k_>1) //the first iteration give always nan without initialization
                         {
                             resetCovarianceMatrices();
                         }
-
                     }
                 }
                 clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
 
                 computeFlexibilityTime_=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
-
             }
             else
             {
                // vector v(getEKF().getStateSize());
                 lastX_.setZero();
             }
-
-            ///regulate the part of orientation vector in the state vector
-            lastX_.segment(kine::ori,3)=kine::regulateOrientationVector(lastX_.segment(kine::ori,3));
-            ekf_.setState(lastX_,ekf_.getCurrentTime());
-
         }
 
         return lastX_;
