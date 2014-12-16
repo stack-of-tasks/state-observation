@@ -50,6 +50,8 @@ namespace flexibilityEstimation
         ///Sets the number of contacts can be changed online
         void setContactsNumber(unsigned i);
 
+        void setContactModelNumber(unsigned nb);
+
         /// Sets the value of the next sensor measurement y_{k+1}
         virtual void setMeasurement(const Vector & y);
 
@@ -70,6 +72,8 @@ namespace flexibilityEstimation
 
         ///gets the covariance matrices for the sensor noises
         virtual Matrix getMeasurementNoiseCovariance() const ;
+
+        virtual Vector getForcesAndMoments();
 
         ///Sets a value of the flexibility x_k provided from another source
         /// can be used for initialization of the estimator

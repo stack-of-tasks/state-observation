@@ -9,8 +9,9 @@
 
 #include <state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
+#include <stdexcept>
 
-#include <iostream>
+//#include <iostream>
 
 namespace stateObservation
 {
@@ -37,8 +38,9 @@ namespace flexibilityEstimation
       Ktv_=60*Matrix3::Identity();
 
       sensor_.setMatrixMode(true);
-
+      contactModel_=0;
       kcurrent_=-1;
+
     }
 
     IMUElasticLocalFrameDynamicalSystem::
@@ -53,8 +55,73 @@ namespace flexibilityEstimation
       robotMassInv_=1/m;
     }
 
+   void IMUElasticLocalFrameDynamicalSystem::setContactModelNumber(unsigned nb)
+   {
+       contactModel_=nb;
+   }
 
-    void IMUElasticLocalFrameDynamicalSystem::getForcesAndMoments
+    void IMUElasticLocalFrameDynamicalSystem::computeElastPendulumForcesAndMoments
+                              (const IndexedMatrixArray& PeArray,
+                               const IndexedMatrixArray& PrArray,
+                               const Vector3& position, const Vector3& linVelocity,
+                               const Vector3& oriVector, const Matrix3& orientation,
+                               const Vector3& angVel,
+                               Vector3& forces, Vector3& moments)
+    {
+        unsigned nbContacts(getContactsNumber());
+        fc_.resize(nbContacts*3);
+        tc_.resize(nbContacts*3);
+        forces.setZero();
+        moments.setZero();
+
+
+        Vector3 forcei;
+        Vector3 momenti;
+        Vector3 globalContactPos;
+
+        Vector3 contactOriUnitVector;
+
+        double stringLength;
+        double modifiedStringLength;
+
+        Matrix3 u;
+
+        for (int i = 0; i<nbContacts ; ++i)
+        {
+            globalContactPos = position ;
+            globalContactPos.noalias() += orientation*PrArray[i] ;
+
+            stringLength=(PrArray[i]-PeArray[i]).norm();
+            modifiedStringLength=(globalContactPos-PeArray[i]).norm();
+            contactOriUnitVector= (PeArray[i]-globalContactPos)/modifiedStringLength;
+
+            forcei = (modifiedStringLength-stringLength)*Kfe_*contactOriUnitVector;
+            fc_.segment<3>(3*i)= forcei;
+            forces += forcei;
+
+            momenti.noalias() = kine::skewSymmetric(globalContactPos)*forcei;
+            tc_.segment<3>(3*i)= momenti;
+            moments += momenti;
+        }
+
+        moments.noalias() += - Kte_*oriVector;
+        moments.noalias() += - Ktv_*angVel;
+        forces.noalias() += -Kfv_*linVelocity;
+    }
+
+
+    Vector IMUElasticLocalFrameDynamicalSystem::getForcesAndMoments()
+    {
+        Vector x;
+        x.resize(fc_.size()+tc_.size());
+
+        x.head(fc_.size()) = fc_;
+        x.tail(tc_.size()) = tc_;
+
+        return x;
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::computeElastFeetContactForcesAndMoments
                               (const IndexedMatrixArray& contactPosArray,
                                const IndexedMatrixArray& contactOriArray,
                                const Vector3& position, const Vector3& linVelocity,
@@ -62,51 +129,69 @@ namespace flexibilityEstimation
                                const Vector3& angVel,
                                Vector3& forces, Vector3& moments)
     {
-      unsigned nbContacts(getContactsNumber());
-      fc_.resize(nbContacts*3);
-      tc_.resize(nbContacts*3);
-      forces.setZero();
-      moments.setZero();
-      Matrix3 Rci;
-      Matrix3 Rcit;
-      Vector3 contactPos;
-
-      Vector3 forcei;
-      Vector3 momenti;
-      Vector3 globalContactPos;
-
-
-
-
-      for (int i = 0; i<nbContacts ; ++i)
-      {
-        contactPos = contactPosArray[i];
-
-        Rci = contactOriArray[i];
-        Rcit= Rci.transpose();
-
-        globalContactPos = position ;
-        globalContactPos.noalias() += orientation*contactPos ;
-
-        forcei.noalias() = - Rci*Kfe_*Rcit*(globalContactPos-contactPos);
-        forcei.noalias() += - Rci*Kfv_*Rcit*(kine::skewSymmetric(angVel)*orientation*contactPos+linVelocity);
-
-        fc_.segment<3>(3*i)= forcei;
-
-        forces += forcei;
-
-        momenti.noalias() = -Rci*Kte_*Rcit*oriVector;
-        momenti.noalias() += -Rci*Ktv_*Rcit*angVel;
-        momenti.noalias() += kine::skewSymmetric(globalContactPos)*forcei;
-
-        tc_.segment<3>(3*i)= momenti;
-
-        moments += momenti;
-
-
-      }
+        unsigned nbContacts(getContactsNumber());
+        fc_.resize(nbContacts*3);
+        tc_.resize(nbContacts*3);
+        forces.setZero();
+        moments.setZero();
+        Matrix3 Rci;
+        Matrix3 Rcit;
+        Vector3 contactPos;
+  
+        Vector3 forcei;
+        Vector3 momenti;
+        Vector3 globalContactPos;
+  
+        for (int i = 0; i<nbContacts ; ++i)
+        {
+          contactPos = contactPosArray[i];
+  
+          Rci = computeRotation_(contactOriArray[i]);
+          Rcit= Rci.transpose();
+  
+          globalContactPos = position ;
+          globalContactPos.noalias() += orientation*contactPos ;
+  
+          forcei.noalias() = - Rci*Kfe_*Rcit*(globalContactPos-contactPos);
+          forcei.noalias() += - Rci*Kfv_*Rcit*(kine::skewSymmetric(angVel)*orientation*contactPos+linVelocity);
+  
+          fc_.segment<3>(3*i)= forcei;
+  
+          forces += forcei;
+  
+          momenti.noalias() = -Rci*Kte_*Rcit*oriVector;
+          momenti.noalias() += -Rci*Ktv_*Rcit*angVel;
+          momenti.noalias() += kine::skewSymmetric(globalContactPos)*forcei;
+  
+          tc_.segment<3>(3*i)= momenti;
+  
+          moments += momenti;
+  
+  
+        }
 
     }
+
+    void IMUElasticLocalFrameDynamicalSystem::computeForcesAndMoments
+                          (const IndexedMatrixArray& position1,
+                           const IndexedMatrixArray& position2,
+                           const Vector3& position, const Vector3& linVelocity,
+                           const Vector3& oriVector, const Matrix3& orientation,
+                           const Vector3& angVel,
+                           Vector3& forces, Vector3& moments)
+    {
+        switch(contactModel_){
+        case 1 : computeElastFeetContactForcesAndMoments(position1, position2, position, linVelocity, oriVector, orientation, angVel, forces, moments);
+                 break;
+
+        case 2 : computeElastPendulumForcesAndMoments(position1, position2, position, linVelocity, oriVector, orientation, angVel, forces, moments);
+                 break;
+
+        default: throw std::invalid_argument("IMUElasticLocalFrameDynamicalSystem");
+        }
+    }
+
+
 
 
     Vector3 IMUElasticLocalFrameDynamicalSystem::computeAccelerations
@@ -133,7 +218,7 @@ namespace flexibilityEstimation
 
         Matrix3 orientationT=orientation.transpose();
 
-        getForcesAndMoments (contactPosV, contactOriV,
+        computeForcesAndMoments (contactPosV, contactOriV,
                           position, linVelocity, oriVector, orientation,
                              angularVel, fc, tc);
 
@@ -339,7 +424,6 @@ namespace flexibilityEstimation
         Vector3 angularVelocityFlex(x.segment(kine::angVel,3));
         Vector3 angularAccelerationFlex(x.segment(kine::angAcc,3));
 
-
         const Matrix3 inertia(kine::computeInertiaTensor(u.segment<6>(input::inertia)));
         const Matrix3 dotInertia(kine::computeInertiaTensor(u.segment<6>(input::dotInertia)));
 
@@ -348,7 +432,7 @@ namespace flexibilityEstimation
         for (int i = 0; i<nbContacts ; ++i)
         {
           contactPosV_.setValue(contact.segment<3>(6*i),i);
-          contactOriV_.setValue(computeRotation_(contact.segment<3>(6*i+3)),i);
+          contactOriV_.setValue(contact.segment<3>(6*i+3),i);
         }
 
         Vector3 positionCom(u.segment<3>(input::posCom));
@@ -356,6 +440,7 @@ namespace flexibilityEstimation
         Vector3 accelerationCom(u.segment<3>(input::accCom));
         Vector3 AngMomentum(u.segment<3>(input::angMoment));
         Vector3 dotAngMomentum(u.segment<3>(input::dotAngMoment));
+
 
         int subsample=1;
         for (int i=0; i<subsample; ++i)
@@ -367,9 +452,6 @@ namespace flexibilityEstimation
                           orientationFlexV, angularVelocityFlex,
                           angularAccelerationFlex, dt_/subsample);
         }
-
-//        std::cout << "accelerationFlex" << accelerationFlex.transpose() << std::endl;
-//        std::cout << "angularAccelerationFlec" << angularAccelerationFlex.transpose() << std::endl;
 
         //x_{k+1}
 

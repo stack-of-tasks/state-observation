@@ -17,6 +17,7 @@
 #include <state-observation/dynamical-system/algorithm/rigid-body-kinematics.hpp>
 #include <state-observation/tools/hrp2.hpp>
 
+
 namespace stateObservation
 {
 namespace flexibilityEstimation
@@ -136,13 +137,33 @@ namespace flexibilityEstimation
         ///Gets the nimber of contacts
         unsigned getContactsNumber(void) const;
 
-        virtual void getForcesAndMoments
+        virtual void setContactModelNumber(unsigned nb);
+
+        virtual void computeElastFeetContactForcesAndMoments
                               (const IndexedMatrixArray& contactPosArray,
                                const IndexedMatrixArray& contactOriArray,
                                const Vector3& position, const Vector3& linVelocity,
                                const Vector3& oriVector, const Matrix3& orientation,
                                const Vector3& angVel,
                                Vector3& forces, Vector3& moments);
+
+        virtual void computeElastPendulumForcesAndMoments
+                              (const IndexedMatrixArray& PrArray,
+                               const IndexedMatrixArray& PeArray,
+                               const Vector3& position, const Vector3& linVelocity,
+                               const Vector3& oriVector, const Matrix3& orientation,
+                               const Vector3& angVel,
+                               Vector3& forces, Vector3& moments);
+
+        virtual void computeForcesAndMoments
+                              (const IndexedMatrixArray& position1,
+                               const IndexedMatrixArray& position2,
+                               const Vector3& position, const Vector3& linVelocity,
+                               const Vector3& oriVector, const Matrix3& orientation,
+                               const Vector3& angVel,
+                               Vector3& forces, Vector3& moments);
+
+        virtual Vector getForcesAndMoments();
 
         virtual void iterateDynamicsEuler
              (const Vector3& positionCom, const Vector3& velocityCom,
@@ -198,7 +219,9 @@ namespace flexibilityEstimation
         static const unsigned inputSizeBase_=42;
         unsigned inputSize_;
         static const unsigned measurementSizeBase_=6;
+
         unsigned nbContacts_;
+        unsigned contactModel_;
 
         Vector fc_;
         Vector tc_;

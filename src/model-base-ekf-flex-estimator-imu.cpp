@@ -1,7 +1,7 @@
 #include <state-observation/flexibility-estimation/model-base-ekf-flex-estimator-imu.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
-//#include <time.h>
+//#include <iostream>
 
 const double initialVirtualMeasurementCovariance=1.e-10;
 
@@ -92,6 +92,11 @@ namespace flexibilityEstimation
 
     }
 
+    void ModelBaseEKFFlexEstimatorIMU::setContactModelNumber(unsigned nb)
+    {
+        functor_.setContactModelNumber(nb);
+    }
+
 
     void ModelBaseEKFFlexEstimatorIMU::setMeasurement(const Vector & y)
     {
@@ -179,6 +184,11 @@ namespace flexibilityEstimation
     Matrix ModelBaseEKFFlexEstimatorIMU::getMeasurementNoiseCovariance() const
     {
         return R_;
+    }
+
+    Vector ModelBaseEKFFlexEstimatorIMU::getForcesAndMoments()
+    {
+        return functor_.getForcesAndMoments();
     }
 
     void ModelBaseEKFFlexEstimatorIMU::updateCovarianceMatrix_()
