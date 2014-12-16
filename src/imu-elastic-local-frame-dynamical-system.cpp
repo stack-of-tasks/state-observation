@@ -9,6 +9,7 @@
 
 #include <state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
+#include <stdexcept>
 
 //#include <iostream>
 
@@ -186,7 +187,7 @@ namespace flexibilityEstimation
         case 2 : computeElastPendulumForcesAndMoments(position1, position2, position, linVelocity, oriVector, orientation, angVel, forces, moments);
                  break;
 
-        default: BOOST_ASSERT(false && "ERROR: Contacts model is not well set");
+        default: throw std::invalid_argument("IMUElasticLocalFrameDynamicalSystem");
         }
     }
 
