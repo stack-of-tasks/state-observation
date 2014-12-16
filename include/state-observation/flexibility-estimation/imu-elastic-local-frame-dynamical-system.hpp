@@ -23,6 +23,7 @@ namespace stateObservation
 namespace flexibilityEstimation
 {
 
+
     /**
     * \class  DynamicalSystem
     * \brief  This class describes the dynamics of a robot's flexibility
@@ -36,6 +37,25 @@ namespace flexibilityEstimation
         private stateObservation::algorithm::RigidBodyKinematics
     {
     public:
+        struct input
+        {
+        ///indexes of the different components of a vector of the input state
+          static const unsigned posCom = 0;
+          static const unsigned velCom = 3;
+          static const unsigned accCom = 6;
+          static const unsigned inertia = 9;
+          static const unsigned angMoment = 15;
+          static const unsigned dotInertia = 18;
+          static const unsigned dotAngMoment = 24;
+          static const unsigned posIMU = 27;
+          static const unsigned oriIMU = 30;
+          static const unsigned linVelIMU = 33;
+          static const unsigned angVelIMU = 36;
+          static const unsigned linAccIMU = 39;
+          static const unsigned contacts = 42;
+
+        };
+
         ///constructor
         explicit IMUElasticLocalFrameDynamicalSystem(double dt);
 

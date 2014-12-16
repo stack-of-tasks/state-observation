@@ -1,7 +1,7 @@
 #include <state-observation/flexibility-estimation/model-base-ekf-flex-estimator-imu.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
-#include <iostream>
+//#include <iostream>
 
 const double initialVirtualMeasurementCovariance=1.e-10;
 
@@ -274,15 +274,19 @@ namespace flexibilityEstimation
 
     Vector ModelBaseEKFFlexEstimatorIMU::getFlexibilityVector()
     {
+        timespec time1, time2, time3;
 
         if (ekf_.getMeasurementsNumber()>0)
         {
+            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
             if(on_==true)
             {
                 //lastX_ =EKFFlexibilityEstimatorBase::getFlexibilityVector();//obsolete
                 if (ekf_.getMeasurementsNumber()>0)
                 {
                     k_=ekf_.getMeasurementTime();
+                   // std::cout << "\n\n\n\n\n k " << k_ << std::endl;
 
                     unsigned i;
                     for (i=ekf_.getCurrentTime()+1; i<=k_; ++i)
@@ -309,6 +313,9 @@ namespace flexibilityEstimation
 
                     }
                 }
+                clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
+
+                computeFlexibilityTime_=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
 
             }
             else

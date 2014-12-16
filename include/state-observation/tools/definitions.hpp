@@ -227,24 +227,6 @@ namespace stateObservation
     }
 
 
-    namespace input
-    {
-        ///indexes of the different components of a vector of the input state
-        const unsigned posCom = 0;
-        const unsigned velCom = 3;
-        const unsigned accCom = 6;
-        const unsigned inertia = 9;
-        const unsigned angMoment = 15;
-        const unsigned dotInertia = 18;
-        const unsigned dotAngMoment = 24;
-        const unsigned posIMU = 27;
-        const unsigned oriIMU = 30;
-        const unsigned linVelIMU = 33;
-        const unsigned angVelIMU = 36;
-        const unsigned linAccIMU = 39;
-        const unsigned contacts = 42;
-
-    }
 
 
     namespace cst

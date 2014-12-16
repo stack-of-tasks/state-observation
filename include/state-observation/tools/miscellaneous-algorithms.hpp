@@ -314,6 +314,13 @@ namespace stateObservation
         }
 
 
+        template <typename T> inline
+        int signum(T x)
+        {
+          return (T(0) < x) - (x < T(0));
+        }
+
+
     }
 
 }

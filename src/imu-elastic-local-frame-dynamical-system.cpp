@@ -5,6 +5,8 @@
  *      Author: alexis
  */
 
+
+
 #include <state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
@@ -29,6 +31,10 @@ namespace flexibilityEstimation
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
        // std::cout<<std::endl<<"IMUElasticLocalFrameDynamicalSystem Constructor"<<std::endl;
 #endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
+      Kfe_=40000*Matrix3::Identity();
+      Kte_=600*Matrix3::Identity();
+      Kfv_=600*Matrix3::Identity();
+      Ktv_=60*Matrix3::Identity();
 
       sensor_.setMatrixMode(true);
       contactModel_=0;
@@ -230,13 +236,8 @@ namespace flexibilityEstimation
                             (skewV2R * positionCom + 2*(skewVR * velocityCom) + orientation * accelerationCom ));
         vt.noalias() -= robotMass_* kine::skewSymmetric(orientation * positionCom + position) * cst::gravity;
 
-
-       // std::cout << "It=" << orientation*Inertia*orientationT << std::endl;
-        // std::cout << "com=" << robotMass_*kine::skewSymmetric2(orientation * positionCom) << std::endl;
-
         angularAcceleration = (orientation*Inertia*orientationT + robotMass_*kine::skewSymmetric2(orientation * positionCom)).inverse()
                                 *(vt - robotMass_*kine::skewSymmetric(orientation * positionCom + position)*vf);
-
 
         linearAcceleration = vf;
         linearAcceleration += kine::skewSymmetric(orientation*positionCom)*angularAcceleration;
@@ -465,7 +466,7 @@ namespace flexibilityEstimation
         xk1.segment(kine::angVel,3) = angularVelocityFlex;
         xk1.segment(kine::angAcc,3) = angularAccelerationFlex;
 
-         if (processNoise_!=0x0)
+        if (processNoise_!=0x0)
             return processNoise_->addNoise(xk1);
         else
             return xk1;
@@ -506,6 +507,7 @@ namespace flexibilityEstimation
         Vector3 angularVelocityControl(u.segment(input::angVelIMU,3));
 
         Matrix3 rControl(computeRotation_(orientationControlV));
+
         Matrix3 r = rFlex * rControl;
 
         // Translation sensor dynamic
@@ -525,9 +527,10 @@ namespace flexibilityEstimation
 
         // Set sensor state before measurement
         Vector v(Vector::Zero(15,1));
-        v.head<9>() = Eigen::Map<Eigen::Matrix<double, 9, 1> >(&rFlex(0,0));
+        v.head<9>() = Eigen::Map<Eigen::Matrix<double, 9, 1> >(&r(0,0));
         v.segment<3>(9)=acceleration;
         v.tail<3>()=angularVelocity;
+
         sensor_.setState(v,k);
 
         // Measurement
