@@ -8,7 +8,7 @@
 #include <state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
-#include <iostream>
+//#include <iostream>
 
 namespace stateObservation
 {
@@ -79,45 +79,27 @@ namespace flexibilityEstimation
 
         Matrix3 u;
 
-
-
         for (int i = 0; i<nbContacts ; ++i)
         {
-            std::cout << PrArray[i].transpose() << std::endl;
-
             globalContactPos = position ;
             globalContactPos.noalias() += orientation*PrArray[i] ;
 
             stringLength=(PrArray[i]-PeArray[i]).norm();
             modifiedStringLength=(globalContactPos-PeArray[i]).norm();
-
-            std::cout << "SL " << stringLength << " MSL " << modifiedStringLength << std::endl;
-
             contactOriUnitVector= (PeArray[i]-globalContactPos)/modifiedStringLength;
 
-            std::cout << contactOriUnitVector.transpose() << std::endl;
-
-           forcei = (modifiedStringLength-stringLength)*Kfe_*contactOriUnitVector;
-           forcei.noalias() += Kfv_*linVelocity.norm()*contactOriUnitVector;
-
-            std::cout << "linVel " << (Kfv_*linVelocity).transpose() << std::endl;
-
+            forcei = (modifiedStringLength-stringLength)*Kfe_*contactOriUnitVector;
             fc_.segment<3>(3*i)= forcei;
-
             forces += forcei;
 
-            momenti.noalias() = - Kte_*oriVector;
-            momenti.noalias() += - Ktv_*angVel;
-            momenti.noalias() += kine::skewSymmetric(globalContactPos)*forcei;
-
+            momenti.noalias() = kine::skewSymmetric(globalContactPos)*forcei;
             tc_.segment<3>(3*i)= momenti;
-
             moments += momenti;
-
-            std::cout << "forces and moments " << i << ": " << forcei.transpose() << momenti.transpose() << std::endl;
-
         }
 
+        moments.noalias() += - Kte_*oriVector;
+        moments.noalias() += - Ktv_*angVel;
+        forces.noalias() += -Kfv_*linVelocity;
     }
 
 
