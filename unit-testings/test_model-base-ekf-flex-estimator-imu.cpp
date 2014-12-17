@@ -153,6 +153,9 @@ int test()
 
     double norm=0;
 
+    est.setContactModel(stateObservation::flexibilityEstimation::
+                ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
+
     std::cout << "Beginning reconstruction "<<std::endl;
     for (int k=kinit+2;k<kmax;++k)
     {

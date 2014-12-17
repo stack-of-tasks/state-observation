@@ -41,6 +41,14 @@ namespace flexibilityEstimation
     {
     public:
 
+        struct contactModel
+        {
+          ///indexes of the different components of a vector of the input state
+          static const unsigned elasticContact= IMUElasticLocalFrameDynamicalSystem::contactModel::elasticContact;
+          static const unsigned pendulum= IMUElasticLocalFrameDynamicalSystem::contactModel::pendulum;
+
+        };
+
         ///The constructor, it requires the value of the time discretization period
         explicit ModelBaseEKFFlexEstimatorIMU( double dt=0.005 );
 
@@ -50,7 +58,7 @@ namespace flexibilityEstimation
         ///Sets the number of contacts can be changed online
         void setContactsNumber(unsigned i);
 
-        void setContactModelNumber(unsigned nb);
+        void setContactModel(unsigned nb);
 
         /// Sets the value of the next sensor measurement y_{k+1}
         virtual void setMeasurement(const Vector & y);

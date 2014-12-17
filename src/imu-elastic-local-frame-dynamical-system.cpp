@@ -57,7 +57,7 @@ namespace flexibilityEstimation
       robotMassInv_=1/m;
     }
 
-   void IMUElasticLocalFrameDynamicalSystem::setContactModelNumber(unsigned nb)
+   void IMUElasticLocalFrameDynamicalSystem::setContactModel(unsigned nb)
    {
        contactModel_=nb;
    }
@@ -123,7 +123,7 @@ namespace flexibilityEstimation
         return x;
     }
 
-    void IMUElasticLocalFrameDynamicalSystem::computeElastFeetContactForcesAndMoments
+    void IMUElasticLocalFrameDynamicalSystem::computeElastContactForcesAndMoments
                               (const IndexedMatrixArray& contactPosArray,
                                const IndexedMatrixArray& contactOriArray,
                                const Vector3& position, const Vector3& linVelocity,
@@ -142,7 +142,7 @@ namespace flexibilityEstimation
       {
         op_.contactPos = contactPosArray[i];
 
-        op_.Rci = contactOriArray[i];
+        op_.Rci = computeRotation_(contactOriArray[i],i+2);
         op_.Rcit.noalias()= op_.Rci.transpose();
 
         op_.RciContactPos.noalias()= orientation*op_.contactPos;
@@ -168,7 +168,7 @@ namespace flexibilityEstimation
         moments += op_.momenti;
 
         }
-        
+
     }
 
 
@@ -181,13 +181,13 @@ namespace flexibilityEstimation
                            Vector3& forces, Vector3& moments)
     {
         switch(contactModel_){
-        case 1 : computeElastFeetContactForcesAndMoments(position1, position2, position, linVelocity, oriVector, orientation, angVel, forces, moments);
+        case contactModel::elasticContact : computeElastContactForcesAndMoments(position1, position2, position, linVelocity, oriVector, orientation, angVel, forces, moments);
                  break;
 
-        case 2 : computeElastPendulumForcesAndMoments(position1, position2, position, linVelocity, oriVector, orientation, angVel, forces, moments);
+        case contactModel::pendulum : computeElastPendulumForcesAndMoments(position1, position2, position, linVelocity, oriVector, orientation, angVel, forces, moments);
                  break;
 
-        default: throw std::invalid_argument("IMUElasticLocalFrameDynamicalSystem");
+        default: throw std::invalid_argument("IMUElasticLocalFrameDynamicalSystem: the contact model is incorrectly set.");
         }
     }
 

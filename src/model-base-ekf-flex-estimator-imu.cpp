@@ -91,9 +91,9 @@ namespace flexibilityEstimation
 
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::setContactModelNumber(unsigned nb)
+    void ModelBaseEKFFlexEstimatorIMU::setContactModel(unsigned nb)
     {
-        functor_.setContactModelNumber(nb);
+        functor_.setContactModel(nb);
     }
 
 

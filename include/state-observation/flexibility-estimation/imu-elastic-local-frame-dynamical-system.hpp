@@ -40,160 +40,168 @@ namespace stateObservation
       struct input
       {
         ///indexes of the different components of a vector of the input state
-          static const unsigned posCom = 0;
-          static const unsigned velCom = 3;
-          static const unsigned accCom = 6;
-          static const unsigned inertia = 9;
-          static const unsigned angMoment = 15;
-          static const unsigned dotInertia = 18;
-          static const unsigned dotAngMoment = 24;
-          static const unsigned posIMU = 27;
-          static const unsigned oriIMU = 30;
-          static const unsigned linVelIMU = 33;
-          static const unsigned angVelIMU = 36;
-          static const unsigned linAccIMU = 39;
-          static const unsigned contacts = 42;
+        static const unsigned posCom = 0;
+        static const unsigned velCom = 3;
+        static const unsigned accCom = 6;
+        static const unsigned inertia = 9;
+        static const unsigned angMoment = 15;
+        static const unsigned dotInertia = 18;
+        static const unsigned dotAngMoment = 24;
+        static const unsigned posIMU = 27;
+        static const unsigned oriIMU = 30;
+        static const unsigned linVelIMU = 33;
+        static const unsigned angVelIMU = 36;
+        static const unsigned linAccIMU = 39;
+        static const unsigned contacts = 42;
 
-        };
+      };
 
-        ///constructor
-        explicit IMUElasticLocalFrameDynamicalSystem(double dt);
+      struct contactModel
+      {
+        ///indexes of the different components of a vector of the input state
+        static const unsigned elasticContact= 1;
+        static const unsigned pendulum= 2;
 
-        ///virtual destructor
-        virtual ~IMUElasticLocalFrameDynamicalSystem();
+      };
 
-        void test();
+      ///constructor
+      explicit IMUElasticLocalFrameDynamicalSystem(double dt);
 
-        // computation of the acceleration linear
-        virtual Vector3 computeAccelerations
-             (const Vector3& positionCom, const Vector3& velocityCom,
-              const Vector3& accelerationCom, const Vector3& AngMomentum,
-              const Vector3& dotAngMomentum,
-              const Matrix3& Inertia, const Matrix3& dotInertia,
-              const IndexedMatrixArray& contactPos,
-              const IndexedMatrixArray& contactOri,
-              const Vector3& position, const Vector3& linVelocity,
-              Vector3& linearAcceleration,  const Vector3 &oriVector ,
-              const Matrix3& orientation, const Vector3& angularVel,
-              Vector3& angularAcceleration);
+      ///virtual destructor
+      virtual ~IMUElasticLocalFrameDynamicalSystem();
 
-        ///Description of the state dynamics
-        virtual stateObservation::Vector stateDynamics
-        (const stateObservation::Vector& x, const stateObservation::Vector& u,
-            unsigned k);
+      void test();
 
-        ///Description of the sensor's dynamics
-        virtual stateObservation::Vector measureDynamics
-        (const stateObservation::Vector& x, const stateObservation::Vector& u,
-            unsigned k);
+      // computation of the acceleration linear
+      virtual Vector3 computeAccelerations
+      (const Vector3& positionCom, const Vector3& velocityCom,
+       const Vector3& accelerationCom, const Vector3& AngMomentum,
+       const Vector3& dotAngMomentum,
+       const Matrix3& Inertia, const Matrix3& dotInertia,
+       const IndexedMatrixArray& contactPos,
+       const IndexedMatrixArray& contactOri,
+       const Vector3& position, const Vector3& linVelocity,
+       Vector3& linearAcceleration,  const Vector3 &oriVector ,
+       const Matrix3& orientation, const Vector3& angularVel,
+       Vector3& angularAcceleration);
 
-        ///Sets a noise which disturbs the state dynamics
-        virtual void setProcessNoise( stateObservation::NoiseBase * );
+      ///Description of the state dynamics
+      virtual stateObservation::Vector stateDynamics
+      (const stateObservation::Vector& x, const stateObservation::Vector& u,
+       unsigned k);
 
-        ///Removes the process noise
-        virtual void resetProcessNoise();
+      ///Description of the sensor's dynamics
+      virtual stateObservation::Vector measureDynamics
+      (const stateObservation::Vector& x, const stateObservation::Vector& u,
+       unsigned k);
 
-        ///Gets the process noise
-        virtual stateObservation::NoiseBase * getProcessNoise() const;
+      ///Sets a noise which disturbs the state dynamics
+      virtual void setProcessNoise( stateObservation::NoiseBase * );
 
-        ///Sets a noise which disturbs the measurements
-        virtual void setMeasurementNoise( stateObservation::NoiseBase * );
+      ///Removes the process noise
+      virtual void resetProcessNoise();
 
-        ///Removes the measurement noise
-        virtual void resetMeasurementNoise();
+      ///Gets the process noise
+      virtual stateObservation::NoiseBase * getProcessNoise() const;
 
-        ///Gets a pointer on the measurement noise
-        virtual stateObservation::NoiseBase * getMeasurementNoise() const;
+      ///Sets a noise which disturbs the measurements
+      virtual void setMeasurementNoise( stateObservation::NoiseBase * );
 
-        ///Set the period of the time discretization
-        virtual void setSamplingPeriod(double dt);
+      ///Removes the measurement noise
+      virtual void resetMeasurementNoise();
 
-        ///Gets the state size
-        virtual unsigned getStateSize();
+      ///Gets a pointer on the measurement noise
+      virtual stateObservation::NoiseBase * getMeasurementNoise() const;
 
-        ///Gets the input size
-        virtual unsigned getInputSize();
+      ///Set the period of the time discretization
+      virtual void setSamplingPeriod(double dt);
 
-        ///Sets the input size
-        virtual void setInputSize(unsigned i);
+      ///Gets the state size
+      virtual unsigned getStateSize();
 
-        ///Gets the contact number
-        ///virtual
+      ///Gets the input size
+      virtual unsigned getInputSize();
 
-        ///Gets the contacts position
+      ///Sets the input size
+      virtual void setInputSize(unsigned i);
 
-        ///Gets the measurement size
-        virtual unsigned getMeasurementSize();
+      ///Gets the contact number
+      ///virtual
 
-        ///Sets the number of contacts
-        virtual void setContactsNumber(unsigned);
+      ///Gets the contacts position
 
-        ///Sets the position of the contact number i
-        virtual void setContactPosition(unsigned i, const Vector3 & position);
+      ///Gets the measurement size
+      virtual unsigned getMeasurementSize();
 
-        ///Gets the position of the contact number i
-        virtual Vector3 getContactPosition(unsigned i);
+      ///Sets the number of contacts
+      virtual void setContactsNumber(unsigned);
 
-        ///Gets the nimber of contacts
-        unsigned getContactsNumber(void) const;
+      ///Sets the position of the contact number i
+      virtual void setContactPosition(unsigned i, const Vector3 & position);
 
-        virtual void setContactModelNumber(unsigned nb);
+      ///Gets the position of the contact number i
+      virtual Vector3 getContactPosition(unsigned i);
 
-        virtual void computeElastFeetContactForcesAndMoments
-                              (const IndexedMatrixArray& contactPosArray,
-                               const IndexedMatrixArray& contactOriArray,
-                               const Vector3& position, const Vector3& linVelocity,
-                               const Vector3& oriVector, const Matrix3& orientation,
-                               const Vector3& angVel,
-                               Vector3& forces, Vector3& moments);
+      ///Gets the nimber of contacts
+      unsigned getContactsNumber(void) const;
 
-        virtual void computeElastPendulumForcesAndMoments
-                              (const IndexedMatrixArray& PrArray,
-                               const IndexedMatrixArray& PeArray,
-                               const Vector3& position, const Vector3& linVelocity,
-                               const Vector3& oriVector, const Matrix3& orientation,
-                               const Vector3& angVel,
-                               Vector3& forces, Vector3& moments);
+      virtual void setContactModel(unsigned nb);
 
-        virtual void computeForcesAndMoments
-                              (const IndexedMatrixArray& position1,
-                               const IndexedMatrixArray& position2,
-                               const Vector3& position, const Vector3& linVelocity,
-                               const Vector3& oriVector, const Matrix3& orientation,
-                               const Vector3& angVel,
-                               Vector3& forces, Vector3& moments);
+      virtual void computeElastContactForcesAndMoments
+      (const IndexedMatrixArray& contactPosArray,
+       const IndexedMatrixArray& contactOriArray,
+       const Vector3& position, const Vector3& linVelocity,
+       const Vector3& oriVector, const Matrix3& orientation,
+       const Vector3& angVel,
+       Vector3& forces, Vector3& moments);
 
-        virtual Vector getForcesAndMoments();
+      virtual void computeElastPendulumForcesAndMoments
+      (const IndexedMatrixArray& PrArray,
+       const IndexedMatrixArray& PeArray,
+       const Vector3& position, const Vector3& linVelocity,
+       const Vector3& oriVector, const Matrix3& orientation,
+       const Vector3& angVel,
+       Vector3& forces, Vector3& moments);
 
-        virtual void iterateDynamicsEuler
-             (const Vector3& positionCom, const Vector3& velocityCom,
-              const Vector3& accelerationCom, const Vector3& AngMomentum,
-              const Vector3& dotAngMomentum,
-              const Matrix3& Inertia, const Matrix3& dotInertia,
-              const IndexedMatrixArray& contactPos,
-              const IndexedMatrixArray& contactOri,
-              Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
-              Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
-              double dt
-              );
+      virtual void computeForcesAndMoments
+      (const IndexedMatrixArray& position1,
+       const IndexedMatrixArray& position2,
+       const Vector3& position, const Vector3& linVelocity,
+       const Vector3& oriVector, const Matrix3& orientation,
+       const Vector3& angVel,
+       Vector3& forces, Vector3& moments);
 
-        virtual void iterateDynamicsRK4
-             (const Vector3& positionCom, const Vector3& velocityCom,
-              const Vector3& accelerationCom, const Vector3& AngMomentum,
-              const Vector3& dotAngMomentum,
-              const Matrix3& Inertia, const Matrix3& dotInertia,
-              const IndexedMatrixArray& contactPos,
-              const IndexedMatrixArray& contactOri,
-              Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
-              Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
-              double dt
-              );
+      virtual Vector getForcesAndMoments();
+
+      virtual void iterateDynamicsEuler
+      (const Vector3& positionCom, const Vector3& velocityCom,
+       const Vector3& accelerationCom, const Vector3& AngMomentum,
+       const Vector3& dotAngMomentum,
+       const Matrix3& Inertia, const Matrix3& dotInertia,
+       const IndexedMatrixArray& contactPos,
+       const IndexedMatrixArray& contactOri,
+       Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
+       Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+       double dt
+      );
+
+      virtual void iterateDynamicsRK4
+      (const Vector3& positionCom, const Vector3& velocityCom,
+       const Vector3& accelerationCom, const Vector3& AngMomentum,
+       const Vector3& dotAngMomentum,
+       const Matrix3& Inertia, const Matrix3& dotInertia,
+       const IndexedMatrixArray& contactPos,
+       const IndexedMatrixArray& contactOri,
+       Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
+       Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+       double dt
+      );
 
 
-        virtual void setKfe(const Matrix3 & m);
-        virtual void setKfv(const Matrix3 & m);
-        virtual void setKte(const Matrix3 & m);
-        virtual void setKtv(const Matrix3 & m);
+      virtual void setKfe(const Matrix3 & m);
+      virtual void setKfv(const Matrix3 & m);
+      virtual void setKte(const Matrix3 & m);
+      virtual void setKtv(const Matrix3 & m);
 
       virtual void setRobotMass(double d);
 
@@ -217,6 +225,7 @@ namespace stateObservation
       unsigned inputSize_;
       static const unsigned measurementSizeBase_=6;
       unsigned nbContacts_;
+      unsigned contactModel_;
 
       Vector fc_;
       Vector tc_;
