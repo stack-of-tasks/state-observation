@@ -24,14 +24,6 @@ namespace flexibilityEstimation
    IMUElasticLocalFrameDynamicalSystem::
     	IMUElasticLocalFrameDynamicalSystem(double dt):
         processNoise_(0x0), dt_(dt),
-                    orientationVector0(Vector3::Zero()),
-            curRotation0(Matrix3::Identity()),
-            orientationVector1(Vector3::Zero()),
-            curRotation1(Matrix3::Identity()),
-            orientationVector2(Vector3::Zero()),
-            curRotation2(Matrix3::Identity()),
-            orientationVector3(Vector3::Zero()),
-            curRotation3(Matrix3::Identity()),
         measurementSize_(measurementSizeBase_),
         robotMassInv_(1/hrp2::m),
         robotMass_(hrp2::m)
@@ -144,43 +136,41 @@ namespace flexibilityEstimation
         tc_.resize(nbContacts*3);
         forces.setZero();
         moments.setZero();
-        Matrix3 Rci;
-        Matrix3 Rcit;
-        Vector3 contactPos;
-  
-        Vector3 forcei;
-        Vector3 momenti;
-        Vector3 globalContactPos;
-  
-        for (int i = 0; i<nbContacts ; ++i)
-        {
-          contactPos = contactPosArray[i];
-  
-          Rci = computeRotation_(contactOriArray[i]);
-          Rcit= Rci.transpose();
-  
-          globalContactPos = position ;
-          globalContactPos.noalias() += orientation*contactPos ;
-  
-          forcei.noalias() = - Rci*Kfe_*Rcit*(globalContactPos-contactPos);
-          forcei.noalias() += - Rci*Kfv_*Rcit*(kine::skewSymmetric(angVel)*orientation*contactPos+linVelocity);
-  
-          fc_.segment<3>(3*i)= forcei;
-  
-          forces += forcei;
-  
-          momenti.noalias() = -Rci*Kte_*Rcit*oriVector;
-          momenti.noalias() += -Rci*Ktv_*Rcit*angVel;
-          momenti.noalias() += kine::skewSymmetric(globalContactPos)*forcei;
-  
-          tc_.segment<3>(3*i)= momenti;
-  
-          moments += momenti;
-  
-  
-        }
 
+
+      for (int i = 0; i<nbContacts ; ++i)
+      {
+        op_.contactPos = contactPosArray[i];
+
+        op_.Rci = contactOriArray[i];
+        op_.Rcit.noalias()= op_.Rci.transpose();
+
+        op_.RciContactPos.noalias()= orientation*op_.contactPos;
+
+        op_.globalContactPos = position;
+
+        op_.globalContactPos += op_.RciContactPos ;
+
+        op_.forcei.noalias() = - op_.Rci*Kfe_*op_.Rcit*(op_.globalContactPos-op_.contactPos);
+        op_.forcei.noalias() += - op_.Rci*Kfv_*op_.Rcit*(kine::skewSymmetric(angVel)*op_.RciContactPos
+                                  +linVelocity);
+
+        fc_.segment<3>(3*i)= op_.forcei;
+
+        forces += op_.forcei;
+
+        op_.momenti.noalias() = -op_.Rci*Kte_*op_.Rcit*oriVector;
+        op_.momenti.noalias() += -op_.Rci*Ktv_*op_.Rcit*angVel;
+        op_.momenti.noalias() += kine::skewSymmetric(op_.globalContactPos)*op_.forcei;
+
+        tc_.segment<3>(3*i)= op_.momenti;
+
+        moments += op_.momenti;
+
+        }
+        
     }
+
 
     void IMUElasticLocalFrameDynamicalSystem::computeForcesAndMoments
                           (const IndexedMatrixArray& position1,
@@ -215,43 +205,44 @@ namespace flexibilityEstimation
         const Vector3 &oriVector ,const Matrix3& orientation,
         const Vector3& angularVel, Vector3& angularAcceleration)
     {
+        op_.skewV=kine::skewSymmetric(angularVel);
+        op_.skewV2=kine::skewSymmetric2(angularVel);
+        op_.skewVR=op_.skewV * orientation;
+        op_.skewV2R=op_.skewV2 * orientation;
 
 
-        Vector3 fc;
-        Vector3 tc;
-
-        Matrix3 skewV(kine::skewSymmetric(angularVel));
-        Matrix3 skewV2(kine::skewSymmetric2(angularVel));
-        Matrix3 skewVR(skewV * orientation);
-        Matrix3 skewV2R(skewV2 * orientation);
-
-
-        Matrix3 orientationT(orientation.transpose());
+        op_.rFlexT=orientation.transpose();
 
         computeForcesAndMoments (contactPosV, contactOriV,
                           position, linVelocity, oriVector, orientation,
-                             angularVel, fc, tc);
+                             angularVel, op_.fc, op_.tc);
 
-        Vector3 vf (robotMassInv_*fc);
-        vf.noalias() -= orientation*accelerationCom;
-        vf.noalias() -= 2*skewVR*velocityCom;
-        vf.noalias() -= skewV2R*positionCom;
-        vf.noalias() -= cst::gravity;
+        op_.wx2Rc=op_.skewV2R*positionCom;
+        op_._2wxRv=2*op_.skewVR*velocityCom;
+        op_.Ra = orientation*accelerationCom;
+        op_.Rc = orientation * positionCom;
+        op_.Rcp = op_.Rc+position;
+        op_.RIRT = orientation*Inertia*op_.rFlexT;
 
-        Vector3 vt (tc);
-        vt.noalias() -= skewVR * (Inertia* (orientationT * angularVel));
-        vt.noalias() -= orientation * (dotInertia * (orientationT * angularVel)) ;
-        vt.noalias() -= orientation * dotAngMomentum;
-        vt.noalias() -= skewVR * AngMomentum;
-        vt.noalias() -= robotMass_* (kine::skewSymmetric(position) *
-                            (skewV2R * positionCom + 2*(skewVR * velocityCom) + orientation * accelerationCom ));
-        vt.noalias() -= robotMass_* kine::skewSymmetric(orientation * positionCom + position) * cst::gravity;
+        op_.vf =robotMassInv_*op_.fc;
+        op_.vf.noalias() -= op_.Ra;
+        op_.vf.noalias() -= op_._2wxRv;
+        op_.vf.noalias() -= op_.wx2Rc;
+        op_.vf.noalias() -= cst::gravity;
 
-        angularAcceleration = (orientation*Inertia*orientationT + robotMass_*kine::skewSymmetric2(orientation * positionCom)).inverse()
-                                *(vt - robotMass_*kine::skewSymmetric(orientation * positionCom + position)*vf);
+        op_.vt =op_.tc;
+        op_.vt.noalias() -= op_.skewV * (op_.RIRT * angularVel);
+        op_.vt.noalias() -= orientation * (dotInertia * (op_.rFlexT * angularVel)+dotAngMomentum) ;
+        op_.vt.noalias() -= op_.skewVR * AngMomentum;
+        op_.vt.noalias() -= robotMass_* (kine::skewSymmetric(position) *
+                            (op_.wx2Rc+ op_._2wxRv + op_.Ra ));
+        op_.vt.noalias() -= robotMass_* kine::skewSymmetric(op_.Rcp) * cst::gravity;
 
-        linearAcceleration = vf;
-        linearAcceleration += kine::skewSymmetric(orientation*positionCom)*angularAcceleration;
+        angularAcceleration = ( op_.RIRT + robotMass_*kine::skewSymmetric2(op_.Rc)).llt().solve(
+                                (op_.vt - robotMass_*kine::skewSymmetric(op_.Rcp)*op_.vf));
+
+        linearAcceleration = op_.vf;
+        linearAcceleration += kine::skewSymmetric(op_.Rc)*angularAcceleration;
 
     }
 
@@ -267,23 +258,23 @@ namespace flexibilityEstimation
               double dt)
     {
 
-        Matrix3 orientationFlex(computeRotation_(oriVector,0));
+        op_.rFlex = computeRotation_(oriVector,0);
         //compute new acceleration with the current flex position and velocity and input
 
 
         //integrate kinematics with the last acceleration
         integrateKinematics(position, linVelocity, linearAcceleration,
-            orientationFlex,angularVel, angularAcceleration, dt);
+            op_.rFlex,angularVel, angularAcceleration, dt);
 
 
         computeAccelerations (positionCom, velocityCom,
         accelerationCom, AngMomentum, dotAngMomentum,
         inertia, dotInertia,  contactPos, contactOri, position, linVelocity, linearAcceleration,
-                       oriVector, orientationFlex, angularVel, angularAcceleration);
+                       oriVector, op_.rFlex, angularVel, angularAcceleration);
 
 
-        AngleAxis orientationAA(orientationFlex);
-        oriVector=orientationAA.angle()*orientationAA.axis();
+        op_.orientationAA=op_.rFlex;
+        oriVector=op_.orientationAA.angle()*op_.orientationAA.axis();
     }
 
     void IMUElasticLocalFrameDynamicalSystem::iterateDynamicsRK4
@@ -456,7 +447,8 @@ namespace flexibilityEstimation
         int subsample=1;
         for (int i=0; i<subsample; ++i)
         {
-          iterateDynamicsEuler (op_.positionCom, op_.velocityCom,
+          iterateDynamicsEuler (
+                          op_.positionCom, op_.velocityCom,
                           op_.accelerationCom, op_.AngMomentum, op_.dotAngMomentum,
                           op_.inertia, op_.dotInertia,  op_.contactPosV, op_.contactOriV,
                           op_.positionFlex, op_.velocityFlex, op_.accelerationFlex,
@@ -466,32 +458,30 @@ namespace flexibilityEstimation
 
         //x_{k+1}
 
-        Vector& xk1 = op_.xk1;
+        op_.xk1=x;
 
-        xk1=x;
-
-        xk1.segment<3>(kine::pos) = op_.positionFlex;
-        xk1.segment<3>(kine::linVel) = op_.velocityFlex;
-        xk1.segment<3>(kine::linAcc) = op_.accelerationFlex;
+        op_.xk1.segment<3>(kine::pos) = op_.positionFlex;
+        op_.xk1.segment<3>(kine::linVel) = op_.velocityFlex;
+        op_.xk1.segment<3>(kine::linAcc) = op_.accelerationFlex;
 
 
 
-        xk1.segment<3>(kine::ori) =  op_.orientationFlexV;
-        xk1.segment<3>(kine::angVel) = op_.angularVelocityFlex;
-        xk1.segment<3>(kine::angAcc) = op_.angularAccelerationFlex;
+        op_.xk1.segment<3>(kine::ori) =  op_.orientationFlexV;
+        op_.xk1.segment<3>(kine::angVel) = op_.angularVelocityFlex;
+        op_.xk1.segment<3>(kine::angAcc) = op_.angularAccelerationFlex;
 
         if (processNoise_!=0x0)
-            return processNoise_->addNoise(xk1);
+            return processNoise_->addNoise(op_.xk1);
          else
-            return xk1;
+            return op_.xk1;
     }
 
 
     inline Matrix3& IMUElasticLocalFrameDynamicalSystem::computeRotation_
                 (const Vector3 & x, int i)
     {
-        Vector3 & oriV = orientationVector(i);
-        Matrix3 & oriR = curRotation(i);
+        Vector3 & oriV = op_.orientationVector(i);
+        Matrix3 & oriR = op_.curRotation(i);
         if (oriV!=x)
         {
             oriV = x;

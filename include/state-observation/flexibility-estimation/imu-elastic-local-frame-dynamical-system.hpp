@@ -20,8 +20,8 @@
 
 namespace stateObservation
 {
-namespace flexibilityEstimation
-{
+  namespace flexibilityEstimation
+  {
 
 
     /**
@@ -33,12 +33,12 @@ namespace flexibilityEstimation
     *
     */
     class 	IMUElasticLocalFrameDynamicalSystem :
-        public stateObservation::DynamicalSystemFunctorBase,
-        private stateObservation::algorithm::RigidBodyKinematics
+      public stateObservation::DynamicalSystemFunctorBase,
+      private stateObservation::algorithm::RigidBodyKinematics
     {
     public:
-        struct input
-        {
+      struct input
+      {
         ///indexes of the different components of a vector of the input state
           static const unsigned posCom = 0;
           static const unsigned velCom = 3;
@@ -195,11 +195,118 @@ namespace flexibilityEstimation
         virtual void setKte(const Matrix3 & m);
         virtual void setKtv(const Matrix3 & m);
 
-        virtual void setRobotMass(double d);
+      virtual void setRobotMass(double d);
 
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     protected:
+
+      stateObservation::AccelerometerGyrometer sensor_;
+
+      stateObservation::NoiseBase * processNoise_;
+
+      double dt_;
+
+      double robotMass_;
+      double robotMassInv_;
+
+      Matrix3& computeRotation_(const Vector3 & x, int i);
+
+      static const unsigned stateSize_=18;
+      static const unsigned inputSizeBase_=42;
+      unsigned inputSize_;
+      static const unsigned measurementSizeBase_=6;
+      unsigned nbContacts_;
+
+      Vector fc_;
+      Vector tc_;
+
+      unsigned measurementSize_;
+
+      std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;
+
+
+      Matrix3 Kfe_, Kte_, Kfv_, Ktv_;
+
+
+
+      unsigned kcurrent_;
+
+
+      struct Optimization
+      {
+
+
+        Vector3 positionFlex;
+        Vector3 velocityFlex;
+        Vector3 accelerationFlex;
+        Vector3 orientationFlexV;
+        Vector3 angularVelocityFlex;
+        Vector3 angularAccelerationFlex;
+
+        Matrix3 rFlex;
+        Matrix3 rFlexT;
+
+        AngleAxis orientationAA;
+
+        Vector xk1;
+
+        Vector3 positionCom;
+        Vector3 velocityCom;
+        Vector3 accelerationCom;
+        Vector3 AngMomentum;
+        Vector3 dotAngMomentum;
+
+        Vector3 positionControl;
+        Vector3 velocityControl;
+        Vector3 accelerationControl;
+        Vector3 orientationControlV;
+        Vector3 angularVelocityControl;
+
+        Matrix3 rControl;
+
+        Matrix3 rimu;
+
+        IndexedMatrixArray contactPosV;
+        IndexedMatrixArray contactOriV;
+
+
+        Matrix3 inertia;
+        Matrix3 dotInertia;
+
+        Vector3 fc;
+        Vector3 tc;
+
+        Vector3 vf;
+        Vector3 vt;
+
+        //elastic contact forces and moments
+        Matrix3 Rci; //rotation of contact i
+        Matrix3 Rcit;//transpose of previous
+        Vector3 contactPos; //
+        Vector3 RciContactPos;
+        Vector3 globalContactPos;
+
+        Vector3 forcei;
+        Vector3 momenti;
+
+
+        Matrix3 skewV;
+        Matrix3 skewV2;
+        Matrix3 skewVR;
+        Matrix3 skewV2R;
+        Matrix3 RIRT;
+        Vector3 wx2Rc;
+        Vector3 _2wxRv;
+        Vector3 Ra;
+        Vector3 Rc;
+        Vector3 Rcp;
+
+
+
+
+
+        //optimization of orientation transformation between vector3 to rotation matrix
 
         Matrix3 curRotation0;
         Vector3 orientationVector0;
@@ -210,118 +317,59 @@ namespace flexibilityEstimation
         Matrix3 curRotation3;
         Vector3 orientationVector3;
 
+
+
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+        Optimization()
+          :
+          orientationVector0(Vector3::Zero()),
+          curRotation0(Matrix3::Identity()),
+          orientationVector1(Vector3::Zero()),
+          curRotation1(Matrix3::Identity()),
+          orientationVector2(Vector3::Zero()),
+          curRotation2(Matrix3::Identity()),
+          orientationVector3(Vector3::Zero()),
+          curRotation3(Matrix3::Identity())
+        {}
+
         inline Vector3& orientationVector(int i)
         {
-            if (i==0)
-              return orientationVector0;
-            if (i==1)
-              return orientationVector1;
-            if (i==2)
-              return orientationVector2;
+          if (i==0)
+            return orientationVector0;
+          if (i==1)
+            return orientationVector1;
+          if (i==2)
+            return orientationVector2;
 
-            return orientationVector3;
+          return orientationVector3;
         }
 
         inline Matrix3& curRotation(int i)
         {
-            if (i==0)
-              return curRotation0;
-            if (i==1)
-              return curRotation1;
-            if (i==2)
-              return curRotation2;
+          if (i==0)
+            return curRotation0;
+          if (i==1)
+            return curRotation1;
+          if (i==2)
+            return curRotation2;
 
-            return curRotation3;
+          return curRotation3;
         }
 
-        stateObservation::AccelerometerGyrometer sensor_;
-
-        stateObservation::NoiseBase * processNoise_;
-
-        double dt_;
-
-        double robotMass_;
-        double robotMassInv_;
-
-        Matrix3& computeRotation_(const Vector3 & x, int i);
-
-        static const unsigned stateSize_=18;
-        static const unsigned inputSizeBase_=42;
-        unsigned inputSize_;
-        static const unsigned measurementSizeBase_=6;
-
-        unsigned nbContacts_;
-        unsigned contactModel_;
-
-        Vector fc_;
-        Vector tc_;
-
-        unsigned measurementSize_;
-
-        std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;
+      } op_;
 
 
-        Matrix3 Kfe_, Kte_, Kfv_, Ktv_;
-
-
-
-        unsigned kcurrent_;
-
-
-        struct Optimization
-        {
-
-
-          Vector3 positionFlex;
-          Vector3 velocityFlex;
-          Vector3 accelerationFlex;
-          Vector3 orientationFlexV;
-          Vector3 angularVelocityFlex;
-          Vector3 angularAccelerationFlex;
-
-          Matrix3 rFlex;
-
-          Vector xk1;
-
-          Vector3 positionCom;
-          Vector3 velocityCom;
-          Vector3 accelerationCom;
-          Vector3 AngMomentum;
-          Vector3 dotAngMomentum;
-
-          Vector3 positionControl;
-          Vector3 velocityControl;
-          Vector3 accelerationControl;
-          Vector3 orientationControlV;
-          Vector3 angularVelocityControl;
-
-          Matrix3 rControl;
-
-          Matrix3 rimu;
-
-          IndexedMatrixArray contactPosV;
-          IndexedMatrixArray contactOriV;
-
-
-          Matrix3 inertia;
-          Matrix3 dotInertia;
-
-          EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
-          //optimization of orientation transformation between vector3 to rotation matrix
-
-
-
-        } op_;
 
     private:
 
 
     public:
     };
-}
+  }
 }
 
 
 
 #endif /* DYNAMICAL_SYSTEM_HPP_ */
+
