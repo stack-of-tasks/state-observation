@@ -61,6 +61,7 @@ namespace stateObservation
         ///indexes of the different components of a vector of the input state
         static const unsigned elasticContact= 1;
         static const unsigned pendulum= 2;
+        static const unsigned none= 0;
 
       };
 

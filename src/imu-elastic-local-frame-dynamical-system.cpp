@@ -38,7 +38,7 @@ namespace flexibilityEstimation
       Ktv_=60*Matrix3::Identity();
 
       sensor_.setMatrixMode(true);
-      contactModel_=0;
+      contactModel_=contactModel::none;
 
 
       kcurrent_=-1;
@@ -172,7 +172,7 @@ namespace flexibilityEstimation
     }
 
 
-    void IMUElasticLocalFrameDynamicalSystem::computeForcesAndMoments
+    inline void IMUElasticLocalFrameDynamicalSystem::computeForcesAndMoments
                           (const IndexedMatrixArray& position1,
                            const IndexedMatrixArray& position2,
                            const Vector3& position, const Vector3& linVelocity,
