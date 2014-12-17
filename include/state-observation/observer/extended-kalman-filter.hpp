@@ -54,9 +54,9 @@ namespace stateObservation
         ExtendedKalmanFilter(unsigned n,unsigned m,unsigned p=0,
                 bool directInputOutputFeedthrough=true,
                 bool directInputStateProcessFeedthrough=true)
-            :KalmanFilterBase(n,m,p), f_(0x0),
+            :KalmanFilterBase(n,m,p),
             directInputOutputFeedthrough_(directInputOutputFeedthrough),
-            directInputStateProcessFeedthrough_(directInputStateProcessFeedthrough)
+            directInputStateProcessFeedthrough_(directInputStateProcessFeedthrough), f_(0x0)
 
         {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
