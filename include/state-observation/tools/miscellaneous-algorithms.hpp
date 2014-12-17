@@ -168,8 +168,6 @@ namespace stateObservation
         {
             AngleAxis aa (q2 * q1.conjugate());
 
-            double a=aa.angle();
-
             Vector3 v =  aa.axis();
 
             return (aa.angle()/dt)*aa.axis();
