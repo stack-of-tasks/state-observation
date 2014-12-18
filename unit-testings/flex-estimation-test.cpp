@@ -258,7 +258,7 @@ int test()
     std::ofstream f;
     f.open("trajectory.dat");
 
-    double error;
+    double error=0;
 
     ///the reconstruction of the state
     for (unsigned i=y.getFirstIndex();i<=y.getLastIndex();++i)

@@ -62,10 +62,12 @@ namespace stateObservation
 
         inline void assertStateVector_(const Vector & v)
         {
+            (void)v;//avoid warning
             BOOST_ASSERT(checkStateVector(v) && "ERROR: The state vector has the wrong size");
         }
         inline void assertInputVector_(const Vector & v)
         {
+            (void)v;//avoid warning
             BOOST_ASSERT(checkInputvector(v) && "ERROR: The input vector has the wrong size");
         }
 

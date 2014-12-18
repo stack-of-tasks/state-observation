@@ -113,6 +113,8 @@ namespace flexibilityEstimation
         bool b6= (x.rows()==6 && x.cols()==1);
         bool bhomogeneous = (x.rows()==4 && x.cols()==4);
 
+        (void)b6;//avoid warning
+
         BOOST_ASSERT((bstate||b6||bhomogeneous) &&
                 "ERROR: The flexibility state has incorrect size \
                     must be 18x1 vector, 6x1 vector or 4x4 matrix");

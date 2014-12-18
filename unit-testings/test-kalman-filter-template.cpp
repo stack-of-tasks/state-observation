@@ -143,8 +143,8 @@ double testExtendedKalmanFilter()
     f.setStateCovariance(p);
 
     ///the covariance matrices for the process noise and the measurements noise
-    ekf::Rmatrix r=r1*r1.transpose();
-    ekf::Qmatrix q=q1*q1.transpose();
+    ekf::Rmatrix r(r1*r1.transpose());
+    ekf::Qmatrix q(q1*q1.transpose());
 
     ///set the covariance matrices for the extended Kalman filter
     f.setR(r);
@@ -257,8 +257,8 @@ private:
 
     ekf::Qmatrix q1=ekf::Qmatrix::Random()*0.01;
 
-    ekf::Rmatrix r=r1*r1.transpose();
-    ekf::Qmatrix q=q1*q1.transpose();
+    ekf::Rmatrix r(r1*r1.transpose());
+    ekf::Qmatrix q(q1*q1.transpose());
 
     xk[0]=x;
     uk[0]=ekf::InputVector::Random();
@@ -329,7 +329,7 @@ private:
         xh=f.getEstimatedState(i);
     }
 
-    ekf::StateVector error=xh-xk[kmax];
+    ekf::StateVector error()xh-xk[kmax]);
 
     return error.norm();
 
@@ -430,8 +430,8 @@ double testExtendedKalmanFilterZeroInput()
 
     ekf::Qmatrix q1=ekf::Qmatrix::Random()*0.01;
 
-    ekf::Rmatrix r=r1*r1.transpose();
-    ekf::Qmatrix q=q1*q1.transpose();
+    ekf::Rmatrix r(r1*r1.transpose());
+    ekf::Qmatrix q(q1*q1.transpose());
 
     xk[0]=x;
 
@@ -535,8 +535,8 @@ double testKalmanFilter()
 
     filter::Qmatrix q1=filter::Qmatrix::Random()*0.01;
 
-    filter::Rmatrix r=r1*r1.transpose();
-    filter::Qmatrix q=q1*q1.transpose();
+    filter::Rmatrix r(r1*r1.transpose());
+    filter::Qmatrix q(q1*q1.transpose());
 
     uk[0]=filter::InputVector::Random();
 
@@ -636,8 +636,8 @@ double testKalmanFilterZeroInput()
 
     filter::Qmatrix q1=filter::Qmatrix::Random()*0.01;
 
-    filter::Rmatrix r=r1*r1.transpose();
-    filter::Qmatrix q=q1*q1.transpose();
+    filter::Rmatrix r(r1*r1.transpose());
+    filter::Qmatrix q(q1*q1.transpose());
 
     filter::InputVector u=filter::InputVector::Zero();
 

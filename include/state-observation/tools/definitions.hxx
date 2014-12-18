@@ -147,6 +147,7 @@ bool IndexedMatrixArray::checkIndex(unsigned time) const
 ///does nothing in release mode
 void IndexedMatrixArray::check_(unsigned time)const
 {
+    (void)time;//avoid warning
     BOOST_ASSERT(checkIndex(time) && "Error: Time out of range");
 }
 
@@ -160,6 +161,7 @@ void IndexedMatrixArray::check_()const
 
 void IndexedMatrixArray::checkNext_(unsigned time)const
 {
+    (void)time;//avoid warning
     BOOST_ASSERT( (v_.size()==0 || k_+v_.size() == time )&&
                   "Error: New time instants must be consecutive to existing ones");
 }

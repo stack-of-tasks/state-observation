@@ -46,6 +46,7 @@ namespace stateObservation
 
     void AlgebraicSensor::checkState_(const Vector & v)
     {
+        (void)v;//avoid warning
         BOOST_ASSERT( checkStateVector(v) && "ERROR: The state vector is incorrectly set.");
     }
 
