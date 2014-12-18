@@ -144,7 +144,7 @@ namespace flexibilityEstimation
                                             (const Matrix & R)
     {
         BOOST_ASSERT(unsigned(R.rows())==getMeasurementSize() &&
-                     R.cols()==getMeasurementSize() &&
+                     unsigned(R.cols())==getMeasurementSize() &&
                     "ERROR: The measurement noise covariance matrix R has \
                         incorrect size");
 

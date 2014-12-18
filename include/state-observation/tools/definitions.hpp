@@ -191,12 +191,12 @@ namespace stateObservation
         ///the line starts with the time index and then the matrix is described
         ///row by row
         ///Warning : this resets the array
-        void getFromFile(char * filename, size_t rows, size_t cols=1);
+        void getFromFile(const char * filename, size_t rows, size_t cols=1);
 
         ///write the array in a a file
         ///the line starts with the time index and then the matrix is described
         ///row by row
-        void writeInFile(char * filename);
+        void writeInFile(const char * filename);
 
     protected:
         ///Asserts that the index is present in the array

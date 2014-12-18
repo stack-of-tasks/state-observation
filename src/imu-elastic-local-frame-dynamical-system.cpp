@@ -24,9 +24,9 @@ namespace flexibilityEstimation
    IMUElasticLocalFrameDynamicalSystem::
     	IMUElasticLocalFrameDynamicalSystem(double dt):
         processNoise_(0x0), dt_(dt),
-        measurementSize_(measurementSizeBase_),
+        robotMass_(hrp2::m),
         robotMassInv_(1/hrp2::m),
-        robotMass_(hrp2::m)
+        measurementSize_(measurementSizeBase_)
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
        // std::cout<<std::endl<<"IMUElasticLocalFrameDynamicalSystem Constructor"<<std::endl;
@@ -88,7 +88,7 @@ namespace flexibilityEstimation
 
         Matrix3 u;
 
-        for (int i = 0; i<nbContacts ; ++i)
+        for (unsigned i = 0; i<nbContacts ; ++i)
         {
             globalContactPos = position ;
             globalContactPos.noalias() += orientation*PrArray[i] ;
@@ -138,7 +138,7 @@ namespace flexibilityEstimation
         moments.setZero();
 
 
-      for (int i = 0; i<nbContacts ; ++i)
+      for (unsigned i = 0; i<nbContacts ; ++i)
       {
         op_.contactPos = contactPosArray[i];
 
@@ -194,7 +194,7 @@ namespace flexibilityEstimation
 
 
 
-    Vector3 IMUElasticLocalFrameDynamicalSystem::computeAccelerations
+    void IMUElasticLocalFrameDynamicalSystem::computeAccelerations
        (const Vector3& positionCom, const Vector3& velocityCom,
         const Vector3& accelerationCom, const Vector3& AngMomentum,
         const Vector3& dotAngMomentum,
@@ -414,7 +414,7 @@ namespace flexibilityEstimation
     }
 
     Vector IMUElasticLocalFrameDynamicalSystem::stateDynamics
-        (const Vector& x, const Vector& u, unsigned k)
+        (const Vector& x, const Vector& u, unsigned )
     {
         assertStateVector_(x);
 
@@ -431,7 +431,7 @@ namespace flexibilityEstimation
 
         unsigned nbContacts(getContactsNumber());
 
-        for (int i = 0; i<nbContacts ; ++i)
+        for (unsigned i = 0; i<nbContacts ; ++i)
         {
           op_.contactPosV.setValue(u.segment<3>(input::contacts + 6*i),i);
           op_.contactOriV.setValue(u.segment<3>(input::contacts +6*i+3),i);

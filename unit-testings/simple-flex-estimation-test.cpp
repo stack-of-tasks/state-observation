@@ -20,7 +20,7 @@ int test()
 
     ///Sizes of the states for the state, the measurement, and the input vector
     const unsigned stateSize=18;
-    const unsigned measurementSize=6;
+    //const unsigned measurementSize=6;
     const unsigned inputSize=15;
 
     ///The array containing all the states, the measurements and the inputs
@@ -173,7 +173,7 @@ int test()
     double error;
 
     ///the reconstruction of the state
-    for (int i=y.getFirstIndex();i<=y.getLastIndex();++i)
+    for (unsigned i=y.getFirstIndex();i<=y.getLastIndex();++i)
     {
         ///display part, useless
         Vector3 g;

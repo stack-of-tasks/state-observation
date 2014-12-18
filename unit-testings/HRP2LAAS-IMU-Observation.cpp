@@ -5,7 +5,7 @@
 
 using namespace stateObservation;
 
-IndexedMatrixArray getMeasurements(char * accelerometerSignal,  char * gyrometerSignal)
+IndexedMatrixArray getMeasurements(const char * accelerometerSignal, const char * gyrometerSignal)
 {
     std::ifstream facc;
     std::ifstream fgyr;
@@ -56,7 +56,6 @@ int test(const IndexedMatrixArray & y)
     ///Sizes of the states for the state, the measurement, and the input vector
     const unsigned stateSize=18;
     const unsigned measurementSize=6;
-    const unsigned inputSize=6;
 
     Vector xh0=Vector::Zero(stateSize,1);
 
@@ -76,7 +75,7 @@ int test(const IndexedMatrixArray & y)
     double estimatedError=0;
 
     ///the reconstruction of the state
-    for (int i=xh.getFirstIndex()+1;i<=xh.getLastIndex();++i)
+    for (unsigned i=xh.getFirstIndex()+1;i<=xh.getLastIndex();++i)
     {
         ///display part,
         Vector3 gh;

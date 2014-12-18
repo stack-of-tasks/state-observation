@@ -157,7 +157,7 @@ int test()
                 ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
 
     std::cout << "Beginning reconstruction "<<std::endl;
-    for (int k=kinit+2;k<kmax;++k)
+    for (unsigned k=kinit+2;k<kmax;++k)
     {
 
 

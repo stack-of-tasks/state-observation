@@ -22,7 +22,8 @@ int test()
     const unsigned stateSize=18;
     const unsigned measurementSize=6;
     const unsigned inputSize=15;
-
+    (void)measurementSize;
+    (void)inputSize;
 
 
     for (unsigned i = 0; i<1; ++i)
@@ -42,7 +43,7 @@ int test()
         Vector x0=(Vector::Zero(stateSize,1));
 
         ///initialization of the state vector
-        for (int j= 0; j<stateSize ;++j)
+        for (unsigned j= 0; j<stateSize ;++j)
         	x0[j]=(double(rand())/RAND_MAX -0.5)*2;
 
         sim.setState(x0,0);
@@ -50,7 +51,7 @@ int test()
         Vector uk=Vector::Zero(imu.getInputSize(),1);
 
 
-        for (int k=0;k<kmax;++k)
+        for (unsigned k=0;k<kmax;++k)
         {
         	u.setValue(uk,k);
 
@@ -70,6 +71,8 @@ int test()
         x.writeInFile("state.dat");
         //std::cout <<x[kmax].norm ()<< " "<< x[kmax].transpose() << std::endl;
     }
+
+    return 0;
 
 }
 

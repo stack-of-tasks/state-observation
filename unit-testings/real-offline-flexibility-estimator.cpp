@@ -24,7 +24,7 @@ int testDerivator()
     ///Sizes of the states for the state, the measurement, and the input vector
     const unsigned stateSize=18;
     const unsigned measurementSize=6;
-    const unsigned inputSize=6;
+    //const unsigned inputSize=6;
 
     ///The array containing all the states, the measurements and the inputs
     IndexedMatrixArray x;
@@ -64,7 +64,7 @@ int testDerivator()
 
         ///construction of the input
         /// the input is constant over 10 time samples
-        for (int i=0;i<kmax/10;++i)
+        for (unsigned i=0;i<kmax/10;++i)
         {
             Vector uk=Vector::Zero(imu.getInputSize(),1);
 
@@ -102,7 +102,7 @@ int testDerivator()
 
     IndexedMatrixArray dta;
 
-    for (int i=x.getFirstIndex() ; i<=x.getLastIndex() ; ++i)
+    for (unsigned i=x.getFirstIndex() ; i<=x.getLastIndex() ; ++i)
     {
         Vector xi = Vector::Zero(6,1);
 
@@ -118,7 +118,7 @@ int testDerivator()
     std::ofstream f;
     f.open("trajectory.dat");
 
-    for (int i=x.getFirstIndex() ; i<=x.getLastIndex() ; ++i)
+    for (unsigned i=x.getFirstIndex() ; i<=x.getLastIndex() ; ++i)
     {
         //f<<dta[i].transpose()<<"\t#####\t\t"<<Vector(Vector(x[i]).segment(9,3)).transpose()<<"\t#####\t\t"<<(x[i]-state[i]).transpose()<<std::endl;
         f<<(x[i]-state[i])<<std::endl<<std::endl;
@@ -129,7 +129,7 @@ int testDerivator()
 
 }
 
-IndexedMatrixArray getMeasurements(char * accelerometerSignal,  char * gyrometerSignal)
+IndexedMatrixArray getMeasurements(const char * accelerometerSignal, const  char * gyrometerSignal)
 {
     std::ifstream facc;
     std::ifstream fgyr;
@@ -169,7 +169,7 @@ IndexedMatrixArray getMeasurements(char * accelerometerSignal,  char * gyrometer
     return y;
 }
 
-IndexedMatrixArray getTrajectory(char * PositionOrientation)
+IndexedMatrixArray getTrajectory(const char * PositionOrientation)
 {
     std::ifstream f;
 
@@ -209,10 +209,6 @@ IndexedMatrixArray getTrajectory(char * PositionOrientation)
 int test (const IndexedMatrixArray & y, const IndexedMatrixArray & u)
 {
     /// The number of samples
-    const unsigned kmin=y.getFirstIndex();
-
-    const unsigned kmax=y.getLastIndex() + 1;
-
     const unsigned stateSize = 18;
 
 
@@ -235,7 +231,7 @@ int test (const IndexedMatrixArray & y, const IndexedMatrixArray & u)
     double error;
 
     ///the reconstruction of the state
-    for (int i=y.getFirstIndex();i<=y.getLastIndex();++i)
+    for (unsigned i=y.getFirstIndex();i<=y.getLastIndex();++i)
     {
         ///display part, useless
         Vector3 g;

@@ -66,10 +66,8 @@ int testConstant()
     std::ofstream f;
     f.open("trajectory.dat");
 
-    double error;
-
     ///the reconstruction of the state
-    for (int i=xh.getFirstIndex();i<=xh.getLastIndex();++i)
+    for (unsigned i=xh.getFirstIndex();i<=xh.getLastIndex();++i)
     {
        f << i<<" "<< xh[i].transpose()
           << std::endl;
@@ -106,7 +104,7 @@ int test()
     ///Sizes of the states for the state, the measurement, and the input vector
     const unsigned stateSize=18;
     const unsigned measurementSize=6;
-    const unsigned inputSize=15;
+    //const unsigned inputSize=15;
 
     ///The array containing all the states, the measurements and the inputs
     IndexedMatrixArray x;
@@ -210,7 +208,7 @@ int test()
         imu.setSamplingPeriod(dt);
 
         ///launched the simulation to the time kmax+1
-        for (int i=0; i<kmax+1; ++i)
+        for (unsigned i=0; i<kmax+1; ++i)
         {
             Vector x=sim.getState(i);
 
@@ -263,7 +261,7 @@ int test()
     double error;
 
     ///the reconstruction of the state
-    for (int i=y.getFirstIndex();i<=y.getLastIndex();++i)
+    for (unsigned i=y.getFirstIndex();i<=y.getLastIndex();++i)
     {
         ///display part, useless
         Vector3 g;

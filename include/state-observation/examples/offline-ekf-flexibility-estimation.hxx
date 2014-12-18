@@ -9,10 +9,8 @@ stateObservation::IndexedMatrixArray offlineEKFFlexibilityEstimation(
             IndexedMatrixArray * premea)
 {
 
+    (void)dt;
         ///Sizes of the states for the state, the measurement, and the input vector
-    const unsigned stateSize=18;
-    const unsigned measurementSize=6;
-    const unsigned inputSize=15;
 
     flexibilityEstimation::FixedContactEKFFlexEstimatorIMU estimator;
 
@@ -46,7 +44,7 @@ stateObservation::IndexedMatrixArray offlineEKFFlexibilityEstimation(
     xh.setValue(xh0,y.getFirstIndex()-1);
 
     ///the reconstruction of the state
-    for (int i=y.getFirstIndex();i<=y.getLastIndex();++i)
+    for (unsigned i=y.getFirstIndex();i<=y.getLastIndex();++i)
     {
         //std::cout << i << std::endl;
 
@@ -85,7 +83,7 @@ stateObservation::IndexedMatrixArray offlineEKFFlexibilityEstimation(
 
     ///initialization of a zero input
     stateObservation::IndexedMatrixArray u;
-    for (int k=y.getFirstIndex()-1; k<=y.getLastIndex(); ++k)
+    for (unsigned k=y.getFirstIndex()-1; k<=y.getLastIndex(); ++k)
     {
         u.setValue(Vector::Zero(inputSize,1),k);
     }

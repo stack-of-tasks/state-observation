@@ -74,7 +74,7 @@ namespace stateObservation
       void test();
 
       // computation of the acceleration linear
-      virtual Vector3 computeAccelerations
+      virtual void computeAccelerations
       (const Vector3& positionCom, const Vector3& velocityCom,
        const Vector3& accelerationCom, const Vector3& AngMomentum,
        const Vector3& dotAngMomentum,
@@ -333,14 +333,14 @@ namespace stateObservation
 
         Optimization()
           :
-          orientationVector0(Vector3::Zero()),
           curRotation0(Matrix3::Identity()),
-          orientationVector1(Vector3::Zero()),
+          orientationVector0(Vector3::Zero()),
           curRotation1(Matrix3::Identity()),
-          orientationVector2(Vector3::Zero()),
+          orientationVector1(Vector3::Zero()),
           curRotation2(Matrix3::Identity()),
-          orientationVector3(Vector3::Zero()),
-          curRotation3(Matrix3::Identity())
+          orientationVector2(Vector3::Zero()),
+          curRotation3(Matrix3::Identity()),
+          orientationVector3(Vector3::Zero())
         {}
 
         inline Vector3& orientationVector(int i)

@@ -10,8 +10,8 @@ namespace stateObservation
 
     GaussianWhiteNoise::GaussianWhiteNoise(unsigned dimension):
             dim_(dimension),
-            bias_(Vector::Zero(dimension,1)),
-            std_(Matrix::Identity(dimension, dimension))
+            std_(Matrix::Identity(dimension, dimension)),
+            bias_(Vector::Zero(dimension,1))
     {
     }
 

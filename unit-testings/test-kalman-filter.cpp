@@ -71,17 +71,17 @@ double testExtendedKalmanFilter()
 
         virtual unsigned getStateSize()
         {
-            f.getStateSize();
+            return f.getStateSize();
         }
 
         virtual unsigned getInputSize()
         {
-            f.getInputSize();
+            return f.getInputSize();
         }
 
         virtual unsigned getMeasurementSize()
         {
-            f.getMeasureSize();
+            return f.getMeasureSize();
         }
 
 
@@ -155,8 +155,8 @@ double testExtendedKalmanFilter()
     f.setStateCovariance(p);
 
     ///the covariance matrices for the process noise and the measurements noise
-    ekf::Rmatrix r=r1*r1.transpose();
-    ekf::Qmatrix q=q1*q1.transpose();
+    ekf::Rmatrix r(r1*r1.transpose());
+    ekf::Qmatrix q(q1*q1.transpose());
 
     ///set the covariance matrices for the extended Kalman filter
     f.setR(r);
@@ -242,17 +242,17 @@ public:
 
         virtual unsigned getStateSize()
         {
-            f.getStateSize();
+            return f.getStateSize();
         }
 
         virtual unsigned getInputSize()
         {
-            f.getInputSize();
+            return f.getInputSize();
         }
 
         virtual unsigned getMeasurementSize()
         {
-            f.getMeasureSize();
+            return f.getMeasureSize();
         }
 
         std::vector<ekf::Amatrix> a;
@@ -283,8 +283,8 @@ private:
 
     ekf::Qmatrix q1=f.getQmatrixRandom()*0.01;
 
-    ekf::Rmatrix r=r1*r1.transpose();
-    ekf::Qmatrix q=q1*q1.transpose();
+    ekf::Rmatrix r(r1*r1.transpose());
+    ekf::Qmatrix q(q1*q1.transpose());
 
     xk[0]=x;
     uk[0]=f.inputVectorRandom();
@@ -421,17 +421,17 @@ double testExtendedKalmanFilterZeroInput()
 
         virtual unsigned getStateSize()
         {
-            f.getStateSize();
+            return f.getStateSize();
         }
 
         virtual unsigned getInputSize()
         {
-            f.getInputSize();
+            return f.getInputSize();
         }
 
         virtual unsigned getMeasurementSize()
         {
-            f.getMeasureSize();
+            return f.getMeasureSize();
         }
 
     private:
@@ -470,8 +470,8 @@ double testExtendedKalmanFilterZeroInput()
 
     ekf::Qmatrix q1=f.getQmatrixRandom()*0.01;
 
-    ekf::Rmatrix r=r1*r1.transpose();
-    ekf::Qmatrix q=q1*q1.transpose();
+    ekf::Rmatrix r(r1*r1.transpose());
+    ekf::Qmatrix q(q1*q1.transpose());
 
     xk[0]=x;
 
@@ -575,8 +575,8 @@ double testKalmanFilter()
 
     filter::Qmatrix q1=f.getQmatrixRandom()*0.01;
 
-    filter::Rmatrix r=r1*r1.transpose();
-    filter::Qmatrix q=q1*q1.transpose();
+    filter::Rmatrix r(r1*r1.transpose());
+    filter::Qmatrix q(q1*q1.transpose());
 
     uk[0]=f.inputVectorRandom();
 
@@ -676,8 +676,8 @@ double testKalmanFilterZeroInput()
 
     filter::Qmatrix q1=f.getQmatrixRandom()*0.01;
 
-    filter::Rmatrix r=r1*r1.transpose();
-    filter::Qmatrix q=q1*q1.transpose();
+    filter::Rmatrix r(r1*r1.transpose());
+    filter::Qmatrix q(q1*q1.transpose());
 
     filter::InputVector u=f.inputVectorZero();
 

@@ -9,7 +9,7 @@ namespace stateObservation
 
             Vector3 localAcceleration (acceleration);
             localAcceleration += cst::gravity;
-            return  orientation.transpose()*localAcceleration;
+            return  Vector3(orientation.transpose()*localAcceleration);
         }
     }
 }

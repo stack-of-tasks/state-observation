@@ -85,7 +85,7 @@ typename ObserverBase<n,m,p>::StateVector KalmanFilterBase<n,m,p>::oneStepEstima
     Rmatrix inoCov = c * pbar * c.transpose() + r_();
 
     //gain
-    Kmatrix kGain = (pbar * c.transpose()) * inoCov.inverse();
+    Kmatrix kGain ((pbar * c.transpose()) * inoCov.inverse());
 
     //update
     typename ObserverBase<n,m,p>::StateVector xhat=xbar+kGain*ino;

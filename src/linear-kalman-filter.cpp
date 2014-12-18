@@ -71,7 +71,7 @@ namespace stateObservation
         }
         else
         {
-            return c_*x;
+            return ObserverBase::MeasureVector(c_*x);
         }
 
     }

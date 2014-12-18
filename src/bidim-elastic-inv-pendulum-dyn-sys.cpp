@@ -6,7 +6,7 @@ namespace stateObservation
     using stateObservation::cst::gravityConstant;
 
     BidimElasticInvPendulum::BidimElasticInvPendulum()
-    :processNoise_(0x0),dt_(1),m_(1),h_(1)
+    :m_(1),h_(1),processNoise_(0x0),dt_(1)
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
         std::cout<<std::endl<<"IMUFixedContactDynamicalSystem Constructor"<<std::endl;
@@ -70,10 +70,10 @@ namespace stateObservation
     }
 
 
-    Vector BidimElasticInvPendulum::measureDynamics (const Vector& x, const Vector& , unsigned k)
+    Vector BidimElasticInvPendulum::measureDynamics (const Vector& , const Vector& , unsigned )
     {
         ///There is no measurements
-        return Vector::Zero(0,0);
+        return Vector::Zero(0);
     }
 
     void BidimElasticInvPendulum::setProcessNoise( NoiseBase * n)
@@ -86,7 +86,7 @@ namespace stateObservation
         processNoise_=0x0;
     }
 
-    void BidimElasticInvPendulum::setMeasurementNoise( NoiseBase * n)
+    void BidimElasticInvPendulum::setMeasurementNoise( NoiseBase * )
     {
         //there is no measurement
     }

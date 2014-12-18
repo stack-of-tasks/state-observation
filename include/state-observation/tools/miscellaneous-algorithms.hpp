@@ -24,7 +24,7 @@ namespace stateObservation
         template <class T>
         inline T square (const T & x)
         {
-            return x*x;
+            return T(x*x);
         }
 
         ///derivates any type with finite differences
@@ -192,10 +192,6 @@ namespace stateObservation
             Matrix3 r2 = m2.block(0,0,3,3);
 
             AngleAxis aa (r2 * r1.transpose());
-
-            double a=aa.angle();
-
-            Vector3 v =  aa.axis();
 
             out.tail(3) = (aa.angle()/dt)*aa.axis();
 

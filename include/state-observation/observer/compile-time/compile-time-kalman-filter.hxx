@@ -31,7 +31,7 @@ typename ObserverBase<n,m,p>::StateVector KalmanFilter<n,m,p>::prediction_(unsig
     if (p>0)
         return this->a_()*this->x_()+this->b_()*this->u_[0]();
     else
-        return this->a_()*this->x_();
+        return typename ObserverBase<n,m,p>::StateVector(this->a_()*this->x_());
 
 }
 
@@ -62,7 +62,7 @@ KalmanFilter<n,m,p>::simulateSensor_(const typename ObserverBase<n,m,p>::StateVe
     }
     else
     {
-        return this->c_()*x;
+        return typename ObserverBase<n,m,p>::MeasureVector(this->c_()*x);
     }
 
 }

@@ -6,7 +6,7 @@ namespace stateObservation
     {
         Vector3 RotationVelocity::rotationVelocityMeasure(const Vector3 & rotationVector, const Matrix3 & orientation) const
         {
-            return orientation.transpose()*rotationVector;
+            return Vector3(orientation.transpose()*rotationVector);
         }
     }
 }

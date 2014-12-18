@@ -54,7 +54,7 @@ namespace stateObservation
         }
     }
 
-    void IndexedMatrixArray::getFromFile(char * filename , size_t rows, size_t cols)
+    void IndexedMatrixArray::getFromFile(const char * filename , size_t rows, size_t cols)
     {
       reset();
 
@@ -93,7 +93,7 @@ namespace stateObservation
     }
 
 
-    void IndexedMatrixArray::writeInFile(char * filename)
+    void IndexedMatrixArray::writeInFile(const char * filename)
     {
     	std::ofstream f;
 
@@ -106,12 +106,12 @@ namespace stateObservation
 
             Matrix & m = operator[](k);
 
-            for (size_t i = 0 ; i< m.rows(); ++i)
+            for (int i = 0 ; i< m.rows(); ++i)
             {
-            	for (size_t j = 0 ; j< m.cols(); ++j)
-                {
+              for (int j = 0 ; j< m.cols(); ++j)
+              {
             		f << " "<< m(i,j);
-                }
+              }
             }
 
             f << std::endl;

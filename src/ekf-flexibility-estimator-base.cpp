@@ -9,9 +9,9 @@ namespace flexibilityEstimation
                                     const Vector & dx):
         FlexibilityEstimatorBase(),
         ekf_(stateSize,measurementSize,inputSize),
-        k_(0),
         finiteDifferencesJacobians_(true),
-        dx_(dx)
+        dx_(dx),
+        k_(0)
     {
         //ctor
     }

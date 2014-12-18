@@ -17,7 +17,7 @@ int test()
     ///Sizes of the states for the state, the measurement, and the input vector
     const unsigned stateSize=18;
     const unsigned measurementSize=6;
-    const unsigned inputSize=6;
+    //const unsigned inputSize=6;
 
     ///The array containing all the states, the measurements and the inputs
     IndexedMatrixArray x;
@@ -57,7 +57,7 @@ int test()
 
         ///construction of the input
         /// the input is constant over 10 time samples
-        for (int i=0;i<kmax/10;++i)
+        for (unsigned i=0;i<kmax/10;++i)
         {
             Vector uk=Vector::Zero(imu.getInputSize(),1);
 
@@ -121,7 +121,7 @@ int test()
     double dx;
 
     ///the reconstruction of the state
-    for (int i=y.getFirstIndex();i<=y.getLastIndex();++i)
+    for (unsigned i=y.getFirstIndex();i<=y.getLastIndex();++i)
     {
         ///display part, useless
         Vector3 g;

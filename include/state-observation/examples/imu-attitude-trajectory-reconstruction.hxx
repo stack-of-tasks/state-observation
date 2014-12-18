@@ -89,7 +89,7 @@ IndexedMatrixArray imuAttitudeTrajectoryReconstruction(
 
     ///initialization of a zero input
     IndexedMatrixArray u;
-    for (int k=y.getFirstIndex()-1; k<y.getLastIndex(); ++k)
+    for (unsigned k=y.getFirstIndex()-1; k<y.getLastIndex(); ++k)
     {
         u.setValue(Vector::Zero(inputSize,1),k);
     }

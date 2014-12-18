@@ -13,8 +13,8 @@ namespace flexibilityEstimation
         EKFFlexibilityEstimatorBase
             (stateSizeConst_,measurementSizeConst_,inputSizeConst_,
                             Matrix::Constant(getStateSize(),1,dxFactor)),
-        virtualMeasurementCovariance_(initialVirtualMeasurementCovariance),
-        functor_(dt)
+        functor_(dt),
+        virtualMeasurementCovariance_(initialVirtualMeasurementCovariance)
     {
         ekf_.setDirectInputStateFeedthrough(false);
 
@@ -150,7 +150,7 @@ namespace flexibilityEstimation
                                             (const Matrix & R)
     {
         BOOST_ASSERT(unsigned(R.rows())==getMeasurementSize() &&
-                     R.cols()==getMeasurementSize() &&
+                     unsigned(R.cols())==getMeasurementSize() &&
                     "ERROR: The measurement noise covariance matrix R has \
                         incorrect size");
 

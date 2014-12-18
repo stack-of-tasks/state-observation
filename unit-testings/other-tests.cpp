@@ -29,7 +29,7 @@ int homoMatrixDerivationTestFromFile(char * homo, char * vel, const std::string 
 
 
         f << i << " \t " ;
-        for (size_t j=0; j<computedVelocities[i].rows() ; ++j)
+        for (long j=0; j<computedVelocities[i].rows() ; ++j)
         {
             f << " " <<computedVelocities[i](j) - velocities[i](j);
 
@@ -63,7 +63,7 @@ int invertMatrixTest()//tested OK
     std::cout<<hi<<std::endl<<std::endl;
     std::cout<<h.inverse()<<std::endl<<std::endl;
     std::cout<<hi*h<<std::endl<<std::endl;
-
+    return 0;
 
 }
 
@@ -80,7 +80,7 @@ int transformationTest()//tested ok
                 kine::homogeneousMatrixToVector6(m)) <<std::endl<<std::endl;
 
 
-
+    return 0;
 }
 
 int testHomoDerivation()
@@ -106,7 +106,7 @@ int testHomoDerivation()
                                                 <<std::endl<<std::endl;
 
     std::cout<< v.transpose() <<std::endl<<std::endl;
-
+    return 0;
 }
 
 int testVector6Derivation()
@@ -131,18 +131,20 @@ int testVector6Derivation()
 
     std::cout<< v.transpose() <<std::endl<<std::endl;
 
+    return 0;
+
 }
 
 int main()
 {
-    homoMatrixDerivationTestFromFile("/tmp/featurecompensateR_ref-position.dat",
-                "/tmp/featurecompensateR_ref-velocity.dat" , "reference");
+    homoMatrixDerivationTestFromFile(const_cast<char *>("/tmp/featurecompensateR_ref-position.dat"),
+                const_cast<char *>("/tmp/featurecompensateR_ref-velocity.dat"), const_cast<char *>("reference"));
 
-    homoMatrixDerivationTestFromFile("/tmp/tranformation_right-gMl.dat",
-                "/tmp/tranformation_right-gVl.dat" , "flexInverse");
+    homoMatrixDerivationTestFromFile(const_cast<char *>("/tmp/tranformation_right-gMl.dat"),
+                const_cast<char *>("/tmp/tranformation_right-gVl.dat") , const_cast<char *>("flexInverse"));
 
-    homoMatrixDerivationTestFromFile("/tmp/flextimator-flexTransformationMatrix.dat",
-                "/tmp/flextimator-flexVelocityVector.dat" , "flex");
+    homoMatrixDerivationTestFromFile(const_cast<char *>("/tmp/flextimator-flexTransformationMatrix.dat"),
+                const_cast<char *>("/tmp/flextimator-flexVelocityVector.dat" ), const_cast<char *>("flex"));
 
 
     //invertMatrixTest();

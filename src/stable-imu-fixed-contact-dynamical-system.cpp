@@ -48,7 +48,7 @@ namespace flexibilityEstimation
 
 
     Vector StableIMUFixedContactDynamicalSystem::stateDynamics
-        (const Vector& x, const Vector& , unsigned k)
+        (const Vector& x, const Vector& , unsigned )
     {
         assertStateVector_(x);
 

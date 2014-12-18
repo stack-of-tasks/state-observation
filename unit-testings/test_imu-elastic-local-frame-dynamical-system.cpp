@@ -39,14 +39,13 @@ return h;
 int test()
 {
 
-    int t, i;
+    int t;
     t = time(NULL);
     srand(t);
 
     Matrix3 R0;
     Vector3 Vrl0, axis0, ori, theta0;
     AngleAxis  j0;
-    double h0;
 
     /// The number of samples
     const unsigned kmax=2000;
@@ -58,6 +57,7 @@ int test()
     const unsigned stateSize=18;
     const unsigned measurementSize=6;
     const unsigned inputSize=48;
+    (void)measurementSize;
 
 
     ///The array containing all the states, the measurements and the inputs
@@ -73,7 +73,6 @@ int test()
     DynamicalSystemSimulator sim;
     sim.setDynamicsFunctor(& imu); // choice of the dynamical system
 
-    double h;
 //std::cout << "hello" << std::endl;
     /// Input initialization
 
@@ -242,6 +241,7 @@ std::cout << "hello" << std::endl;
     //std::cout <<x[kmax].norm ()<< " "<< x[kmax].transpose() << std::endl;
 
     //imu.test(); // test unitaires
+    return 0;
 }
 
 int main()

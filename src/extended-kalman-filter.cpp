@@ -34,8 +34,6 @@ namespace stateObservation
     {
         if (!this->xbar_.isSet() || this->xbar_.getTime()!=k)
         {
-            opt.u_;
-
             if ((p_>0) && (directInputStateProcessFeedthrough_))
             {
 
@@ -68,7 +66,6 @@ namespace stateObservation
     ObserverBase::MeasureVector ExtendedKalmanFilter::simulateSensor_(const ObserverBase::StateVector& x, unsigned k)
     {
         BOOST_ASSERT (f_!=0x0 && "ERROR: The Kalman filter functor is not set");
-        opt.u_;
 
         if (p_>0)
         {
@@ -143,7 +140,7 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
         for (unsigned i=0;i<n_;++i)
         {
             unsigned it=(i-1)%n_;
-            opt.xp_[(i-1)%n_]=opt.xbar_[(i-1)%n_];
+            opt.xp_[it]=opt.xbar_[it];
             opt.xp_[i]+= dx[i];
 
             opt.yp_=simulateSensor_(opt.xp_, k+1);
