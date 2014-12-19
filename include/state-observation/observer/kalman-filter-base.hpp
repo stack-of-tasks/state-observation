@@ -245,6 +245,9 @@ namespace stateObservation
         /// The abstract method to overload to implement h(x,u)
         virtual MeasureVector simulateSensor_(const StateVector& x, unsigned k)=0;
 
+        /// The abstract method to overload to predict h(x_bar,u)
+        virtual MeasureVector predictSensor_(const StateVector& x, unsigned k)=0;
+
         /// Containers for the jacobian matrix of the process
         Matrix a_;
 

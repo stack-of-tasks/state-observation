@@ -104,8 +104,8 @@ namespace stateObservation
         predictedMeasurement_=simulateSensor_(oc_.xbar,k+1);
 
         //innovation
-        oc_.inoMeas = this->y_[k+1] - predictedMeasurement_;
-        oc_.ctranspose = c_.transpose();
+        oc_.inoMeas.noalias() = this->y_[k+1] - predictedMeasurement_;
+        oc_.ctranspose.noalias() = c_.transpose();
 
         oc_.inoMeasCov =  r_;
         oc_.inoMeasCov.noalias() +=  c_ * (oc_.pbar * oc_.ctranspose);
@@ -113,7 +113,7 @@ namespace stateObservation
         oc_.inoMeasCovInverse = oc_.inoMeasCov.inverse();
 
         //gain
-        oc_.kGain = oc_.pbar * (oc_.ctranspose * oc_.inoMeasCovInverse);
+        oc_.kGain.noalias() = oc_.pbar * (oc_.ctranspose * oc_.inoMeasCovInverse);
 
         //std::cout << "oc_.kGain" << oc_.kGain << std::endl;
 
@@ -122,7 +122,7 @@ namespace stateObservation
         //std::cout << "pr_" << pr_ << std::endl;
         //std::cout << "oc_.inoMeasCov" << oc_.inoMeasCov << std::endl;
 
-        inovation_ = oc_.kGain*oc_.inoMeas;
+        inovation_.noalias() = oc_.kGain*oc_.inoMeas;
 
 //        std::cout << "k " << k << std::endl << std::endl;
 //        std::cout << "C " << c_ << std::endl << std::endl;

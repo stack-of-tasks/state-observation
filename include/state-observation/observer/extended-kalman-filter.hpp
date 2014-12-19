@@ -114,6 +114,9 @@ namespace stateObservation
         /// simulate the dynamic of the measurement using the functor
         virtual MeasureVector simulateSensor_(const StateVector& x, unsigned k);
 
+        /// simulate the dynamic of the measurement using the functor
+        virtual MeasureVector predictSensor_(const StateVector& x, unsigned k);
+
         /// container for the prediction
         IndexedMatrix xbar_;
 
