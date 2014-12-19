@@ -329,7 +329,7 @@ private:
         xh=f.getEstimatedState(i);
     }
 
-    ekf::StateVector error()xh-xk[kmax]);
+    ekf::StateVector error(xh-xk[kmax]);
 
     return error.norm();
 
