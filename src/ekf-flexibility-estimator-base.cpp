@@ -142,9 +142,9 @@ namespace flexibilityEstimation
         return ekf_.getInovation();
     }
 
-    Vector EKFFlexibilityEstimatorBase::getPredictedMeaurement()
+    Vector EKFFlexibilityEstimatorBase::getPredictedMeasurement()
     {
-        return ekf_.getPredictedMeaurement();
+        return ekf_.getPredictedMeasurement();
     }
 
     Vector EKFFlexibilityEstimatorBase::getPrediction()

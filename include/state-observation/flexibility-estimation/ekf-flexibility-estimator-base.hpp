@@ -124,7 +124,7 @@ namespace flexibilityEstimation
         virtual Vector getInovation();
 
         ///Get the simulated measurement of the predicted state
-        virtual Vector getPredictedMeaurement();
+        virtual Vector getPredictedMeasurement();
 
         ///Get the predicted state
         virtual Vector getPrediction();
