@@ -205,7 +205,7 @@ int test()
 
     std::cout << "Mean quadratic error " << norm/(kmax-kinit-2)<<std::endl;
 
-    if (norm/(kmax-kinit-2)>5e-05)
+    if (norm/(kmax-kinit-2)>1e-04)
     {
       std::cout << "Failed : error is too big !!"<< std::endl <<"The end" << std::endl;
       return 1;
