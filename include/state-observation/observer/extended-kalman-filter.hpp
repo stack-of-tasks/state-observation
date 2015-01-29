@@ -120,6 +120,9 @@ namespace stateObservation
         /// container for the prediction
         IndexedMatrix xbar_;
 
+        /// container for the prediction of the sensor
+        IndexedMatrix ybar_;
+
         /// boolean that provides if theris a need of not for input for the masurement
         bool directInputOutputFeedthrough_;
 

@@ -54,8 +54,6 @@ namespace stateObservation
     ObserverBase::MeasureVector LinearKalmanFilter::simulateSensor_(const StateVector& x, unsigned k)
     {
 
-        BOOST_ASSERT(checkAmatrix(a_) && "ERROR: The A is not initialized");
-        BOOST_ASSERT(checkBmatrix(b_) && "ERROR: The B is not initialized");
         BOOST_ASSERT(checkCmatrix(c_) && "ERROR: The C is not initialized");
         BOOST_ASSERT(checkDmatrix(d_) && "ERROR: The D is not initialized");
 

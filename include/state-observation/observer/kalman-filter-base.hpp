@@ -229,7 +229,7 @@ namespace stateObservation
         virtual Vector getPrediction();
 
         ///Get the simulated measurement of the predicted state
-        virtual Vector getPredictedMeaurement();
+        virtual Vector getPredictedMeasurement();
 
     protected:
 
@@ -246,7 +246,7 @@ namespace stateObservation
         virtual MeasureVector simulateSensor_(const StateVector& x, unsigned k)=0;
 
         /// The abstract method to overload to predict h(x_bar,u)
-        virtual MeasureVector predictSensor_(const StateVector& x, unsigned k)=0;
+        virtual MeasureVector predictSensor_(const StateVector& x, unsigned k);
 
         /// Containers for the jacobian matrix of the process
         Matrix a_;

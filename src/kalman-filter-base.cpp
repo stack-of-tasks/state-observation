@@ -73,6 +73,11 @@ namespace stateObservation
         pr_=P;
     }
 
+    ObserverBase::MeasureVector KalmanFilterBase::predictSensor_(const StateVector& x, unsigned k)
+    {
+        return simulateSensor_(x,k);
+    }
+
 
     void KalmanFilterBase::clearStateCovariance()
     {
@@ -101,7 +106,7 @@ namespace stateObservation
        // std::cout << "a_ " << a_ << std::endl;
        // std::cout << "pr_ " << pr_ << std::endl;
 
-        predictedMeasurement_=simulateSensor_(oc_.xbar,k+1);
+        predictedMeasurement_=predictSensor_(oc_.xbar,k+1);
 
         //innovation
         oc_.inoMeas.noalias() = this->y_[k+1] - predictedMeasurement_;
@@ -339,7 +344,7 @@ namespace stateObservation
         return oc_.xbar;
     }
 
-    Vector KalmanFilterBase::getPredictedMeaurement()
+    Vector KalmanFilterBase::getPredictedMeasurement()
     {
         return predictedMeasurement_;
     }
