@@ -114,11 +114,15 @@ namespace flexibilityEstimation
 
     Vector IMUElasticLocalFrameDynamicalSystem::getForcesAndMoments()
     {
-        Vector x;
-        x.resize(fc_.size()+tc_.size());
+        unsigned nbContacts(getContactsNumber());
+        //Vector x(6*nbContacts);
+        Vector x(6*2);
 
-        x.head(fc_.size()) = fc_;
-        x.tail(tc_.size()) = tc_;
+        for (int i=0; i<nbContacts; ++i)
+        {
+          x.segment<3>(6*i) = fc_.segment<3>(3*i);
+          x.segment<3>(6*i+3) = tc_.segment<3>(3*i);
+        }
 
         return x;
     }
@@ -148,8 +152,7 @@ namespace flexibilityEstimation
         op_.RciContactPos.noalias()= orientation*op_.contactPos;
 
         op_.globalContactPos = position;
-
-        op_.globalContactPos += op_.RciContactPos ;
+        op_.globalContactPos.noalias() += op_.RciContactPos ;
 
         op_.forcei.noalias() = - op_.Rci*Kfe_*op_.Rcit*(op_.globalContactPos-op_.contactPos);
         op_.forcei.noalias() += - op_.Rci*Kfv_*op_.Rcit*(kine::skewSymmetric(angVel)*op_.RciContactPos
@@ -161,11 +164,10 @@ namespace flexibilityEstimation
 
         op_.momenti.noalias() = -op_.Rci*Kte_*op_.Rcit*oriVector;
         op_.momenti.noalias() += -op_.Rci*Ktv_*op_.Rcit*angVel;
-        op_.momenti.noalias() += kine::skewSymmetric(op_.globalContactPos)*op_.forcei;
 
         tc_.segment<3>(3*i)= op_.momenti;
 
-        moments += op_.momenti;
+        moments.noalias() += op_.momenti + kine::skewSymmetric(op_.globalContactPos)*op_.forcei;;
 
         }
 
