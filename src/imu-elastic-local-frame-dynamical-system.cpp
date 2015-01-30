@@ -117,6 +117,7 @@ namespace flexibilityEstimation
         unsigned nbContacts(getContactsNumber());
         //Vector x(6*nbContacts);
         Vector x(6*2);
+        x.setZero();
 
         for (int i=0; i<nbContacts; ++i)
         {
