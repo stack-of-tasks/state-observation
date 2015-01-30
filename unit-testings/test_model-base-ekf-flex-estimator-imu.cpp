@@ -112,33 +112,32 @@ int test()
 
    /// Definitions of input vectors
      // Measurement
-     IndexedMatrixArray y;
+    IndexedMatrixArray y;
     std::cout << "Loading measurements file" << std::endl;
-     y.getFromFile("source_measurement.dat",1,measurementSize);
+    y.getFromFile("source_measurement.dat",1,measurementSize);
      // Input
-     IndexedMatrixArray u;
+    IndexedMatrixArray u;
      std::cout << "Loading input file" << std::endl;
-     u.getFromFile("source_input.dat",1,inputSize);
+    u.getFromFile("source_input.dat",1,inputSize);
       //state
-     IndexedMatrixArray xRef;
+    IndexedMatrixArray xRef;
       std::cout << "Loading reference state file" << std::endl;
-     xRef.getFromFile("source_state.dat",stateSize,1);
+    xRef.getFromFile("source_state.dat",stateSize,1);
 
    /// Definition of ouptut vectors
      // State: what we want
-     IndexedMatrixArray x_output;
+    IndexedMatrixArray x_output;
      // Measurement
-     IndexedMatrixArray y_output;
+    IndexedMatrixArray y_output;
      // Input
-     IndexedMatrixArray u_output;
+    IndexedMatrixArray u_output;
 
-     IndexedMatrixArray deltax_output;
+    IndexedMatrixArray deltax_output;
 
 
     est.setMeasurementNoiseCovariance(Cov);
 
     est.setContactsNumber(contactNbr);
-    est.setInputSize(inputSize);
 
 
     Vector flexibility;

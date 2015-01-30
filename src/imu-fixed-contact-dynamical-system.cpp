@@ -165,17 +165,17 @@ namespace flexibilityEstimation
         dt_=dt;
     }
 
-    unsigned IMUFixedContactDynamicalSystem::getStateSize()
+    unsigned IMUFixedContactDynamicalSystem::getStateSize() const
     {
         return stateSize_;
     }
 
-    unsigned IMUFixedContactDynamicalSystem::getInputSize()
+    unsigned IMUFixedContactDynamicalSystem::getInputSize() const
     {
         return inputSize_;
     }
 
-    unsigned IMUFixedContactDynamicalSystem::getMeasurementSize()
+    unsigned IMUFixedContactDynamicalSystem::getMeasurementSize() const
     {
         return measurementSize_;
     }
@@ -185,8 +185,7 @@ namespace flexibilityEstimation
         return processNoise_;
     }
 
-    NoiseBase * IMUFixedContactDynamicalSystem::
-                                                    getMeasurementNoise() const
+    NoiseBase * IMUFixedContactDynamicalSystem::getMeasurementNoise() const
     {
         return sensor_.getNoise();
     }

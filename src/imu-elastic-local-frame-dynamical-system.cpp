@@ -577,12 +577,12 @@ namespace flexibilityEstimation
         dt_=dt;
     }
 
-    unsigned IMUElasticLocalFrameDynamicalSystem::getStateSize()
+    unsigned IMUElasticLocalFrameDynamicalSystem::getStateSize() const
     {
         return stateSize_;
     }
 
-    unsigned IMUElasticLocalFrameDynamicalSystem::getInputSize()
+    unsigned IMUElasticLocalFrameDynamicalSystem::getInputSize() const
     {
         return inputSize_;
     }
@@ -592,7 +592,7 @@ namespace flexibilityEstimation
         inputSize_=i;
     }
 
-    unsigned IMUElasticLocalFrameDynamicalSystem::getMeasurementSize()
+    unsigned IMUElasticLocalFrameDynamicalSystem::getMeasurementSize() const
     {
         return measurementSize_;
     }

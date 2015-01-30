@@ -69,17 +69,17 @@ double testExtendedKalmanFilter()
             return yk;
         }
 
-        virtual unsigned getStateSize()
+        virtual unsigned getStateSize() const
         {
             return f.getStateSize();
         }
 
-        virtual unsigned getInputSize()
+        virtual unsigned getInputSize() const
         {
             return f.getInputSize();
         }
 
-        virtual unsigned getMeasurementSize()
+        virtual unsigned getMeasurementSize() const
         {
             return f.getMeasureSize();
         }
@@ -240,17 +240,17 @@ public:
             return yk;
         }
 
-        virtual unsigned getStateSize()
+        virtual unsigned getStateSize() const
         {
             return f.getStateSize();
         }
 
-        virtual unsigned getInputSize()
+        virtual unsigned getInputSize() const
         {
             return f.getInputSize();
         }
 
-        virtual unsigned getMeasurementSize()
+        virtual unsigned getMeasurementSize() const
         {
             return f.getMeasureSize();
         }
@@ -419,17 +419,17 @@ double testExtendedKalmanFilterZeroInput()
             c_=c;
         }
 
-        virtual unsigned getStateSize()
+        virtual unsigned getStateSize() const
         {
             return f.getStateSize();
         }
 
-        virtual unsigned getInputSize()
+        virtual unsigned getInputSize() const
         {
             return f.getInputSize();
         }
 
-        virtual unsigned getMeasurementSize()
+        virtual unsigned getMeasurementSize() const
         {
             return f.getMeasureSize();
         }

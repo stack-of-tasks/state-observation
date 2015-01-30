@@ -66,11 +66,11 @@ namespace stateObservation
         virtual void setSamplingPeriod(double dt);
 
         ///Gets the state size
-        virtual unsigned getStateSize();
+        virtual unsigned getStateSize() const;
         ///Gets the input size
-        virtual unsigned getInputSize();
+        virtual unsigned getInputSize() const;
         ///Gets the measurement size
-        virtual unsigned getMeasurementSize();
+        virtual unsigned getMeasurementSize() const;
 
     protected:
         AccelerometerGyrometer sensor_;

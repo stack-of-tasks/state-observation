@@ -47,11 +47,11 @@ namespace stateObservation
         virtual void reset(){}
 
         ///gets the state size
-        virtual unsigned getStateSize()=0;
+        virtual unsigned getStateSize()const =0 ;
         ///gets the input size
-        virtual unsigned getInputSize()=0;
+        virtual unsigned getInputSize()const =0 ;
         ///gets the measurements size
-        virtual unsigned getMeasurementSize()=0;
+        virtual unsigned getMeasurementSize() const=0;
 
         ///Gives a boolean answer on whether or not the vector is correctly sized to be a state vector
         virtual bool checkStateVector(const Vector &);
