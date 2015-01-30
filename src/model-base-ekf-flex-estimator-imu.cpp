@@ -89,6 +89,7 @@ namespace flexibilityEstimation
         functor_.setContactsNumber(i);
         updateCovarianceMatrix_();
 
+        setInputSize_(42+6*i);
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setContactModel(unsigned nb)
@@ -193,29 +194,30 @@ namespace flexibilityEstimation
         return inputSize_;
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::setInputSize(unsigned i)
+    void ModelBaseEKFFlexEstimatorIMU::setInputSize_(unsigned i)
     {
 
-        stateObservation::Vector saveu, newu;
-        unsigned saveInputSize;
-        int v, vmax;
-
-        saveInputSize=saveu.size();
-        saveu=ekf_.getInput(ekf_.getInputTime());
-
-        newu=Vector::Zero(i,1);
-
-        vmax=std::min(saveu.size(),newu.size());
-        for(v=0;v<vmax;++v)
+        if (inputSize_!=i)
         {
-            newu(v)=saveu(v);
+          stateObservation::Vector saveu, newu;
+          int v, vmin;
+
+          saveu=ekf_.getInput(ekf_.getInputTime());
+
+          newu=Vector::Zero(i,1);
+
+          vmin=std::min(saveu.size(),newu.size());
+          for(v=0;v<vmin;++v)
+          {
+              newu(v)=saveu(v);
+          }
+
+          inputSize_=i;
+          ekf_.setInputSize(i);
+          functor_.setInputSize(i);
+
+          setInput(newu);
         }
-
-        inputSize_=i;
-        ekf_.setInputSize(i);
-        functor_.setInputSize(i);
-
-        setInput(newu);
 
     }
 

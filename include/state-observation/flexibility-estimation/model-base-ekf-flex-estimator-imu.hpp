@@ -98,7 +98,8 @@ namespace flexibilityEstimation
 
         virtual unsigned getInputSize() const ;
 
-        virtual void setInputSize(unsigned) ;
+
+
 
         /// sets the sampling period
         virtual void setSamplingPeriod(double);
@@ -117,7 +118,7 @@ namespace flexibilityEstimation
 
     protected:
 
-
+        virtual void setInputSize_(unsigned) ;
 
         virtual void updateCovarianceMatrix_();
 
