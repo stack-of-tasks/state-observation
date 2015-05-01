@@ -73,6 +73,22 @@ namespace stateObservation
                 return AngleAxis(0.0 , Vector3::UnitZ());
         }
 
+        /// Tranbsform the rotation vector into rotation matrix
+        inline Matrix3 rotationVectorToRotationMatrix(const Vector3 & v)
+        {
+                return (rotationVectorToAngleAxis(Vector3(v))).toRotationMatrix();
+        }
+
+        /// Tranbsform the rotation matrix into rotation vector
+        inline Vector3 rotationMatrixToRotationVector(const Matrix3 & R)
+        {
+            AngleAxis a;
+            a=AngleAxis(Matrix3(R));
+            Vector v(3);
+            v=a.angle()*a.axis();
+            return v;
+        }
+
         ///transform a 3d vector into a skew symmetric 3x3 matrix
         inline Matrix3 skewSymmetric(const Vector3 & v)
         {

@@ -55,9 +55,9 @@ Vector& computeZmp (Vector& forces, Matrix& sensorPosition1, Matrix& sensorPosit
 
       }
 
-  double fx = M (0,0) * f (0) + M(0,1) * f (1) + M (0,2) * f (2);
-      double fy = M (1,0) * f (0) + M(1,1) * f (1) + M (1,2) * f (2);
-      double fz = M (2,0) * f (0) + M(2,1) * f (1) + M (2,2) * f (2);
+     double fx = M (0,0) * f (0) + M(0,1) * f (1) + M (0,2) * f (2);
+     double fy = M (1,0) * f (0) + M(1,1) * f (1) + M (1,2) * f (2);
+     double fz = M (2,0) * f (0) + M(2,1) * f (1) + M (2,2) * f (2);
 
       if (fz > 0) {
     double Mx = M (0,0)*f(3) + M (0,1)*f(4) + M (0,2)*f(5)
