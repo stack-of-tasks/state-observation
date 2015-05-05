@@ -6,7 +6,8 @@ namespace stateObservation
     r_(Matrix3::Zero()),
     acc_(Vector3::Zero()),
     omega_(Vector3::Zero()),
-    output_(Vector::Zero(measurementSize_,1))
+    output_(Vector::Zero(measurementSize_,1)),
+    currentStateSize_(stateSize_)
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
       std::cout<<std::endl<<"AccelerometerGyrometer Constructor"<<std::endl;
@@ -19,15 +20,12 @@ namespace stateObservation
     }
 
 
-    unsigned AccelerometerGyrometer::getStateSize() const
+    unsigned AccelerometerGyrometer::getStateSize_() const
     {
-      if (!matrixMode_)
-        return stateSize_;
-      else
-        return stateSizeMatrix_;
+        return currentStateSize_;
     }
 
-    unsigned AccelerometerGyrometer::getMeasurementSize() const
+    unsigned AccelerometerGyrometer::getMeasurementSize_() const
     {
         return measurementSize_;
     }
@@ -59,6 +57,12 @@ namespace stateObservation
     void AccelerometerGyrometer::setMatrixMode(bool matrixMode)
     {
       matrixMode_=matrixMode;
+      if (!matrixMode_)
+        currentStateSize_= stateSize_;
+      else
+        currentStateSize_= stateSizeMatrix_;
+
+
     }
 
 

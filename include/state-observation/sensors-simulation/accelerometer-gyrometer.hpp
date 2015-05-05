@@ -43,16 +43,19 @@ namespace stateObservation
         ///Virtual destructor
         virtual ~AccelerometerGyrometer(){}
 
-        ///Gets the state vector Size
-        virtual unsigned getStateSize() const;
 
-        ///Gets the measurements vector size
-        virtual unsigned getMeasurementSize() const;
 
         void setMatrixMode(bool matrixMode);
 
 
     protected:
+        ///Gets the state vector Size
+        virtual unsigned getStateSize_() const;
+
+        ///Gets the measurements vector size
+        virtual unsigned getMeasurementSize_() const;
+
+
         virtual Vector computeNoiselessMeasurement_();
 
         Matrix3 r_;
@@ -66,6 +69,8 @@ namespace stateObservation
         static const int stateSizeMatrix_= 15;
 
         static const int measurementSize_=6;
+
+        int currentStateSize_;
 
     };
 
