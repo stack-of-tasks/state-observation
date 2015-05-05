@@ -13,7 +13,7 @@ namespace flexibilityEstimation
 {
     ModelBaseEKFFlexEstimatorIMU::ModelBaseEKFFlexEstimatorIMU(double dt):
         EKFFlexibilityEstimatorBase
-            (stateSizeConst_,measurementSizeConst_,inputSizeBase_,
+            (stateSizeConst_,measurementSizeBase_,inputSizeBase_,
                             Matrix::Constant(getStateSize(),1,dxFactor)),
         functor_(dt)
     {
@@ -41,7 +41,7 @@ namespace flexibilityEstimation
 
         on_=true;
 
-
+        useFTSensors_= false;
 
     }
 
@@ -89,7 +89,36 @@ namespace flexibilityEstimation
         functor_.setContactsNumber(i);
         updateCovarianceMatrix_();
 
-        setInputSize_(42+6*i);
+        unsigned usize = functor_.getInputSize();
+
+        if (inputSize_!=usize)
+        {
+          stateObservation::Vector saveu, newu;
+          int v, vmin;
+
+          saveu=ekf_.getInput(ekf_.getInputTime());
+
+          newu=Vector::Zero(usize,1);
+
+          vmin=std::min(saveu.size(),newu.size());
+          for(v=0;v<vmin;++v)
+          {
+              newu(v)=saveu(v);
+          }
+
+          inputSize_=usize;
+          ekf_.setInputSize(usize);
+
+          setInput(newu);
+        }
+
+
+        ekf_.setInputSize(usize);
+
+        if (useFTSensors_)
+        {
+          ekf_.setMeasureSize(functor_.getMeasurementSize());
+        }
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setContactModel(unsigned nb)
@@ -106,6 +135,12 @@ namespace flexibilityEstimation
 
         ekf_.setMeasurement(y,k_+1);
 
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setWithForcesMeasurements(bool b)
+    {
+      functor_.setWithForceMeasurements(b);
+      ekf_.setMeasureSize(functor_.getMeasurementSize());
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setFlexibilityGuess(const Matrix & x)
@@ -176,7 +211,7 @@ namespace flexibilityEstimation
 
     Vector ModelBaseEKFFlexEstimatorIMU::getForcesAndMoments()
     {
-        return functor_.getForcesAndMoments();
+        return functor_.getForcesAndMoments(getFlexibilityVector(),ekf_.getInput(ekf_.getInputTime()));
     }
 
     void ModelBaseEKFFlexEstimatorIMU::updateCovarianceMatrix_()
@@ -194,37 +229,9 @@ namespace flexibilityEstimation
         return inputSize_;
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::setInputSize_(unsigned i)
-    {
-
-        if (inputSize_!=i)
-        {
-          stateObservation::Vector saveu, newu;
-          int v, vmin;
-
-          saveu=ekf_.getInput(ekf_.getInputTime());
-
-          newu=Vector::Zero(i,1);
-
-          vmin=std::min(saveu.size(),newu.size());
-          for(v=0;v<vmin;++v)
-          {
-              newu(v)=saveu(v);
-          }
-
-          inputSize_=i;
-          ekf_.setInputSize(i);
-          functor_.setInputSize(i);
-
-          setInput(newu);
-        }
-
-    }
-
-
     unsigned ModelBaseEKFFlexEstimatorIMU::getMeasurementSize() const
     {
-        return measurementSizeConst_;
+        return functor_.getMeasurementSize();
     }
 
     Matrix4 ModelBaseEKFFlexEstimatorIMU::getFlexibility()
@@ -342,6 +349,15 @@ namespace flexibilityEstimation
     double& ModelBaseEKFFlexEstimatorIMU::getComputeFlexibilityTime()
     {
         return computeFlexibilityTime_;
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::useForceTorqueSensors(bool b)
+    {
+
+      functor_.setWithForceMeasurements(b);
+      ekf_.setMeasureSize(functor_.getMeasurementSize());
+      useFTSensors_=b;
+
     }
 
 }

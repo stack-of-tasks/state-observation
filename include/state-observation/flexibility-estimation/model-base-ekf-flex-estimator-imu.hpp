@@ -79,6 +79,8 @@ namespace flexibilityEstimation
 
         virtual Vector getForcesAndMoments();
 
+        virtual void useForceTorqueSensors(bool);
+
         ///Sets a value of the flexibility x_k provided from another source
         /// can be used for initialization of the estimator
         virtual void setFlexibilityGuess(const Matrix & x);
@@ -105,6 +107,8 @@ namespace flexibilityEstimation
         /// sets the sampling period
         virtual void setSamplingPeriod(double);
 
+
+
         /// Enable or disable the estimation
         void setOn(bool & b);
 
@@ -119,8 +123,6 @@ namespace flexibilityEstimation
 
     protected:
 
-        virtual void setInputSize_(unsigned) ;
-
         virtual void updateCovarianceMatrix_();
 
         IMUElasticLocalFrameDynamicalSystem functor_;
@@ -130,13 +132,15 @@ namespace flexibilityEstimation
         Matrix R_,Q_;
 
         static const unsigned stateSizeConst_=18;
-        static const unsigned measurementSizeConst_=6;
+        static const unsigned measurementSizeBase_=42;
         static const unsigned inputSizeBase_=42;
         unsigned inputSize_;
 
         double dt_;//sampling period
         bool on_;
         double computeFlexibilityTime_;
+
+        bool useFTSensors_;
 
     private:
     };
