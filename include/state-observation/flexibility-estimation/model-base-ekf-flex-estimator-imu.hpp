@@ -99,7 +99,8 @@ namespace flexibilityEstimation
         virtual unsigned getInputSize() const ;
 
 
-
+        ///sets to whether or not the force mesurements are taken into account
+        virtual void setWithForcesMeasurements(bool);
 
         /// sets the sampling period
         virtual void setSamplingPeriod(double);
