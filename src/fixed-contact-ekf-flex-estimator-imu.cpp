@@ -219,7 +219,7 @@ namespace flexibilityEstimation
 
     }
 
-    Vector FixedContactEKFFlexEstimatorIMU::getFlexibilityVector()
+    const Vector& FixedContactEKFFlexEstimatorIMU::getFlexibilityVector()
     {
         if (ekf_.getMeasurementsNumber()>0)
         {

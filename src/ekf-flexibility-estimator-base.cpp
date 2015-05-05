@@ -84,20 +84,20 @@ namespace flexibilityEstimation
         ekf_.setInput(u,k_+1);
     }
 
-    Vector EKFFlexibilityEstimatorBase::getFlexibilityVector()
+    const Vector & EKFFlexibilityEstimatorBase::getFlexibilityVector()
     {
         if (ekf_.getMeasurementsNumber()>0)
         {
             k_=ekf_.getMeasurementTime();
            // std::cout << "\n\n\n\n\n k " << k_ << std::endl;
 
-            unsigned i;
-            for (i=ekf_.getCurrentTime()+1; i<=k_; ++i)
+            for (unsigned i=ekf_.getCurrentTime()+1; i<=k_; ++i)
             {
                     ekf_.setA(ekf_.getAMatrixFD(dx_));
                     ekf_.setC(ekf_.getCMatrixFD(dx_));
                     ekf_.getEstimatedState(i);
             }
+
             Vector x(ekf_.getEstimatedState(k_));
 
             if (x==x)//detect NaN values

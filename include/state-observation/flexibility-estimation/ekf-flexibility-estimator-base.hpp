@@ -91,7 +91,7 @@ namespace flexibilityEstimation
         virtual void setMeasurementInput(const Vector & u);
 
         /// Gets an estimation of the flexibility in the form of a state vector \hat{x_{k+1}}
-        virtual Vector getFlexibilityVector();
+        virtual const Vector& getFlexibilityVector();
 
         /// Gets an estimation of the flexibility in the form of a homogeneous matrix
         virtual Matrix4 getFlexibility()=0;

@@ -80,7 +80,7 @@ namespace flexibilityEstimation
         virtual Matrix4 getFlexibility();
 
         /// Gets an estimation of the flexibility in the form of a state vector \hat{x_{k+1}}
-        virtual Vector getFlexibilityVector();
+        virtual const Vector& getFlexibilityVector();
 
 
         virtual unsigned getMeasurementSize() const ;

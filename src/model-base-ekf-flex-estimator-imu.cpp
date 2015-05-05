@@ -260,7 +260,7 @@ namespace flexibilityEstimation
             return temp;
     }
 
-    Vector ModelBaseEKFFlexEstimatorIMU::getFlexibilityVector()
+    const Vector & ModelBaseEKFFlexEstimatorIMU::getFlexibilityVector()
     {
         timespec time1, time2, time3;
 
