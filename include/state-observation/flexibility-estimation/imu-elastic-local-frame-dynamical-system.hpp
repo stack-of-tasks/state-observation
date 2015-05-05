@@ -65,6 +65,48 @@ namespace stateObservation
 
       };
 
+
+      /**
+     * \class  AccelerometerGyrometerAugmented
+     * \brief  Implements the accelerometer-gyrometer measurements,
+     *        the augmentation consists at concatenating the accelero-gyro
+     *        measurement to another vector. The state
+     *
+     *
+     *
+     * \details
+     *
+     */
+      class AccelerometerGyrometerAugmented : public AlgebraicSensor
+        {
+public:
+          AccelerometerGyrometerAugmented();
+
+          ///Virtual destructor
+          virtual ~AccelerometerGyrometerAugmented() {}
+
+          ///Gets the state vector Size
+          virtual unsigned getStateSize() const;
+
+          ///Gets the measurements vector size
+          virtual unsigned getMeasurementSize() const;
+
+          void setMatrixMode(bool matrixMode);
+
+          void setAugmentationSize(bool);
+
+
+
+protected:
+
+
+          stateObservation::AccelerometerGyrometer accgyr_;
+          virtual Vector computeNoiselessMeasurement_();
+
+          unsigned augmentation_;
+        };
+
+
       ///constructor
       explicit IMUElasticLocalFrameDynamicalSystem(double dt);
 
@@ -164,7 +206,7 @@ namespace stateObservation
        const Vector3& angVel,
        Vector3& forces, Vector3& moments);
 
-      virtual void computeForcesAndMoments
+      void computeForcesAndMoments
       (const IndexedMatrixArray& position1,
        const IndexedMatrixArray& position2,
        const Vector3& position, const Vector3& linVelocity,
@@ -172,7 +214,15 @@ namespace stateObservation
        const Vector3& angVel,
        Vector3& forces, Vector3& moments);
 
+      virtual void computeForcesAndMoments
+      (const Vector& x,
+       const Vector& u);
+
+
       virtual Vector getForcesAndMoments();
+
+      virtual Vector getForcesAndMoments (const Vector& x,
+       const Vector& u);
 
       virtual void iterateDynamicsEuler
       (const Vector3& positionCom, const Vector3& velocityCom,
@@ -197,6 +247,8 @@ namespace stateObservation
        Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
        double dt
       );
+
+      virtual void setWithForceMeasurements(bool b);
 
 
       virtual void setKfe(const Matrix3 & m);
@@ -241,6 +293,8 @@ namespace stateObservation
 
 
       unsigned kcurrent_;
+
+      bool withForceMeasurements_;
 
 
       struct Optimization
@@ -326,6 +380,7 @@ namespace stateObservation
         Vector3 orientationVector2;
         Matrix3 curRotation3;
         Vector3 orientationVector3;
+
 
 
 

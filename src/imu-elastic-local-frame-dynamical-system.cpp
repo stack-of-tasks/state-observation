@@ -26,7 +26,8 @@ namespace flexibilityEstimation
         processNoise_(0x0), dt_(dt),
         robotMass_(hrp2::m),
         robotMassInv_(1/hrp2::m),
-        measurementSize_(measurementSizeBase_)
+        measurementSize_(measurementSizeBase_),
+        withForceMeasurements_(false)
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
        // std::cout<<std::endl<<"IMUElasticLocalFrameDynamicalSystem Constructor"<<std::endl;
@@ -119,13 +120,19 @@ namespace flexibilityEstimation
         Vector x(6*2);
         x.setZero();
 
-        for (int i=0; i<nbContacts; ++i)
+        for (unsigned int i=0; i<nbContacts; ++i)
         {
           x.segment<3>(6*i) = fc_.segment<3>(3*i);
           x.segment<3>(6*i+3) = tc_.segment<3>(3*i);
         }
 
         return x;
+    }
+
+    Vector IMUElasticLocalFrameDynamicalSystem::getForcesAndMoments(const Vector& x, const Vector& u)
+    {
+        computeForcesAndMoments(x,u);
+        return getForcesAndMoments();
     }
 
     void IMUElasticLocalFrameDynamicalSystem::computeElastContactForcesAndMoments
@@ -176,22 +183,47 @@ namespace flexibilityEstimation
 
 
     inline void IMUElasticLocalFrameDynamicalSystem::computeForcesAndMoments
-                          (const IndexedMatrixArray& position1,
-                           const IndexedMatrixArray& position2,
+                          (const IndexedMatrixArray& contactpos,
+                           const IndexedMatrixArray& contactori,
                            const Vector3& position, const Vector3& linVelocity,
                            const Vector3& oriVector, const Matrix3& orientation,
                            const Vector3& angVel,
                            Vector3& forces, Vector3& moments)
     {
         switch(contactModel_){
-        case contactModel::elasticContact : computeElastContactForcesAndMoments(position1, position2, position, linVelocity, oriVector, orientation, angVel, forces, moments);
+        case contactModel::elasticContact : computeElastContactForcesAndMoments(contactpos, contactori, position, linVelocity, oriVector, orientation, angVel, forces, moments);
                  break;
 
-        case contactModel::pendulum : computeElastPendulumForcesAndMoments(position1, position2, position, linVelocity, oriVector, orientation, angVel, forces, moments);
+        case contactModel::pendulum : computeElastPendulumForcesAndMoments(contactpos, contactori, position, linVelocity, oriVector, orientation, angVel, forces, moments);
                  break;
 
         default: throw std::invalid_argument("IMUElasticLocalFrameDynamicalSystem: the contact model is incorrectly set.");
         }
+    }
+
+    inline void IMUElasticLocalFrameDynamicalSystem::computeForcesAndMoments (const Vector& x,const Vector& u)
+    {
+
+        Vector3 forces, moments;
+
+        op_.positionFlex=x.segment(kine::pos,3);
+        op_.velocityFlex=x.segment(kine::linVel,3);
+        op_.orientationFlexV=x.segment(kine::ori,3);
+        op_.angularVelocityFlex=x.segment(kine::angVel,3);
+        op_.rFlex = computeRotation_(op_.orientationFlexV,0);
+
+        unsigned nbContacts(getContactsNumber());
+
+        for (unsigned i = 0; i<nbContacts ; ++i)
+        {
+          op_.contactPosV.setValue(u.segment<3>(input::contacts + 6*i),i);
+          op_.contactOriV.setValue(u.segment<3>(input::contacts +6*i+3),i);
+        }
+
+        computeForcesAndMoments (op_.contactPosV, op_.contactOriV,
+                          op_.positionFlex, op_.velocityFlex, op_.orientationFlexV, op_.rFlex,
+                             op_.angularVelocityFlex, forces, moments);
+
     }
 
 
@@ -536,19 +568,26 @@ namespace flexibilityEstimation
         // Rotation sensor dynamic
         Vector3 angularVelocity( op_.angularVelocityFlex + op_.rFlex * op_.angularVelocityControl);
 
+
+
         // Set sensor state before measurement
-        Vector v(Vector::Zero(15,1));
+        Vector v(Vector::Zero(sensor_.getStateSize(),1));
         v.head<9>() = Eigen::Map<Eigen::Matrix<double, 9, 1> >(&op_.rimu(0,0));
         v.segment<3>(9)=acceleration;
-        v.tail<3>()=angularVelocity;
+        v.segment<3>(12)=angularVelocity;
+
+        if (withForceMeasurements_)
+          v.tail(nbContacts_*6) = getForcesAndMoments(x,u);
+          //the last part of the measurement is force torque, it is
+          //computed by the current functor and not the sensor_.
+          //(see AlgebraicSensor::concatenateWithInput
+          //for more details)
 
         sensor_.setState(v,k);
 
-        // Measurement
-        Vector y (Matrix::Zero(measurementSize_,1));
-        y.head(sensor_.getMeasurementSize()) = sensor_.getMeasurements();
 
-        return y;
+        //measurements
+        return sensor_.getMeasurements();
     }
 
     void IMUElasticLocalFrameDynamicalSystem::setProcessNoise(NoiseBase * n)
@@ -611,6 +650,14 @@ namespace flexibilityEstimation
     void IMUElasticLocalFrameDynamicalSystem::setContactsNumber(unsigned i)
     {
         nbContacts_=i;
+
+        inputSize_ = 42+6*i;
+
+        if (withForceMeasurements_)
+        {
+          measurementSize_=measurementSizeBase_+nbContacts_*6;
+          sensor_.concatenateWithInput(nbContacts_*6);
+        }
     }
 
     void IMUElasticLocalFrameDynamicalSystem::setContactPosition
@@ -625,6 +672,24 @@ namespace flexibilityEstimation
     Vector3 IMUElasticLocalFrameDynamicalSystem::getContactPosition(unsigned i)
     {
         return contactPositions_[i];
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setWithForceMeasurements(bool b)
+    {
+      withForceMeasurements_=b;
+      if (withForceMeasurements_)
+      {
+        measurementSize_=measurementSizeBase_+nbContacts_*6;
+        sensor_.concatenateWithInput(nbContacts_*6);
+      }
+      else
+      {
+        measurementSize_=measurementSizeBase_;
+        sensor_.concatenateWithInput(0);
+      }
+
+
+
     }
 
 
