@@ -210,7 +210,7 @@ int test()
       return 1;
     }
 #ifdef NDEBUG
-    if (computeTime[0]>1e5)
+    if (computeTime[0]>2e5)
      {
       std::cout << "Failed : Computation time is too long !!"<< std::endl <<"The end" << std::endl;
       return 2;
