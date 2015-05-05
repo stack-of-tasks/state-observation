@@ -52,23 +52,37 @@ namespace stateObservation
         virtual unsigned getTime() const;
 
         ///gets the state vector size. Pure virtual method.
-        virtual unsigned getStateSize() const=0;
+        virtual unsigned getStateSize() const;
 
         ///get the size of the measurements. Pure virtual method.
-        virtual unsigned getMeasurementSize() const=0;
+        virtual unsigned getMeasurementSize() const;
+
+        ///concatenates the n last components of the state in the measurement
+        ///(useful when the measurements are already computed or
+        ///when they come from external source)
+        virtual unsigned concatenateWithInput( unsigned n);
 
     protected:
         ///the actual algorithm for the computation of the measurements, must
         ///be overloaded to implement any sensor
         virtual Vector computeNoiselessMeasurement_()=0;
 
-        virtual Vector computeNoisyMeasurement_();
+        virtual unsigned getStateSize_() const=0;
+
+        virtual unsigned getMeasurementSize_() const=0;
+
+
+        Vector computeNoisyMeasurement_();
 
         virtual void checkState_(const Vector &);
 
         unsigned time_;
 
+        unsigned concat_;
+
         Vector state_;
+
+        Vector directInputToOutput_;
 
         bool storedNoisyMeasurement_;
 

@@ -3,19 +3,30 @@
 namespace stateObservation
 {
     AlgebraicSensor::AlgebraicSensor()
-        :time_(0),storedNoisyMeasurement_(),storedNoiselessMeasurement_(false)
+        :time_(0),storedNoisyMeasurement_(),
+        concat_(0),storedNoiselessMeasurement_(false)
     {
     }
 
     void AlgebraicSensor::setState(const Vector & state, unsigned k)
     {
-        if (state.size()!=state_.size() || state!=state_ || time_!=k)
-        {
-            state_=state;
-            time_=k;
-            storedNoisyMeasurement_=false;
-            storedNoiselessMeasurement_=false;
-        }
+        directInputToOutput_ = state.tail(concat_);
+        state_=state.head(getStateSize_());
+        storedNoisyMeasurement_=false;
+        storedNoiselessMeasurement_=false;
+
+        time_=k;
+    }
+
+
+    unsigned AlgebraicSensor::getStateSize() const
+    {
+        return getStateSize_()+concat_;
+    }
+
+    unsigned AlgebraicSensor::getMeasurementSize() const
+    {
+        return getMeasurementSize_()+concat_;
     }
 
     Vector AlgebraicSensor::getMeasurements(bool noisy)
@@ -36,7 +47,11 @@ namespace stateObservation
         {
             if (!storedNoiselessMeasurement_)
             {
-                noiselessMeasurement_ = computeNoiselessMeasurement_();
+                if (concat_>0)
+                  noiselessMeasurement_<< computeNoiselessMeasurement_() ,directInputToOutput_;
+                else
+                  noiselessMeasurement_= computeNoiselessMeasurement_();
+
                 storedNoiselessMeasurement_=true;
             }
             return noiselessMeasurement_;
@@ -61,12 +76,23 @@ namespace stateObservation
         {
             BOOST_ASSERT(checkStateVector(state_)&& "The state is not set or incorrectly set");
 
-            noiselessMeasurement_ = computeNoiselessMeasurement_();
+            if (concat_>0)
+              noiselessMeasurement_<< computeNoiselessMeasurement_() ,directInputToOutput_;
+            else
+              noiselessMeasurement_= computeNoiselessMeasurement_();
             storedNoiselessMeasurement_=true;
         }
 
         return noise_->addNoise( noiselessMeasurement_);
     }
+
+
+    unsigned AlgebraicSensor::concatenateWithInput( unsigned n)
+    {
+        concat_ = n;
+    }
+
+
 
 
 }
