@@ -53,13 +53,6 @@ namespace stateObservation
         xk1.segment(kine::ori,3) =  orientationV;
         xk1.segment(kine::angVel,3) = angularVelocity;
 
-
-        // //inputs
-        // Vector3 accelerationInput =u.head(3);
-        // Vector3 angularAccelerationInput =u.tail(3);
-
-        // xk1.segment(kine::linAcc,3)+=accelerationInput;
-        // xk1.segment(kine::angAcc,3)+=angularAccelerationInput;
         xk1.segment(kine::linAcc,3).setZero();
         xk1.segment(kine::angAcc,3).setZero();
 
