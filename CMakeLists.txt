@@ -47,10 +47,12 @@ SET(${PROJECT_NAME}_HEADERS
   include/state-observation/sensors-simulation/sensor-base.hpp
   include/state-observation/sensors-simulation/algebraic-sensor.hpp
   include/state-observation/sensors-simulation/accelerometer-gyrometer.hpp
+  include/state-observation/sensors-simulation/accelerometer-gyrometer-magnetometer.hpp
   include/state-observation/noise/noise-base.hpp
   include/state-observation/noise/gaussian-white-noise.hpp
   include/state-observation/sensors-simulation/algorithm/rotation-velocity.hpp
   include/state-observation/sensors-simulation/algorithm/linear-acceleration.hpp
+  include/state-observation/sensors-simulation/algorithm/magnetic-field.hpp
   include/state-observation/tools/definitions.hpp
   include/state-observation/tools/definitions.hxx
   include/state-observation/tools/hrp2.hpp
@@ -59,6 +61,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/state-observation/dynamical-system/dynamical-system-functor-base.hpp
   include/state-observation/dynamical-system/dynamical-system-simulator.hpp
   include/state-observation/dynamical-system/imu-dynamical-system.hpp
+  include/state-observation/dynamical-system/imu-magnetometer-dynamical-system.hpp
   include/state-observation/dynamical-system/algorithm/rigid-body-kinematics.hpp
   include/state-observation/dynamical-system/algorithm/rigid-body-kinematics.hxx
   include/state-observation/dynamical-system/bidim-elastic-inv-pendulum-dyn-sys.hpp
