@@ -101,8 +101,8 @@ int test()
 
   /// Initializations
     // Dimensions
-    const unsigned kinit=93500;
-    const unsigned kmax=95762; //102000;//94577;//
+    const unsigned kinit=0;
+    const unsigned kmax=28403; //102000;//94577;//
     const unsigned measurementSize=6;
     const unsigned inputSize=54;
     const unsigned stateSize=18;
@@ -214,6 +214,8 @@ int test()
 
      // ZMP estimated
      IndexedMatrixArray zmpEstimated_output;
+     // ZMP
+     IndexedMatrixArray zmp_output;
      // force LLEG
      IndexedMatrixArray forceLLEG_output;
      // force RLEG
@@ -237,10 +239,14 @@ int test()
     Vector forcesAndMomentsReference;
     forcesAndMomentsReference.resize(12);
 
-    Vector forcesAndMoments;
+    stateObservation::Vector forcesAndMoments;
     forcesAndMoments.resize(12);
+    Vector forcesAndMomentsReal;
+    forcesAndMomentsReal.resize(12);
     Vector zmpEstimated;
     zmpEstimated.resize(3);
+    Vector zmp;
+    zmp.resize(3);
 
     est.setContactModel(stateObservation::flexibilityEstimation::
                 ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
@@ -264,12 +270,15 @@ int test()
         sensorPosition1=kine::vector6ToHomogeneousMatrix((u[k].block(0,42,1,6)).transpose());
         sensorPosition2=kine::vector6ToHomogeneousMatrix((u[k].block(0,48,1,6)).transpose());
 
-        // Compute forces and ZMP
+        // Compute forces and ZMP estimated
         forcesAndMoments = est.getForcesAndMoments();
         forcesAndMoments_source.block(0,0,6,1)=forceRLEGRef[k];
         forcesAndMoments_source.block(6,0,6,1)=forceLLEGRef[k];
         forcesAndMomentsReference=forcesAndMomentsRef[k];
         zmpEstimated=computeZmp (forcesAndMoments, sensorPosition1, sensorPosition2, contactNbr);
+
+        // Compute ZMP real
+        zmp=computeZmp (forcesAndMoments_source, sensorPosition1, sensorPosition2, contactNbr);
 
         if(zmpEstimated(0)>100)
         {
@@ -300,6 +309,7 @@ int test()
 
         forcesAndMoments_output.setValue(forcesAndMoments,k);
         zmpEstimated_output.setValue(zmpEstimated,k);
+        zmp_output.setValue(zmp,k);
 
     }
 
@@ -310,6 +320,7 @@ int test()
     u_output.writeInFile("input.dat");
     forcesAndMoments_output.writeInFile("forcesAndMoments.dat");
     zmpEstimated_output.writeInFile("zmpEstimated.dat");
+    zmp_output.writeInFile("zmp.dat");
 
     return 1;
 
