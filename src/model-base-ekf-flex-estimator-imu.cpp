@@ -15,21 +15,22 @@ namespace flexibilityEstimation
         EKFFlexibilityEstimatorBase
             (stateSizeConst_,measurementSizeBase_,inputSizeBase_,
                             Matrix::Constant(getStateSize(),1,dxFactor)),
-        functor_(dt)
+        functor_(dt),
+        forceVariance_(1e-6)
     {
 
         ekf_.setMeasureSize(functor_.getMeasurementSize());
 
         ModelBaseEKFFlexEstimatorIMU::resetCovarianceMatrices();
 
-        Vector dx = Matrix::Constant(getStateSize(),1,dxFactor);
+        Vector dx( Matrix::Constant(getStateSize(),1,dxFactor));//thanks Justin
 
-        dx.segment(kine::ori,3) = Vector3::Constant(1e-4) ;
-        dx.segment(kine::angVel,3) = Vector3::Constant(1e-4) ;
+        dx.segment(kine::ori,3).fill(1e-4) ;
+        dx.segment(kine::angVel,3).fill(1e-4) ;
 
         ModelBaseEKFFlexEstimatorIMU::useFiniteDifferencesJacobians(dx);
 
-        Vector x0=ekf_.stateVectorZero();
+        Vector x0(ekf_.stateVectorZero());
         x0(2)=-0.010835;
 
         lastX_=x0;
@@ -118,6 +119,7 @@ namespace flexibilityEstimation
         if (useFTSensors_)
         {
           ekf_.setMeasureSize(functor_.getMeasurementSize());
+          updateCovarianceMatrix_();
         }
     }
 
@@ -155,7 +157,7 @@ namespace flexibilityEstimation
                 "ERROR: The flexibility state has incorrect size \
                     must be 18x1 vector, 6x1 vector or 4x4 matrix");
 
-        Vector x0=x;
+        Vector x0 (x);
 
         if (bstate)
         {
@@ -168,9 +170,9 @@ namespace flexibilityEstimation
 
             Vector x_s = ekf_.stateVectorZero();
 
-            x_s.segment(kine::pos,3)=x0.head(3);
+            x_s.segment(kine::pos,3)=x0.head<3> ();
 
-            x_s.segment(kine::ori,3)=x0.tail(3);
+            x_s.segment(kine::ori,3)=x0.tail<3> ();
 
             ekf_.setState(x_s,k_);
 
@@ -216,6 +218,19 @@ namespace flexibilityEstimation
 
     void ModelBaseEKFFlexEstimatorIMU::updateCovarianceMatrix_()
     {
+
+        if (useFTSensors_)
+        {
+          Matrix Rtemp(R_);
+
+          R_=Matrix::Identity(getMeasurementSize(),getMeasurementSize());
+
+          R_.block(0,0,6,6)=Rtemp.block(0,0,6,6);
+
+          R_.block(6,6,functor_.getContactsNumber()*6,functor_.getContactsNumber()*6) =
+            Matrix::Identity(functor_.getContactsNumber()*6,functor_.getContactsNumber()*6)*forceVariance_;
+        }
+
         ekf_.setR(R_);
     }
 
@@ -354,8 +369,14 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::useForceTorqueSensors(bool b)
     {
 
-      functor_.setWithForceMeasurements(b);
-      ekf_.setMeasureSize(functor_.getMeasurementSize());
+      if (useFTSensors_!= b)
+      {
+        functor_.setWithForceMeasurements(b);
+        ekf_.setMeasureSize(functor_.getMeasurementSize());
+
+        updateCovarianceMatrix_();
+      }
+
       useFTSensors_=b;
 
     }

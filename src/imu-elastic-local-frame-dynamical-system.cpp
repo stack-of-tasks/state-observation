@@ -41,6 +41,8 @@ namespace flexibilityEstimation
       sensor_.setMatrixMode(true);
       contactModel_=contactModel::none;
 
+      nbContacts_=0;
+
 
       kcurrent_=-1;
 
@@ -690,6 +692,11 @@ namespace flexibilityEstimation
 
 
 
+    }
+
+    bool IMUElasticLocalFrameDynamicalSystem::getWithForceMeasurements() const
+    {
+      return withForceMeasurements_;
     }
 
 

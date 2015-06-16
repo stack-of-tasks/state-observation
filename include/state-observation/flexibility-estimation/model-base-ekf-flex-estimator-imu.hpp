@@ -140,6 +140,8 @@ namespace flexibilityEstimation
         bool on_;
         double computeFlexibilityTime_;
 
+        double forceVariance_;//force sensor variance
+
         bool useFTSensors_;
 
     private:

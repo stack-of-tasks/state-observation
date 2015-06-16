@@ -249,6 +249,7 @@ protected:
       );
 
       virtual void setWithForceMeasurements(bool b);
+      virtual bool getWithForceMeasurements() const;
 
 
       virtual void setKfe(const Matrix3 & m);
