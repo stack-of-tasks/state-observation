@@ -42,13 +42,16 @@ ADD_LIBRARY(${LIBRARY_NAME}
   algebraic-sensor.cpp
   rotation-velocity.cpp
   linear-acceleration.cpp
+  magnetic-field.cpp
   definitions.cpp
   accelerometer-gyrometer.cpp
+  accelerometer-gyrometer-magnetometer.cpp
   probability-law-simulation.cpp
   gaussian-white-noise.cpp
   dynamical-system-functor-base.cpp
   dynamical-system-simulator.cpp
   imu-dynamical-system.cpp
+  imu-magnetometer-dynamical-system.cpp
   flexibility-estimator-base.cpp
   ekf-flexibility-estimator-base.cpp
   fixed-contact-ekf-flex-estimator-imu.cpp
@@ -68,6 +71,7 @@ SET_TARGET_PROPERTIES(${LIBRARY_NAME}
 INSTALL(TARGETS ${LIBRARY_NAME}
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
+TARGET_LINK_LIBRARIES(${LIBRARY_NAME} rt)
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.0")
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
 SET(LINEAR_ALGEBRA_LIB_FOUND 1)

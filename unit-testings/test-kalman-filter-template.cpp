@@ -639,8 +639,6 @@ double testKalmanFilterZeroInput()
     filter::Rmatrix r(r1*r1.transpose());
     filter::Qmatrix q(q1*q1.transpose());
 
-    filter::InputVector u=filter::InputVector::Zero();
-
     for (unsigned k=1; k<=kmax; ++k)
     {
 
