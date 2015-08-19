@@ -102,7 +102,7 @@ int test()
   /// Initializations
     // Dimensions
     const unsigned kinit=0;
-    const unsigned kmax=28403; //102000;//94577;//
+    const unsigned kmax=42761;
     const unsigned measurementSize=6;
     const unsigned inputSize=54;
     const unsigned stateSize=18;
@@ -162,8 +162,8 @@ int test()
 
 
     est.setKfe(40000*Matrix3::Identity());
-    est.setKte(400*Matrix3::Identity());
     est.setKfv(600*Matrix3::Identity());
+    est.setKte(400*Matrix3::Identity());
     est.setKtv(10*Matrix3::Identity());
 
    /// Definitions of input vectors
@@ -201,8 +201,14 @@ int test()
      IndexedMatrixArray forceRLEGRef;
      std::cout << "Loading reference forceRLEG file" << std::endl;
      forceRLEGRef.getFromFile("data/source_forceRLEG.dat",6,1);
-
-
+     //forceLLEG estimated
+     IndexedMatrixArray forceLLEGEst;
+     std::cout << "Loading estimated forceLLEG file" << std::endl;
+     forceLLEGEst.getFromFile("data/source_forcesSupport1.dat",6,1);
+     //forceRLEG estimated
+     IndexedMatrixArray forceRLEGEst;
+     std::cout << "Loading estimated forceRLEG file" << std::endl;
+     forceRLEGEst.getFromFile("data/source_forcesSupport2.dat",6,1);
 
    /// Definition of ouptut vectors
      // State: what we want
@@ -214,6 +220,7 @@ int test()
 
      // ZMP estimated
      IndexedMatrixArray zmpEstimated_output;
+     IndexedMatrixArray zmpReEstimated_output;
      // ZMP
      IndexedMatrixArray zmp_output;
      // force LLEG
@@ -227,7 +234,6 @@ int test()
 
      est.setMeasurementNoiseCovariance(Cov);
      est.setContactsNumber(contactNbr);
-     est.setInputSize(inputSize);
 
     Vector flexibility;
     flexibility.resize(18);
@@ -243,17 +249,19 @@ int test()
     forcesAndMoments.resize(12);
     Vector forcesAndMomentsReal;
     forcesAndMomentsReal.resize(12);
-    Vector zmpEstimated;
-    zmpEstimated.resize(3);
+    Vector zmpEstimated, zmpReEstimated;
+    zmpEstimated.resize(3), zmpReEstimated.resize(3);
     Vector zmp;
     zmp.resize(3);
 
     est.setContactModel(stateObservation::flexibilityEstimation::
                 ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
 
-    Matrix sensorPosition1, sensorPosition2;
+    Matrix sensorPosition1, sensorPosition2, sensorPosition1Est, sensorPosition2Est;
     sensorPosition1.resize(4,4);
     sensorPosition2.resize(4,4);
+    sensorPosition1Est.resize(4,4);
+    sensorPosition2Est.resize(4,4);
 
     std::cout << "Beginning reconstruction "<<std::endl;
     for (unsigned k=kinit+2;k<kmax;++k)
@@ -267,18 +275,27 @@ int test()
         y_output.setValue(y[k],k);
         u_output.setValue(u[k],k);
 
+        forcesAndMomentsReference=forcesAndMomentsRef[k];
+        forcesAndMoments = est.getForcesAndMoments();
+//        forcesAndMoments.block(0,0,6,1)=forceRLEGEst[k];
+//        forcesAndMoments.block(6,0,6,1)=forceLLEGEst[k];
+
+        // Compute forces and ZMP estimated in this code  
         sensorPosition1=kine::vector6ToHomogeneousMatrix((u[k].block(0,42,1,6)).transpose());
         sensorPosition2=kine::vector6ToHomogeneousMatrix((u[k].block(0,48,1,6)).transpose());
+        zmpReEstimated=computeZmp (forcesAndMoments, sensorPosition1, sensorPosition2, contactNbr);
 
-        // Compute forces and ZMP estimated
-        forcesAndMoments = est.getForcesAndMoments();
-        forcesAndMoments_source.block(0,0,6,1)=forceRLEGRef[k];
-        forcesAndMoments_source.block(6,0,6,1)=forceLLEGRef[k];
-        forcesAndMomentsReference=forcesAndMomentsRef[k];
-        zmpEstimated=computeZmp (forcesAndMoments, sensorPosition1, sensorPosition2, contactNbr);
+//        // Compute forces and ZMP estimated
+//        sensorPosition1Est=kine::vector6ToHomogeneousMatrix((u[k].block(0,42,1,6)).transpose());
+//        sensorPosition2Est=kine::vector6ToHomogeneousMatrix((u[k].block(0,48,1,6)).transpose());
+//        sensorPosition1Est(0,3)=0;
+//        sensorPosition2Est(0,3)=0;
+//        zmpEstimated=computeZmp (forcesAndMoments, sensorPosition1Est, sensorPosition2Est, contactNbr);
 
-        // Compute ZMP real
-        zmp=computeZmp (forcesAndMoments_source, sensorPosition1, sensorPosition2, contactNbr);
+//        // Compute ZMP real
+//        forcesAndMoments_source.block(0,0,6,1)=forceRLEGRef[k];
+//        forcesAndMoments_source.block(6,0,6,1)=forceLLEGRef[k];
+//        zmp=computeZmp (forcesAndMoments_source, sensorPosition1, sensorPosition2, contactNbr);
 
         if(zmpEstimated(0)>100)
         {
@@ -305,22 +322,25 @@ int test()
             zmpEstimated(2)=-100;
         }
 
-      //  std::cout << zmpEstimated.transpose() << std::endl;
-
         forcesAndMoments_output.setValue(forcesAndMoments,k);
-        zmpEstimated_output.setValue(zmpEstimated,k);
-        zmp_output.setValue(zmp,k);
+        zmpReEstimated_output.setValue(zmpReEstimated,k);
+        //zmp_output.setValue(zmp,k);
 
     }
 
     std::cout << "Completed "<<std::endl;
 
     x_output.writeInFile("state.dat");
+    std::cout << "coucou" << std::endl;
     y_output.writeInFile("measurement.dat");
+    std::cout << "coucou" << std::endl;
     u_output.writeInFile("input.dat");
+    std::cout << "coucou" << std::endl;
     forcesAndMoments_output.writeInFile("forcesAndMoments.dat");
-    zmpEstimated_output.writeInFile("zmpEstimated.dat");
-    zmp_output.writeInFile("zmp.dat");
+    std::cout << "coucou" << std::endl;
+    zmpReEstimated_output.writeInFile("zmpReEstimated.dat");
+    std::cout << "coucou" << std::endl;
+    //zmp_output.writeInFile("zmp.dat");
 
     return 1;
 
