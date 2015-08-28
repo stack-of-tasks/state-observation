@@ -42,6 +42,7 @@ namespace flexibilityEstimation
       contactModel_=contactModel::none;
 
       nbContacts_=0;
+      inputSize_=42;
 
 
       kcurrent_=-1;
@@ -454,6 +455,7 @@ namespace flexibilityEstimation
         (const Vector& x, const Vector& u, unsigned )
     {
         assertStateVector_(x);
+        assertInputVector_(u);
 
         op_.positionFlex=x.segment(kine::pos,3);
         op_.velocityFlex=x.segment(kine::linVel,3);
@@ -532,6 +534,7 @@ namespace flexibilityEstimation
                 (const Vector& x, const Vector& u, unsigned k)
     {
         assertStateVector_(x);
+        assertInputVector_(u);
 
         op_.positionFlex=x.segment(kine::pos,3);
         op_.velocityFlex=x.segment(kine::linVel,3);
@@ -542,7 +545,7 @@ namespace flexibilityEstimation
 
         op_.rFlex =computeRotation_(op_.orientationFlexV,0);
 
-        assertInputVector_(u);
+
 
 
         op_.positionControl=u.segment(input::posIMU,3);
@@ -700,10 +703,6 @@ namespace flexibilityEstimation
     }
 
 
-    inline unsigned IMUElasticLocalFrameDynamicalSystem::getContactsNumber(void) const
-    {
-        return  nbContacts_;
-    }
 
     void IMUElasticLocalFrameDynamicalSystem::setKfe(const Matrix3 & m)
     {
