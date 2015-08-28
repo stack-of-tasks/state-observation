@@ -91,6 +91,7 @@ namespace stateObservation
     unsigned AlgebraicSensor::concatenateWithInput( unsigned n)
     {
         concat_ = n;
+        noiselessMeasurement_.resize(getMeasurementSize());
     }
 
 

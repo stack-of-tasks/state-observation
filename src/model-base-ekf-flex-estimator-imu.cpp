@@ -1,8 +1,6 @@
 #include <state-observation/flexibility-estimation/model-base-ekf-flex-estimator-imu.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
-//#include <iostream>
-
 const double initialVirtualMeasurementCovariance=1.e-10;
 
 const double dxFactor = 1.0e-8;
@@ -88,7 +86,6 @@ namespace flexibilityEstimation
     {
         finiteDifferencesJacobians_=true;
         functor_.setContactsNumber(i);
-        updateCovarianceMatrix_();
 
         unsigned usize = functor_.getInputSize();
 
@@ -139,11 +136,7 @@ namespace flexibilityEstimation
 
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::setWithForcesMeasurements(bool b)
-    {
-      functor_.setWithForceMeasurements(b);
-      ekf_.setMeasureSize(functor_.getMeasurementSize());
-    }
+
 
     void ModelBaseEKFFlexEstimatorIMU::setFlexibilityGuess(const Matrix & x)
     {
@@ -183,8 +176,8 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::setMeasurementNoiseCovariance
                                             (const Matrix & R)
     {
-        BOOST_ASSERT(unsigned(R.rows())==getMeasurementSize() &&
-                     unsigned(R.cols())==getMeasurementSize() &&
+        BOOST_ASSERT(unsigned(R.rows())==6 &&
+                     unsigned(R.cols())==6 &&
                     "ERROR: The measurement noise covariance matrix R has \
                         incorrect size");
 
@@ -366,9 +359,8 @@ namespace flexibilityEstimation
         return computeFlexibilityTime_;
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::useForceTorqueSensors(bool b)
+    void ModelBaseEKFFlexEstimatorIMU::setWithForcesMeasurements(bool b)
     {
-
       if (useFTSensors_!= b)
       {
         functor_.setWithForceMeasurements(b);
@@ -379,6 +371,15 @@ namespace flexibilityEstimation
 
       useFTSensors_=b;
 
+
+
+
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setForceVariance(double d)
+    {
+        forceVariance_ = d;
+        updateCovarianceMatrix_();
     }
 
 }

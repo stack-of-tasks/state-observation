@@ -30,6 +30,7 @@ namespace stateObservation
     void ZeroDelayObserver::setMeasurement
                     (const ObserverBase::MeasureVector& y_k,unsigned k)
     {
+
         BOOST_ASSERT(checkMeasureVector(y_k)
                 && "The size of the measure vector is incorrect");
         if (y_.size()>0)

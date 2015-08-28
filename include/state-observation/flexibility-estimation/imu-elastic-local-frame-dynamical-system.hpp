@@ -186,7 +186,10 @@ protected:
       virtual Vector3 getContactPosition(unsigned i);
 
       ///Gets the nimber of contacts
-      unsigned getContactsNumber(void) const;
+      inline unsigned getContactsNumber(void) const
+      {
+         return  nbContacts_;
+      }
 
       virtual void setContactModel(unsigned nb);
 

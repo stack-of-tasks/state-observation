@@ -79,8 +79,6 @@ namespace flexibilityEstimation
 
         virtual Vector getForcesAndMoments();
 
-        virtual void useForceTorqueSensors(bool);
-
         ///Sets a value of the flexibility x_k provided from another source
         /// can be used for initialization of the estimator
         virtual void setFlexibilityGuess(const Matrix & x);
@@ -103,6 +101,8 @@ namespace flexibilityEstimation
 
         ///sets to whether or not the force mesurements are taken into account
         virtual void setWithForcesMeasurements(bool);
+
+        virtual void setForceVariance(double d);
 
         /// sets the sampling period
         virtual void setSamplingPeriod(double);
