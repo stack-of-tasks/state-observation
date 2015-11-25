@@ -272,12 +272,12 @@ namespace flexibilityEstimation
     {
         timespec time1, time2, time3;
 
-        if (ekf_.getMeasurementsNumber()>0)
+        if(on_==true & functor_.getContactsNumber() > 0)
         {
-            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
-            if(on_==true)
+            if (ekf_.getMeasurementsNumber()>0)
             {
+                clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+                clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
                 if (ekf_.getMeasurementsNumber()>0)
                 {
                     k_=ekf_.getMeasurementTime();
@@ -313,11 +313,10 @@ namespace flexibilityEstimation
 
                 computeFlexibilityTime_=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
             }
-            else
-            {
-               // vector v(getEKF().getStateSize());
-                lastX_.setZero();
-            }
+        }
+        else
+        {
+            lastX_.setZero();
         }
 
         return lastX_;
