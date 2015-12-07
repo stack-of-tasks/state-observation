@@ -11,8 +11,6 @@
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 #include <stdexcept>
 
-//#include <iostream>
-
 namespace stateObservation
 {
 namespace flexibilityEstimation
@@ -119,8 +117,8 @@ namespace flexibilityEstimation
     Vector IMUElasticLocalFrameDynamicalSystem::getForcesAndMoments()
     {
         unsigned nbContacts(getContactsNumber());
-        //Vector x(6*nbContacts);
-        Vector x(6*2);
+        Vector x(6*nbContacts);
+
         x.setZero();
 
         for (unsigned int i=0; i<nbContacts; ++i)
@@ -181,7 +179,6 @@ namespace flexibilityEstimation
         moments.noalias() += op_.momenti + kine::skewSymmetric(op_.globalContactPos)*op_.forcei;;
 
         }
-
     }
 
 
@@ -226,7 +223,6 @@ namespace flexibilityEstimation
         computeForcesAndMoments (op_.contactPosV, op_.contactOriV,
                           op_.positionFlex, op_.velocityFlex, op_.orientationFlexV, op_.rFlex,
                              op_.angularVelocityFlex, forces, moments);
-
     }
 
 
@@ -243,6 +239,7 @@ namespace flexibilityEstimation
         const Vector3 &oriVector ,const Matrix3& orientation,
         const Vector3& angularVel, Vector3& angularAcceleration)
     {
+
         op_.skewV=kine::skewSymmetric(angularVel);
         op_.skewV2=kine::skewSymmetric2(angularVel);
         op_.skewVR=op_.skewV * orientation;
@@ -589,7 +586,6 @@ namespace flexibilityEstimation
           //for more details)
 
         sensor_.setState(v,k);
-
 
         //measurements
         return sensor_.getMeasurements();

@@ -370,9 +370,6 @@ namespace flexibilityEstimation
 
       useFTSensors_=b;
 
-
-
-
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setForceVariance(double d)
