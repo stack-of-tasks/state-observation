@@ -42,6 +42,12 @@ namespace flexibilityEstimation
       nbContacts_=0;
       inputSize_=42;
 
+      Vector3 v;
+      v << 1000,
+           1000,
+           1000;
+      limitAngularAcceleration_=v;
+      limitLinearAcceleration_=v;
 
       kcurrent_=-1;
 
@@ -278,6 +284,11 @@ namespace flexibilityEstimation
 
         linearAcceleration = op_.vf;
         linearAcceleration += kine::skewSymmetric(op_.Rc)*angularAcceleration;
+
+        for(int i=0;i<3;i++){
+            angularAcceleration[i]=std::min(angularAcceleration[i],limitAngularAcceleration_[i]);
+            linearAcceleration[i]=std::min(linearAcceleration[i],limitLinearAcceleration_[i]);
+        }
 
     }
 

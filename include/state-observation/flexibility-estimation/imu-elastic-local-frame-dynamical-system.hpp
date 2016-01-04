@@ -291,14 +291,14 @@ protected:
 
       std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;
 
-
       Matrix3 Kfe_, Kte_, Kfv_, Ktv_;
-
-
 
       unsigned kcurrent_;
 
       bool withForceMeasurements_;
+
+      Vector3 limitAngularAcceleration_;
+      Vector3 limitLinearAcceleration_;
 
 
       struct Optimization
