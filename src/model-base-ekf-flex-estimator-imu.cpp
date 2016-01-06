@@ -68,6 +68,7 @@ namespace flexibilityEstimation
             Q_.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-8;
             Q_.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-4;
             Q_.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-4;
+            Q_.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*1.e-8;
 
             ekf_.setQ(Q_);
 
@@ -77,6 +78,7 @@ namespace flexibilityEstimation
             P0.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-2;
             P0.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-2;
             P0.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-2;
+            P0.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*1.e-2;
 
             ekf_.setStateCovariance(P0);
 
@@ -148,7 +150,7 @@ namespace flexibilityEstimation
 
         BOOST_ASSERT((bstate||b6||bhomogeneous) &&
                 "ERROR: The flexibility state has incorrect size \
-                    must be 18x1 vector, 6x1 vector or 4x4 matrix");
+                    must be 20x1 vector, 6x1 vector or 4x4 matrix");
 
         Vector x0 (x);
 

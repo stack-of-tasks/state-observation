@@ -471,7 +471,8 @@ namespace flexibilityEstimation
         op_.orientationFlexV=x.segment(kine::ori,3);
         op_.angularVelocityFlex=x.segment(kine::angVel,3);
         op_.angularAccelerationFlex=x.segment(kine::angAcc,3);
-
+        op_.positionComBias <<  x.segment(kine::comBias,2),
+                                0;// the bias of the com along the z axis is assumed 0.
 
         kine::computeInertiaTensor(u.segment<6>(input::inertia),op_.inertia);
         kine::computeInertiaTensor(u.segment<6>(input::dotInertia),op_.dotInertia);
@@ -484,7 +485,7 @@ namespace flexibilityEstimation
           op_.contactOriV.setValue(u.segment<3>(input::contacts +6*i+3),i);
         }
 
-        op_.positionCom=u.segment<3>(input::posCom);
+        op_.positionCom=u.segment<3>(input::posCom)+op_.positionComBias;
         op_.velocityCom=u.segment<3>(input::velCom);
         op_.accelerationCom=u.segment<3>(input::accCom);
         op_.AngMomentum=u.segment<3>(input::angMoment);
@@ -511,11 +512,11 @@ namespace flexibilityEstimation
         op_.xk1.segment<3>(kine::linVel) = op_.velocityFlex;
         op_.xk1.segment<3>(kine::linAcc) = op_.accelerationFlex;
 
-
-
         op_.xk1.segment<3>(kine::ori) =  op_.orientationFlexV;
         op_.xk1.segment<3>(kine::angVel) = op_.angularVelocityFlex;
         op_.xk1.segment<3>(kine::angAcc) = op_.angularAccelerationFlex;
+
+        // op_.xk1.segment<2>(kine::comBias) = op_.positionComBias.head<2>();
 
         if (processNoise_!=0x0)
             return processNoise_->addNoise(op_.xk1);

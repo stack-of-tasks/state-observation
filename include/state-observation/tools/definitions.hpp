@@ -222,6 +222,7 @@ namespace stateObservation
         const unsigned angVel = 9;
         const unsigned linAcc = 12;
         const unsigned angAcc = 15;
+        const unsigned comBias = 18;
     }
 
 

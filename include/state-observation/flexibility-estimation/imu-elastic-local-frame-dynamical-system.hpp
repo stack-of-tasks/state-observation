@@ -277,7 +277,7 @@ protected:
 
       Matrix3& computeRotation_(const Vector3 & x, int i);
 
-      static const unsigned stateSize_=18;
+      static const unsigned stateSize_=20;
       static const unsigned inputSizeBase_=42;
       unsigned inputSize_;
       static const unsigned measurementSizeBase_=6;
@@ -311,6 +311,7 @@ protected:
         Vector3 orientationFlexV;
         Vector3 angularVelocityFlex;
         Vector3 angularAccelerationFlex;
+        Vector3 positionComBias;
 
         Matrix3 rFlex;
         Matrix3 rFlexT;
