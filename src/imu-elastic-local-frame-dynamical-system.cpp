@@ -11,6 +11,9 @@
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 #include <stdexcept>
 
+
+#include <iostream>
+
 namespace stateObservation
 {
 namespace flexibilityEstimation
@@ -25,7 +28,7 @@ namespace flexibilityEstimation
         robotMass_(hrp2::m),
         robotMassInv_(1/hrp2::m),
         measurementSize_(measurementSizeBase_),
-        withForceMeasurements_(false)
+        withForceMeasurements_(false), withComBias_(false)
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
        // std::cout<<std::endl<<"IMUElasticLocalFrameDynamicalSystem Constructor"<<std::endl;
@@ -41,13 +44,17 @@ namespace flexibilityEstimation
 
       nbContacts_=0;
       inputSize_=42;
+      stateSize_=stateSizeBase_;
 
-      Vector3 v;
-      v << 1000,
-           1000,
-           1000;
-      limitAngularAcceleration_=v;
-      limitLinearAcceleration_=v;
+      Vector3 v1, v2;
+      v1 << 100,
+            100,
+            100;
+      v2 << 10,
+            10,
+            10;
+      limitAngularAcceleration_=v2;
+      limitLinearAcceleration_=v1;
 
       kcurrent_=-1;
 
@@ -285,9 +292,11 @@ namespace flexibilityEstimation
         linearAcceleration = op_.vf;
         linearAcceleration += kine::skewSymmetric(op_.Rc)*angularAcceleration;
 
-        for(int i=0;i<3;i++){
+        for(int i=0;i<3;i++){ // Saturation for bounded acceleration
             angularAcceleration[i]=std::min(angularAcceleration[i],limitAngularAcceleration_[i]);
             linearAcceleration[i]=std::min(linearAcceleration[i],limitLinearAcceleration_[i]);
+            angularAcceleration[i]=std::max(angularAcceleration[i],-limitAngularAcceleration_[i]);
+            linearAcceleration[i]=std::max(linearAcceleration[i],-limitLinearAcceleration_[i]);
         }
 
     }
@@ -471,9 +480,13 @@ namespace flexibilityEstimation
         op_.orientationFlexV=x.segment(kine::ori,3);
         op_.angularVelocityFlex=x.segment(kine::angVel,3);
         op_.angularAccelerationFlex=x.segment(kine::angAcc,3);
-        op_.positionComBias <<  x.segment(kine::comBias,2),
-                                0;// the bias of the com along the z axis is assumed 0.
 
+        if (withComBias_){
+            op_.positionComBias <<  x.segment(kine::comBias,2),
+                                    0;// the bias of the com along the z axis is assumed 0.
+        } else {
+            op_.positionComBias.setZero();
+        }
         kine::computeInertiaTensor(u.segment<6>(input::inertia),op_.inertia);
         kine::computeInertiaTensor(u.segment<6>(input::dotInertia),op_.dotInertia);
 
@@ -485,12 +498,12 @@ namespace flexibilityEstimation
           op_.contactOriV.setValue(u.segment<3>(input::contacts +6*i+3),i);
         }
 
-        op_.positionCom=u.segment<3>(input::posCom)+op_.positionComBias;
+        op_.positionCom=u.segment<3>(input::posCom);
+        if(withComBias_) op_.positionCom+=op_.positionComBias;
         op_.velocityCom=u.segment<3>(input::velCom);
         op_.accelerationCom=u.segment<3>(input::accCom);
         op_.AngMomentum=u.segment<3>(input::angMoment);
         op_.dotAngMomentum=u.segment<3>(input::dotAngMoment);
-
 
         int subsample=1;
         for (int i=0; i<subsample; ++i)
@@ -503,7 +516,6 @@ namespace flexibilityEstimation
                           op_.orientationFlexV, op_.angularVelocityFlex,
                           op_.angularAccelerationFlex, dt_/subsample);
         }
-
         //x_{k+1}
 
         op_.xk1=x;
@@ -554,9 +566,6 @@ namespace flexibilityEstimation
 
         op_.rFlex =computeRotation_(op_.orientationFlexV,0);
 
-
-
-
         op_.positionControl=u.segment(input::posIMU,3);
         op_.velocityControl=u.segment(input::linVelIMU,3);
         op_.accelerationControl=u.segment(input::linAccIMU,3);
@@ -569,9 +578,7 @@ namespace flexibilityEstimation
 
         // Translation sensor dynamic
         Vector3 acceleration;
-
         acceleration << 0,0,0;
-
         acceleration += 2*kine::skewSymmetric(op_.angularVelocityFlex) * op_.rFlex * op_.velocityControl;
         acceleration += op_.accelerationFlex + op_.rFlex * op_.accelerationControl;
         acceleration += (
@@ -580,9 +587,7 @@ namespace flexibilityEstimation
                 )*op_.rFlex * op_.positionControl;
 
         // Rotation sensor dynamic
-        Vector3 angularVelocity( op_.angularVelocityFlex + op_.rFlex * op_.angularVelocityControl);
-
-
+        Vector3 angularVelocity(op_.angularVelocityFlex + op_.rFlex * op_.angularVelocityControl);
 
         // Set sensor state before measurement
         Vector v(Vector::Zero(sensor_.getStateSize(),1));
@@ -705,9 +710,20 @@ namespace flexibilityEstimation
 
     }
 
+    void IMUElasticLocalFrameDynamicalSystem::setWithComBias(bool b)
+    {
+      withComBias_=b;
+      stateSize_=stateSizeBase_+b*2;
+    }
+
     bool IMUElasticLocalFrameDynamicalSystem::getWithForceMeasurements() const
     {
       return withForceMeasurements_;
+    }
+
+    bool IMUElasticLocalFrameDynamicalSystem::getWithComBias() const
+    {
+      return withComBias_;
     }
 
 

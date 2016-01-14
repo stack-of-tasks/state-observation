@@ -1,6 +1,8 @@
 #include <state-observation/flexibility-estimation/model-base-ekf-flex-estimator-imu.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
+#include <iostream>
+
 const double initialVirtualMeasurementCovariance=1.e-10;
 
 const double dxFactor = 1.0e-8;
@@ -11,14 +13,16 @@ namespace flexibilityEstimation
 {
     ModelBaseEKFFlexEstimatorIMU::ModelBaseEKFFlexEstimatorIMU(double dt):
         EKFFlexibilityEstimatorBase
-            (stateSizeConst_,measurementSizeBase_,inputSizeBase_,
+            (stateSizeBase_,measurementSizeBase_,inputSizeBase_,
                             Matrix::Constant(getStateSize(),1,dxFactor)),
         functor_(dt),
-        forceVariance_(1e-6)
+        forceVariance_(1e-6),
+        stateSize_(stateSizeBase_)
     {
-
         ekf_.setMeasureSize(functor_.getMeasurementSize());
 
+        withComBias_=false;
+        ekf_.setStateSize(stateSizeBase_);
         ModelBaseEKFFlexEstimatorIMU::resetCovarianceMatrices();
 
         Vector dx( Matrix::Constant(getStateSize(),1,dxFactor));//thanks Justin
@@ -41,7 +45,6 @@ namespace flexibilityEstimation
         on_=true;
 
         useFTSensors_= false;
-
     }
 
 
@@ -68,7 +71,7 @@ namespace flexibilityEstimation
             Q_.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-8;
             Q_.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-4;
             Q_.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-4;
-            Q_.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*1.e-8;
+            if(withComBias_)  Q_.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*2.e-8;
 
             ekf_.setQ(Q_);
 
@@ -78,7 +81,7 @@ namespace flexibilityEstimation
             P0.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-2;
             P0.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-2;
             P0.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-2;
-            P0.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*1.e-2;
+            if(withComBias_) P0.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*1.e-2;
 
             ekf_.setStateCovariance(P0);
 
@@ -231,7 +234,7 @@ namespace flexibilityEstimation
 
     unsigned ModelBaseEKFFlexEstimatorIMU::getStateSize() const
     {
-        return stateSizeConst_;
+        return ekf_.getStateSize();
     }
 
     unsigned ModelBaseEKFFlexEstimatorIMU::getInputSize() const
@@ -372,6 +375,35 @@ namespace flexibilityEstimation
 
       useFTSensors_=b;
 
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setWithComBias(bool b)
+    {
+      if (withComBias_!= b)
+      {
+        withComBias_=b;
+        ekf_.setStateSize(stateSizeBase_+b*2);
+        Vector dx( Matrix::Constant(getStateSize(),1,dxFactor));//thanks Justin
+        dx.segment(kine::ori,3).fill(1e-4) ;
+        dx.segment(kine::angVel,3).fill(1e-4) ;
+        dx_= dx;
+        resetCovarianceMatrices();
+        functor_.setWithComBias(b);
+
+        stateObservation::Vector x;
+        x.resize(lastX_.size());
+        x=lastX_;
+        lastX_.resize(stateSizeBase_+b*2);
+        lastX_.setZero();
+        if(b==true){
+            lastX_.segment(0,x.size())=x;
+        } else {
+            lastX_=x.segment(0,x.size()-2);
+        }
+        ekf_.setState(lastX_,k_);
+
+        std::cout << "DONE" << std::endl;
+      }
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setForceVariance(double d)

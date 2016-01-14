@@ -253,6 +253,8 @@ protected:
 
       virtual void setWithForceMeasurements(bool b);
       virtual bool getWithForceMeasurements() const;
+      virtual void setWithComBias(bool b);
+      virtual bool getWithComBias() const;
 
 
       virtual void setKfe(const Matrix3 & m);
@@ -277,9 +279,10 @@ protected:
 
       Matrix3& computeRotation_(const Vector3 & x, int i);
 
-      static const unsigned stateSize_=20;
+      static const unsigned stateSizeBase_=18;
       static const unsigned inputSizeBase_=42;
       unsigned inputSize_;
+      unsigned stateSize_;
       static const unsigned measurementSizeBase_=6;
       unsigned nbContacts_;
       unsigned contactModel_;
@@ -296,6 +299,7 @@ protected:
       unsigned kcurrent_;
 
       bool withForceMeasurements_;
+      bool withComBias_;
 
       Vector3 limitAngularAcceleration_;
       Vector3 limitLinearAcceleration_;
