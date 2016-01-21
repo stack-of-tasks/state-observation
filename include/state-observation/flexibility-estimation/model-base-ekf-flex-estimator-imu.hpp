@@ -63,8 +63,6 @@ namespace flexibilityEstimation
         /// Sets the value of the next sensor measurement y_{k+1}
         virtual void setMeasurement(const Vector & y);
 
-
-
         ///Sets the process covariance matrice
         virtual void setProcessNoiseCovariance(const Matrix & Q);
 
@@ -104,12 +102,15 @@ namespace flexibilityEstimation
 
         virtual void setWithComBias(bool b);
 
+        virtual bool getWithComBias()
+        {
+            return withComBias_;
+        }
+
         virtual void setForceVariance(double d);
 
         /// sets the sampling period
         virtual void setSamplingPeriod(double);
-
-
 
         /// Enable or disable the estimation
         void setOn(bool & b);
@@ -121,7 +122,6 @@ namespace flexibilityEstimation
 
         ///Resets the covariance matrices to their original values
         virtual void resetCovarianceMatrices();
-
 
     protected:
 
