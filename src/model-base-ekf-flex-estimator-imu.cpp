@@ -382,26 +382,35 @@ namespace flexibilityEstimation
       if (withComBias_!= b)
       {
         withComBias_=b;
-        functor_.setWithComBias(b);
-
         stateSize_=stateSizeBase_+(int)b*2;
-        ekf_.setStateSize(stateSize_);
 
-        Vector dx( Matrix::Constant(getStateSize(),1,dxFactor));//thanks Justin
+        Q_.resize(stateSize_,stateSize_); Q_.setZero();
+        Q_.block(0,0,stateSizeBase_,stateSizeBase_)=(ekf_.getQ()).block(0,0,stateSizeBase_,stateSizeBase_);
+        if(withComBias_) Q_.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*2.5e-8;
+
+        Matrix P0 (stateSize_,stateSize_); P0.setZero();
+        P0.block(0,0,stateSizeBase_,stateSizeBase_)=(ekf_.getStateCovariance()).block(0,0,stateSizeBase_,stateSizeBase_);
+        if(withComBias_) P0.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*1.e-2;
+
+        Vector dx( Matrix::Constant(stateSize_,1,dxFactor));//thanks Justin
         dx.segment(kine::ori,3).fill(1e-4) ;
         dx.segment(kine::angVel,3).fill(1e-4) ;
         dx_= dx;
 
         stateObservation::Vector x(lastX_); x=lastX_;
-        lastX_.resize(stateSize_);
+        lastX_.resize(stateSize_); lastX_.setZero();
         if(b==true){
             lastX_.segment(0,x.size())=x;
         } else {
             lastX_=x.segment(0,lastX_.size());
         }
 
+        ekf_.setStateSize(stateSize_);
         ekf_.setState(lastX_,k_);
-        resetCovarianceMatrices();
+        ekf_.setQ(Q_);
+        ekf_.setStateCovariance(P0);
+
+        functor_.setWithComBias(b);
       }
     }
 
