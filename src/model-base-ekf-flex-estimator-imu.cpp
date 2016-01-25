@@ -71,7 +71,7 @@ namespace flexibilityEstimation
             Q_.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-8;
             Q_.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-4;
             Q_.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-4;
-            if(withComBias_)  Q_.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*2.5e-8;
+            if(withComBias_)  Q_.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*2.5e-10;
 
             ekf_.setQ(Q_);
 
@@ -386,11 +386,11 @@ namespace flexibilityEstimation
 
         Q_.resize(stateSize_,stateSize_); Q_.setZero();
         Q_.block(0,0,stateSizeBase_,stateSizeBase_)=(ekf_.getQ()).block(0,0,stateSizeBase_,stateSizeBase_);
-        if(withComBias_) Q_.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*2.5e-8;
+        if(withComBias_) Q_.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*2.5e-13;
 
         Matrix P0 (stateSize_,stateSize_); P0.setZero();
         P0.block(0,0,stateSizeBase_,stateSizeBase_)=(ekf_.getStateCovariance()).block(0,0,stateSizeBase_,stateSizeBase_);
-        if(withComBias_) P0.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*1.e-2;
+        if(withComBias_) P0.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*2.5e-15;
 
         Vector dx( Matrix::Constant(stateSize_,1,dxFactor));//thanks Justin
         dx.segment(kine::ori,3).fill(1e-4) ;

@@ -30,99 +30,182 @@ int test()
 {
     std::cout << "Starting" << std::endl;
 
-  /// sampling period
-    const double dt=5e-3;
+    bool withComBias_=true;
+    bool withForceSensors_=true;
 
-  /// Measurement noise covariance
-    Matrix Cov;
-    Cov.resize(6,6);
-    double unitCov = 1e-2;
-    Cov <<  unitCov,0,0,0,0,0,
-            0,unitCov,0,0,0,0,
-            0,0,unitCov,0,0,0,
-            0,0,0,unitCov,0,0,
-            0,0,0,0,unitCov,0,
-            0,0,0,0,0,unitCov;
-
-  /// Initializations
     // Dimensions
     const unsigned kinit=0;
-    const unsigned kmax=1400;
-    const unsigned measurementSize=6;
+    const unsigned kmax=2700;
     const unsigned inputSize=54;
-    const unsigned stateSize=18;
+    const unsigned measurementSizeBase=6;
+    const unsigned measurementSize=measurementSizeBase+withForceSensors_*12;
+    const unsigned stateSizeBase_=18;
+    const unsigned stateSize=stateSizeBase_+(int)withComBias_*2;
     unsigned contactNbr = 2;
     // State initialization => not used here because it is set in model-base-ekf-flex-estimator-imu
 
+  /// sampling period
+    const double dt=5e-3;
+
+  /// Covariances
+        // Measurement noise covariance
+    Matrix R_;
+    R_.resize(6,6);
+    R_ <<  1e-3,0,0,0,0,0,
+            0,1e-3,0,0,0,0,
+            0,0,1e-3,0,0,0,
+            0,0,0,1e-6,0,0,
+            0,0,0,0,1e-6,0,
+            0,0,0,0,0,1e-6;
+
+  /// Initializations
      // Input initialization
     Vector u0=Vector::Zero(inputSize-6*contactNbr,1);
-    u0 <<  0.0135673,
-             0.001536,
-             0.80771,
-             -2.63605e-06,
-             -1.09258e-08,
-             5.71759e-08,
-             2.71345,
-             0.3072,
-             161.542,
-             48.1348,
-             46.9498,
-             1.76068,
-             -0.0863332,
-             -0.594871,
-             -0.0402246,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             -0.098,
-             -6.23712e-11,
-             1.1174,
-             1.58984e-22,
-             -5.43636e-21,
-             3.9598e-22,
-             -2.99589e-06,
-             -1.24742e-08,
-             -4.7647e-18,
-             3.17968e-20,
-             -1.08727e-18,
-             7.91959e-20,
-             -0.000299589,
-             -1.24742e-06,
-             -4.7647e-16;
+    u0 <<   0.0142039,
+            0.00165921,
+            0.80771,
+            0.127323,
+            0.0246383,
+            3.19163e-05,
+            12.7323,
+            2.46383,
+            0.00319163,
+            45.2594,
+            44.0532,
+            1.73905,
+            -0.00185306,
+            -0.375901,
+            -0.0996394,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            -4.53201,
+            2.90831,
+            0.0296007,
+            -113.171,
+            584.828,
+            0.788792,
+            -0.0972751,
+            0.000140574,
+            1.11742,
+            -3.41081e-16,
+            2.71888e-16,
+            -3.80512e-17,
+            0.144989,
+            0.0281149,
+            0.00319886,
+            -6.82163e-14,
+            5.43775e-14,
+            -7.61025e-15,
+            14.4989,
+            2.81149,
+            0.319886;
+
+//    u0 << 0.0135672,
+//    0.001536,
+//    0.80771,
+//    -2.50425e-06,
+//    -1.03787e-08,
+//    5.4317e-08,
+//    -2.50434e-06,
+//    -1.03944e-08,
+//    5.45321e-08,
+//    48.1348,
+//    46.9498,
+//    1.76068,
+//    -0.0863332,
+//    -0.59487,
+//    -0.0402246,
+//    0,
+//    0,
+//    0,
+//    0,
+//    0,
+//    0,
+//    0,
+//    0,
+//    0,
+//    0,
+//    0,
+//    0,
+//    -0.098,
+//    -1.21619e-10,
+//    1.1174,
+//    3.06752e-22,
+//    -1.06094e-20,
+//    7.75345e-22,
+//    -2.84609e-06,
+//    -1.18496e-08,
+//    -4.52691e-18,
+//    2.95535e-20,
+//    -1.0346e-18,
+//    7.58731e-20,
+//    -0.000284609,
+//    -1.18496e-06,
+//    -4.52691e-16;
+
+    Vector m0=Vector::Zero(measurementSize);
+    m0 << -7.03234,
+          0.0805895,
+          13.5925,
+          0.000333733,
+          -0.157283,
+          -0.00480441,
+          45.1262,
+          -21.367,
+          361.344,
+          1.12135,
+          -14.5562,
+          1.89125,
+          44.6005,
+          21.7871,
+          352.85,
+          -1.00715,
+          -14.5158,
+          -1.72017;
 
     stateObservation::flexibilityEstimation::ModelBaseEKFFlexEstimatorIMU est;
     est.setSamplingPeriod(dt);
     est.setInput(u0);
     est.setMeasurementInput(u0);
 
+    est.setMeasurementNoiseCovariance(R_);
+    est.setForceVariance(1.e-4);
+    est.setWithForcesMeasurements(withForceSensors_);
+//    est.setMeasurement(m0);
+
+    est.getEKF().setStateSize(stateSizeBase_);
+    est.setContactsNumber(contactNbr); 
+
+    est.setWithComBias(withComBias_);
+
+    stateObservation::Matrix Q_; Q_.resize(stateSize,stateSize); Q_.setIdentity();
+    Q_.block(0,0,12,12)*=1.e-8;
+    Q_.block(12,12,6,6)*=1.e-4;
+    if(withComBias_) Q_.block(18,18,2,2)*=1.e-13;
+    est.setProcessNoiseCovariance(Q_);
 
     est.setKfe(40000*Matrix3::Identity());
-    est.setKte(600*Matrix3::Identity());
+    est.setKte(350*Matrix3::Identity());
     est.setKfv(600*Matrix3::Identity());
-    est.setKtv(60*Matrix3::Identity());
+    est.setKtv(10*Matrix3::Identity());
 
    /// Definitions of input vectors
      // Measurement
     IndexedMatrixArray y;
     std::cout << "Loading measurements file" << std::endl;
-    y.getFromFile("source_measurement.dat",1,measurementSize);
+    y.getFromFile("inputFiles/source_measurement.dat",1,measurementSize);
      // Input
     IndexedMatrixArray u;
      std::cout << "Loading input file" << std::endl;
-    u.getFromFile("source_input.dat",1,inputSize);
+    u.getFromFile("inputFiles/source_input.dat",1,inputSize);
       //state
     IndexedMatrixArray xRef;
       std::cout << "Loading reference state file" << std::endl;
-    xRef.getFromFile("source_state.dat",stateSize,1);
+    xRef.getFromFile("inputFiles/source_state.dat",stateSize,1);
 
    /// Definition of ouptut vectors
      // State: what we want
@@ -131,17 +214,10 @@ int test()
     IndexedMatrixArray y_output;
      // Input
     IndexedMatrixArray u_output;
-
     IndexedMatrixArray deltax_output;
 
-
-    est.setMeasurementNoiseCovariance(Cov);
-
-    est.setContactsNumber(contactNbr);
-
-
     Vector flexibility;
-    flexibility.resize(18);
+    flexibility.resize(stateSize);
     Vector xdifference(flexibility);
 
     timespec time1, time2, time3;
@@ -158,8 +234,6 @@ int test()
     std::cout << "Beginning reconstruction "<<std::endl;
     for (unsigned k=kinit+2;k<kmax;++k)
     {
-
-
         est.setMeasurement(y[k].transpose());
         est.setMeasurementInput(u[k].transpose());
 
@@ -172,16 +246,12 @@ int test()
         computeTime[0]=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
 
         xdifference =flexibility-xRef[k];
-
         norm += xdifference.squaredNorm();
-
-
 
         x_output.setValue(flexibility,k);
         y_output.setValue(y[k],k);
         u_output.setValue(u[k],k);
         deltax_output.setValue(xdifference,k);
-
 
         computeTime[0]=est.getComputeFlexibilityTime();
         computationTime_output.setValue(computeTime,k);
@@ -190,11 +260,9 @@ int test()
 
     std::cout << "Completed "<<std::endl;
 
-
     computeTime[0]=computationTime_moy/(kmax-kinit-2);
     computationTime_output.setValue(computeTime,kmax);
     computationTime_output.writeInFile("computationTime.dat");
-
 
     x_output.writeInFile("state.dat");
     y_output.writeInFile("measurement.dat");
@@ -217,21 +285,13 @@ int test()
     }
 #endif
 
-
     std::cout << "Succeed !!"<< std::endl <<"The end" << std::endl;
     return 1;
-
-
-
-
-
 }
 
 int main()
 {
-
     return test();
-
 }
 
 
