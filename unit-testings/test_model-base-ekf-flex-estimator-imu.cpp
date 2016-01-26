@@ -35,7 +35,7 @@ int test()
 
     // Dimensions
     const unsigned kinit=0;
-    const unsigned kmax=2700;
+    const unsigned kmax=1848;
     const unsigned inputSize=54;
     const unsigned measurementSizeBase=6;
     const unsigned measurementSize=measurementSizeBase+withForceSensors_*12;
@@ -47,20 +47,9 @@ int test()
   /// sampling period
     const double dt=5e-3;
 
-  /// Covariances
-        // Measurement noise covariance
-    Matrix R_;
-    R_.resize(6,6);
-    R_ <<  1e-3,0,0,0,0,0,
-            0,1e-3,0,0,0,0,
-            0,0,1e-3,0,0,0,
-            0,0,0,1e-6,0,0,
-            0,0,0,0,1e-6,0,
-            0,0,0,0,0,1e-6;
-
   /// Initializations
      // Input initialization
-    Vector u0=Vector::Zero(inputSize-6*contactNbr,1);
+    Vector u0=Vector::Zero(inputSize);//-6*contactNbr,1);
     u0 <<   0.0142039,
             0.00165921,
             0.80771,
@@ -102,91 +91,144 @@ int test()
             -7.61025e-15,
             14.4989,
             2.81149,
-            0.319886;
+            0.319886,
+            0.00949046,
+            0.095,
+            1.98197e-07,
+            0,
+            0,
+            0,
+            0.00949605,
+            -0.095,
+            1.98197e-07,
+            0,
+            0,
+            0;
 
-//    u0 << 0.0135672,
-//    0.001536,
-//    0.80771,
-//    -2.50425e-06,
-//    -1.03787e-08,
-//    5.4317e-08,
-//    -2.50434e-06,
-//    -1.03944e-08,
-//    5.45321e-08,
-//    48.1348,
-//    46.9498,
-//    1.76068,
-//    -0.0863332,
-//    -0.59487,
-//    -0.0402246,
-//    0,
-//    0,
-//    0,
-//    0,
-//    0,
-//    0,
-//    0,
-//    0,
-//    0,
-//    0,
-//    0,
-//    0,
-//    -0.098,
-//    -1.21619e-10,
-//    1.1174,
-//    3.06752e-22,
-//    -1.06094e-20,
-//    7.75345e-22,
-//    -2.84609e-06,
-//    -1.18496e-08,
-//    -4.52691e-18,
-//    2.95535e-20,
-//    -1.0346e-18,
-//    7.58731e-20,
-//    -0.000284609,
-//    -1.18496e-06,
-//    -4.52691e-16;
+//    u0 <<   0.0135672,
+//            0.001536,
+//            0.80771,
+//            -2.50425e-06,
+//            -1.03787e-08,
+//            5.4317e-08,
+//            -2.50434e-06,
+//            -1.03944e-08,
+//            5.45321e-08,
+//            48.1348,
+//            46.9498,
+//            1.76068,
+//            -0.0863332,
+//            -0.59487,
+//            -0.0402246,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            0,
+//            -0.098,
+//            -1.21619e-10,
+//            1.1174,
+//            3.06752e-22,
+//            -1.06094e-20,
+//            7.75345e-22,
+//            -2.84609e-06,
+//            -1.18496e-08,
+//            -4.52691e-18,
+//            2.95535e-20,
+//            -1.0346e-18,
+//            7.58731e-20,
+//            -0.000284609,
+//            -1.18496e-06,
+//            -4.52691e-16,
+//            0.00949046,
+//            0.095,
+//            1.98197e-07,
+//            0,
+//            0,
+//            0,
+//            0.00949605,
+//            -0.095,
+//            1.98197e-07,
+//            0,
+//            0,
+//            0;
 
     Vector m0=Vector::Zero(measurementSize);
-    m0 << -7.03234,
-          0.0805895,
-          13.5925,
-          0.000333733,
-          -0.157283,
-          -0.00480441,
-          45.1262,
-          -21.367,
-          361.344,
-          1.12135,
-          -14.5562,
-          1.89125,
-          44.6005,
-          21.7871,
-          352.85,
-          -1.00715,
-          -14.5158,
-          -1.72017;
+    m0 <<       -0.0330502,
+               -0.169031,
+               9.91812,
+               0.0137655,
+               0.0797922,
+               0.000778988,
+                   6.15302,
+                   -8.44315,
+                   245.826,
+                   0.749795,
+                   2.59329,
+                   0.140388,
+                   5.59534,
+                   7.49882,
+                   227.461,
+                   0.24084,
+                   2.74922,
+                   -0.120347;
+
+//    m0 << -7.03234,
+//          0.0805895,
+//          13.5925,
+//          0.000333733,
+//          -0.157283,
+//          -0.00480441,
+//          45.1262,
+//          -21.367,
+//          361.344,
+//          1.12135,
+//          -14.5562,
+//          1.89125,
+//          44.6005,
+//          21.7871,
+//          352.85,
+//          -1.00715,
+//          -14.5158,
+//          -1.72017;
 
     stateObservation::flexibilityEstimation::ModelBaseEKFFlexEstimatorIMU est;
     est.setSamplingPeriod(dt);
-    est.setInput(u0);
-    est.setMeasurementInput(u0);
 
-    est.setMeasurementNoiseCovariance(R_);
+    est.setInput(u0.block(0,0,inputSize-6*contactNbr,1));
+    est.setMeasurementInput(u0.block(0,0,inputSize-6*contactNbr,1));
+    est.setMeasurement(m0.block(0,0,measurementSizeBase,1));
+
+    // Measurement noise covariance
+    stateObservation::Matrix R_; R_.resize(measurementSizeBase,measurementSizeBase); R_.setIdentity();
+    R_.block(0,0,3,3)*=1.e-3;
+    R_.block(3,3,3,3)*=1.e-6;
+    est.setMeasurementNoiseCovariance(R_);   
     est.setForceVariance(1.e-4);
     est.setWithForcesMeasurements(withForceSensors_);
-//    est.setMeasurement(m0);
 
-    est.getEKF().setStateSize(stateSizeBase_);
-    est.setContactsNumber(contactNbr); 
-
+    // Process noise covariance
     est.setWithComBias(withComBias_);
-
     stateObservation::Matrix Q_; Q_.resize(stateSize,stateSize); Q_.setIdentity();
     Q_.block(0,0,12,12)*=1.e-8;
     Q_.block(12,12,6,6)*=1.e-4;
-    if(withComBias_) Q_.block(18,18,2,2)*=1.e-13;
+    if(withComBias_) Q_.block(18,18,2,2)*=1e-13;
     est.setProcessNoiseCovariance(Q_);
+
+    est.setContactsNumber(contactNbr);
+    est.setContactModel(stateObservation::flexibilityEstimation::
+                ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
+
+//    est.setInput(u0);
+//    est.setMeasurementInput(u0);
+//    est.setMeasurement(m0);
 
     est.setKfe(40000*Matrix3::Identity());
     est.setKte(350*Matrix3::Identity());
@@ -227,9 +269,6 @@ int test()
     computeTime.resize(1);
 
     double norm=0;
-
-    est.setContactModel(stateObservation::flexibilityEstimation::
-                ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
 
     std::cout << "Beginning reconstruction "<<std::endl;
     for (unsigned k=kinit+2;k<kmax;++k)
