@@ -34,18 +34,17 @@ int test()
     bool withForceSensors_=true;
 
     // Dimensions
+    const double dt=5e-3;
     const unsigned kinit=0;
     const unsigned kmax=1848;
-    const unsigned inputSize=54;
+    unsigned contactNbr = 2;
+    const unsigned inputSize=42+contactNbr*6;
     const unsigned measurementSizeBase=6;
-    const unsigned measurementSize=measurementSizeBase+withForceSensors_*12;
+    const unsigned measurementSize=measurementSizeBase+withForceSensors_*contactNbr*6;
     const unsigned stateSizeBase_=18;
     const unsigned stateSize=stateSizeBase_+(int)withComBias_*2;
-    unsigned contactNbr = 2;
-    // State initialization => not used here because it is set in model-base-ekf-flex-estimator-imu
 
-  /// sampling period
-    const double dt=5e-3;
+    // State initialization => not used here because it is set in model-base-ekf-flex-estimator-imu
 
   /// Initializations
      // Input initialization
@@ -211,8 +210,8 @@ int test()
     R_.block(0,0,3,3)*=1.e-3;
     R_.block(3,3,3,3)*=1.e-6;
     est.setMeasurementNoiseCovariance(R_);   
-    est.setForceVariance(1.e-4);
     est.setWithForcesMeasurements(withForceSensors_);
+    est.setForceVariance(1.e-4);
 
     // Process noise covariance
     est.setWithComBias(withComBias_);
@@ -222,14 +221,16 @@ int test()
     if(withComBias_) Q_.block(18,18,2,2)*=1e-13;
     est.setProcessNoiseCovariance(Q_);
 
+    // Set contacts number
     est.setContactsNumber(contactNbr);
     est.setContactModel(stateObservation::flexibilityEstimation::
                 ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
 
 //    est.setInput(u0);
-//    est.setMeasurementInput(u0);
-//    est.setMeasurement(m0);
+    est.setMeasurementInput(u0);
+    est.setMeasurement(m0);
 
+    // Set stifness and damping
     est.setKfe(40000*Matrix3::Identity());
     est.setKte(350*Matrix3::Identity());
     est.setKfv(600*Matrix3::Identity());
@@ -244,7 +245,7 @@ int test()
     IndexedMatrixArray u;
      std::cout << "Loading input file" << std::endl;
     u.getFromFile("inputFiles/source_input.dat",1,inputSize);
-      //state
+     //state
     IndexedMatrixArray xRef;
       std::cout << "Loading reference state file" << std::endl;
     xRef.getFromFile("inputFiles/source_state.dat",stateSize,1);
