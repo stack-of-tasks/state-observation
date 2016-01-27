@@ -378,12 +378,6 @@ namespace flexibilityEstimation
 
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::setForceVariance(double d)
-    {
-        forceVariance_ = d;
-        updateCovarianceMatrix_();
-    }
-
     void ModelBaseEKFFlexEstimatorIMU::setWithComBias(bool b)
     {
       if (withComBias_!= b)
