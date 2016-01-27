@@ -14,7 +14,7 @@ namespace flexibilityEstimation
             (stateSizeBase_,measurementSizeBase_,inputSizeBase_,
                             Matrix::Constant(getStateSize(),1,dxFactor)),
         functor_(dt),
-        forceVariance_(1e-6),
+        forceVariance_(1e-4),
         stateSize_(stateSizeBase_)
     {
         ekf_.setMeasureSize(functor_.getMeasurementSize());
