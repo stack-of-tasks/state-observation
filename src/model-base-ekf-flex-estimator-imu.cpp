@@ -1,8 +1,6 @@
 #include <state-observation/flexibility-estimation/model-base-ekf-flex-estimator-imu.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
-#include <iostream>
-
 const double initialVirtualMeasurementCovariance=1.e-10;
 
 const double dxFactor = 1.0e-8;
@@ -375,6 +373,15 @@ namespace flexibilityEstimation
 
       useFTSensors_=b;
 
+
+
+
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setForceVariance(double d)
+    {
+        forceVariance_ = d;
+        updateCovarianceMatrix_();
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setWithComBias(bool b)
