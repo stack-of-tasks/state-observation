@@ -125,6 +125,9 @@ namespace flexibilityEstimation
 
         virtual void setMass(double m);
 
+        virtual void setAngularAccelerationLimit(const Vector3 & v);
+        virtual void setLinearAccelerationLimit(const Vector3 & v);
+
     protected:
 
         virtual void updateCovarianceMatrix_();

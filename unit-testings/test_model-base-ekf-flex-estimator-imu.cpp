@@ -105,6 +105,12 @@ int test()
     est.setMeasurementInput(u0);
 
     est.setMass(56.8);
+    stateObservation::Vector3 v1; v1.setOnes();
+    v1=1000*v1;
+    est.setAngularAccelerationLimit(v1);
+    stateObservation::Vector3 v2; v2.setOnes();
+    v2=1000*v2;
+    est.setLinearAccelerationLimit(v2);
     est.setKfe(40000*Matrix3::Identity());
     est.setKte(600*Matrix3::Identity());
     est.setKfv(600*Matrix3::Identity());

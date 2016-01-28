@@ -47,12 +47,12 @@ namespace flexibilityEstimation
       stateSize_=stateSizeBase_;
 
       Vector3 v1, v2;
-      v1 << 1000,
-            1000,
-            1000;
-      v2 << 1000,
-            1000,
-            1000;
+      v1 << 100,
+            100,
+            100;
+      v2 << 10,
+            10,
+            10;
       limitAngularAcceleration_=v2;
       limitLinearAcceleration_=v1;
 
@@ -747,6 +747,15 @@ namespace flexibilityEstimation
     {
         Ktv_=m;
     }
+
+    void IMUElasticLocalFrameDynamicalSystem::setAngularAccelerationLimit(const Vector3 & v){
+        limitAngularAcceleration_=v;
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setLinearAccelerationLimit(const Vector3 & v){
+        limitLinearAcceleration_=v;
+    }
+
 }
 }
 
