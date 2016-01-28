@@ -104,7 +104,7 @@ int test()
     est.setInput(u0);
     est.setMeasurementInput(u0);
 
-
+    est.setMass(56.8);
     est.setKfe(40000*Matrix3::Identity());
     est.setKte(600*Matrix3::Identity());
     est.setKfv(600*Matrix3::Identity());
