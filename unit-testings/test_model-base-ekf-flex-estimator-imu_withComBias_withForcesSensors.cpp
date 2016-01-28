@@ -35,7 +35,7 @@ int test()
 
     // Dimensions
     const double dt=5e-3;
-    const unsigned kinit=8;
+    const unsigned kinit=0;
     const unsigned kmax=1400;
     unsigned contactNbr = 2;
     const unsigned inputSize=42+contactNbr*6;
@@ -160,13 +160,13 @@ int test()
     est.setProcessNoiseCovariance(Q_);
 
     // Flexibility noise covariance
-    est.setFlexibilityCovariance(P0_);
+//    est.setFlexibilityCovariance(P0_);
 
     // estimator state
     est.setInput(u0.block(0,0,inputSize-6*contactNbr,1));
 //    est.setMeasurementInput(u0.block(0,0,inputSize-6*contactNbr,1));
 //    est.setMeasurement(m0.block(0,0,measurementSizeBase,1));
-    est.setFlexibilityGuess(x0);
+//    est.setFlexibilityGuess(x0);
 
     // Set contacts number
     est.setContactsNumber(contactNbr);
@@ -230,8 +230,6 @@ int test()
 
         xdifference =flexibility-xRef[k];
         norm += xdifference.squaredNorm();
-
-        if(k==10) std::cout << y[k].transpose() << std::endl;
 
         x_output.setValue(flexibility,k);
         y_output.setValue(y[k],k);
