@@ -47,12 +47,12 @@ namespace flexibilityEstimation
       stateSize_=stateSizeBase_;
 
       Vector3 v1, v2;
-      v1 << 100,
-            100,
-            100;
-      v2 << 10,
-            10,
-            10;
+      v1 << 1000,
+            1000,
+            1000;
+      v2 << 1000,
+            1000,
+            1000;
       limitAngularAcceleration_=v2;
       limitLinearAcceleration_=v1;
 

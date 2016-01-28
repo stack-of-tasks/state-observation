@@ -15,6 +15,7 @@ ADD_EXECUTABLE(other-tests other-tests.cpp)
 ADD_EXECUTABLE(test_acceleration_stabilization test_acceleration_stabilization.cpp ${${PROJECT_NAME}_ABSOLUTE_HEADERS})
 ADD_EXECUTABLE(test_imu-elastic-local-frame-dynamical-system test_imu-elastic-local-frame-dynamical-system.cpp ${${PROJECT_NAME}_ABSOLUTE_HEADERS})
 ADD_EXECUTABLE(test_model-base-ekf-flex-estimator-imu test_model-base-ekf-flex-estimator-imu.cpp ${${PROJECT_NAME}_ABSOLUTE_HEADERS})
+ADD_EXECUTABLE(test_model-base-ekf-flex-estimator-imu_withComBias_withForcesSensors test_model-base-ekf-flex-estimator-imu_withComBias_withForcesSensors.cpp ${${PROJECT_NAME}_ABSOLUTE_HEADERS})
 ADD_EXECUTABLE(zmpEstimation zmpEstimation.cpp ${${PROJECT_NAME}_ABSOLUTE_HEADERS})
 
 
@@ -30,6 +31,7 @@ TARGET_LINK_LIBRARIES(other-tests ${Boost_LIBRARIES} ${PROJECT_NAME})
 TARGET_LINK_LIBRARIES(test_acceleration_stabilization ${Boost_LIBRARIES} ${PROJECT_NAME})
 TARGET_LINK_LIBRARIES(test_imu-elastic-local-frame-dynamical-system ${Boost_LIBRARIES} ${PROJECT_NAME})
 TARGET_LINK_LIBRARIES(test_model-base-ekf-flex-estimator-imu ${Boost_LIBRARIES} ${PROJECT_NAME})
+TARGET_LINK_LIBRARIES(test_model-base-ekf-flex-estimator-imu_withComBias_withForcesSensors ${Boost_LIBRARIES} ${PROJECT_NAME})
 TARGET_LINK_LIBRARIES(zmpEstimation ${Boost_LIBRARIES} ${PROJECT_NAME})
 
 ADD_TEST(test-kalman-filter test-kalman-filter)
@@ -41,6 +43,7 @@ ADD_TEST(HRP2LAAS-IMU-Observation HRP2LAAS-IMU-Observation)
 ADD_TEST(test_acceleration_stabilization test_acceleration_stabilization)
 ADD_TEST(test_imu-elastic-local-frame-dynamical-system test_imu-elastic-local-frame-dynamical-system)
 ADD_TEST(test_model-base-ekf-flex-estimator-imu test_model-base-ekf-flex-estimator-imu)
+ADD_TEST(test_model-base-ekf-flex-estimator-imu_withComBias_withForcesSensors test_model-base-ekf-flex-estimator-imu_withComBias_withForcesSensors)
 ADD_TEST(zmpEstimation zmpEstimation)
 
 #ADD_TEST(real-offline-flexibility-estimator real-offline-flexibility-estimator)
