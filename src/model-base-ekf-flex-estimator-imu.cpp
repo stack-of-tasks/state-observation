@@ -421,5 +421,17 @@ namespace flexibilityEstimation
         updateCovarianceMatrix_();
     }
 
+    void ModelBaseEKFFlexEstimatorIMU::setMass(double m){
+        functor_.setRobotMass(m);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setAngularAccelerationLimit(const Vector3 & v){
+        functor_.setAngularAccelerationLimit(v);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setLinearAccelerationLimit(const Vector3 & v){
+        functor_.setLinearAccelerationLimit(v);
+    }
+
 }
 }

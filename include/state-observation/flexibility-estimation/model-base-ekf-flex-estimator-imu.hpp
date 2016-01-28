@@ -123,6 +123,11 @@ namespace flexibilityEstimation
         ///Resets the covariance matrices to their original values
         virtual void resetCovarianceMatrices();
 
+        virtual void setMass(double m);
+
+        virtual void setAngularAccelerationLimit(const Vector3 & v);
+        virtual void setLinearAccelerationLimit(const Vector3 & v);
+
     protected:
 
         virtual void updateCovarianceMatrix_();

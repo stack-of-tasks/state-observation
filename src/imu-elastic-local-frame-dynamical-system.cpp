@@ -747,6 +747,15 @@ namespace flexibilityEstimation
     {
         Ktv_=m;
     }
+
+    void IMUElasticLocalFrameDynamicalSystem::setAngularAccelerationLimit(const Vector3 & v){
+        limitAngularAcceleration_=v;
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setLinearAccelerationLimit(const Vector3 & v){
+        limitLinearAcceleration_=v;
+    }
+
 }
 }
 
