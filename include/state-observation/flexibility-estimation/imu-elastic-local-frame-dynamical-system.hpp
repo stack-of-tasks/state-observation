@@ -20,6 +20,11 @@
 
 namespace stateObservation
 {
+  namespace kine //for constant declarations
+  {
+    static const unsigned comBias = 18;
+  };
+
   namespace flexibilityEstimation
   {
 
@@ -70,7 +75,7 @@ namespace stateObservation
      * \class  AccelerometerGyrometerAugmented
      * \brief  Implements the accelerometer-gyrometer measurements,
      *        the augmentation consists at concatenating the accelero-gyro
-     *        measurement to another vector. The state
+     *        measurement to another vector.
      *
      *
      *
@@ -100,11 +105,14 @@ public:
 protected:
 
 
+
           stateObservation::AccelerometerGyrometer accgyr_;
           virtual Vector computeNoiselessMeasurement_();
 
           unsigned augmentation_;
         };
+
+
 
 
       ///constructor
@@ -133,9 +141,27 @@ protected:
       (const stateObservation::Vector& x, const stateObservation::Vector& u,
        unsigned k);
 
+      ///compute the jacobien of the state dynamics at the last computed value
+      stateObservation::Matrix stateDynamicsJacobian();
+
+      ///compute the jacobien of the state dynamics at a given state
+      stateObservation::Matrix stateDynamicsJacobian(const stateObservation::Vector& x, const stateObservation::Vector& u,
+       unsigned k);
+
+      ///sets the finite differences derivation step vector
+      void setFDstep(const stateObservation::Vector & dx);
+
+
       ///Description of the sensor's dynamics
       virtual stateObservation::Vector measureDynamics
       (const stateObservation::Vector& x, const stateObservation::Vector& u,
+       unsigned k);
+
+      ///compute the Jacobien of the measurements dynamics at the last computed value
+      stateObservation::Matrix measureDynamicsJacobian();
+
+      ///compute the Jacobien of the measurements dynamics at a given state value
+      stateObservation::Matrix measureDynamicsJacobian(const stateObservation::Vector& x, const stateObservation::Vector& u,
        unsigned k);
 
       ///Sets a noise which disturbs the state dynamics
@@ -310,8 +336,6 @@ protected:
 
       struct Optimization
       {
-
-
         Vector3 positionFlex;
         Vector3 velocityFlex;
         Vector3 accelerationFlex;
@@ -326,6 +350,15 @@ protected:
         AngleAxis orientationAA;
 
         Vector xk1;
+        Vector yk;
+        Matrix Jx;
+        Matrix Jy;
+
+        Matrix3 rimu;
+        Vector3 imuAcc;
+        Vector3 imuOmega;
+        Vector sensorState;
+
 
         Vector3 positionCom;
         Vector3 velocityCom;
@@ -341,11 +374,9 @@ protected:
 
         Matrix3 rControl;
 
-        Matrix3 rimu;
 
         IndexedMatrixArray contactPosV;
         IndexedMatrixArray contactOriV;
-
 
         Matrix3 inertia;
         Matrix3 dotInertia;
@@ -366,7 +397,6 @@ protected:
         Vector3 forcei;
         Vector3 momenti;
 
-
         Matrix3 skewV;
         Matrix3 skewV2;
         Matrix3 skewVR;
@@ -378,10 +408,6 @@ protected:
         Vector3 Rc;
         Vector3 Rcp;
 
-
-
-
-
         //optimization of orientation transformation between vector3 to rotation matrix
 
         Matrix3 curRotation0;
@@ -392,9 +418,6 @@ protected:
         Vector3 orientationVector2;
         Matrix3 curRotation3;
         Vector3 orientationVector3;
-
-
-
 
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

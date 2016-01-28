@@ -248,11 +248,11 @@ namespace flexibilityEstimation
     Matrix4 ModelBaseEKFFlexEstimatorIMU::getFlexibility()
     {
 
-        Vector v (getFlexibilityVector());
+        const Vector & v (getFlexibilityVector());
 
-        Vector6 v2;
-        v2.head(3) = v.segment(kine::pos,3);
-        v2.tail(3) = v.segment(kine::ori,3);
+        Vector6 v2;v2 << v.segment(kine::pos,3), v.segment(kine::ori,3);
+        //v2.head<3>() = v.segment(kine::pos,3);
+        //v2.tail<3>() = v.segment(kine::ori,3);
 
         return kine::vector6ToHomogeneousMatrix(v2);
 
@@ -372,11 +372,13 @@ namespace flexibilityEstimation
       }
 
       useFTSensors_=b;
-
-
-
-
     }
+
+
+
+
+
+
 
     void ModelBaseEKFFlexEstimatorIMU::setWithComBias(bool b)
     {

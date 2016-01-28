@@ -577,35 +577,43 @@ namespace flexibilityEstimation
         op_.rimu = op_.rFlex * op_.rControl;
 
         // Translation sensor dynamic
-        Vector3 acceleration;
-        acceleration << 0,0,0;
-        acceleration += 2*kine::skewSymmetric(op_.angularVelocityFlex) * op_.rFlex * op_.velocityControl;
-        acceleration += op_.accelerationFlex + op_.rFlex * op_.accelerationControl;
-        acceleration += (
+
+        op_.imuAcc = 2*kine::skewSymmetric(op_.angularVelocityFlex) * op_.rFlex * op_.velocityControl;
+        op_.imuAcc += op_.accelerationFlex + op_.rFlex * op_.accelerationControl;
+        op_.imuAcc += (
                     kine::skewSymmetric(op_.angularAccelerationFlex)
                     + tools::square(kine::skewSymmetric(op_.angularVelocityFlex))
                 )*op_.rFlex * op_.positionControl;
 
         // Rotation sensor dynamic
-        Vector3 angularVelocity(op_.angularVelocityFlex + op_.rFlex * op_.angularVelocityControl);
+        op_.imuOmega = op_.angularVelocityFlex + op_.rFlex * op_.angularVelocityControl;
 
         // Set sensor state before measurement
-        Vector v(Vector::Zero(sensor_.getStateSize(),1));
-        v.head<9>() = Eigen::Map<Eigen::Matrix<double, 9, 1> >(&op_.rimu(0,0));
-        v.segment<3>(9)=acceleration;
-        v.segment<3>(12)=angularVelocity;
+        op_.sensorState.resize(sensor_.getStateSize());
+        op_.sensorState.head<9>() = Eigen::Map<Eigen::Matrix<double, 9, 1> >(&op_.rimu(0,0));
+        op_.sensorState.segment<3>(9)=op_.imuAcc;
+        op_.sensorState.segment<3>(12)=op_.imuOmega;
 
         if (withForceMeasurements_)
-          v.tail(nbContacts_*6) = getForcesAndMoments(x,u);
+          op_.sensorState.tail(nbContacts_*6) = getForcesAndMoments(x,u);
           //the last part of the measurement is force torque, it is
           //computed by the current functor and not the sensor_.
           //(see AlgebraicSensor::concatenateWithInput
           //for more details)
 
-        sensor_.setState(v,k);
+        sensor_.setState(op_.sensorState,k);
 
         //measurements
-        return sensor_.getMeasurements();
+        op_.yk=sensor_.getMeasurements();
+        return op_.yk;
+    }
+
+    stateObservation::Matrix IMUElasticLocalFrameDynamicalSystem::measureDynamicsJacobian()
+    {
+      op_.Jy.resize(getMeasurementSize(),getStateSize());
+      op_.Jy.setZero();
+
+
     }
 
     void IMUElasticLocalFrameDynamicalSystem::setProcessNoise(NoiseBase * n)
