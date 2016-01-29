@@ -104,7 +104,7 @@ int test()
     est.setInput(u0);
     est.setMeasurementInput(u0);
 
-    est.setMass(56.8);
+    est.setMass(56.8679920);
     stateObservation::Vector3 v1; v1.setOnes();
     v1=1000*v1;
     est.setAngularAccelerationLimit(v1);
