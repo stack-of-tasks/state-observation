@@ -98,45 +98,25 @@ namespace stateObservation
         BOOST_ASSERT(checkPmatrix(pr_) && "ERROR: The Matrix P is not initialized");
 
         //prediction
-//        std::cout << "onestepEstimation -> prediction_" << std::endl;
         oc_.xbar = prediction_(k+1);
         oc_.pbar=q_;
         oc_.pbar.noalias()  += a_*(pr_*a_.transpose());
-
-       // std::cout << "a_ " << a_ << std::endl;
-       // std::cout << "pr_ " << pr_ << std::endl;
-
         predictedMeasurement_=predictSensor_(oc_.xbar,k+1);
 
-        //innovation
+        //innovation Measurements
         oc_.inoMeas.noalias() = this->y_[k+1] - predictedMeasurement_;
-        oc_.ctranspose.noalias() = c_.transpose();
+        oc_.inoMeasCov.noalias() = r_ +  c_ * (oc_.pbar * c_.transpose());
 
-        oc_.inoMeasCov =  r_;
-        oc_.inoMeasCov.noalias() +=  c_ * (oc_.pbar * oc_.ctranspose);
+        //inversing innovation measurement covariance matrix
+        oc_.inoMeasCovLLT.compute(oc_.inoMeasCov);
+        oc_.inoMeasCovInverse.resize(getMeasureSize(),getMeasureSize());
+        oc_.inoMeasCovInverse.setIdentity();
+        oc_.inoMeasCovLLT.matrixL().solveInPlace(oc_.inoMeasCovInverse);
+        oc_.inoMeasCovLLT.matrixL().transpose().solveInPlace(oc_.inoMeasCovInverse);
 
-        oc_.inoMeasCovInverse = oc_.inoMeasCov.inverse();
-
-        //gain
-        oc_.kGain.noalias() = oc_.pbar * (oc_.ctranspose * oc_.inoMeasCovInverse);
-
-        //std::cout << "oc_.kGain" << oc_.kGain << std::endl;
-
-        //std::cout << "q " << q_ << std::endl;
-        //std::cout << "a_" << a_ << std::endl;
-        //std::cout << "pr_" << pr_ << std::endl;
-        //std::cout << "oc_.inoMeasCov" << oc_.inoMeasCov << std::endl;
-
+        //innovation
+        oc_.kGain.noalias() = oc_.pbar * (c_.transpose() * oc_.inoMeasCovInverse);
         inovation_.noalias() = oc_.kGain*oc_.inoMeas;
-
-//        std::cout << "k " << k << std::endl << std::endl;
-//        std::cout << "C " << c_ << std::endl << std::endl;
-//        std::cout << "R " << r_ << std::endl << std::endl;
-//        std::cout << "pbar " << pbar << std::endl << std::endl;
-//        std::cout << "pbar * c_.transpose() " << pbar << std::endl << std::endl;
-//        std::cout << "inoCov " << inoCov << std::endl << std::endl;
-//        std::cout << "KGain " << kGain << std::endl << std::endl;
-//        std::cout << "inoCov " << inoCov << std::endl << std::endl;
 
         //update
         oc_.xhat= oc_.xbar;
@@ -147,24 +127,6 @@ namespace stateObservation
         pr_.noalias() -= oc_.kGain*c_;
 
         pr_ *= oc_.pbar;
-
-       // std::cout << "oc_.kGain" << oc_.kGain << std::endl;
-       // std::cout << "c_" << c_ << std::endl;
-
-//        std::cout << "\n\n\n" << k << std::endl;
-//        std::cout << "xbar: " << oc_.xbar.transpose() << std::endl;
-//       std::cout << "xhat: " << oc_.xhat.transpose() << std::endl;
-//       std::cout << "Mesures" << this->y_[k+1].transpose() << std::endl;
-//       std::cout << "Mesures predites" << predictedMeasurement_.transpose() << std::endl;
-//       std::cout << "inoMeas: " << oc_.inoMeas.transpose() << std::endl;
-//       std::cout << "innovation: " << inovation_.transpose() << std::endl;
-
-       // cout << "y_k+1: " << this->y_[k+1].transpose() << endl;
-       // cout << "predicted measurement " << predictedMeasurement_.transpose() << endl;
-      //  std::cout << "\n\n\n\n\n Kgain \n" << oc_.kGain << std::endl;
-       // std::cout << " r_ " << r_ << std::endl;
-       // cout << "oc_.inoMeasCovInverse " << oc_.inoMeasCovInverse << endl;
-       // cout << endl;
 
         return oc_.xhat;
     }

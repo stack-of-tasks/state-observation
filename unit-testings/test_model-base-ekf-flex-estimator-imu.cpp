@@ -156,7 +156,7 @@ int test()
     Vector computeTime;
     computeTime.resize(1);
 
-    double norm=0;
+    Vector errorsum=Vector::Zero(est.getEKF().getStateSize());
 
     est.setContactModel(stateObservation::flexibilityEstimation::
                 ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
@@ -179,7 +179,7 @@ int test()
 
         xdifference =flexibility-xRef[k];
 
-        norm += xdifference.squaredNorm();
+        errorsum += xdifference.cwiseProduct(xdifference);
 
 
 
@@ -206,11 +206,28 @@ int test()
     y_output.writeInFile("measurement.dat");
     u_output.writeInFile("input.dat");
 
+    errorsum = errorsum/(kmax-kinit-2);
+
+    Vector error(6);
+
+    error(0)= sqrt((errorsum(kine::pos) + errorsum(kine::pos+1) + errorsum(kine::pos+2))/(kmax-kinit-2));
+    error(1) = sqrt((errorsum(kine::linVel) + errorsum(kine::linVel+1) + errorsum(kine::linVel+2))/(kmax-kinit-2));
+    error(2) = sqrt((errorsum(kine::linAcc) + errorsum(kine::linAcc+1) + errorsum(kine::linAcc+2))/(kmax-kinit-2));
+    error(3) = sqrt((errorsum(kine::ori) + errorsum(kine::ori+1) + errorsum(kine::ori+2))/(kmax-kinit-2));
+    error(4) = sqrt((errorsum(kine::angVel) + errorsum(kine::angVel+1) + errorsum(kine::angVel+2))/(kmax-kinit-2));
+    error(5) = sqrt((errorsum(kine::angAcc) + errorsum(kine::angAcc+1) + errorsum(kine::angAcc+2))/(kmax-kinit-2));
+
+
+
     std::cout << "Mean computation time " << computeTime[0] <<std::endl;
 
-    std::cout << "Mean quadratic error " << norm/(kmax-kinit-2)<<std::endl;
+    std::cout << "Mean error " << error.transpose() <<std::endl;
 
-    if (norm/(kmax-kinit-2)>1e-04)
+    double syntherror = 40000*error(0)+600*error(3)+(600*error(1)+60*error(4))+(60*error(2)+60*error(5));
+
+    std::cout << "Synthetic error " << syntherror <<std::endl;
+
+    if (syntherror>0.1)
     {
       std::cout << "Failed : error is too big !!"<< std::endl <<"The end" << std::endl;
       return 1;

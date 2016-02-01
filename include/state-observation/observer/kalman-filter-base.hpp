@@ -24,7 +24,10 @@
 #ifndef KALMANFILTERBASEHPP
 #define KALMANFILTERBASEHPP
 
+#include <Eigen/Cholesky>
+
 #include <state-observation/observer/zero-delay-observer.hpp>
+
 
 namespace stateObservation
 {
@@ -66,6 +69,8 @@ namespace stateObservation
 
         /// The type of the covariance matrix of the state estimation error.
         typedef Matrix Pmatrix;
+
+        typedef Eigen::LLT<Pmatrix> LLTPMatrix;
 
         /// Default constructor
         KalmanFilterBase(){}
@@ -278,7 +283,7 @@ namespace stateObservation
             Vector inoMeas;
             Matrix inoMeasCov;
             Matrix inoMeasCovInverse;
-            Matrix ctranspose;
+            LLTPMatrix inoMeasCovLLT;
             Matrix kGain;
         } oc_;
 
