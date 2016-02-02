@@ -118,8 +118,6 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
 
         for (unsigned i=0;i<n_;++i)
         {
-            unsigned it=(i-1)%n_;
-            opt.x_[it]=this->x_()(it,0);
             opt.x_[i]+=dx[i];
             opt.xp_=f_->stateDynamics(opt.x_,opt.u_,k);
 
@@ -127,6 +125,7 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
             opt.xp_/=dx[i];
 
             opt.a_.block(0,i,n_,1)=opt.xp_;
+            opt.x_[i]=this->x_()(i,0);
         }
 
         return opt.a_;
@@ -147,8 +146,6 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
 
         for (unsigned i=0;i<n_;++i)
         {
-            unsigned it=(i-1)%n_;
-            opt.xp_[it]=opt.xbar_[it];
             opt.xp_[i]+= dx[i];
 
             opt.yp_=simulateSensor_(opt.xp_, k+1);
@@ -156,7 +153,7 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
             opt.yp_/=dx[i];
 
             opt.c_.block(0,i,m_,1)=opt.yp_;
-
+            opt.xp_[i]=opt.xbar_[i];
         }
 
         return opt.c_;
