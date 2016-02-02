@@ -47,7 +47,7 @@ namespace flexibilityEstimation
         EKFFlexibilityEstimatorBase(unsigned stateSize,
                                     unsigned measurementSize,
                                     unsigned inputSize,
-                                    const Vector & dx );
+                                    const Vector & dx=Vector::Zero(0) );
 
 
         ///virtual destructor
