@@ -40,6 +40,8 @@ namespace flexibilityEstimation
 
         ekf_.setFunctor(& functor_);
 
+        functor_.setFDstep(dx_);
+
         on_=true;
 
         useFTSensors_= false;
@@ -288,8 +290,12 @@ namespace flexibilityEstimation
                     unsigned i;
                     for (i=ekf_.getCurrentTime()+1; i<=k_; ++i)
                     {
+
+                        ekf_.updatePredictedMeasurement();///triggers also ekf_.updatePrediction();
+
                         ekf_.setA(ekf_.getAMatrixFD(dx_));
-                        ekf_.setC(ekf_.getCMatrixFD(dx_));
+                        //ekf_.setC(ekf_.getCMatrixFD(dx_));
+                        ekf_.setC(functor_.measureDynamicsJacobian());
                         ekf_.getEstimatedState(i);
                     }
                     x_=ekf_.getEstimatedState(k_);
