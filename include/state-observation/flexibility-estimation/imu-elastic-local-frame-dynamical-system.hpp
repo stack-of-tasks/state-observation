@@ -23,7 +23,7 @@ namespace stateObservation
   namespace kine //for constant declarations
   {
     static const unsigned comBias = 18;
-  };
+  }
 
   namespace flexibilityEstimation
   {
