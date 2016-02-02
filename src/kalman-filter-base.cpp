@@ -73,12 +73,6 @@ namespace stateObservation
         pr_=P;
     }
 
-    ObserverBase::MeasureVector KalmanFilterBase::predictSensor_(const StateVector& x, unsigned k)
-    {
-        return simulateSensor_(x,k);
-    }
-
-
     void KalmanFilterBase::clearStateCovariance()
     {
         pr_.resize(0,0);
@@ -98,10 +92,10 @@ namespace stateObservation
         BOOST_ASSERT(checkPmatrix(pr_) && "ERROR: The Matrix P is not initialized");
 
         //prediction
-        oc_.xbar = prediction_(k+1);
+
+        updatePredictedMeasurement();// runs also updatePrediction_();
         oc_.pbar=q_;
         oc_.pbar.noalias()  += a_*(pr_*a_.transpose());
-        predictedMeasurement_=predictSensor_(oc_.xbar,k+1);
 
         //innovation Measurements
         oc_.inoMeas.noalias() = this->y_[k+1] - predictedMeasurement_;
@@ -119,12 +113,11 @@ namespace stateObservation
         inovation_.noalias() = oc_.kGain*oc_.inoMeas;
 
         //update
-        oc_.xhat= oc_.xbar;
-        oc_.xhat+= inovation_;
+        oc_.xhat.noalias()= oc_.xbar+ inovation_;
 
         this->x_.set(oc_.xhat,k+1);
         pr_=oc_.stateIdentity;
-        pr_.noalias() -= oc_.kGain*c_;
+        pr_ -= oc_.kGain*c_;
 
         pr_ *= oc_.pbar;
 
@@ -303,12 +296,16 @@ namespace stateObservation
 
     Vector KalmanFilterBase::getPrediction()
     {
+        updatePrediction();
         return oc_.xbar;
     }
 
     Vector KalmanFilterBase::getPredictedMeasurement()
     {
+        updatePredictedMeasurement();
         return predictedMeasurement_;
     }
+
+
 
 }

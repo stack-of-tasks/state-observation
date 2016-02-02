@@ -88,11 +88,7 @@ namespace stateObservation
         ///the input u_k
         void setDirectInputStateFeedthrough(bool b=true);
 
-        /// A function that gives the prediction (this is NOT the estimation of the state,
-        /// for the estimation call getEstimateState method
-        /// it is only an execution of the state synamics with the current state
-        /// estimation and the current input value
-        virtual StateVector getPrediction();
+
 
         ///Give an estimation of A matrix using
         ///finite difference method (the forward difference method)

@@ -1,5 +1,7 @@
 #include <state-observation/observer/extended-kalman-filter.hpp>
 
+#include <iostream>
+
 namespace stateObservation
 {
     void ExtendedKalmanFilter::setFunctor(DynamicalSystemFunctorBase* f)
@@ -56,11 +58,6 @@ namespace stateObservation
 
 
         return xbar_();
-    }
-
-    ObserverBase::StateVector ExtendedKalmanFilter::getPrediction()
-    {
-        return prediction_(x_.getTime()+1);
     }
 
     ObserverBase::MeasureVector ExtendedKalmanFilter::predictSensor_(const ObserverBase::StateVector& x, unsigned k)

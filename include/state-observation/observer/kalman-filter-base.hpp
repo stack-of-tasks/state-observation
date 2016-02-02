@@ -230,11 +230,23 @@ namespace stateObservation
         ///Get the last vector of inovation of the Kalman filter
         virtual Vector getInovation();
 
-        ///Get the last vector of prediction of the Kalman filter
+        /// A function that gives the prediction (this is NOT the estimation of the state),
+        /// for the estimation call getEstimateState method
+        /// it is only an execution of the state synamics with the current state
+        /// estimation and the current input value
         virtual Vector getPrediction();
 
         ///Get the simulated measurement of the predicted state
         virtual Vector getPredictedMeasurement();
+
+        ///update the prediction, enables to precompute the predicted state
+        ///definition in the bottom of this file
+        inline void updatePrediction();
+
+        ///update the predicted state, enables to precompute the predicted measurementŔ
+        ///triggers also void updatePrediction()
+        ///definition in the bottom of this file
+        inline void updatePredictedMeasurement();
 
     protected:
 
@@ -249,9 +261,6 @@ namespace stateObservation
 
         /// The abstract method to overload to implement h(x,u)
         virtual MeasureVector simulateSensor_(const StateVector& x, unsigned k)=0;
-
-        /// The abstract method to overload to predict h(x_bar,u)
-        virtual MeasureVector predictSensor_(const StateVector& x, unsigned k);
 
         /// Containers for the jacobian matrix of the process
         Matrix a_;
@@ -290,7 +299,16 @@ namespace stateObservation
 
     };
 
+    void KalmanFilterBase::updatePrediction()
+    {
+        oc_.xbar = prediction_(this->x_.getTime()+1);
+    }
 
+    void KalmanFilterBase::updatePredictedMeasurement()
+    {
+        updatePrediction();
+        predictedMeasurement_=simulateSensor_(oc_.xbar,this->x_.getTime()+1);
+    }
 
 
 }
