@@ -362,6 +362,7 @@ protected:
 
         Vector xk1;
         Vector xk;
+        Vector xk1dx;
 
         Vector xdx;
 
@@ -369,7 +370,6 @@ protected:
         Vector yk;
         Vector ykdy;
 
-        unsigned k;
         unsigned k_fory;
 
 

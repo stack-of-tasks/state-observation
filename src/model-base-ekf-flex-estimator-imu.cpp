@@ -293,8 +293,9 @@ namespace flexibilityEstimation
 
                         ekf_.updatePredictedMeasurement();///triggers also ekf_.updatePrediction();
 
-                        ekf_.setA(ekf_.getAMatrixFD(dx_));
+                        //ekf_.setA(ekf_.getAMatrixFD(dx_));
                         //ekf_.setC(ekf_.getCMatrixFD(dx_));
+                        ekf_.setA(functor_.stateDynamicsJacobian());
                         ekf_.setC(functor_.measureDynamicsJacobian());
                         ekf_.getEstimatedState(i);
                     }

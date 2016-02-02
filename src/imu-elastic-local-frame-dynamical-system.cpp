@@ -628,8 +628,6 @@ namespace flexibilityEstimation
 
       for (unsigned i=0; i<getStateSize(); ++i)
       {
-        unsigned it=(i-1)%getStateSize();
-        op_.xdx[it]=op_.xk_fory[it];
         op_.xdx[i]+= dx_[i];
 
         op_.ykdy=measureDynamics(op_.xdx,uk_fory_, op_.k_fory);
@@ -637,72 +635,48 @@ namespace flexibilityEstimation
         op_.ykdy/=dx_[i];
 
         op_.Jy.block(0,i,getMeasurementSize(),1)=op_.ykdy;
+        op_.xdx[i]=op_.xk_fory[i];
       }
 
-      xk_fory_ = op_.xdx;
       xk_fory_ = op_.xk_fory;
       yk_ = op_.yk;
+
+      //std::cout << "JACOBIAN: "<<std::endl;
+      //std::cout << op_.Jy<<std::endl;
 
       return op_.Jy;
     }
 
-//
-//        opt.xp_ = opt.xbar_;
-//
-//
-//
-//        for (unsigned i=0;i<n_;++i)
-//        {
-//            unsigned it=(i-1)%n_;
-//            opt.xp_[it]=opt.xbar_[it];
-//            opt.xp_[i]+= dx[i];
-//
-//            opt.yp_=simulateSensor_(opt.xp_, k+1);
-//            opt.yp_-=opt.y_;
-//            opt.yp_/=dx[i];
-//
-//            opt.c_.block(0,i,m_,1)=opt.yp_;
-//
-//        }
-//
-//        return opt.c_;
+    stateObservation::Matrix IMUElasticLocalFrameDynamicalSystem::stateDynamicsJacobian()
+    {
+      op_.Jx.resize(getStateSize(),getStateSize());
+      op_.Jx.setZero();
 
+      op_.xdx = xk_;
+      op_.xk = xk_;
+      op_.xk1 = xk1_;
 
-//           unsigned k=this->x_.getTime();
-//        opt.a_=getAmatrixZero();
-//        opt.xbar_=prediction_(k+1);
-//        opt.x_=this->x_();
-//
-//        if (p_>0)
-//        {
-//            if (directInputStateProcessFeedthrough_)
-//                opt.u_=this->u_[k];
-//            else
-//                opt.u_=inputVectorZero();
-//        }
-//
-//        for (unsigned i=0;i<n_;++i)
-//        {
-//            unsigned it=(i-1)%n_;
-//            opt.x_[it]=this->x_()(it,0);
-//            opt.x_[i]+=dx[i];
-//            opt.xp_=f_->stateDynamics(opt.x_,opt.u_,k);
-//
-//            opt.xp_-=opt.xbar_;
-//            opt.xp_/=dx[i];
-//
-//            opt.a_.block(0,i,n_,1)=opt.xp_;
-//        }
-//
-//        return opt.a_;
-//    }
-//
-//    KalmanFilterBase::Cmatrix
-//    ExtendedKalmanFilter::getCMatrixFD(const ObserverBase::StateVector
-//                                       &dx)
-//    {
+      for (unsigned i=0; i<getStateSize(); ++i)
+      {
+        op_.xdx[i]+= dx_[i];
 
+        op_.xk1dx=stateDynamics(op_.xdx,uk_, 0);
+        op_.xk1dx-=op_.xk1;
+        op_.xk1dx/=dx_[i];
 
+        op_.Jx.block(0,i,getStateSize(),1)=op_.xk1dx;
+        op_.xdx[i]=op_.xk[i];
+      }
+
+      xk_= op_.xk;
+      xk1_ = op_.xk1;
+
+      //std::cout << "JACOBIAN: "<<std::endl;
+      //std::cout << op_.Jx <<std::endl;
+
+      return op_.Jx;
+
+    }
 
 
     void IMUElasticLocalFrameDynamicalSystem::setProcessNoise(NoiseBase * n)
