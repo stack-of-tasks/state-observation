@@ -474,6 +474,9 @@ namespace flexibilityEstimation
         assertStateVector_(x);
         assertInputVector_(u);
 
+        xk_=x;
+        uk_=u;
+
         op_.positionFlex=x.segment(kine::pos,3);
         op_.velocityFlex=x.segment(kine::linVel,3);
         op_.accelerationFlex=x.segment(kine::linAcc,3);
@@ -518,22 +521,22 @@ namespace flexibilityEstimation
         }
         //x_{k+1}
 
-        op_.xk1=x;
+        xk1_=x;
 
-        op_.xk1.segment<3>(kine::pos) = op_.positionFlex;
-        op_.xk1.segment<3>(kine::linVel) = op_.velocityFlex;
-        op_.xk1.segment<3>(kine::linAcc) = op_.accelerationFlex;
+        xk1_.segment<3>(kine::pos) = op_.positionFlex;
+        xk1_.segment<3>(kine::linVel) = op_.velocityFlex;
+        xk1_.segment<3>(kine::linAcc) = op_.accelerationFlex;
 
-        op_.xk1.segment<3>(kine::ori) =  op_.orientationFlexV;
-        op_.xk1.segment<3>(kine::angVel) = op_.angularVelocityFlex;
-        op_.xk1.segment<3>(kine::angAcc) = op_.angularAccelerationFlex;
+        xk1_.segment<3>(kine::ori) =  op_.orientationFlexV;
+        xk1_.segment<3>(kine::angVel) = op_.angularVelocityFlex;
+        xk1_.segment<3>(kine::angAcc) = op_.angularAccelerationFlex;
 
-        // op_.xk1.segment<2>(kine::comBias) = op_.positionComBias.head<2>();
+        // xk1_.segment<2>(kine::comBias) = op_.positionComBias.head<2>();
 
         if (processNoise_!=0x0)
             return processNoise_->addNoise(op_.xk1);
          else
-            return op_.xk1;
+            return xk1_;
     }
 
 
@@ -554,8 +557,14 @@ namespace flexibilityEstimation
     Vector IMUElasticLocalFrameDynamicalSystem::measureDynamics
                 (const Vector& x, const Vector& u, unsigned k)
     {
+
+
         assertStateVector_(x);
         assertInputVector_(u);
+
+        xk_fory_=x;
+        uk_fory_=u;
+        op_.k_fory=k;
 
         op_.positionFlex=x.segment(kine::pos,3);
         op_.velocityFlex=x.segment(kine::linVel,3);
@@ -604,8 +613,8 @@ namespace flexibilityEstimation
         sensor_.setState(op_.sensorState,k);
 
         //measurements
-        op_.yk=sensor_.getMeasurements();
-        return op_.yk;
+        yk_=sensor_.getMeasurements();
+        return yk_;
     }
 
     stateObservation::Matrix IMUElasticLocalFrameDynamicalSystem::measureDynamicsJacobian()
@@ -613,8 +622,88 @@ namespace flexibilityEstimation
       op_.Jy.resize(getMeasurementSize(),getStateSize());
       op_.Jy.setZero();
 
+      op_.xdx = xk_fory_;
+      op_.xk_fory = xk_fory_;
+      op_.yk = yk_;
 
+      for (unsigned i=0; i<getStateSize(); ++i)
+      {
+        unsigned it=(i-1)%getStateSize();
+        op_.xdx[it]=op_.xk_fory[it];
+        op_.xdx[i]+= dx_[i];
+
+        op_.ykdy=measureDynamics(op_.xdx,uk_fory_, op_.k_fory);
+        op_.ykdy-=op_.yk;
+        op_.ykdy/=dx_[i];
+
+        op_.Jy.block(0,i,getMeasurementSize(),1)=op_.ykdy;
+      }
+
+      xk_fory_ = op_.xdx;
+      xk_fory_ = op_.xk_fory;
+      yk_ = op_.yk;
+
+      return op_.Jy;
     }
+
+//
+//        opt.xp_ = opt.xbar_;
+//
+//
+//
+//        for (unsigned i=0;i<n_;++i)
+//        {
+//            unsigned it=(i-1)%n_;
+//            opt.xp_[it]=opt.xbar_[it];
+//            opt.xp_[i]+= dx[i];
+//
+//            opt.yp_=simulateSensor_(opt.xp_, k+1);
+//            opt.yp_-=opt.y_;
+//            opt.yp_/=dx[i];
+//
+//            opt.c_.block(0,i,m_,1)=opt.yp_;
+//
+//        }
+//
+//        return opt.c_;
+
+
+//           unsigned k=this->x_.getTime();
+//        opt.a_=getAmatrixZero();
+//        opt.xbar_=prediction_(k+1);
+//        opt.x_=this->x_();
+//
+//        if (p_>0)
+//        {
+//            if (directInputStateProcessFeedthrough_)
+//                opt.u_=this->u_[k];
+//            else
+//                opt.u_=inputVectorZero();
+//        }
+//
+//        for (unsigned i=0;i<n_;++i)
+//        {
+//            unsigned it=(i-1)%n_;
+//            opt.x_[it]=this->x_()(it,0);
+//            opt.x_[i]+=dx[i];
+//            opt.xp_=f_->stateDynamics(opt.x_,opt.u_,k);
+//
+//            opt.xp_-=opt.xbar_;
+//            opt.xp_/=dx[i];
+//
+//            opt.a_.block(0,i,n_,1)=opt.xp_;
+//        }
+//
+//        return opt.a_;
+//    }
+//
+//    KalmanFilterBase::Cmatrix
+//    ExtendedKalmanFilter::getCMatrixFD(const ObserverBase::StateVector
+//                                       &dx)
+//    {
+
+
+
 
     void IMUElasticLocalFrameDynamicalSystem::setProcessNoise(NoiseBase * n)
     {
@@ -762,6 +851,11 @@ namespace flexibilityEstimation
 
     void IMUElasticLocalFrameDynamicalSystem::setLinearAccelerationLimit(const Vector3 & v){
         limitLinearAcceleration_=v;
+    }
+
+    void  IMUElasticLocalFrameDynamicalSystem::setFDstep(const stateObservation::Vector & dx)
+    {
+      dx_ = dx;
     }
 
 }

@@ -319,6 +319,17 @@ protected:
       Vector fc_;
       Vector tc_;
 
+      Vector dx_;
+
+      Vector xk1_;
+      Vector xk_;
+      Vector uk_;
+
+      Vector xk_fory_;
+      Vector yk_;
+      Vector uk_fory_;
+
+
       unsigned measurementSize_;
 
       std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;
@@ -350,7 +361,19 @@ protected:
         AngleAxis orientationAA;
 
         Vector xk1;
+        Vector xk;
+
+        Vector xdx;
+
+        Vector xk_fory;
         Vector yk;
+        Vector ykdy;
+
+        unsigned k;
+        unsigned k_fory;
+
+
+
         Matrix Jx;
         Matrix Jy;
 
