@@ -46,16 +46,6 @@ namespace flexibilityEstimation
       inputSize_=42;
       stateSize_=stateSizeBase_;
 
-      Vector3 v1, v2;
-      v1 << 100,
-            100,
-            100;
-      v2 << 10,
-            10,
-            10;
-      limitAngularAcceleration_=v2;
-      limitLinearAcceleration_=v1;
-
       kcurrent_=-1;
 
     }
@@ -291,14 +281,6 @@ namespace flexibilityEstimation
 
         linearAcceleration = op_.vf;
         linearAcceleration += kine::skewSymmetric(op_.Rc)*angularAcceleration;
-
-        for(int i=0;i<3;i++){ // Saturation for bounded acceleration
-            angularAcceleration[i]=std::min(angularAcceleration[i],limitAngularAcceleration_[i]);
-            linearAcceleration[i]=std::min(linearAcceleration[i],limitLinearAcceleration_[i]);
-            angularAcceleration[i]=std::max(angularAcceleration[i],-limitAngularAcceleration_[i]);
-            linearAcceleration[i]=std::max(linearAcceleration[i],-limitLinearAcceleration_[i]);
-        }
-
     }
 
     void IMUElasticLocalFrameDynamicalSystem::iterateDynamicsEuler
@@ -557,8 +539,6 @@ namespace flexibilityEstimation
     Vector IMUElasticLocalFrameDynamicalSystem::measureDynamics
                 (const Vector& x, const Vector& u, unsigned k)
     {
-
-
         assertStateVector_(x);
         assertInputVector_(u);
 
@@ -678,7 +658,6 @@ namespace flexibilityEstimation
 
     }
 
-
     void IMUElasticLocalFrameDynamicalSystem::setProcessNoise(NoiseBase * n)
     {
         processNoise_=n;
@@ -776,9 +755,6 @@ namespace flexibilityEstimation
         measurementSize_=measurementSizeBase_;
         sensor_.concatenateWithInput(0);
       }
-
-
-
     }
 
     void IMUElasticLocalFrameDynamicalSystem::setWithComBias(bool b)
@@ -796,8 +772,6 @@ namespace flexibilityEstimation
     {
       return withComBias_;
     }
-
-
 
     void IMUElasticLocalFrameDynamicalSystem::setKfe(const Matrix3 & m)
     {
@@ -819,19 +793,10 @@ namespace flexibilityEstimation
         Ktv_=m;
     }
 
-    void IMUElasticLocalFrameDynamicalSystem::setAngularAccelerationLimit(const Vector3 & v){
-        limitAngularAcceleration_=v;
-    }
-
-    void IMUElasticLocalFrameDynamicalSystem::setLinearAccelerationLimit(const Vector3 & v){
-        limitLinearAcceleration_=v;
-    }
-
     void  IMUElasticLocalFrameDynamicalSystem::setFDstep(const stateObservation::Vector & dx)
     {
       dx_ = dx;
     }
-
 }
 }
 

@@ -44,6 +44,16 @@ namespace flexibilityEstimation
 
         on_=true;
 
+        Vector3 v1, v2;
+        v1 << 100,
+              100,
+              100;
+        v2 << 10,
+              10,
+              10;
+        limitAngularAcceleration_=v2;
+        limitLinearAcceleration_=v1;
+
         useFTSensors_= false;
     }
 
@@ -307,6 +317,14 @@ namespace flexibilityEstimation
 
                         ///regulate the part of orientation vector in the state vector
                         lastX_.segment(kine::ori,3)=kine::regulateOrientationVector(lastX_.segment(kine::ori,3));
+                        for(int i=0;i<3;i++)
+                        { // Saturation for bounded acceleration
+                            lastX_[kine::angAcc+i]=std::min(lastX_[kine::angAcc+i],limitAngularAcceleration_[i]);
+                            lastX_[kine::linAcc+i]=std::min(lastX_[kine::linAcc+i],limitLinearAcceleration_[i]);
+                            lastX_[kine::angAcc+i]=std::max(lastX_[kine::angAcc+i],-limitAngularAcceleration_[i]);
+                            lastX_[kine::linAcc+i]=std::max(lastX_[kine::linAcc+i],-limitLinearAcceleration_[i]);
+                        }
+
                         ekf_.setState(lastX_,ekf_.getCurrentTime());
                     }
                     else //delete NaN values
@@ -435,11 +453,11 @@ namespace flexibilityEstimation
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setAngularAccelerationLimit(const Vector3 & v){
-        functor_.setAngularAccelerationLimit(v);
+        limitAngularAcceleration_=v;
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setLinearAccelerationLimit(const Vector3 & v){
-        functor_.setLinearAccelerationLimit(v);
+        limitLinearAcceleration_=v;
     }
 
 }

@@ -290,9 +290,6 @@ protected:
 
       virtual void setRobotMass(double d);
 
-      virtual void setAngularAccelerationLimit(const Vector3 & v);
-      virtual void setLinearAccelerationLimit(const Vector3 & v);
-
       EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     protected:
@@ -340,10 +337,6 @@ protected:
 
       bool withForceMeasurements_;
       bool withComBias_;
-
-      Vector3 limitAngularAcceleration_;
-      Vector3 limitLinearAcceleration_;
-
 
       struct Optimization
       {

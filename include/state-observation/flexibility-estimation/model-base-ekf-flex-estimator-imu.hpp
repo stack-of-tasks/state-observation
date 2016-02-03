@@ -153,6 +153,9 @@ namespace flexibilityEstimation
         bool useFTSensors_;
         bool withComBias_;
 
+        Vector3 limitAngularAcceleration_;
+        Vector3 limitLinearAcceleration_;
+
     private:
     };
 
