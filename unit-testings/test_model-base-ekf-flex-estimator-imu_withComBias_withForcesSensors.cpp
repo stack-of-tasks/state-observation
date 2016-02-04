@@ -109,12 +109,12 @@ int test()
      Vector inovationDifference(inov);
 
      Vector simulatedMeasurements;
-     simulatedMeasurements.resize(18);
-     Vector simulatedSensorsDifference(18);
+     simulatedMeasurements.resize(measurementSize);
+     Vector simulatedSensorsDifference(measurementSize);
 
      Vector predictedMeasurements;
-     predictedMeasurements.resize(18);
-     Vector predictedSensorsDifference(18);
+     predictedMeasurements.resize(measurementSize);
+     Vector predictedSensorsDifference(measurementSize);
 
      Vector predictedState;
      predictedState.resize(stateSize);
@@ -212,7 +212,7 @@ int test()
         simulatedSensorsDifference=simulatedMeasurements-simulatedSensors[k];
         normSimulatedSensors+=simulatedSensorsDifference.squaredNorm();
 
-        predictedMeasurements=est.getPredictedMeasurement();
+        predictedMeasurements=est.getLastPredictedMeasurement();
         predictedSensorsDifference=predictedMeasurements-predictedSensors[k];
         normPredictedSensors+=predictedSensorsDifference.squaredNorm();
 
@@ -241,7 +241,7 @@ int test()
 
     std::cout << "Completed "<<std::endl;
 
-    computeTime[0]=computationTime_moy/(kmax-kinit-10);
+    computeTime[0]=computationTime_moy/(kmax-kinit-3);
     computationTime_output.setValue(computeTime,kmax);
     computationTime_output.writeInFile("computationTime.dat");
 
@@ -258,14 +258,14 @@ int test()
     std::cout << "Mean computation time " << computeTime[0] <<std::endl;
 
     std::cout << "flexibility mean quadratic error " << normState/(kmax-kinit-3)<<std::endl;
-    errorsum = errorsum/(kmax-kinit-2);
+    errorsum = errorsum/(kmax-kinit-3);
 
     Vector error(6);
 
     error(0)= sqrt((errorsum(kine::pos) + errorsum(kine::pos+1) + errorsum(kine::pos+2))/(kmax-kinit-3));
     error(1) = sqrt((errorsum(kine::linVel) + errorsum(kine::linVel+1) + errorsum(kine::linVel+2))/(kmax-kinit-3));
     error(2) = sqrt((errorsum(kine::linAcc) + errorsum(kine::linAcc+1) + errorsum(kine::linAcc+2))/(kmax-kinit-3));
-    error(3) = sqrt((errorsum(kine::ori) + errorsum(kine::ori+1) + errorsum(kine::ori+2))/(kmax-kinit-2));
+    error(3) = sqrt((errorsum(kine::ori) + errorsum(kine::ori+1) + errorsum(kine::ori+2))/(kmax-kinit-3));
     error(4) = sqrt((errorsum(kine::angVel) + errorsum(kine::angVel+1) + errorsum(kine::angVel+2))/(kmax-kinit-3));
     error(5) = sqrt((errorsum(kine::angAcc) + errorsum(kine::angAcc+1) + errorsum(kine::angAcc+2))/(kmax-kinit-3));
 

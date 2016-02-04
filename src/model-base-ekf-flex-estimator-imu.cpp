@@ -428,6 +428,7 @@ namespace flexibilityEstimation
         dx.segment(kine::ori,3).fill(1e-4) ;
         dx.segment(kine::angVel,3).fill(1e-4) ;
         dx_= dx;
+        functor_.setFDstep(dx_);
 
         stateObservation::Vector x(lastX_); x=lastX_;
         lastX_.resize(stateSize_); lastX_.setZero();
