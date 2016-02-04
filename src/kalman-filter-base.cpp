@@ -80,7 +80,6 @@ namespace stateObservation
 
     ObserverBase::StateVector KalmanFilterBase::oneStepEstimation_()
     {
-
         unsigned k=this->x_.getTime();
 
         BOOST_ASSERT(this->y_.size()> 0 && this->y_.checkIndex(k+1) && "ERROR: The measurement vector is not set");
@@ -92,7 +91,6 @@ namespace stateObservation
         BOOST_ASSERT(checkPmatrix(pr_) && "ERROR: The Matrix P is not initialized");
 
         //prediction
-
         updatePredictedMeasurement();// runs also updatePrediction_();
         oc_.pbar=q_;
         oc_.pbar.noalias()  += a_*(pr_*a_.transpose());
@@ -118,7 +116,6 @@ namespace stateObservation
         this->x_.set(oc_.xhat,k+1);
         pr_=oc_.stateIdentity;
         pr_ -= oc_.kGain*c_;
-
         pr_ *= oc_.pbar;
 
         return oc_.xhat;
@@ -139,7 +136,6 @@ namespace stateObservation
         clearR();
         clearStateCovariance();
     }
-
 
     KalmanFilterBase::Amatrix KalmanFilterBase::getAmatrixConstant(double c) const
     {
@@ -315,9 +311,4 @@ namespace stateObservation
     {
         return predictedMeasurement_;
     }
-
-
-
-
-
 }

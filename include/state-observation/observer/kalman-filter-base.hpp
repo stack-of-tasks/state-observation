@@ -24,8 +24,6 @@
 #ifndef KALMANFILTERBASEHPP
 #define KALMANFILTERBASEHPP
 
-#include <Eigen/Cholesky>
-
 #include <state-observation/observer/zero-delay-observer.hpp>
 
 
