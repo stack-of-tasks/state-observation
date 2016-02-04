@@ -152,5 +152,16 @@ namespace flexibilityEstimation
         return ekf_.getPrediction();
     }
 
+
+    Vector EKFFlexibilityEstimatorBase::getLastPredictedMeasurement()
+    {
+        return ekf_.getLastPredictedMeasurement();
+    }
+
+    Vector EKFFlexibilityEstimatorBase::getLastPrediction()
+    {
+        return ekf_.getLastPrediction();
+    }
+
 }
 }

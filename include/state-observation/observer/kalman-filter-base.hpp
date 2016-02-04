@@ -248,6 +248,12 @@ namespace stateObservation
         ///definition in the bottom of this file
         inline void updatePredictedMeasurement();
 
+        ///get the last predicted state
+        Vector getLastPrediction();
+
+        ///get the last predicted measurement
+        Vector getLastPredictedMeasurement();
+
     protected:
 
         /// The type of Kalman gain matrix

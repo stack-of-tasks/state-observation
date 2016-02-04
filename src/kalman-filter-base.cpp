@@ -306,6 +306,18 @@ namespace stateObservation
         return predictedMeasurement_;
     }
 
+    Vector KalmanFilterBase::getLastPrediction()
+    {
+        return oc_.xbar;
+    }
+
+    Vector KalmanFilterBase::getLastPredictedMeasurement()
+    {
+        return predictedMeasurement_;
+    }
+
+
+
 
 
 }
