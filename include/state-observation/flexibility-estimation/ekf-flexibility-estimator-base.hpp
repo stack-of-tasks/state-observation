@@ -82,6 +82,8 @@ namespace flexibilityEstimation
         /// Sets the value of the next sensor measurement y_{k+1}
         virtual void setMeasurement(const Vector & y);
 
+        virtual Vector getMeasurement();
+
         /// Sets the value of the next input for the state process dynamics
         /// i.e. : gives u_k such that x_{k+1} = f(x_k,u_k)
         virtual void setInput(const Vector & u);
@@ -89,6 +91,10 @@ namespace flexibilityEstimation
         /// Sets the value of the next  measurement
         /// i.e. : gives u_{k+1} such that y_{k+1}=h(x_{k+1},u_{k+1})
         virtual void setMeasurementInput(const Vector & u);
+
+        virtual Vector getInput();
+
+        virtual Vector getMeasurementInput();
 
         /// Gets an estimation of the flexibility in the form of a state vector \hat{x_{k+1}}
         virtual const Vector& getFlexibilityVector();

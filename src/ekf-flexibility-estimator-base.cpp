@@ -38,6 +38,11 @@ namespace flexibilityEstimation
         ekf_.setMeasurement(y,k_+1);
     }
 
+    Vector EKFFlexibilityEstimatorBase::getMeasurement()
+    {
+        return ekf_.getMeasurement(k_+1);
+    }
+
     void EKFFlexibilityEstimatorBase::setProcessNoiseCovariance(const Matrix & Q)
     {
         ekf_.setQ(Q);
@@ -79,9 +84,21 @@ namespace flexibilityEstimation
         ekf_.setInput(u,k_);
     }
 
+
     void EKFFlexibilityEstimatorBase::setMeasurementInput(const Vector & u)
     {
         ekf_.setInput(u,k_+1);
+    }
+
+    Vector EKFFlexibilityEstimatorBase::getInput()
+    {
+        return ekf_.getInput(k_);
+    }
+
+
+    Vector EKFFlexibilityEstimatorBase::getMeasurementInput()
+    {
+        return ekf_.getInput(k_+1);
     }
 
     const Vector & EKFFlexibilityEstimatorBase::getFlexibilityVector()
