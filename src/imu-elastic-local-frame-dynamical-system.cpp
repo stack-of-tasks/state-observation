@@ -252,14 +252,14 @@ namespace flexibilityEstimation
                           position, linVelocity, oriVector, orientation,
                              angularVel, op_.fc, op_.tc);
 
-        op_.wx2Rc=op_.skewV2R*positionCom;
-        op_._2wxRv=2*op_.skewVR*velocityCom;
-        op_.Ra = orientation*accelerationCom;
-        op_.Rc = orientation * positionCom;
-        op_.Rcp = op_.Rc+position;
-        op_.RIRT = orientation*Inertia*op_.rFlexT;
+        op_.wx2Rc.noalias()=op_.skewV2R*positionCom;
+        op_._2wxRv.noalias()=2*op_.skewVR*velocityCom;
+        op_.Ra.noalias() = orientation*accelerationCom;
+        op_.Rc.noalias() = orientation * positionCom;
+        op_.Rcp.noalias() = op_.Rc+position;
+        op_.RIRT.noalias() = orientation*Inertia*op_.rFlexT;
 
-        op_.vf =robotMassInv_*op_.fc;
+        op_.vf.noalias() =robotMassInv_*op_.fc;
         op_.vf.noalias() -= op_.Ra;
         op_.vf.noalias() -= op_._2wxRv;
         op_.vf.noalias() -= op_.wx2Rc;
@@ -273,10 +273,10 @@ namespace flexibilityEstimation
                             (op_.wx2Rc+ op_._2wxRv + op_.Ra ));
         op_.vt.noalias() -= robotMass_* kine::skewSymmetric(op_.Rcp) * cst::gravity;
 
-        op_.orinertia = op_.RIRT + robotMass_*kine::skewSymmetric2(op_.Rc);
+        op_.orinertia.noalias() = op_.RIRT + robotMass_*kine::skewSymmetric2(op_.Rc);
         op_.invinertia.compute(op_.orinertia);
 
-        angularAcceleration = op_.vt - robotMass_*op_.Rcp.cross(op_.vf);
+        angularAcceleration.noalias() = op_.vt - robotMass_*op_.Rcp.cross(op_.vf);
 
         op_.invinertia.matrixL().solveInPlace(angularAcceleration);
         op_.invinertia.matrixL().transpose().solveInPlace(angularAcceleration);
@@ -316,7 +316,7 @@ namespace flexibilityEstimation
 
 
         op_.orientationAA=op_.rFlex;
-        oriVector=op_.orientationAA.angle()*op_.orientationAA.axis();
+        oriVector.noalias()=op_.orientationAA.angle()*op_.orientationAA.axis();
     }
 
     void IMUElasticLocalFrameDynamicalSystem::iterateDynamicsRK4
@@ -619,7 +619,7 @@ namespace flexibilityEstimation
         op_.ykdy-=op_.yk;
         op_.ykdy/=dx_[i];
 
-        op_.Jy.block(0,i,getMeasurementSize(),1)=op_.ykdy;
+        op_.Jy.col(i)=op_.ykdy;
         op_.xdx[i]=op_.xk_fory[i];
       }
 
@@ -653,7 +653,7 @@ namespace flexibilityEstimation
         op_.xk1dx-=op_.xk1;
         op_.xk1dx/=dx_[i];
 
-        op_.Jx.block(0,i,getStateSize(),1)=op_.xk1dx;
+        op_.Jx.col(i)=op_.xk1dx;
         op_.xdx[i]=op_.xk[i];
       }
 
