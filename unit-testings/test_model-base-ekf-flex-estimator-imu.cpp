@@ -223,11 +223,11 @@ int test()
 
     std::cout << "Mean error " << error.transpose() <<std::endl;
 
-    double syntherror = 40000*error(0)+600*error(3)+(600*error(1)+60*error(4))+(60*error(2)+60*error(5));
+    double syntherror = 40000*error(0)+600*error(1)+10*error(2)+10*error(3)+error(4)+error(5);
 
     std::cout << "Synthetic error " << syntherror <<std::endl;
 
-    if (syntherror>0.1)
+    if (syntherror>0.2)
     {
       std::cout << "Failed : error is too big !!"<< std::endl <<"The end" << std::endl;
       return 1;
