@@ -12,6 +12,7 @@
 #include <stdexcept>
 
 
+
 #include <iostream>
 
 namespace stateObservation
@@ -19,8 +20,6 @@ namespace stateObservation
 namespace flexibilityEstimation
 {
     using namespace stateObservation;
-
-
 
    IMUElasticLocalFrameDynamicalSystem::
     	IMUElasticLocalFrameDynamicalSystem(double dt):
@@ -180,7 +179,7 @@ namespace flexibilityEstimation
 
         moments.noalias() += op_.momenti + kine::skewSymmetric(op_.globalContactPos)*op_.forcei;;
 
-        }
+      }
     }
 
 
@@ -242,13 +241,12 @@ namespace flexibilityEstimation
         const Vector3& angularVel, Vector3& angularAcceleration)
     {
 
-        op_.skewV=kine::skewSymmetric(angularVel);
-        op_.skewV2=kine::skewSymmetric2(angularVel);
-        op_.skewVR=op_.skewV * orientation;
-        op_.skewV2R=op_.skewV2 * orientation;
+        kine::skewSymmetric(angularVel,op_.skewV);
+        kine::skewSymmetric2(angularVel,op_.skewV2);
+        op_.skewVR.noalias()=op_.skewV * orientation;
+        op_.skewV2R.noalias()=op_.skewV2 * orientation;
 
-
-        op_.rFlexT=orientation.transpose();
+        op_.rFlexT.noalias()=orientation.transpose();
 
         computeForcesAndMoments (contactPosV, contactOriV,
                           position, linVelocity, oriVector, orientation,
@@ -275,8 +273,16 @@ namespace flexibilityEstimation
                             (op_.wx2Rc+ op_._2wxRv + op_.Ra ));
         op_.vt.noalias() -= robotMass_* kine::skewSymmetric(op_.Rcp) * cst::gravity;
 
-        angularAcceleration = ( op_.RIRT + robotMass_*kine::skewSymmetric2(op_.Rc)).llt().solve(
-                                (op_.vt - robotMass_*kine::skewSymmetric(op_.Rcp)*op_.vf));
+        op_.orinertia = op_.RIRT + robotMass_*kine::skewSymmetric2(op_.Rc);
+        op_.invinertia.compute(op_.orinertia);
+
+        angularAcceleration = op_.vt - robotMass_*op_.Rcp.cross(op_.vf);
+
+        op_.invinertia.matrixL().solveInPlace(angularAcceleration);
+        op_.invinertia.matrixL().transpose().solveInPlace(angularAcceleration);
+
+        //angularAcceleration = ( op_.RIRT + robotMass_*kine::skewSymmetric2(op_.Rc)).llt().solve(
+        //                        (op_.vt - robotMass_*kine::skewSymmetric(op_.Rcp)*op_.vf));
 
         linearAcceleration = op_.vf;
         linearAcceleration += kine::skewSymmetric(op_.Rc)*angularAcceleration;

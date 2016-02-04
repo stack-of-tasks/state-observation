@@ -17,6 +17,8 @@
 #include <state-observation/dynamical-system/algorithm/rigid-body-kinematics.hpp>
 #include <state-observation/tools/hrp2.hpp>
 
+#include <Eigen/Cholesky>
+
 
 namespace stateObservation
 {
@@ -113,7 +115,7 @@ protected:
         };
 
 
-
+      typedef Eigen::LLT<Matrix3> LLTMatrix3;
 
       ///constructor
       explicit IMUElasticLocalFrameDynamicalSystem(double dt);
@@ -364,6 +366,10 @@ protected:
 
         unsigned k_fory;
 
+        Matrix3 orinertia;
+
+        LLTMatrix3 invinertia;
+
 
 
         Matrix Jx;
@@ -401,6 +407,9 @@ protected:
 
         Vector3 vf;
         Vector3 vt;
+
+        Vector3 crosstempV;
+        Matrix3 crosstempM;
 
         //elastic contact forces and moments
         Matrix3 Rci; //rotation of contact i
