@@ -90,16 +90,13 @@ namespace stateObservation
         }
 
         ///transform a 3d vector into a skew symmetric 3x3 matrix
-        inline Matrix3 skewSymmetric(const Vector3 & v)
+        inline Matrix3 skewSymmetric(const Vector3 & v, Matrix3 & R)
         {
             //R <<     0, -v[2],  v[1],
             //      v[2],     0, -v[0],
             //     -v[1],  v[0],     0;
 
-
-            Matrix3 R;
-
-            R(0,0)=   R(1,1) = R(2,2) = 0.;
+            R(0,0)=  R(1,1) = R(2,2) = 0.;
             R(0,1)= -( R(1,0)= v[2] );
             R(2,0)= -( R(0,2)= v[1] );
             R(1,2)= -( R(2,1)= v[0] );
@@ -107,10 +104,21 @@ namespace stateObservation
             return R;
         }
 
-        ///transform a 3d vector into a squared skew symmetric 3x3 matrix
-        inline Matrix3 skewSymmetric2(const Vector3 & v)
+
+        ///transform a 3d vector into a skew symmetric 3x3 matrix
+        inline Matrix3 skewSymmetric(const Vector3 & v)
         {
-            Matrix3 R( v * v.transpose());
+            Matrix3 R;
+
+            return skewSymmetric(v,R);
+        }
+
+
+
+        ///transform a 3d vector into a squared skew symmetric 3x3 matrix
+        inline Matrix3 skewSymmetric2(const Vector3 & v, Matrix3 & R)
+        {
+            R.noalias()= v * v.transpose();
 
             double n = R.trace();
 
@@ -120,6 +128,15 @@ namespace stateObservation
 
             return R;
         }
+
+        ///transform a 3d vector into a squared skew symmetric 3x3 matrix
+        inline Matrix3 skewSymmetric2(const Vector3 & v)
+        {
+            Matrix3 R;
+
+            return skewSymmetric2(v,R);
+        }
+
 
 
         inline Matrix3 computeInertiaTensor(const Vector6 inputInertia, Matrix3& inertiaTensor)
