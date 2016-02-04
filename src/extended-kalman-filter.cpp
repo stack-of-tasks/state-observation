@@ -124,7 +124,7 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
             opt.xp_-=opt.xbar_;
             opt.xp_/=dx[i];
 
-            opt.a_.block(0,i,n_,1)=opt.xp_;
+            opt.a_.col(i)=opt.xp_;
             opt.x_[i]=this->x_()(i,0);
         }
 
@@ -152,7 +152,7 @@ must set directInputOutputFeedthrough to 'false' in the constructor");
             opt.yp_-=opt.y_;
             opt.yp_/=dx[i];
 
-            opt.c_.block(0,i,m_,1)=opt.yp_;
+            opt.c_.col(i)=opt.yp_;
             opt.xp_[i]=opt.xbar_[i];
         }
 
