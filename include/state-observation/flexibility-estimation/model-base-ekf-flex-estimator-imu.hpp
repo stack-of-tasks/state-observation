@@ -77,6 +77,15 @@ namespace flexibilityEstimation
 
         virtual Vector getForcesAndMoments();
 
+        // get state covariance
+        stateObservation::Vector getStateCovariance() const
+        {
+            stateObservation::Matrix P(ekf_.getStateCovariance());
+            stateObservation::Vector Pvec(ekf_.getStateSize());
+            for(int i=0;i<ekf_.getStateSize();++i) Pvec(i)=P(i,i);
+            return Pvec;
+        }
+
         ///Sets a value of the flexibility x_k provided from another source
         /// can be used for initialization of the estimator
         virtual void setFlexibilityGuess(const Matrix & x);

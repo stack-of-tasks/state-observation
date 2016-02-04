@@ -21,6 +21,10 @@ namespace flexibilityEstimation
 
         withComBias_=false;
         ekf_.setStateSize(stateSizeBase_);
+
+        ekf_.setInputSize(functor_.getInputSize());
+        inputSize_=functor_.getInputSize();
+
         ModelBaseEKFFlexEstimatorIMU::resetCovarianceMatrices();
 
         Vector dx( Matrix::Constant(getStateSize(),1,dxFactor));//thanks Justin
