@@ -404,11 +404,6 @@ namespace flexibilityEstimation
     }
 
 
-
-
-
-
-
     void ModelBaseEKFFlexEstimatorIMU::setWithComBias(bool b)
     {
       if (withComBias_!= b)
@@ -422,7 +417,7 @@ namespace flexibilityEstimation
 
         Matrix P0 (stateSize_,stateSize_); P0.setZero();
         P0.block(0,0,stateSizeBase_,stateSizeBase_)=(ekf_.getStateCovariance()).block(0,0,stateSizeBase_,stateSizeBase_);
-        if(withComBias_) P0.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*2.5e-15;
+        if(withComBias_) P0.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*2.5e-13;
 
         Vector dx( Matrix::Constant(stateSize_,1,dxFactor));//thanks Justin
         dx.segment(kine::ori,3).fill(1e-4) ;

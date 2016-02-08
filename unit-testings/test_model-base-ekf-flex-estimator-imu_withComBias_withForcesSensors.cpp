@@ -30,13 +30,13 @@ int test()
 {
     std::cout << "Starting" << std::endl;
 
-    bool withComBias_=true;
+    bool withComBias_=false;
     bool withForceSensors_=true;
 
     // Dimensions
     const double dt=5e-3;
-    const unsigned kinit=0;
-    const unsigned kmax=2600;
+    const unsigned kinit=6488;
+    const unsigned kmax=11300;
     unsigned contactNbr = 2;
     const unsigned inputSize=42+contactNbr*6;
     const unsigned measurementSizeBase=6;
@@ -55,44 +55,27 @@ int test()
      IndexedMatrixArray u;
       std::cout << "Loading input file" << std::endl;
      u.getFromFile("source_input.dat",1,inputSize);
-      //state
-     IndexedMatrixArray xRef;
-       std::cout << "Loading reference state file" << std::endl;
-     xRef.getFromFile("source_state.dat",stateSize,1);
-     // Predicted state
-     IndexedMatrixArray xPredicted;
-       std::cout << "Loading predicted state file" << std::endl;
-     xPredicted.getFromFile("source_predictedState.dat",stateSize,1);
-     // Inovation
-     IndexedMatrixArray inovation;
-       std::cout << "Loading innovation file" << std::endl;
-     inovation.getFromFile("source_inovation.dat",stateSize,1);
-     // state covariance
-     IndexedMatrixArray stateCovariance;
-       std::cout << "Loading stateCovariance file" << std::endl;
-     stateCovariance.getFromFile("source_stateCovariance.dat",stateSize,1);
-     // Simulated sensors
-     IndexedMatrixArray simulatedSensors;
-       std::cout << "Loading simulated sensors file" << std::endl;
-     simulatedSensors.getFromFile("source_simulatedSensors.dat",measurementSize,1);
-         // Predicted sensors
-     IndexedMatrixArray predictedSensors;
-       std::cout << "Loading predicted sensors file" << std::endl;
-     predictedSensors.getFromFile("source_predictedSensors.dat",measurementSize,1);
+//      //state
+//     IndexedMatrixArray xRef;
+//       std::cout << "Loading reference state file" << std::endl;
+//     xRef.getFromFile("source_state.dat",18,1);
+
 
     /// Definition of ouptut vectors
-      // State: what we want
+     // State: what we want
      IndexedMatrixArray x_output;
      // State covariance
-    IndexedMatrixArray xCov_output;
-      // Measurement
+     IndexedMatrixArray xCov_output;
+     // Measurement
      IndexedMatrixArray y_output;
-      // Input
+     // Input
      IndexedMatrixArray u_output;
      IndexedMatrixArray deltax_output;
 
      // Inovation
      IndexedMatrixArray i_output;
+     // Inovation
+     IndexedMatrixArray iInt_output;
      // Predicted sensors
      IndexedMatrixArray ps_output;
      // Simulated densors ss_output;
@@ -106,23 +89,20 @@ int test()
 
      Vector inov;
      inov.resize(stateSize);
-     Vector inovationDifference(inov);
+     Vector inovInt;
+     inovInt.resize(stateSize);
 
      Vector simulatedMeasurements;
      simulatedMeasurements.resize(measurementSize);
-     Vector simulatedSensorsDifference(measurementSize);
 
      Vector predictedMeasurements;
      predictedMeasurements.resize(measurementSize);
-     Vector predictedSensorsDifference(measurementSize);
 
      Vector predictedState;
      predictedState.resize(stateSize);
-     Vector predictedStateDifference(stateSize);
 
      Vector flexCovariance;
      flexCovariance.resize(stateSize);
-     Vector flexCovarianceDifference(stateSize);
 
      timespec time1, time2, time3;
      IndexedMatrixArray computationTime_output;
@@ -147,24 +127,24 @@ int test()
     stateObservation::Matrix Q_; Q_.resize(stateSize,stateSize); Q_.setIdentity();
     Q_.block(0,0,12,12)*=1.e-8;
     Q_.block(12,12,6,6)*=1.e-4;
-    if(withComBias_) Q_.block(18,18,2,2)*=1.e-13;
+    if(withComBias_) Q_.block(18,18,2,2)*=0;//1.e-13;
     est.setProcessNoiseCovariance(Q_);
 
-    // Flexibility noise covariance
-    stateObservation::Matrix P0_(stateSize,stateSize); P0_.setZero();
-    for(int i=0;i<stateSize;++i) P0_(i,i)=stateCovariance[kinit+2](i);
-    est.setFlexibilityCovariance(P0_);
+//    // Flexibility noise covariance
+//    stateObservation::Matrix P0_(stateSize,stateSize); P0_.setZero();
+//    for(int i=0;i<stateSize;++i) P0_(i,i)=stateCovariance[kinit+2](i);
+//    est.setFlexibilityCovariance(P0_);
 
     // Estimator state
     est.setInput(u[kinit+2].block(0,0,1,est.getInputSize()).transpose());
-    est.setFlexibilityGuess(xRef[kinit+2].block(0,0,est.getStateSize(),1));
+//    est.setFlexibilityGuess(xRef[kinit+2].block(0,0,est.getStateSize(),1));
 
     // Set contacts number
     est.setContactsNumber(contactNbr);
     est.setContactModel(stateObservation::flexibilityEstimation::
                 ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
 
-//    est.setMass(56.8);
+    est.setMass(56.8);//48.6);//
 //    stateObservation::Vector3 v1; v1.setOnes();
 //    v1=100*v1;
 //    est.setAngularAccelerationLimit(v1);
@@ -178,8 +158,7 @@ int test()
     est.setKfv(600*Matrix3::Identity());
     est.setKtv(10*Matrix3::Identity());
 
-    double normState=0, normInovation=0, normSimulatedSensors=0, normPredictedSensors=0, normPredictedState=0, normStateCovariance=0;
-
+    double normState=0;
     Vector errorsum=Vector::Zero(est.getEKF().getStateSize());
 
     std::cout << "Beginning reconstruction "<<std::endl;
@@ -200,28 +179,15 @@ int test()
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
         computeTime[0]=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
 
-        xdifference =flexibility-xRef[k];
-        normState += xdifference.squaredNorm();
-        errorsum += xdifference.cwiseProduct(xdifference);
+//        xdifference =flexibility-xRef[k];
+//        normState += xdifference.squaredNorm();
+//        errorsum += xdifference.cwiseProduct(xdifference);
 
         inov=est.getInovation();
-        inovationDifference=inov-inovation[k];
-        normInovation += inovationDifference.squaredNorm();
-
+        inovInt=inov*dt;
         simulatedMeasurements=est.getSimulatedMeasurement();
-        simulatedSensorsDifference=simulatedMeasurements-simulatedSensors[k];
-        normSimulatedSensors+=simulatedSensorsDifference.squaredNorm();
-
         predictedMeasurements=est.getLastPredictedMeasurement();
-        predictedSensorsDifference=predictedMeasurements-predictedSensors[k];
-        normPredictedSensors+=predictedSensorsDifference.squaredNorm();
-
         predictedState=est.getPrediction();
-        predictedStateDifference=predictedState-xPredicted[k];
-        normPredictedState+=predictedStateDifference.squaredNorm();
-
-        flexCovarianceDifference=flexCovariance-stateCovariance[k];
-        normStateCovariance+=flexCovarianceDifference.squaredNorm();
 
         x_output.setValue(flexibility,k);
         xCov_output.setValue(flexCovariance,k);
@@ -230,6 +196,7 @@ int test()
         deltax_output.setValue(xdifference,k);
 
         i_output.setValue(inov,k);
+        iInt_output.setValue(inovInt,k);
         ps_output.setValue(predictedMeasurements,k);
         ss_output.setValue(simulatedMeasurements,k);
         xPredicted_output.setValue(predictedState,k);
@@ -251,46 +218,41 @@ int test()
     u_output.writeInFile("input.dat");
 
     i_output.writeInFile("inovation.dat");
+    iInt_output.writeInFile("inovationInt.dat");
     ps_output.writeInFile("predictedSensors.dat");
     ss_output.writeInFile("simulatedSensors.dat");
-    xPredicted.writeInFile("statePredicted.dat");
+    xPredicted_output.writeInFile("statePredicted.dat");
 
     std::cout << "Mean computation time " << computeTime[0] <<std::endl;
 
-    std::cout << "flexibility mean quadratic error " << normState/(kmax-kinit-3)<<std::endl;
-    errorsum = errorsum/(kmax-kinit-3);
+//    std::cout << "flexibility mean quadratic error " << normState/(kmax-kinit-3)<<std::endl;
+//    errorsum = errorsum/(kmax-kinit-3);
 
-    Vector error(6);
+//    Vector error(6);
+//
+//    error(0)= sqrt((errorsum(kine::pos) + errorsum(kine::pos+1) + errorsum(kine::pos+2))/(kmax-kinit-3));
+//    error(1) = sqrt((errorsum(kine::linVel) + errorsum(kine::linVel+1) + errorsum(kine::linVel+2))/(kmax-kinit-3));
+//    error(2) = sqrt((errorsum(kine::linAcc) + errorsum(kine::linAcc+1) + errorsum(kine::linAcc+2))/(kmax-kinit-3));
+//    error(3) = sqrt((errorsum(kine::ori) + errorsum(kine::ori+1) + errorsum(kine::ori+2))/(kmax-kinit-3));
+//    error(4) = sqrt((errorsum(kine::angVel) + errorsum(kine::angVel+1) + errorsum(kine::angVel+2))/(kmax-kinit-3));
+//    error(5) = sqrt((errorsum(kine::angAcc) + errorsum(kine::angAcc+1) + errorsum(kine::angAcc+2))/(kmax-kinit-3));
+//
+//    double syntherror = 666*error(0)+10*error(3)+(10*error(1)+1*error(4))+(1*error(2)+1*error(5));
+//    std::cout << "synthError=" << syntherror << std::endl;
+//    std::cout << "Mean error " << error.transpose() <<std::endl;
 
-    error(0)= sqrt((errorsum(kine::pos) + errorsum(kine::pos+1) + errorsum(kine::pos+2))/(kmax-kinit-3));
-    error(1) = sqrt((errorsum(kine::linVel) + errorsum(kine::linVel+1) + errorsum(kine::linVel+2))/(kmax-kinit-3));
-    error(2) = sqrt((errorsum(kine::linAcc) + errorsum(kine::linAcc+1) + errorsum(kine::linAcc+2))/(kmax-kinit-3));
-    error(3) = sqrt((errorsum(kine::ori) + errorsum(kine::ori+1) + errorsum(kine::ori+2))/(kmax-kinit-3));
-    error(4) = sqrt((errorsum(kine::angVel) + errorsum(kine::angVel+1) + errorsum(kine::angVel+2))/(kmax-kinit-3));
-    error(5) = sqrt((errorsum(kine::angAcc) + errorsum(kine::angAcc+1) + errorsum(kine::angAcc+2))/(kmax-kinit-3));
-
-    double syntherror = 666*error(0)+10*error(3)+(10*error(1)+1*error(4))+(1*error(2)+1*error(5));
-    std::cout << "synthError=" << syntherror << std::endl;
-    std::cout << "Mean error " << error.transpose() <<std::endl;
-
-    std::cout << "Inovation mean quadratic error " << normInovation/(kmax-kinit-2)<<std::endl;
-    std::cout << "Simulated sensors mean quadratic error " << normSimulatedSensors/(kmax-kinit-2)<<std::endl;
-    std::cout << "Predicted sensors mean quadratic error " << normPredictedSensors/(kmax-kinit-2)<<std::endl;
-    std::cout << "Predicted state mean quadratic error " << normPredictedState/(kmax-kinit-2)<<std::endl;
-    std::cout << "State covariance mean quadratic error " << normStateCovariance/(kmax-kinit-2)<<std::endl;
-
-    if (normState/(kmax-kinit-3)>1e-04)
-    {
-      std::cout << "Failed : error is too big !!"<< std::endl <<"The end" << std::endl;
-      return 1;
-    }
-#ifdef NDEBUG
-    if (computeTime[0]>2e5)
-     {
-      std::cout << "Failed : Computation time is too long !!"<< std::endl <<"The end" << std::endl;
-      return 2;
-    }
-#endif
+//    if (normState/(kmax-kinit-3)>1e-04)
+//    {
+//      std::cout << "Failed : error is too big !!"<< std::endl <<"The end" << std::endl;
+//      return 1;
+//    }
+//#ifdef NDEBUG
+//    if (computeTime[0]>2e5)
+//     {
+//      std::cout << "Failed : Computation time is too long !!"<< std::endl <<"The end" << std::endl;
+//      return 2;
+//    }
+//#endif
 
     std::cout << "Succeed !!"<< std::endl <<"The end" << std::endl;
     return 1;
