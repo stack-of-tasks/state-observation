@@ -44,7 +44,6 @@ namespace flexibilityEstimation
 
       nbContacts_=0;
       inputSize_=42;
-      stateSize_=stateSizeBase_;
 
       kcurrent_=-1;
 
@@ -760,7 +759,6 @@ namespace flexibilityEstimation
     void IMUElasticLocalFrameDynamicalSystem::setWithComBias(bool b)
     {
       withComBias_=b;
-      stateSize_=stateSizeBase_+b*2;
     }
 
     bool IMUElasticLocalFrameDynamicalSystem::getWithForceMeasurements() const

@@ -305,10 +305,9 @@ protected:
 
       Matrix3& computeRotation_(const Vector3 & x, int i);
 
-      static const unsigned stateSizeBase_=18;
+      static const unsigned stateSize_=20;
       static const unsigned inputSizeBase_=42;
       unsigned inputSize_;
-      unsigned stateSize_;
       static const unsigned measurementSizeBase_=6;
       unsigned nbContacts_;
       unsigned contactModel_;

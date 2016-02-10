@@ -147,11 +147,10 @@ namespace flexibilityEstimation
 
         Matrix R_,Q_;
 
-        static const unsigned stateSizeBase_=18;
         static const unsigned measurementSizeBase_=42;
         static const unsigned inputSizeBase_=42;
         unsigned inputSize_;
-        unsigned stateSize_;
+        const unsigned stateSize_;
 
         double dt_;//sampling period
         bool on_;
