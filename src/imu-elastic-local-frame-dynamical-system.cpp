@@ -620,6 +620,11 @@ namespace flexibilityEstimation
       xk_fory_ = op_.xk_fory;
       yk_ = op_.yk;
 
+      if(!withComBias_){
+          op_.Jy.block(0,kine::comBias,measurementSize_,2).setZero();
+          std::cout << "\nop_.Jy=" << op_.Jy << std::endl;
+      }
+
       //std::cout << "JACOBIAN: "<<std::endl;
       //std::cout << op_.Jy<<std::endl;
 
@@ -649,6 +654,19 @@ namespace flexibilityEstimation
 
       xk_= op_.xk;
       xk1_ = op_.xk1;
+
+      unsigned sizeBeforeComBias, sizeAfterComBias;
+      sizeBeforeComBias=kine::comBias;
+      sizeAfterComBias=stateSize_-kine::comBias-2;
+
+      if(!withComBias_){
+          op_.Jx.block(kine::comBias,0,2,sizeBeforeComBias).setZero();
+          op_.Jx.block(kine::comBias,kine::comBias+2,2,sizeAfterComBias).setZero();
+          op_.Jx.block(kine::comBias,kine::comBias,2,2).setIdentity();
+          op_.Jx.block(0,kine::comBias,sizeBeforeComBias,2).setZero();
+          op_.Jx.block(kine::comBias+2,kine::comBias,sizeAfterComBias,2).setZero();
+          std::cout << "\nop_.Jx=" << op_.Jx << std::endl;
+      }
 
       //std::cout << "JACOBIAN: "<<std::endl;
       //std::cout << op_.Jx <<std::endl;
