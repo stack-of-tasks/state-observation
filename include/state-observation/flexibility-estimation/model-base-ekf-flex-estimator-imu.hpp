@@ -86,6 +86,8 @@ namespace flexibilityEstimation
             return Pvec;
         }
 
+        virtual void setComBiasGuess(const stateObservation::Vector & x);
+
         ///Sets a value of the flexibility x_k provided from another source
         /// can be used for initialization of the estimator
         virtual void setFlexibilityGuess(const Matrix & x);

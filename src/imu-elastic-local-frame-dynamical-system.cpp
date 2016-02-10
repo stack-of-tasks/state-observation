@@ -622,7 +622,6 @@ namespace flexibilityEstimation
 
       if(!withComBias_){
           op_.Jy.block(0,kine::comBias,measurementSize_,2).setZero();
-          std::cout << "\nop_.Jy=" << op_.Jy << std::endl;
       }
 
       //std::cout << "JACOBIAN: "<<std::endl;
@@ -665,7 +664,6 @@ namespace flexibilityEstimation
           op_.Jx.block(kine::comBias,kine::comBias,2,2).setIdentity();
           op_.Jx.block(0,kine::comBias,sizeBeforeComBias,2).setZero();
           op_.Jx.block(kine::comBias+2,kine::comBias,sizeAfterComBias,2).setZero();
-          std::cout << "\nop_.Jx=" << op_.Jx << std::endl;
       }
 
       //std::cout << "JACOBIAN: "<<std::endl;

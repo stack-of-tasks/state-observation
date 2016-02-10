@@ -192,6 +192,12 @@ namespace flexibilityEstimation
         }
     }
 
+    void ModelBaseEKFFlexEstimatorIMU::setComBiasGuess(const stateObservation::Vector & x)
+    {
+        lastX_.segment(kine::comBias,2)=x.segment(0,2);
+        setFlexibilityGuess(lastX_);
+    }
+
     void ModelBaseEKFFlexEstimatorIMU::setMeasurementNoiseCovariance
                                             (const Matrix & R)
     {
