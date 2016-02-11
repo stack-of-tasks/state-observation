@@ -283,6 +283,8 @@ protected:
       virtual bool getWithForceMeasurements() const;
       virtual void setWithComBias(bool b);
       virtual bool getWithComBias() const;
+      virtual void setWithAbsolutePosition(bool b);
+      virtual bool getWithAbsolutePosition() const;
 
 
       virtual void setKfe(const Matrix3 & m);
@@ -338,6 +340,11 @@ protected:
 
       bool withForceMeasurements_;
       bool withComBias_;
+      bool withAbsolutePos_;
+
+
+      unsigned driftIndex_;
+      unsigned mocapIndex_;
 
       struct Optimization
       {
@@ -351,6 +358,14 @@ protected:
 
         Matrix3 rFlex;
         Matrix3 rFlexT;
+
+        Vector3 drift;
+        Vector3 pdrift;
+        Matrix3 rdrift;
+
+        double cy,sy;
+
+
 
         AngleAxis orientationAA;
 
@@ -370,6 +385,10 @@ protected:
 
         LLTMatrix3 invinertia;
 
+        Matrix3 rtotal;
+        Vector3 ptotal;
+        AngleAxis aatotal;
+        Vector3 oritotal;
 
 
         Matrix Jx;
