@@ -27,7 +27,7 @@ namespace flexibilityEstimation
         robotMass_(hrp2::m),
         robotMassInv_(1/hrp2::m),
         measurementSize_(measurementSizeBase_),
-        withForceMeasurements_(false), withComBias_(false)
+        withForceMeasurements_(false), withComBias_(false), withAbsolutePos_(false)
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
        // std::cout<<std::endl<<"IMUElasticLocalFrameDynamicalSystem Constructor"<<std::endl;
@@ -471,12 +471,29 @@ namespace flexibilityEstimation
         op_.angularVelocityFlex=x.segment(kine::angVel,3);
         op_.angularAccelerationFlex=x.segment(kine::angAcc,3);
 
-        if (withComBias_){
-            op_.positionComBias <<  x.segment(kine::comBias,2),
+
+
+        if (withComBias_)
+        {
+            op_.positionComBias <<  x.segment<2>(kine::comBias),
                                     0;// the bias of the com along the z axis is assumed 0.
-        } else {
-            op_.positionComBias.setZero();
+            driftIndex_=kine::comBias+2;
         }
+        else
+        {
+            op_.positionComBias.setZero();
+            driftIndex_=kine::comBias;
+        }
+
+        if (withAbsolutePos_)
+        {
+          op_.drift = x.segment<3>(driftIndex_);
+        }
+        else
+        {
+          op_.drift.setZero();
+        }
+
         kine::computeInertiaTensor(u.segment<6>(input::inertia),op_.inertia);
         kine::computeInertiaTensor(u.segment<6>(input::dotInertia),op_.dotInertia);
 
@@ -589,11 +606,38 @@ namespace flexibilityEstimation
         op_.sensorState.segment<3>(12)=op_.imuOmega;
 
         if (withForceMeasurements_)
-          op_.sensorState.tail(nbContacts_*6) = getForcesAndMoments(x,u);
+        {
+          op_.sensorState.segment(15,nbContacts_*6) = getForcesAndMoments(x,u);
+          mocapIndex_=15+nbContacts_*6;
           //the last part of the measurement is force torque, it is
           //computed by the current functor and not the sensor_.
           //(see AlgebraicSensor::concatenateWithInput
           //for more details)
+        }
+        else
+        {
+          mocapIndex_=15;
+        }
+
+        if (withAbsolutePos_)
+        {
+          op_.drift = x.segment<3>(driftIndex_);
+          op_.cy=cos(op_.drift(2));
+          op_.sy=sin(op_.drift(2));
+          op_.rdrift<< op_.cy, -op_.sy, 0,
+                       op_.sy,  op_.cy, 0,
+                       0,       0,      1;
+          op_.rtotal.noalias() = op_.rdrift*op_.rFlex;
+
+          op_.ptotal << op_.drift(0),op_.drift(1),0;
+          op_.ptotal.noalias() += op_.rdrift*op_.positionFlex;
+
+          op_.aatotal = op_.rtotal;
+          op_.oritotal.noalias() = op_.aatotal.angle()*op_.aatotal.axis();
+
+          op_.sensorState.segment<3>(mocapIndex_) = op_.oritotal;
+          op_.sensorState.segment<3>(mocapIndex_+3) = op_.ptotal;
+        }
 
         sensor_.setState(op_.sensorState,k);
 
@@ -783,6 +827,11 @@ namespace flexibilityEstimation
       withComBias_=b;
     }
 
+    void IMUElasticLocalFrameDynamicalSystem::setWithAbsolutePosition(bool b)
+    {
+      withAbsolutePos_=b;
+    }
+
     bool IMUElasticLocalFrameDynamicalSystem::getWithForceMeasurements() const
     {
       return withForceMeasurements_;
@@ -792,6 +841,12 @@ namespace flexibilityEstimation
     {
       return withComBias_;
     }
+
+    bool IMUElasticLocalFrameDynamicalSystem::getWithAbsolutePosition() const
+    {
+      return withAbsolutePos_;
+    }
+
 
     void IMUElasticLocalFrameDynamicalSystem::setKfe(const Matrix3 & m)
     {
