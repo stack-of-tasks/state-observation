@@ -468,11 +468,7 @@ namespace flexibilityEstimation
         op_.orientationFlexV=x.segment(kine::ori,3);
         op_.angularVelocityFlex=x.segment(kine::angVel,3);
         op_.angularAccelerationFlex=x.segment(kine::angAcc,3);
-
-
-
-
-        op_.positionComBias <<  x.segment<2>(kine::comBias),
+        op_.positionComBias <<  x.segment(kine::comBias,2),
                                 0;// the bias of the com along the z axis is assumed 0.
 
         kine::computeInertiaTensor(u.segment<6>(input::inertia),op_.inertia);
