@@ -473,26 +473,9 @@ namespace flexibilityEstimation
 
 
 
-        if (withComBias_)
-        {
-            op_.positionComBias <<  x.segment<2>(kine::comBias),
-                                    0;// the bias of the com along the z axis is assumed 0.
-            driftIndex_=kine::comBias+2;
-        }
-        else
-        {
-            op_.positionComBias.setZero();
-            driftIndex_=kine::comBias;
-        }
 
-        if (withAbsolutePos_)
-        {
-          op_.drift = x.segment<3>(driftIndex_);
-        }
-        else
-        {
-          op_.drift.setZero();
-        }
+        op_.positionComBias <<  x.segment<2>(kine::comBias),
+                                0;// the bias of the com along the z axis is assumed 0.
 
         kine::computeInertiaTensor(u.segment<6>(input::inertia),op_.inertia);
         kine::computeInertiaTensor(u.segment<6>(input::dotInertia),op_.dotInertia);
@@ -689,6 +672,10 @@ namespace flexibilityEstimation
       op_.xk = xk_;
       op_.xk1 = xk1_;
 
+      unsigned sizeBeforeComBias, sizeAfterComBias;
+      sizeBeforeComBias=kine::comBias;
+      sizeAfterComBias=stateSize_-kine::comBias-2;
+
       for (unsigned i=0; i<getStateSize(); ++i)
       {
         op_.xdx[i]+= dx_[i];
@@ -704,13 +691,11 @@ namespace flexibilityEstimation
       xk_= op_.xk;
       xk1_ = op_.xk1;
 
-      unsigned sizeBeforeComBias, sizeAfterComBias;
-      sizeBeforeComBias=kine::comBias;
-      sizeAfterComBias=stateSize_-kine::comBias-2;
+
 
       if(!withComBias_){
-          op_.Jx.block(kine::comBias,0,2,sizeBeforeComBias).setZero();
-          op_.Jx.block(kine::comBias,kine::comBias+2,2,sizeAfterComBias).setZero();
+          //op_.Jx.block(kine::comBias,0,2,sizeBeforeComBias).setZero();
+          //op_.Jx.block(kine::comBias,kine::comBias+2,2,sizeAfterComBias).setZero();
           op_.Jx.block(kine::comBias,kine::comBias,2,2).setIdentity();
           op_.Jx.block(0,kine::comBias,sizeBeforeComBias,2).setZero();
           op_.Jx.block(kine::comBias+2,kine::comBias,sizeAfterComBias,2).setZero();
@@ -720,7 +705,6 @@ namespace flexibilityEstimation
       //std::cout << op_.Jx <<std::endl;
 
       return op_.Jx;
-
     }
 
     void IMUElasticLocalFrameDynamicalSystem::setProcessNoise(NoiseBase * n)
@@ -846,7 +830,6 @@ namespace flexibilityEstimation
     {
       return withAbsolutePos_;
     }
-
 
     void IMUElasticLocalFrameDynamicalSystem::setKfe(const Matrix3 & m)
     {
