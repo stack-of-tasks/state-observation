@@ -448,7 +448,8 @@ namespace flexibilityEstimation
         updateCovarianceMatrix_();
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::setMass(double m){
+    void ModelBaseEKFFlexEstimatorIMU::setRobotMass(double m)
+    {
         functor_.setRobotMass(m);
     }
 

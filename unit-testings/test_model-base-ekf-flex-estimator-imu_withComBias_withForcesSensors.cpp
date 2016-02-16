@@ -144,7 +144,7 @@ int test()
     est.setContactModel(stateObservation::flexibilityEstimation::
                 ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
 
-    est.setMass(56.8);//48.6);//
+    est.setRobotMass(56.8);//48.6);//
 //    stateObservation::Vector3 v1; v1.setOnes();
 //    v1=100*v1;
 //    est.setAngularAccelerationLimit(v1);

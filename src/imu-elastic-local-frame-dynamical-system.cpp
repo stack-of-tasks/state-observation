@@ -58,6 +58,12 @@ namespace flexibilityEstimation
       robotMassInv_=1/m;
     }
 
+    double IMUElasticLocalFrameDynamicalSystem::getRobotMass() const
+    {
+      return robotMass_;
+    }
+
+
    void IMUElasticLocalFrameDynamicalSystem::setContactModel(unsigned nb)
    {
        contactModel_=nb;
@@ -692,6 +698,7 @@ namespace flexibilityEstimation
       //std::cout << op_.Jy<<std::endl;
 
       xk_fory_ = op_.xk_fory; //last thing to do before returning to make the prediction correct
+
       yk_ = op_.yk;
 
       return op_.Jy;

@@ -295,6 +295,8 @@ protected:
 
       virtual void setRobotMass(double d);
 
+      virtual double getRobotMass() const;
+
       EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     protected:

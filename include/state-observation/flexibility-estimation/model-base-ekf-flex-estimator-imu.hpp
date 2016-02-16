@@ -137,7 +137,11 @@ namespace flexibilityEstimation
         virtual void resetCovarianceMatrices();
         virtual void resetStateCovarianceMatrix();
 
-        virtual void setMass(double m);
+        virtual void setRobotMass(double m);
+        virtual double getRobotMass() const
+        {
+            return functor_.getRobotMass();
+        }
 
         virtual void setAngularAccelerationLimit(const Vector3 & v);
         virtual void setLinearAccelerationLimit(const Vector3 & v);
