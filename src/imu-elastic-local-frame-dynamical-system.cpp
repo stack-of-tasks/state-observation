@@ -638,7 +638,11 @@ namespace flexibilityEstimation
       op_.xk_fory = xk_fory_;
       op_.yk = yk_;
 
-      for (unsigned i=0; i<getStateSize(); ++i)
+      unsigned sizeBeforeComBias, sizeAfterComBias;
+      sizeBeforeComBias=kine::comBias;
+      sizeAfterComBias=getStateSize()-kine::comBias-2;
+
+      for (unsigned i=0; i<sizeBeforeComBias; ++i)
       {
         op_.xdx[i]+= dx_[i];
 
@@ -650,15 +654,50 @@ namespace flexibilityEstimation
         op_.xdx[i]=op_.xk_fory[i];
       }
 
-      xk_fory_ = op_.xk_fory;
-      yk_ = op_.yk;
-
       if(!withComBias_){
-          op_.Jy.block(0,kine::comBias,measurementSize_,2).setZero();
+          op_.Jy.block(0,kine::comBias,getMeasurementSize(),2).setZero();
       }
+      else
+      {
+        for (unsigned i=kine::comBias; i<kine::comBias+2; ++i)
+        {
+          op_.xdx[i]+= dx_[i];
+
+          op_.ykdy=measureDynamics(op_.xdx,uk_fory_, op_.k_fory);
+          op_.ykdy-=op_.yk;
+          op_.ykdy/=dx_[i];
+
+          op_.Jy.col(i)=op_.ykdy;
+          op_.xdx[i]=op_.xk_fory[i];
+        }
+      }
+
+      if (!withAbsolutePos_)
+      {
+         op_.Jy.block(0,kine::drift,getMeasurementSize(),3).setZero();
+      }
+      else
+      {
+        for (unsigned i=kine::comBias+2; i<kine::comBias+2+sizeAfterComBias; ++i)
+        {
+          op_.xdx[i]+= dx_[i];
+
+          op_.ykdy=measureDynamics(op_.xdx,uk_fory_, op_.k_fory);
+          op_.ykdy-=op_.yk;
+          op_.ykdy/=dx_[i];
+
+          op_.Jy.col(i)=op_.ykdy;
+          op_.xdx[i]=op_.xk_fory[i];
+        }
+      }
+
+
 
       //std::cout << "JACOBIAN: "<<std::endl;
       //std::cout << op_.Jy<<std::endl;
+
+      xk_fory_ = op_.xk_fory; //last thing to do before returning to make the prediction correct
+      yk_ = op_.yk;
 
       return op_.Jy;
     }
@@ -674,9 +713,9 @@ namespace flexibilityEstimation
 
       unsigned sizeBeforeComBias, sizeAfterComBias;
       sizeBeforeComBias=kine::comBias;
-      sizeAfterComBias=stateSize_-kine::comBias-2;
+      sizeAfterComBias=getStateSize()-kine::comBias-2;
 
-      for (unsigned i=0; i<getStateSize(); ++i)
+      for (unsigned i=0; i<sizeBeforeComBias; ++i)
       {
         op_.xdx[i]+= dx_[i];
 
@@ -688,11 +727,6 @@ namespace flexibilityEstimation
         op_.xdx[i]=op_.xk[i];
       }
 
-      xk_= op_.xk;
-      xk1_ = op_.xk1;
-
-
-
       if(!withComBias_){
           //op_.Jx.block(kine::comBias,0,2,sizeBeforeComBias).setZero();
           //op_.Jx.block(kine::comBias,kine::comBias+2,2,sizeAfterComBias).setZero();
@@ -700,9 +734,48 @@ namespace flexibilityEstimation
           op_.Jx.block(0,kine::comBias,sizeBeforeComBias,2).setZero();
           op_.Jx.block(kine::comBias+2,kine::comBias,sizeAfterComBias,2).setZero();
       }
+      else
+      {
+        for (unsigned i=kine::comBias; i<kine::comBias+2; ++i)
+        {
+          op_.xdx[i]+= dx_[i];
+
+          op_.xk1dx=stateDynamics(op_.xdx,uk_, 0);
+          op_.xk1dx-=op_.xk1;
+          op_.xk1dx/=dx_[i];
+
+          op_.Jx.col(i)=op_.xk1dx;
+          op_.xdx[i]=op_.xk[i];
+        }
+      }
+
+      if (!withAbsolutePos_)
+      {
+         op_.Jx.block(0,kine::drift,getStateSize(),3).setZero();
+         op_.Jx.block(kine::drift,kine::drift,3,3).setIdentity();
+      }
+      else
+      {
+        for (unsigned i=kine::comBias+2; i<kine::comBias+2+sizeAfterComBias; ++i)
+        {
+          op_.xdx[i]+= dx_[i];
+
+          op_.xk1dx=stateDynamics(op_.xdx,uk_, 0);
+          op_.xk1dx-=op_.xk1;
+          op_.xk1dx/=dx_[i];
+
+          op_.Jx.col(i)=op_.xk1dx;
+          op_.xdx[i]=op_.xk[i];
+        }
+      }
+
+
 
       //std::cout << "JACOBIAN: "<<std::endl;
       //std::cout << op_.Jx <<std::endl;
+
+      xk_= op_.xk; //last thing to do before returning
+      xk1_ = op_.xk1;
 
       return op_.Jx;
     }
@@ -770,11 +843,7 @@ namespace flexibilityEstimation
 
         inputSize_ = 42+6*i;
 
-        if (withForceMeasurements_)
-        {
-          measurementSize_=measurementSizeBase_+nbContacts_*6;
-          sensor_.concatenateWithInput(nbContacts_*6);
-        }
+        updateMeasurementSize_();
     }
 
     void IMUElasticLocalFrameDynamicalSystem::setContactPosition
@@ -791,9 +860,8 @@ namespace flexibilityEstimation
         return contactPositions_[i];
     }
 
-    void IMUElasticLocalFrameDynamicalSystem::setWithForceMeasurements(bool b)
+    void IMUElasticLocalFrameDynamicalSystem::updateMeasurementSize_()
     {
-      withForceMeasurements_=b;
       if (withForceMeasurements_)
       {
         measurementSize_=measurementSizeBase_+nbContacts_*6;
@@ -804,6 +872,18 @@ namespace flexibilityEstimation
         measurementSize_=measurementSizeBase_;
         sensor_.concatenateWithInput(0);
       }
+
+      if (withAbsolutePos_)
+      {
+        measurementSize_+=6;
+      }
+
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setWithForceMeasurements(bool b)
+    {
+      withForceMeasurements_=b;
+      updateMeasurementSize_();
     }
 
     void IMUElasticLocalFrameDynamicalSystem::setWithComBias(bool b)
@@ -814,6 +894,8 @@ namespace flexibilityEstimation
     void IMUElasticLocalFrameDynamicalSystem::setWithAbsolutePosition(bool b)
     {
       withAbsolutePos_=b;
+
+
     }
 
     bool IMUElasticLocalFrameDynamicalSystem::getWithForceMeasurements() const

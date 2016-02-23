@@ -156,7 +156,7 @@ int test()
     Vector computeTime;
     computeTime.resize(1);
 
-    Vector errorsum=Vector::Zero(est.getEKF().getStateSize());
+    Vector errorsum=Vector::Zero(18);
 
     est.setContactModel(stateObservation::flexibilityEstimation::
                 ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
@@ -177,7 +177,7 @@ int test()
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
         computeTime[0]=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
 
-        xdifference =flexibility-xRef[k];
+        xdifference =flexibility.head(18)-xRef[k];
 
         errorsum += xdifference.cwiseProduct(xdifference);
 

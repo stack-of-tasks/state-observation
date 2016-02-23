@@ -4,6 +4,7 @@
 const double initialVirtualMeasurementCovariance=1.e-10;
 
 const double dxFactor = 1.0e-8;
+const int stateSize = 23;
 
 namespace stateObservation
 {
@@ -11,11 +12,13 @@ namespace flexibilityEstimation
 {
     ModelBaseEKFFlexEstimatorIMU::ModelBaseEKFFlexEstimatorIMU(double dt):
         EKFFlexibilityEstimatorBase
-            (stateSize_,measurementSizeBase_,inputSizeBase_,
+            (stateSize,measurementSizeBase_,inputSizeBase_,
                             Matrix::Constant(getStateSize(),1,dxFactor)),
         functor_(dt),
+        stateSize_(stateSize),
         forceVariance_(1e-4),
-        stateSize_(20)
+        useFTSensors_(false),
+        withAbsolutePos_(false)
     {
         ekf_.setMeasureSize(functor_.getMeasurementSize());
 
@@ -58,7 +61,7 @@ namespace flexibilityEstimation
         limitAngularAcceleration_=v2;
         limitLinearAcceleration_=v1;
 
-        useFTSensors_= false;
+
     }
 
 
@@ -236,17 +239,27 @@ namespace flexibilityEstimation
 
     void ModelBaseEKFFlexEstimatorIMU::updateCovarianceMatrix_()
     {
+        int currIndex = 6;
+        R_.conservativeResize(getMeasurementSize(),getMeasurementSize());
 
         if (useFTSensors_)
         {
-          Matrix Rtemp(R_);
 
-          R_=Matrix::Identity(getMeasurementSize(),getMeasurementSize());
-
-          R_.block(0,0,6,6)=Rtemp.block(0,0,6,6);
-
-          R_.block(6,6,functor_.getContactsNumber()*6,functor_.getContactsNumber()*6) =
+          R_.block(currIndex,0,functor_.getContactsNumber()*6,currIndex).setZero();
+          R_.block(0,currIndex,currIndex,functor_.getContactsNumber()*6).setZero();
+          R_.block(currIndex,currIndex,functor_.getContactsNumber()*6,functor_.getContactsNumber()*6) =
             Matrix::Identity(functor_.getContactsNumber()*6,functor_.getContactsNumber()*6)*forceVariance_;
+
+          currIndex += functor_.getContactsNumber()*6;
+        }
+
+        if (withAbsolutePos_)
+        {
+          R_.block(currIndex,0,6,currIndex).setZero();
+          R_.block(0,currIndex,currIndex,6).setZero();
+          R_.block(currIndex,currIndex,6,6) =   Matrix::Identity(6,6)*absPosVariance_;
+
+          currIndex += 6;
         }
 
         ekf_.setR(R_);
@@ -297,7 +310,7 @@ namespace flexibilityEstimation
     {
         timespec time1, time2, time3;
 
-        if(on_==true & functor_.getContactsNumber() > 0)
+        if(on_==true && functor_.getContactsNumber() > 0)
         {
             if (ekf_.getMeasurementsNumber()>0)
             {
@@ -355,6 +368,13 @@ namespace flexibilityEstimation
         else
         {
             lastX_.setZero();
+            if (ekf_.getMeasurementsNumber()>0)
+            {
+              ekf_.setState(lastX_,ekf_.getCurrentTime());
+              ekf_.clearMeasurements();
+              ekf_.clearInputs();
+              resetCovarianceMatrices();
+            }
         }
 
         return lastX_;
@@ -409,6 +429,19 @@ namespace flexibilityEstimation
       useFTSensors_=b;
     }
 
+    void ModelBaseEKFFlexEstimatorIMU::setWithAbsolutePos(bool b)
+    {
+      if (withAbsolutePos_!= b)
+      {
+        functor_.setWithAbsolutePosition(b);
+        ekf_.setMeasureSize(functor_.getMeasurementSize());
+
+        updateCovarianceMatrix_();
+      }
+
+      withAbsolutePos_=b;
+    }
+
 
     void ModelBaseEKFFlexEstimatorIMU::setWithComBias(bool b)
     {
@@ -422,6 +455,12 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::setForceVariance(double d)
     {
         forceVariance_ = d;
+        updateCovarianceMatrix_();
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setAbsolutePosVariance(double d)
+    {
+        absPosVariance_ = d;
         updateCovarianceMatrix_();
     }
 

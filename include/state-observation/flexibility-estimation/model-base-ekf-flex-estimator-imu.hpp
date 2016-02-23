@@ -82,7 +82,7 @@ namespace flexibilityEstimation
         {
             stateObservation::Matrix P(ekf_.getStateCovariance());
             stateObservation::Vector Pvec(ekf_.getStateSize());
-            for(int i=0;i<ekf_.getStateSize();++i) Pvec(i)=P(i,i);
+            for(unsigned i=0;i<ekf_.getStateSize();++i) Pvec(i)=P(i,i);
             return Pvec;
         }
 
@@ -110,6 +110,7 @@ namespace flexibilityEstimation
 
         ///sets to whether or not the force mesurements are taken into account
         virtual void setWithForcesMeasurements(bool);
+        virtual void setWithAbsolutePos(bool);
 
         virtual void setWithComBias(bool b);
 
@@ -119,6 +120,7 @@ namespace flexibilityEstimation
         }
 
         virtual void setForceVariance(double d);
+        virtual void setAbsolutePosVariance(double d);
 
         /// sets the sampling period
         virtual void setSamplingPeriod(double);
@@ -149,19 +151,23 @@ namespace flexibilityEstimation
 
         Matrix R_,Q_;
 
+        const unsigned stateSize_;
+
         static const unsigned measurementSizeBase_=42;
         static const unsigned inputSizeBase_=42;
         unsigned inputSize_;
-        const unsigned stateSize_;
+
 
         double dt_;//sampling period
         bool on_;
         double computeFlexibilityTime_;
 
         double forceVariance_;//force sensor variance
+        double absPosVariance_;
 
         bool useFTSensors_;
         bool withComBias_;
+        bool withAbsolutePos_;
 
         Vector3 limitAngularAcceleration_;
         Vector3 limitLinearAcceleration_;

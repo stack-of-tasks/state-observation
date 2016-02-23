@@ -303,6 +303,8 @@ protected:
 
       stateObservation::NoiseBase * processNoise_;
 
+      void updateMeasurementSize_();
+
       double dt_;
 
       double robotMass_;
