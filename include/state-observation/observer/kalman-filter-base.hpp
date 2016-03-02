@@ -298,6 +298,7 @@ namespace stateObservation
             Matrix inoMeasCovInverse;
             LLTPMatrix inoMeasCovLLT;
             Matrix kGain;
+            Matrix t;
         } oc_;
 
 

@@ -145,6 +145,11 @@ namespace stateObservation
         pr_ -= oc_.kGain*c_;
         pr_ *= oc_.pbar;
 
+        // simmetrize the pr_ matrix
+        oc_.t.noalias()=pr_;
+        oc_.t+=pr_.transpose();
+        pr_=0.5*oc_.t;
+
         return oc_.xhat;
     }
 
