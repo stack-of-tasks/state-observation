@@ -4,7 +4,7 @@
 const double initialVirtualMeasurementCovariance=1.e-10;
 
 const double dxFactor = 1.0e-8;
-const int stateSize = 23;
+const int stateSize = 29;
 
 namespace stateObservation
 {
@@ -88,6 +88,7 @@ namespace flexibilityEstimation
             Q_.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-8;
             Q_.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-4;
             Q_.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-4;
+
             if(withComBias_)
               Q_.block(kine::comBias,kine::comBias,2,2)=Matrix::Identity(2,2)*2.5e-10;
             else
@@ -97,6 +98,9 @@ namespace flexibilityEstimation
               ;//Q_.block(kine::drift,kine::drift,3,3)=Matrix::Identity(3,3)*1e-8;
             else
               Q_.block(kine::drift,kine::drift,3,3).setZero();
+
+            stateObservation::Matrix m; m.resize(6,6); m.setIdentity();
+            Q_.block(kine::forcesAndTorques,kine::forcesAndTorques,6,6)=m*0.e-0;
 
             ekf_.setQ(Q_);
 
