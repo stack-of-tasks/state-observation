@@ -110,6 +110,9 @@ namespace flexibilityEstimation
 
         ///sets to whether or not the force mesurements are taken into account
         virtual void setWithForcesMeasurements(bool);
+
+        bool getWithForcesMeasurements();
+
         virtual void setWithAbsolutePos(bool);
 
         virtual void setWithComBias(bool b);

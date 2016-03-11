@@ -430,6 +430,11 @@ namespace flexibilityEstimation
       }
     }
 
+    bool ModelBaseEKFFlexEstimatorIMU::getWithForcesMeasurements()
+    {
+        return useFTSensors_;
+    }
+
 
     void ModelBaseEKFFlexEstimatorIMU::setWithComBias(bool b)
     {
