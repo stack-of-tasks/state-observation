@@ -410,13 +410,12 @@ namespace flexibilityEstimation
     {
       if (useFTSensors_!= b)
       {
+        useFTSensors_=b;
         functor_.setWithForceMeasurements(b);
         ekf_.setMeasureSize(functor_.getMeasurementSize());
 
         updateCovarianceMatrix_();
       }
-
-      useFTSensors_=b;
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setWithAbsolutePos(bool b)
