@@ -13,7 +13,7 @@ namespace flexibilityEstimation
     ModelBaseEKFFlexEstimatorIMU::ModelBaseEKFFlexEstimatorIMU(double dt):
         EKFFlexibilityEstimatorBase
             (stateSize,measurementSizeBase_,inputSizeBase_,
-                            Matrix::Constant(getStateSize(),1,dxFactor)),
+                            Matrix::Constant(stateSize,1,dxFactor)),
         functor_(dt),
         stateSize_(stateSize),
         forceVariance_(1e-4),
@@ -88,9 +88,23 @@ namespace flexibilityEstimation
             Q_.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-8;
             Q_.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-4;
             Q_.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-4;
-            if(withComBias_)  Q_.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*2.5e-10;
+            if(withComBias_)
+              Q_.block(kine::comBias,kine::comBias,2,2)=Matrix::Identity(2,2)*2.5e-10;
+            else
+              Q_.block(kine::comBias,kine::comBias,2,2).setZero();
+
+            if (withAbsolutePos_)
+              ;//Q_.block(kine::drift,kine::drift,3,3)=Matrix::Identity(3,3)*1e-8;
+            else
+              Q_.block(kine::drift,kine::drift,3,3).setZero();
 
             ekf_.setQ(Q_);
+
+            resetStateCovarianceMatrix();
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::resetStateCovarianceMatrix()
+    {
 
             Matrix P0 (ekf_.getQmatrixIdentity());
             P0=P0*1e-2;
@@ -101,7 +115,6 @@ namespace flexibilityEstimation
             if(withComBias_) P0.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*1.e-2;
 
             ekf_.setStateCovariance(P0);
-
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setContactsNumber(unsigned i)
@@ -368,12 +381,13 @@ namespace flexibilityEstimation
         else
         {
             lastX_.setZero();
+            ekf_.setState(lastX_,ekf_.getCurrentTime());
+
             if (ekf_.getMeasurementsNumber()>0)
             {
-              ekf_.setState(lastX_,ekf_.getCurrentTime());
               ekf_.clearMeasurements();
               ekf_.clearInputs();
-              resetCovarianceMatrices();
+              resetStateCovarianceMatrix();
             }
         }
 
