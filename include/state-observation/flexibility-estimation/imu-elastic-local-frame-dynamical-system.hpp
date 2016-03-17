@@ -429,6 +429,9 @@ protected:
         Vector3 fc;
         Vector3 tc;
 
+        Vector3 fm;
+        Vector3 tm;
+
         Vector3 vf;
         Vector3 vt;
 

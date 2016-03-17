@@ -557,6 +557,8 @@ namespace flexibilityEstimation
         op_.orientationFlexV=x.segment(kine::ori,3);
         op_.angularVelocityFlex=x.segment(kine::angVel,3);
         op_.angularAccelerationFlex=x.segment(kine::angAcc,3);
+        op_.fm=x.segment(kine::forcesAndTorques,3);
+        op_.tm=x.segment(kine::forcesAndTorques+3,3);
 
         op_.rFlex =computeRotation_(op_.orientationFlexV,0);
 
@@ -622,6 +624,9 @@ namespace flexibilityEstimation
           op_.sensorState.segment<3>(mocapIndex_) = op_.ptotal;
           op_.sensorState.segment<3>(mocapIndex_+3) = op_.oritotal;
         }
+
+        op_.sensorState.tail(6) << op_.fm,
+                                   op_.tm;
 
         sensor_.setState(op_.sensorState,k);
 
