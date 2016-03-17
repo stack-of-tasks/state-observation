@@ -11,8 +11,6 @@
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 #include <stdexcept>
 
-#include <iostream>
-
 namespace stateObservation
 {
 namespace flexibilityEstimation
@@ -242,7 +240,8 @@ namespace flexibilityEstimation
         const IndexedMatrixArray& contactOriV,
         const Vector3& position, const Vector3& linVelocity, Vector3& linearAcceleration,
         const Vector3 &oriVector ,const Matrix3& orientation,
-        const Vector3& angularVel, Vector3& angularAcceleration)
+        const Vector3& angularVel, Vector3& angularAcceleration,
+        Vector3 & fm, Vector3& tm)
     {
 
         kine::skewSymmetric(angularVel,op_.skewV);
@@ -255,6 +254,9 @@ namespace flexibilityEstimation
         computeForcesAndMoments (contactPosV, contactOriV,
                           position, linVelocity, oriVector, orientation,
                              angularVel, op_.fc, op_.tc);
+
+        op_.fc+=fm;
+        op_.tc+=tm;
 
         op_.wx2Rc.noalias()=op_.skewV2R*positionCom;
         op_._2wxRv.noalias()=2*op_.skewVR*velocityCom;
@@ -301,6 +303,7 @@ namespace flexibilityEstimation
               const IndexedMatrixArray& contactOri,
               Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
               Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+              Vector3 & fm, Vector3& tm,
               double dt)
     {
 
@@ -316,7 +319,7 @@ namespace flexibilityEstimation
         computeAccelerations (positionCom, velocityCom,
         accelerationCom, AngMomentum, dotAngMomentum,
         inertia, dotInertia,  contactPos, contactOri, position, linVelocity, linearAcceleration,
-                       oriVector, op_.rFlex, angularVel, angularAcceleration);
+                       oriVector, op_.rFlex, angularVel, angularAcceleration,fm,tm);
 
 
         op_.orientationAA=op_.rFlex;
@@ -332,6 +335,7 @@ namespace flexibilityEstimation
               const IndexedMatrixArray& contactOri,
               Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
               Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+              Vector3 & fm, Vector3& tm,
               double dt)
     {
 
@@ -381,7 +385,8 @@ namespace flexibilityEstimation
                         accelerationCom, AngMomentum, dotAngMomentum,
                         inertia, dotInertia,  contactPos, contactOri,
                         position, linVelocity, linAcc1, oriVector,
-                        orientationFlex, angularVel, angAcc1);
+                        orientationFlex, angularVel, angAcc1,
+                        fm, tm);
 
 
         //////////2nd//////////////
@@ -401,7 +406,8 @@ namespace flexibilityEstimation
                         accelerationCom, AngMomentum, dotAngMomentum,
                         inertia, dotInertia,  contactPos, contactOri,
                         pos2, linVelocity2, linAcc2, oriv2,
-                        ori2, angVelocity2, angAcc2);
+                        ori2, angVelocity2, angAcc2,
+                        fm, tm);
 
         ////////////3rd/////////////
 
@@ -420,7 +426,8 @@ namespace flexibilityEstimation
                         accelerationCom, AngMomentum, dotAngMomentum,
                         inertia, dotInertia,  contactPos, contactOri,
                         pos3, linVelocity3, linAcc3, oriv3,
-                        ori3, angVelocity3, angAcc3);
+                        ori3, angVelocity3, angAcc3,
+                        fm, tm);
 
 
         ////////////4th/////////////
@@ -439,7 +446,8 @@ namespace flexibilityEstimation
                         accelerationCom, AngMomentum, dotAngMomentum,
                         inertia, dotInertia,  contactPos, contactOri,
                         pos4, linVelocity4, linAcc4, oriv4,
-                        ori4, angVelocity4, angAcc4);
+                        ori4, angVelocity4, angAcc4,
+                        fm, tm);
 
         /////////////////////////////
 
@@ -476,6 +484,8 @@ namespace flexibilityEstimation
         op_.angularAccelerationFlex=x.segment(kine::angAcc,3);
         op_.positionComBias <<  x.segment(kine::comBias,2),
                                 0;// the bias of the com along the z axis is assumed 0.
+        op_.fm=x.segment(kine::forcesAndTorques,3);
+        op_.tm=x.segment(kine::forcesAndTorques+3,3);
 
         kine::computeInertiaTensor(u.segment<6>(input::inertia),op_.inertia);
         kine::computeInertiaTensor(u.segment<6>(input::dotInertia),op_.dotInertia);
@@ -504,7 +514,8 @@ namespace flexibilityEstimation
                           op_.inertia, op_.dotInertia,  op_.contactPosV, op_.contactOriV,
                           op_.positionFlex, op_.velocityFlex, op_.accelerationFlex,
                           op_.orientationFlexV, op_.angularVelocityFlex,
-                          op_.angularAccelerationFlex, dt_/subsample);
+                          op_.angularAccelerationFlex, op_.fm, op_.tm,
+                          dt_/subsample);
         }
         //x_{k+1}
 
@@ -517,6 +528,8 @@ namespace flexibilityEstimation
         xk1_.segment<3>(kine::ori) =  op_.orientationFlexV;
         xk1_.segment<3>(kine::angVel) = op_.angularVelocityFlex;
         xk1_.segment<3>(kine::angAcc) = op_.angularAccelerationFlex;
+        xk1_.segment<3>(kine::forcesAndTorques) = op_.fm;
+        xk1_.segment<3>(kine::forcesAndTorques+3) = op_.tm;
 
         // xk1_.segment<2>(kine::comBias) = op_.positionComBias.head<2>();
 

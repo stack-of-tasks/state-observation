@@ -138,7 +138,8 @@ protected:
        const Vector3& position, const Vector3& linVelocity,
        Vector3& linearAcceleration,  const Vector3 &oriVector ,
        const Matrix3& orientation, const Vector3& angularVel,
-       Vector3& angularAcceleration);
+       Vector3& angularAcceleration,
+       Vector3 & fm, Vector3& tm);
 
       ///Description of the state dynamics
       virtual stateObservation::Vector stateDynamics
@@ -266,6 +267,7 @@ protected:
        const IndexedMatrixArray& contactOri,
        Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
        Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+       Vector3 & fm, Vector3& tm,
        double dt
       );
 
@@ -278,6 +280,7 @@ protected:
        const IndexedMatrixArray& contactOri,
        Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
        Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+       Vector3 & fm, Vector3& tm,
        double dt
       );
 
