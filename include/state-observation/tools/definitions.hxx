@@ -156,7 +156,7 @@ void IndexedMatrixArray::check_(unsigned time)const
 ///does nothing in release mode
 void IndexedMatrixArray::check_()const
 {
-    BOOST_ASSERT(v_.size() && "Error: Matrix array not initialized");
+    BOOST_ASSERT(v_.size() && "Error: Matrix array is empty");
 }
 
 void IndexedMatrixArray::checkNext_(unsigned time)const
