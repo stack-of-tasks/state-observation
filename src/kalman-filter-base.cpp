@@ -1,5 +1,14 @@
 #include <state-observation/observer/kalman-filter-base.hpp>
 
+#ifndef NDEBUG
+//#define VERBOUS_KALMANFILTER
+#endif
+
+#ifdef VERBOUS_KALMANFILTER
+#include <iostream>
+#include <iomanip>      // std::setprecision
+#endif // VERBOUS_KALMANFILTER
+
 namespace stateObservation
 {
 
@@ -112,6 +121,24 @@ namespace stateObservation
 
         //update
         oc_.xhat.noalias()= oc_.xbar+ inovation_;
+
+#ifdef VERBOUS_KALMANFILTER
+        Eigen::IOFormat CleanFmt(2, 0, " ", "\n", "", "");
+        std::cout <<"A" <<std::endl<< a_.format(CleanFmt)<<std::endl;
+        std::cout <<"C" <<std::endl<< c_.format(CleanFmt)<<std::endl;
+        std::cout <<"P" <<std::endl<< pr_.format(CleanFmt)<<std::endl;
+        std::cout <<"K" <<std::endl<< oc_.kGain.format(CleanFmt)<<std::endl;
+        std::cout <<"Xbar" <<std::endl<< oc_.xbar.transpose().format(CleanFmt)<<std::endl;
+        std::cout <<"inoMeasCov" <<std::endl<< oc_.inoMeasCov.format(CleanFmt)<<std::endl;
+        std::cout <<"oc_.pbar" <<std::endl<< (oc_.pbar).format(CleanFmt)<<std::endl;
+        std::cout <<"c_ * (oc_.pbar * c_.transpose())" <<std::endl<< ( c_ * (oc_.pbar * c_.transpose())).format(CleanFmt)<<std::endl;
+        std::cout <<"inoMeasCovInverse" <<std::endl<< oc_.inoMeasCovInverse.format(CleanFmt)<<std::endl;
+        std::cout <<"inoMeas" <<std::endl<< oc_.inoMeas.transpose().format(CleanFmt)<<std::endl;
+        std::cout <<"inovation_" <<std::endl<< inovation_.transpose().format(CleanFmt)<<std::endl;
+        std::cout <<"Xhat" <<std::endl<< oc_.xhat.transpose().format(CleanFmt)<<std::endl;
+#endif // VERBOUS_KALMANFILTER
+
+
 
         this->x_.set(oc_.xhat,k+1);
         pr_=oc_.stateIdentity;
