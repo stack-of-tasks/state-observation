@@ -3,7 +3,7 @@ stateObservation::IndexedMatrixArray offlineEKFFlexibilityEstimation(
             const stateObservation::IndexedMatrixArray & u,
             const Matrix & xh0,
             unsigned numberOfContacts,
-            const std::vector<Vector3> & contactsPositions,
+            const std::vector<Vector3,Eigen::aligned_allocator<Vector3> > & contactsPositions,
             double dt,
             IndexedMatrixArray * ino,
             IndexedMatrixArray * premea)
@@ -76,7 +76,7 @@ stateObservation::IndexedMatrixArray offlineEKFFlexibilityEstimation(
             const stateObservation::IndexedMatrixArray & y,
             const Matrix & xh0,
             unsigned numberOfContacts,
-            const std::vector<Vector3> & contactsPositions,
+            const std::vector<Vector3, Eigen::aligned_allocator<Vector3> > & contactsPositions,
             double dt)
 {
     const unsigned inputSize=15;

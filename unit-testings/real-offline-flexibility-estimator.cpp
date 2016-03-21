@@ -216,7 +216,7 @@ int test (const IndexedMatrixArray & y, const IndexedMatrixArray & u)
     ///the initalization of an estimation of the initial state
     Vector xh0=Vector::Zero(stateSize,1);
 
-    std::vector<Vector3> contactPositions;
+    std::vector<Vector3, Eigen::aligned_allocator<Vector3> > contactPositions;
 
     contactPositions.push_back(Matrix::Zero(3,0));
 

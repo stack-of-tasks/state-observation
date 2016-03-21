@@ -255,8 +255,8 @@ public:
             return f.getMeasureSize();
         }
 
-        std::vector<ekf::Amatrix> a;
-        std::vector<ekf::Cmatrix> c;
+        std::vector<ekf::Amatrix, Eigen::aligned_allocator<ekf::Amatrix> > a;
+        std::vector<ekf::Cmatrix, Eigen::aligned_allocator<ekf::Cmatrix> > c;
 private:
         ekf::StateVector s_;
         ekf::MeasureVector n_;

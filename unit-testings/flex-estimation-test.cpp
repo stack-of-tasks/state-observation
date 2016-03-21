@@ -54,7 +54,7 @@ int testConstant()
     ///the initalization of a random estimation of the initial state
     Vector xh0=Vector::Zero(stateSize,1);
 
-    std::vector<Vector3> contactPositions;
+    std::vector<Vector3, Eigen::aligned_allocator<Vector3> > contactPositions;
 
     contactPositions.push_back(contact);
 
@@ -245,7 +245,7 @@ int test()
     ///the initalization of a random estimation of the initial state
     Vector xh0=Vector::Zero(stateSize,1);
 
-    std::vector<Vector3> contactPositions;
+    std::vector<Vector3, Eigen::aligned_allocator<Vector3> > contactPositions;
 
     contactPositions.push_back(contact);
 
