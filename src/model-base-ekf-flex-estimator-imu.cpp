@@ -124,28 +124,6 @@ namespace flexibilityEstimation
 
         unsigned usize = functor_.getInputSize();
 
-        if (inputSize_!=usize)
-        {
-          stateObservation::Vector saveu, newu;
-          int v, vmin;
-
-          saveu=ekf_.getInput(ekf_.getInputTime());
-
-          newu=Vector::Zero(usize,1);
-
-          vmin=std::min(saveu.size(),newu.size());
-          for(v=0;v<vmin;++v)
-          {
-              newu(v)=saveu(v);
-          }
-
-          inputSize_=usize;
-          ekf_.setInputSize(usize);
-
-          setInput(newu);
-        }
-
-
         ekf_.setInputSize(usize);
 
         if (useFTSensors_)

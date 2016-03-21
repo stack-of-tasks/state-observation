@@ -87,6 +87,8 @@ namespace flexibilityEstimation
 
     void EKFFlexibilityEstimatorBase::setMeasurementInput(const Vector & u)
     {
+        if (ekf_.getInputsNumber()==0)
+          ekf_.setInput(u,k_);
         ekf_.setInput(u,k_+1);
     }
 
