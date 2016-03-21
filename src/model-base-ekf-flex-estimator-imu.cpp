@@ -30,7 +30,7 @@ namespace flexibilityEstimation
 
         ModelBaseEKFFlexEstimatorIMU::resetCovarianceMatrices();
 
-        Vector dx( Matrix::Constant(getStateSize(),1,dxFactor));//thanks Justin
+        Vector dx(Matrix::Constant(getStateSize(),1,dxFactor));
 
         dx.segment(kine::ori,3).fill(1e-4) ;
         dx.segment(kine::angVel,3).fill(1e-4) ;
@@ -106,13 +106,7 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::resetStateCovarianceMatrix()
     {
 
-            Matrix P0 (ekf_.getQmatrixIdentity());
-            P0=P0*1e-2;
-            P0.block(kine::linVel,kine::linVel,3,3)=Matrix3::Identity()*1.e-2;
-            P0.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-2;
-            P0.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-2;
-            P0.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-2;
-            if(withComBias_) P0.block(kine::comBias,kine::comBias,2,2)=Matrix3::Identity().block(0,0,2,2)*1.e-2;
+            Matrix P0 (Q_);
 
             ekf_.setStateCovariance(P0);
     }
