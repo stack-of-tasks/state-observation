@@ -5,8 +5,6 @@
  *      Author: alexis
  */
 
-
-
 #include <state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 #include <stdexcept>
@@ -35,6 +33,7 @@ namespace flexibilityEstimation
       Ktv_=60*Matrix3::Identity();
 
       sensor_.setMatrixMode(true);
+      sensor_.concatenateWithInput(6);
       contactModel_=contactModel::none;
 
       nbContacts_=0;
@@ -255,8 +254,8 @@ namespace flexibilityEstimation
                           position, linVelocity, oriVector, orientation,
                              angularVel, op_.fc, op_.tc);
 
-        op_.fc+=fm;
-        op_.tc+=tm;
+        op_.fc+=orientation*fm;
+        op_.tc+=orientation*tm+kine::skewSymmetric(position)*orientation*fm;
 
         op_.wx2Rc.noalias()=op_.skewV2R*positionCom;
         op_._2wxRv.noalias()=2*op_.skewVR*velocityCom;
@@ -528,14 +527,15 @@ namespace flexibilityEstimation
         xk1_.segment<3>(kine::ori) =  op_.orientationFlexV;
         xk1_.segment<3>(kine::angVel) = op_.angularVelocityFlex;
         xk1_.segment<3>(kine::angAcc) = op_.angularAccelerationFlex;
-        xk1_.segment<3>(kine::forcesAndTorques) = op_.fm;
-        xk1_.segment<3>(kine::forcesAndTorques+3) = op_.tm;
 
         // xk1_.segment<2>(kine::comBias) = op_.positionComBias.head<2>();
 
+        xk1_.segment<3>(kine::forcesAndTorques) = 0.99*op_.fm;
+        xk1_.segment<3>(kine::forcesAndTorques+3) = 0.99*op_.tm;
+
         if (processNoise_!=0x0)
             return processNoise_->addNoise(op_.xk1);
-         else
+        else
             return xk1_;
     }
 
@@ -604,9 +604,12 @@ namespace flexibilityEstimation
         op_.sensorState.segment<3>(9)=op_.imuAcc;
         op_.sensorState.segment<3>(12)=op_.imuOmega;
 
+        op_.sensorState.segment<6>(15) << op_.fm,
+                                          op_.tm;
+
         if (withForceMeasurements_)
         {
-          op_.sensorState.segment(15,nbContacts_*6) = getForcesAndMoments(x,u);
+          op_.sensorState.segment(21,nbContacts_*6) = getForcesAndMoments(x,u);
           mocapIndex_=15+nbContacts_*6;
           //the last part of the measurement is force torque, it is
           //computed by the current functor and not the sensor_.
@@ -615,7 +618,7 @@ namespace flexibilityEstimation
         }
         else
         {
-          mocapIndex_=15;
+          mocapIndex_=21;
         }
 
         if (withAbsolutePos_)
@@ -637,9 +640,6 @@ namespace flexibilityEstimation
           op_.sensorState.segment<3>(mocapIndex_) = op_.ptotal;
           op_.sensorState.segment<3>(mocapIndex_+3) = op_.oritotal;
         }
-
-        op_.sensorState.tail(6) << op_.fm,
-                                   op_.tm;
 
         sensor_.setState(op_.sensorState,k);
 

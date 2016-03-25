@@ -321,7 +321,7 @@ protected:
       static const unsigned stateSize_=29;
       static const unsigned inputSizeBase_=42;
       unsigned inputSize_;
-      static const unsigned measurementSizeBase_=6;
+      static const unsigned measurementSizeBase_=12;
       unsigned nbContacts_;
       unsigned contactModel_;
 

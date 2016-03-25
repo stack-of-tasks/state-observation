@@ -78,6 +78,8 @@ namespace flexibilityEstimation
             R_=Matrix::Identity(getMeasurementSize(),getMeasurementSize());
             R_.block(0,0,3,3)=Matrix3::Identity()*1.e-6;//accelerometer
             R_.block(3,3,3,3)=Matrix3::Identity()*1.e-6;//gyrometer
+            R_.block(6,6,3,3)=Matrix3::Identity()*1.e-6;//unmodeleed forces
+            R_.block(9,9,3,3)=Matrix3::Identity()*1.e-6;//unmodeleed torques
 
             updateCovarianceMatrix_();
 
@@ -99,7 +101,7 @@ namespace flexibilityEstimation
               Q_.block(kine::drift,kine::drift,3,3).setZero();
 
             stateObservation::Matrix m; m.resize(6,6); m.setIdentity();
-            Q_.block(kine::forcesAndTorques,kine::forcesAndTorques,6,6)=m*0.e-0;
+            Q_.block(kine::forcesAndTorques,kine::forcesAndTorques,6,6)=m*1.e-2;
 
             ekf_.setQ(Q_);
 
@@ -192,8 +194,8 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::setMeasurementNoiseCovariance
                                             (const Matrix & R)
     {
-        BOOST_ASSERT(unsigned(R.rows())==6 &&
-                     unsigned(R.cols())==6 &&
+        BOOST_ASSERT(unsigned(R.rows())==12 &&
+                     unsigned(R.cols())==12 &&
                     "ERROR: The measurement noise covariance matrix R has \
                         incorrect size");
 
@@ -227,7 +229,7 @@ namespace flexibilityEstimation
 
     void ModelBaseEKFFlexEstimatorIMU::updateCovarianceMatrix_()
     {
-        int currIndex = 6;
+        int currIndex = 12;
         R_.conservativeResize(getMeasurementSize(),getMeasurementSize());
 
         if (useFTSensors_)
