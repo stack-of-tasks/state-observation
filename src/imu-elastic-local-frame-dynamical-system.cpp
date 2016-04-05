@@ -208,10 +208,10 @@ namespace flexibilityEstimation
 
         Vector3 forces, moments;
 
-        op_.positionFlex=x.segment(kine::pos,3);
-        op_.velocityFlex=x.segment(kine::linVel,3);
-        op_.orientationFlexV=x.segment(kine::ori,3);
-        op_.angularVelocityFlex=x.segment(kine::angVel,3);
+        op_.positionFlex=x.segment(state::pos,3);
+        op_.velocityFlex=x.segment(state::linVel,3);
+        op_.orientationFlexV=x.segment(state::ori,3);
+        op_.angularVelocityFlex=x.segment(state::angVel,3);
         op_.rFlex = computeRotation_(op_.orientationFlexV,0);
 
         unsigned nbContacts(getContactsNumber());
@@ -475,16 +475,16 @@ namespace flexibilityEstimation
         xk_=x;
         uk_=u;
 
-        op_.positionFlex=x.segment(kine::pos,3);
-        op_.velocityFlex=x.segment(kine::linVel,3);
-        op_.accelerationFlex=x.segment(kine::linAcc,3);
-        op_.orientationFlexV=x.segment(kine::ori,3);
-        op_.angularVelocityFlex=x.segment(kine::angVel,3);
-        op_.angularAccelerationFlex=x.segment(kine::angAcc,3);
-        op_.positionComBias <<  x.segment(kine::comBias,2),
+        op_.positionFlex=x.segment(state::pos,3);
+        op_.orientationFlexV=x.segment(state::ori,3);
+        op_.velocityFlex=x.segment(state::linVel,3);
+        op_.angularVelocityFlex=x.segment(state::angVel,3);
+        op_.accelerationFlex=x.segment(state::linAcc,3);
+        op_.angularAccelerationFlex=x.segment(state::angAcc,3);
+        op_.positionComBias <<  x.segment(state::comBias,2),
                                 0;// the bias of the com along the z axis is assumed 0.
-        op_.fm=x.segment(kine::forcesAndTorques,3);
-        op_.tm=x.segment(kine::forcesAndTorques+3,3);
+        op_.fm=x.segment(state::forcesAndTorques,3);
+        op_.tm=x.segment(state::forcesAndTorques+3,3);
 
         kine::computeInertiaTensor(u.segment<6>(input::inertia),op_.inertia);
         kine::computeInertiaTensor(u.segment<6>(input::dotInertia),op_.dotInertia);
@@ -520,18 +520,19 @@ namespace flexibilityEstimation
 
         xk1_=x;
 
-        xk1_.segment<3>(kine::pos) = op_.positionFlex;
-        xk1_.segment<3>(kine::linVel) = op_.velocityFlex;
-        xk1_.segment<3>(kine::linAcc) = op_.accelerationFlex;
+        xk1_.segment<3>(state::pos) = op_.positionFlex;
+        xk1_.segment<3>(state::ori) =  op_.orientationFlexV;
 
-        xk1_.segment<3>(kine::ori) =  op_.orientationFlexV;
-        xk1_.segment<3>(kine::angVel) = op_.angularVelocityFlex;
-        xk1_.segment<3>(kine::angAcc) = op_.angularAccelerationFlex;
+        xk1_.segment<3>(state::linVel) = op_.velocityFlex;
+        xk1_.segment<3>(state::angVel) = op_.angularVelocityFlex;
 
-        // xk1_.segment<2>(kine::comBias) = op_.positionComBias.head<2>();
+        xk1_.segment<3>(state::linAcc) = op_.accelerationFlex;
+        xk1_.segment<3>(state::angAcc) = op_.angularAccelerationFlex;
 
-        xk1_.segment<3>(kine::forcesAndTorques) = 0.99*op_.fm;
-        xk1_.segment<3>(kine::forcesAndTorques+3) = 0.99*op_.tm;
+        // xk1_.segment<2>(state::comBias) = op_.positionComBias.head<2>();
+
+        xk1_.segment<3>(state::forcesAndTorques) = 0.99*op_.fm;
+        xk1_.segment<3>(state::forcesAndTorques+3) = 0.99*op_.tm;
 
         if (processNoise_!=0x0)
             return processNoise_->addNoise(op_.xk1);
@@ -564,14 +565,14 @@ namespace flexibilityEstimation
         uk_fory_=u;
         op_.k_fory=k;
 
-        op_.positionFlex=x.segment(kine::pos,3);
-        op_.velocityFlex=x.segment(kine::linVel,3);
-        op_.accelerationFlex=x.segment(kine::linAcc,3);
-        op_.orientationFlexV=x.segment(kine::ori,3);
-        op_.angularVelocityFlex=x.segment(kine::angVel,3);
-        op_.angularAccelerationFlex=x.segment(kine::angAcc,3);
-        op_.fm=x.segment(kine::forcesAndTorques,3);
-        op_.tm=x.segment(kine::forcesAndTorques+3,3);
+        op_.positionFlex=x.segment(state::pos,3);
+        op_.velocityFlex=x.segment(state::linVel,3);
+        op_.accelerationFlex=x.segment(state::linAcc,3);
+        op_.orientationFlexV=x.segment(state::ori,3);
+        op_.angularVelocityFlex=x.segment(state::angVel,3);
+        op_.angularAccelerationFlex=x.segment(state::angAcc,3);
+        op_.fm=x.segment(state::forcesAndTorques,3);
+        op_.tm=x.segment(state::forcesAndTorques+3,3);
 
         op_.rFlex =computeRotation_(op_.orientationFlexV,0);
 
@@ -673,7 +674,8 @@ namespace flexibilityEstimation
         op_.xdx[i]=op_.xk_fory[i];
       }
 
-      if(!withComBias_){
+      if(!withComBias_)
+      {
           op_.Jy.block(0,kine::comBias,getMeasurementSize(),2).setZero();
       }
       else
@@ -747,7 +749,8 @@ namespace flexibilityEstimation
         op_.xdx[i]=op_.xk[i];
       }
 
-      if(!withComBias_){
+      if(!withComBias_)
+      {
           //op_.Jx.block(kine::comBias,0,2,sizeBeforeComBias).setZero();
           //op_.Jx.block(kine::comBias,kine::comBias+2,2,sizeAfterComBias).setZero();
           op_.Jx.block(kine::comBias,kine::comBias,2,2).setIdentity();

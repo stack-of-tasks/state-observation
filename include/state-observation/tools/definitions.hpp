@@ -224,8 +224,17 @@ namespace stateObservation
         const unsigned angAcc = 15;
     }
 
-
-
+    namespace state
+    {
+      static const unsigned pos = 0;
+      static const unsigned ori = 3;
+      static const unsigned linVel = 6;
+      static const unsigned angVel = 9;
+      static const unsigned linAcc = 12;
+      static const unsigned angAcc = 15;
+      static const unsigned comBias = 18;
+      static const unsigned forcesAndTorques = 20;
+    }
 
     namespace cst
     {

@@ -32,7 +32,6 @@ namespace stateObservation
   namespace flexibilityEstimation
   {
 
-
     /**
     * \class  DynamicalSystem
     * \brief  This class describes the dynamics of a robot's flexibility

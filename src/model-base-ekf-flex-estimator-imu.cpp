@@ -32,8 +32,8 @@ namespace flexibilityEstimation
 
         Vector dx(Matrix::Constant(getStateSize(),1,dxFactor));
 
-        dx.segment(kine::ori,3).fill(1e-4) ;
-        dx.segment(kine::angVel,3).fill(1e-4) ;
+        dx.segment(state::ori,3).fill(1e-4) ;
+        dx.segment(state::angVel,3).fill(1e-4) ;
 
         ModelBaseEKFFlexEstimatorIMU::useFiniteDifferencesJacobians(dx);
 
@@ -101,7 +101,7 @@ namespace flexibilityEstimation
               Q_.block(kine::drift,kine::drift,3,3).setZero();
 
             stateObservation::Matrix m; m.resize(6,6); m.setIdentity();
-            Q_.block(kine::forcesAndTorques,kine::forcesAndTorques,6,6)=m*1.e-2;
+            Q_.block(state::forcesAndTorques,state::forcesAndTorques,6,6)=m*1.e-2;
 
             ekf_.setQ(Q_);
 
@@ -175,9 +175,9 @@ namespace flexibilityEstimation
 
             Vector x_s = ekf_.stateVectorZero();
 
-            x_s.segment(kine::pos,3)=x0.head<3> ();
+            x_s.segment(state::pos,3)=x0.head<3> ();
 
-            x_s.segment(kine::ori,3)=x0.tail<3> ();
+            x_s.segment(state::ori,3)=x0.tail<3> ();
 
             ekf_.setState(x_s,k_);
 
@@ -187,7 +187,7 @@ namespace flexibilityEstimation
 
     void ModelBaseEKFFlexEstimatorIMU::setComBiasGuess(const stateObservation::Vector & x)
     {
-        lastX_.segment(kine::comBias,2)=x.segment(0,2);
+        lastX_.segment(state::comBias,2)=x.segment(0,2);
         setFlexibilityGuess(lastX_);
     }
 
@@ -275,7 +275,7 @@ namespace flexibilityEstimation
 
         const Vector & v (getFlexibilityVector());
 
-        Vector6 v2;v2 << v.segment(kine::pos,3), v.segment(kine::ori,3);
+        Vector6 v2;v2 << v.segment(state::pos,3), v.segment(state::ori,3);
         //v2.head<3>() = v.segment(kine::pos,3);
         //v2.tail<3>() = v.segment(kine::ori,3);
 
@@ -329,13 +329,13 @@ namespace flexibilityEstimation
                         lastX_=x_;
 
                         ///regulate the part of orientation vector in the state vector
-                        lastX_.segment(kine::ori,3)=kine::regulateOrientationVector(lastX_.segment(kine::ori,3));
+                        lastX_.segment(state::ori,3)=kine::regulateOrientationVector(lastX_.segment(state::ori,3));
                         for(int i=0;i<3;i++)
                         { // Saturation for bounded acceleration
-                            lastX_[kine::angAcc+i]=std::min(lastX_[kine::angAcc+i],limitAngularAcceleration_[i]);
-                            lastX_[kine::linAcc+i]=std::min(lastX_[kine::linAcc+i],limitLinearAcceleration_[i]);
-                            lastX_[kine::angAcc+i]=std::max(lastX_[kine::angAcc+i],-limitAngularAcceleration_[i]);
-                            lastX_[kine::linAcc+i]=std::max(lastX_[kine::linAcc+i],-limitLinearAcceleration_[i]);
+                            lastX_[state::angAcc+i]=std::min(lastX_[state::angAcc+i],limitAngularAcceleration_[i]);
+                            lastX_[state::linAcc+i]=std::min(lastX_[state::linAcc+i],limitLinearAcceleration_[i]);
+                            lastX_[state::angAcc+i]=std::max(lastX_[state::angAcc+i],-limitAngularAcceleration_[i]);
+                            lastX_[state::linAcc+i]=std::max(lastX_[state::linAcc+i],-limitLinearAcceleration_[i]);
                         }
 
                         ekf_.setState(lastX_,ekf_.getCurrentTime());
