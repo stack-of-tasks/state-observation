@@ -240,6 +240,7 @@ namespace flexibilityEstimation
         const Vector3& position, const Vector3& linVelocity, Vector3& linearAcceleration,
         const Vector3 &oriVector ,const Matrix3& orientation,
         const Vector3& angularVel, Vector3& angularAcceleration,
+        Vector3& fc, Vector3& tc,
         Vector3 & fm, Vector3& tm)
     {
 
@@ -250,12 +251,8 @@ namespace flexibilityEstimation
 
         op_.rFlexT.noalias()=orientation.transpose();
 
-        computeForcesAndMoments (contactPosV, contactOriV,
-                          position, linVelocity, oriVector, orientation,
-                             angularVel, op_.fc, op_.tc);
-
-        op_.fc+=orientation*fm;
-        op_.tc+=orientation*tm+kine::skewSymmetric(position)*orientation*fm;
+        fc+=orientation*fm;
+        tc+=orientation*tm+kine::skewSymmetric(position)*orientation*fm;
 
         op_.wx2Rc.noalias()=op_.skewV2R*positionCom;
         op_._2wxRv.noalias()=2*op_.skewVR*velocityCom;
@@ -264,13 +261,14 @@ namespace flexibilityEstimation
         op_.Rcp.noalias() = op_.Rc+position;
         op_.RIRT.noalias() = orientation*Inertia*op_.rFlexT;
 
-        op_.vf.noalias() =robotMassInv_*op_.fc;
+        op_.vf.noalias() =robotMassInv_*fc;
+
         op_.vf.noalias() -= op_.Ra;
         op_.vf.noalias() -= op_._2wxRv;
         op_.vf.noalias() -= op_.wx2Rc;
         op_.vf.noalias() -= cst::gravity;
 
-        op_.vt =op_.tc;
+        op_.vt =tc;
         op_.vt.noalias() -= op_.skewV * (op_.RIRT * angularVel);
         op_.vt.noalias() -= orientation * (dotInertia * (op_.rFlexT * angularVel)+dotAngMomentum) ;
         op_.vt.noalias() -= op_.skewVR * AngMomentum;
@@ -314,12 +312,15 @@ namespace flexibilityEstimation
         integrateKinematics(position, linVelocity, linearAcceleration,
             op_.rFlex,angularVel, angularAcceleration, dt);
 
+        computeForcesAndMoments (contactPos, contactOri,
+                          position, linVelocity, oriVector, op_.rFlex,
+                             angularVel, op_.fc, op_.tc);
 
         computeAccelerations (positionCom, velocityCom,
         accelerationCom, AngMomentum, dotAngMomentum,
         inertia, dotInertia,  contactPos, contactOri, position, linVelocity, linearAcceleration,
-                       oriVector, op_.rFlex, angularVel, angularAcceleration,fm,tm);
-
+                       oriVector, op_.rFlex, angularVel, angularAcceleration,
+                       op_.fc, op_.tc, fm,tm);
 
         op_.orientationAA=op_.rFlex;
         oriVector.noalias()=op_.orientationAA.angle()*op_.orientationAA.axis();
@@ -379,13 +380,19 @@ namespace flexibilityEstimation
         Vector3 linAcc4;
         Vector3 angAcc4;
 
-        //////////1st/////////////
+        // Getting forces
+        op_.rFlex = computeRotation_(oriVector,0);
+        computeForcesAndMoments (contactPos, contactOri,
+                          position, linVelocity, oriVector, op_.rFlex,
+                             angularVel, op_.fc, op_.tc);
+
+        //////////1st/////////////    
         computeAccelerations (positionCom, velocityCom,
                         accelerationCom, AngMomentum, dotAngMomentum,
                         inertia, dotInertia,  contactPos, contactOri,
                         position, linVelocity, linAcc1, oriVector,
                         orientationFlex, angularVel, angAcc1,
-                        fm, tm);
+                        op_.fc, op_.tc, fm, tm);
 
 
         //////////2nd//////////////
@@ -406,7 +413,7 @@ namespace flexibilityEstimation
                         inertia, dotInertia,  contactPos, contactOri,
                         pos2, linVelocity2, linAcc2, oriv2,
                         ori2, angVelocity2, angAcc2,
-                        fm, tm);
+                        op_.fc, op_.tc, fm, tm);
 
         ////////////3rd/////////////
 
@@ -426,7 +433,7 @@ namespace flexibilityEstimation
                         inertia, dotInertia,  contactPos, contactOri,
                         pos3, linVelocity3, linAcc3, oriv3,
                         ori3, angVelocity3, angAcc3,
-                        fm, tm);
+                        op_.fc, op_.tc, fm, tm);
 
 
         ////////////4th/////////////
@@ -446,7 +453,7 @@ namespace flexibilityEstimation
                         inertia, dotInertia,  contactPos, contactOri,
                         pos4, linVelocity4, linAcc4, oriv4,
                         ori4, angVelocity4, angAcc4,
-                        fm, tm);
+                        op_.fc, op_.tc, fm, tm);
 
         /////////////////////////////
 
