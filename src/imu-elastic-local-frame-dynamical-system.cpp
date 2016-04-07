@@ -481,8 +481,8 @@ namespace flexibilityEstimation
         op_.orientationFlexV=x.segment(state::ori,3);
         op_.velocityFlex=x.segment(state::linVel,3);
         op_.angularVelocityFlex=x.segment(state::angVel,3);
-        op_.fc=x.segment(state::linAcc,3);
-        op_.tc=x.segment(state::angAcc,3);
+        op_.fc=x.segment(state::fc,3);
+        op_.tc=x.segment(state::tc,3);
         op_.positionComBias <<  x.segment(state::comBias,2),
                                 0;// the bias of the com along the z axis is assumed 0.
         op_.fm=x.segment(state::forcesAndTorques,3);
@@ -528,8 +528,8 @@ namespace flexibilityEstimation
         xk1_.segment<3>(state::linVel) = op_.velocityFlex;
         xk1_.segment<3>(state::angVel) = op_.angularVelocityFlex;
 
-        xk1_.segment<3>(state::linAcc) = op_.fc;
-        xk1_.segment<3>(state::angAcc) = op_.tc;
+        xk1_.segment<3>(state::fc) = op_.fc;
+        xk1_.segment<3>(state::tc) = op_.tc;
 
         // xk1_.segment<2>(state::comBias) = op_.positionComBias.head<2>();
 
@@ -569,10 +569,10 @@ namespace flexibilityEstimation
 
         op_.positionFlex=x.segment(state::pos,3);
         op_.velocityFlex=x.segment(state::linVel,3);
-        op_.fc=x.segment(state::linAcc,3);
+        op_.fc=x.segment(state::fc,3);
         op_.orientationFlexV=x.segment(state::ori,3);
         op_.angularVelocityFlex=x.segment(state::angVel,3);
-        op_.tc=x.segment(state::angAcc,3);
+        op_.tc=x.segment(state::tc,3);
         op_.fm=x.segment(state::forcesAndTorques,3);
         op_.tm=x.segment(state::forcesAndTorques+3,3);
 

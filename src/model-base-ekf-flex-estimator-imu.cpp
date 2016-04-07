@@ -333,10 +333,10 @@ namespace flexibilityEstimation
                         lastX_.segment(state::ori,3)=kine::regulateOrientationVector(lastX_.segment(state::ori,3));
                         for(int i=0;i<3;i++)
                         { // Saturation for bounded acceleration
-                            lastX_[state::angAcc+i]=std::min(lastX_[state::angAcc+i],limitAngularAcceleration_[i]);
-                            lastX_[state::linAcc+i]=std::min(lastX_[state::linAcc+i],limitLinearAcceleration_[i]);
-                            lastX_[state::angAcc+i]=std::max(lastX_[state::angAcc+i],-limitAngularAcceleration_[i]);
-                            lastX_[state::linAcc+i]=std::max(lastX_[state::linAcc+i],-limitLinearAcceleration_[i]);
+                            lastX_[state::tc+i]=std::min(lastX_[state::tc+i],limitAngularAcceleration_[i]);
+                            lastX_[state::fc+i]=std::min(lastX_[state::fc+i],limitLinearAcceleration_[i]);
+                            lastX_[state::tc+i]=std::max(lastX_[state::tc+i],-limitAngularAcceleration_[i]);
+                            lastX_[state::fc+i]=std::max(lastX_[state::fc+i],-limitLinearAcceleration_[i]);
                         }
 
                         ekf_.setState(lastX_,ekf_.getCurrentTime());
