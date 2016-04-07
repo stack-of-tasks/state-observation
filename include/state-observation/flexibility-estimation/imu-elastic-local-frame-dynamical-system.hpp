@@ -317,7 +317,7 @@ protected:
 
       Matrix3& computeRotation_(const Vector3 & x, int i);
 
-      static const unsigned stateSize_=29;
+      static const unsigned stateSize_=35;
       static const unsigned inputSizeBase_=42;
       unsigned inputSize_;
       static const unsigned measurementSizeBase_=12;

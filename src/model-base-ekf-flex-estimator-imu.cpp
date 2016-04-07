@@ -4,7 +4,7 @@
 const double initialVirtualMeasurementCovariance=1.e-10;
 
 const double dxFactor = 1.0e-8;
-const int stateSize = 29;
+const int stateSize = 35;
 
 namespace stateObservation
 {
@@ -82,6 +82,8 @@ namespace flexibilityEstimation
             R_.block(9,9,3,3)=Matrix3::Identity()*1.e-6;//unmodeleed torques
 
             updateCovarianceMatrix_();
+
+            stateObservation::Matrix m; m.resize(6,6); m.setIdentity();
 
             Q_=ekf_.getQmatrixIdentity();
             Q_=Q_*1.e-8;

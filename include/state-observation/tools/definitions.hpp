@@ -231,9 +231,9 @@ namespace stateObservation
       static const unsigned linVel = 6;
       static const unsigned angVel = 9;
       static const unsigned linAcc = 12;
-      static const unsigned angAcc = 15;
-      static const unsigned comBias = 18;
-      static const unsigned forcesAndTorques = 20;
+      static const unsigned angAcc = 18;
+      static const unsigned comBias = 24;
+      static const unsigned forcesAndTorques = 26;
     }
 
     namespace cst
