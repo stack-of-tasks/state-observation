@@ -298,8 +298,8 @@ namespace flexibilityEstimation
               const Matrix3& inertia, const Matrix3& dotInertia,
               const IndexedMatrixArray& contactPos,
               const IndexedMatrixArray& contactOri,
-              Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
-              Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+              Vector3& position, Vector3& linVelocity, Vector3& fc,
+              Vector3 &oriVector, Vector3& angularVel, Vector3& tc,
               Vector3 & fm, Vector3& tm,
               double dt)
     {
@@ -307,20 +307,19 @@ namespace flexibilityEstimation
         op_.rFlex = computeRotation_(oriVector,0);
         //compute new acceleration with the current flex position and velocity and input
 
+        computeAccelerations (positionCom, velocityCom,
+        accelerationCom, AngMomentum, dotAngMomentum,
+        inertia, dotInertia,  contactPos, contactOri, position, linVelocity, op_.linearAcceleration,
+                       oriVector, op_.rFlex, angularVel, op_.angularAcceleration,
+                       fc, tc, fm,tm);
 
         //integrate kinematics with the last acceleration
-        integrateKinematics(position, linVelocity, linearAcceleration,
-            op_.rFlex,angularVel, angularAcceleration, dt);
+        integrateKinematics(position, linVelocity, op_.linearAcceleration,
+            op_.rFlex,angularVel, op_.angularAcceleration, dt);
 
         computeForcesAndMoments (contactPos, contactOri,
                           position, linVelocity, oriVector, op_.rFlex,
-                             angularVel, op_.fc, op_.tc);
-
-        computeAccelerations (positionCom, velocityCom,
-        accelerationCom, AngMomentum, dotAngMomentum,
-        inertia, dotInertia,  contactPos, contactOri, position, linVelocity, linearAcceleration,
-                       oriVector, op_.rFlex, angularVel, angularAcceleration,
-                       op_.fc, op_.tc, fm,tm);
+                             angularVel, fc, tc);
 
         op_.orientationAA=op_.rFlex;
         oriVector.noalias()=op_.orientationAA.angle()*op_.orientationAA.axis();
@@ -333,8 +332,8 @@ namespace flexibilityEstimation
               const Matrix3& inertia, const Matrix3& dotInertia,
               const IndexedMatrixArray& contactPos,
               const IndexedMatrixArray& contactOri,
-              Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
-              Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+              Vector3& position, Vector3& linVelocity, Vector3& fc,
+              Vector3 &oriVector, Vector3& angularVel, Vector3& tc,
               Vector3 & fm, Vector3& tm,
               double dt)
     {
@@ -379,12 +378,6 @@ namespace flexibilityEstimation
 
         Vector3 linAcc4;
         Vector3 angAcc4;
-
-        // Getting forces
-        op_.rFlex = computeRotation_(oriVector,0);
-        computeForcesAndMoments (contactPos, contactOri,
-                          position, linVelocity, oriVector, op_.rFlex,
-                             angularVel, op_.fc, op_.tc);
 
         //////////1st/////////////    
         computeAccelerations (positionCom, velocityCom,
@@ -465,12 +458,14 @@ namespace flexibilityEstimation
         linVelocity+= (dt/6)*(linAcc1+2*linAcc2+2*linAcc3+linAcc4);
         angularVel+= (dt/6)*(angAcc1+2*angAcc2+2*angAcc3+angAcc4);
 
-        linearAcceleration = linAcc4;
-        angularAcceleration = angAcc4;
-
-
         AngleAxis orientationAA(orientationFlex);
         oriVector=orientationAA.angle()*orientationAA.axis();
+
+        // Getting forces
+        op_.rFlex = computeRotation_(oriVector,0);
+        computeForcesAndMoments (contactPos, contactOri,
+                          position, linVelocity, oriVector, op_.rFlex,
+                             angularVel, fc, tc);
     }
 
     Vector IMUElasticLocalFrameDynamicalSystem::stateDynamics
@@ -486,8 +481,8 @@ namespace flexibilityEstimation
         op_.orientationFlexV=x.segment(state::ori,3);
         op_.velocityFlex=x.segment(state::linVel,3);
         op_.angularVelocityFlex=x.segment(state::angVel,3);
-        op_.accelerationFlex=x.segment(state::linAcc,3);
-        op_.angularAccelerationFlex=x.segment(state::angAcc,3);
+        op_.fc=x.segment(state::linAcc,3);
+        op_.tc=x.segment(state::angAcc,3);
         op_.positionComBias <<  x.segment(state::comBias,2),
                                 0;// the bias of the com along the z axis is assumed 0.
         op_.fm=x.segment(state::forcesAndTorques,3);
@@ -518,9 +513,9 @@ namespace flexibilityEstimation
                           op_.positionCom, op_.velocityCom,
                           op_.accelerationCom, op_.AngMomentum, op_.dotAngMomentum,
                           op_.inertia, op_.dotInertia,  op_.contactPosV, op_.contactOriV,
-                          op_.positionFlex, op_.velocityFlex, op_.accelerationFlex,
+                          op_.positionFlex, op_.velocityFlex, op_.fc,
                           op_.orientationFlexV, op_.angularVelocityFlex,
-                          op_.angularAccelerationFlex, op_.fm, op_.tm,
+                          op_.tc, op_.fm, op_.tm,
                           dt_/subsample);
         }
         //x_{k+1}
@@ -533,8 +528,8 @@ namespace flexibilityEstimation
         xk1_.segment<3>(state::linVel) = op_.velocityFlex;
         xk1_.segment<3>(state::angVel) = op_.angularVelocityFlex;
 
-        xk1_.segment<3>(state::linAcc) = op_.accelerationFlex;
-        xk1_.segment<3>(state::angAcc) = op_.angularAccelerationFlex;
+        xk1_.segment<3>(state::linAcc) = op_.fc;
+        xk1_.segment<3>(state::angAcc) = op_.tc;
 
         // xk1_.segment<2>(state::comBias) = op_.positionComBias.head<2>();
 
@@ -574,14 +569,30 @@ namespace flexibilityEstimation
 
         op_.positionFlex=x.segment(state::pos,3);
         op_.velocityFlex=x.segment(state::linVel,3);
-        op_.accelerationFlex=x.segment(state::linAcc,3);
+        op_.fc=x.segment(state::linAcc,3);
         op_.orientationFlexV=x.segment(state::ori,3);
         op_.angularVelocityFlex=x.segment(state::angVel,3);
-        op_.angularAccelerationFlex=x.segment(state::angAcc,3);
+        op_.tc=x.segment(state::angAcc,3);
         op_.fm=x.segment(state::forcesAndTorques,3);
         op_.tm=x.segment(state::forcesAndTorques+3,3);
 
         op_.rFlex =computeRotation_(op_.orientationFlexV,0);
+
+
+        kine::computeInertiaTensor(u.segment<6>(input::inertia),op_.inertia);
+        kine::computeInertiaTensor(u.segment<6>(input::dotInertia),op_.dotInertia);
+        unsigned nbContacts(getContactsNumber());
+        for (unsigned i = 0; i<nbContacts ; ++i)
+        {
+          op_.contactPosV.setValue(u.segment<3>(input::contacts + 6*i),i);
+          op_.contactOriV.setValue(u.segment<3>(input::contacts +6*i+3),i);
+        }
+        op_.positionCom=u.segment<3>(input::posCom);
+        if(withComBias_) op_.positionCom+=op_.positionComBias;
+        op_.velocityCom=u.segment<3>(input::velCom);
+        op_.accelerationCom=u.segment<3>(input::accCom);
+        op_.AngMomentum=u.segment<3>(input::angMoment);
+        op_.dotAngMomentum=u.segment<3>(input::dotAngMoment);
 
         op_.positionControl=u.segment(input::posIMU,3);
         op_.velocityControl=u.segment(input::linVelIMU,3);
@@ -593,8 +604,14 @@ namespace flexibilityEstimation
 
         op_.rimu = op_.rFlex * op_.rControl;
 
-        // Translation sensor dynamic
+        // Get acceleration
+        computeAccelerations (op_.positionCom, op_.velocityCom,
+        op_.accelerationCom, op_.AngMomentum, op_.dotAngMomentum,
+        op_.inertia, op_.dotInertia,  op_.contactPosV, op_.contactOriV, op_.positionFlex, op_.velocityFlex, op_.linearAcceleration,
+                       op_.orientationFlexV, op_.rFlex, op_.angularVelocityFlex, op_.angularAcceleration,
+                       op_.fc, op_.tc, op_.fm,op_.tm);
 
+        // Translation sensor dynamic
         op_.imuAcc = 2*kine::skewSymmetric(op_.angularVelocityFlex) * op_.rFlex * op_.velocityControl;
         op_.imuAcc += op_.accelerationFlex + op_.rFlex * op_.accelerationControl;
         op_.imuAcc += (

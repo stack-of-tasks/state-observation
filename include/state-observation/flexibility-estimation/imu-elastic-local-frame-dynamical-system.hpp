@@ -432,6 +432,9 @@ protected:
         Vector3 fc;
         Vector3 tc;
 
+        Vector3 linearAcceleration;
+        Vector3 angularAcceleration;
+
         Vector3 fm;
         Vector3 tm;
 

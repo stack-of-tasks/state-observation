@@ -57,8 +57,8 @@ namespace flexibilityEstimation
         v2 << 10,
               10,
               10;
-        limitAngularAcceleration_=v2;
-        limitLinearAcceleration_=v1;
+        limitAngularAcceleration_=10000*v2;
+        limitLinearAcceleration_=100000*v1;
 
 
     }
@@ -102,7 +102,6 @@ namespace flexibilityEstimation
             else
               Q_.block(kine::drift,kine::drift,3,3).setZero();
 
-            stateObservation::Matrix m; m.resize(6,6); m.setIdentity();
             Q_.block(state::forcesAndTorques,state::forcesAndTorques,6,6)=m*1.e-2;
 
             ekf_.setQ(Q_);
