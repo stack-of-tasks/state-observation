@@ -51,14 +51,14 @@ namespace flexibilityEstimation
         on_=true;
 
         Vector3 v1, v2;
-        v1 << 100,
+        v1 << 1000,
+              1000,
+              10000;
+        v2 << 100,
               100,
-              100;
-        v2 << 10,
-              10,
-              10;
-        limitAngularAcceleration_=10000*v2;
-        limitLinearAcceleration_=100000*v1;
+              1000;
+        limitAngularAcceleration_=v2;
+        limitLinearAcceleration_=v1;
 
 
     }
