@@ -421,11 +421,9 @@ namespace flexibilityEstimation
       {
         functor_.setWithAbsolutePosition(b);
         ekf_.setMeasureSize(functor_.getMeasurementSize());
-
+        withAbsolutePos_=b;
         updateCovarianceMatrix_();
       }
-
-      withAbsolutePos_=b;
     }
 
 
