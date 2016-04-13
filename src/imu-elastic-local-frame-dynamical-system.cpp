@@ -583,6 +583,7 @@ namespace flexibilityEstimation
         op_.imuOmega = op_.angularVelocityFlex + op_.rFlex * op_.angularVelocityControl;
 
         // Set sensor state before measurement
+
         op_.sensorState.resize(sensor_.getStateSize());
         op_.sensorState.head<9>() = Eigen::Map<Eigen::Matrix<double, 9, 1> >(&op_.rimu(0,0));
         op_.sensorState.segment<3>(9)=op_.imuAcc;
@@ -862,21 +863,19 @@ namespace flexibilityEstimation
 
     void IMUElasticLocalFrameDynamicalSystem::updateMeasurementSize_()
     {
+      measurementSize_=measurementSizeBase_;
+
       if (withForceMeasurements_)
       {
-        measurementSize_=measurementSizeBase_+nbContacts_*6;
-        sensor_.concatenateWithInput(nbContacts_*6);
-      }
-      else
-      {
-        measurementSize_=measurementSizeBase_;
-        sensor_.concatenateWithInput(0);
+        measurementSize_+=nbContacts_*6;
       }
 
       if (withAbsolutePos_)
       {
         measurementSize_+=6;
       }
+
+      sensor_.concatenateWithInput(measurementSize_-measurementSizeBase_);
 
     }
 
@@ -894,7 +893,7 @@ namespace flexibilityEstimation
     void IMUElasticLocalFrameDynamicalSystem::setWithAbsolutePosition(bool b)
     {
       withAbsolutePos_=b;
-
+      updateMeasurementSize_();
 
     }
 

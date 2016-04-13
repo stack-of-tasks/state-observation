@@ -1,0 +1,117 @@
+cmake_minimum_required(VERSION 2.6)
+
+enable_language(CXX)
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "DEBUG")
+  set (CONFIG_EXT "d") #Extension corresponding to the configuration debug
+endif ("${CMAKE_BUILD_TYPE}" STREQUAL "DEBUG")
+
+
+
+SET(PROJECT_NAME observation)
+SET(LIB_NAME observation${CONFIG_EXT})
+
+
+IF(NOT "$ENV{CMAKE_INSTALL_PATH}" STREQUAL "")
+   	SET(MY_OWN_INSTALL_PREFIX "$ENV{CMAKE_INSTALL_PATH}" CACHE PATH "Prefix prepended to	install directories")
+	SET(CMAKE_INSTALL_PREFIX "${MY_OWN_INSTALL_PREFIX}" CACHE INTERNAL "Prefix prepended to install directories" FORCE)
+	message("CMAKE_INSTALL_PREFIX  = ${CMAKE_INSTALL_PREFIX}")
+ENDIF(NOT "$ENV{CMAKE_INSTALL_PATH}" STREQUAL "")
+
+SET(CMAKE_VERBOSE_MAKEFILE ON)
+
+project(${PROJECT_NAME})
+
+
+
+
+IF(WIN32)
+  SET(LIBDIR_KW "/LIBPATH:")
+  SET(LIBINCL_KW "")
+  SET(LIB_EXT ".lib")
+ENDIF(WIN32)
+
+IF(UNIX)
+  SET(LIBDIR_KW "-L")
+  SET(LIBINCL_KW "-l")
+  SET(LIB_EXT "")
+  SET(${PROJECT_NAME}_CXXFLAGS "-DUNIX" )
+ENDIF(UNIX)
+
+set(Boost_USE_STATIC_LIBS ON)
+
+#find_package(Boost COMPONENTS random REQUIRED)
+find_package(Boost REQUIRED)
+
+
+SET( EIGEN3_INCLUDE_DIR "$ENV{EIGEN3_INCLUDE_DIR}" )
+IF( NOT EIGEN3_INCLUDE_DIR )
+    MESSAGE( FATAL_ERROR "Please point the environment variable EIGEN3_INCLUDE_DIR to the include directory of your Eigen3 installation.")
+ENDIF()
+
+#ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.0")
+
+
+#Activate warning
+if(MSVC)
+  # Force to always compile with W4
+  if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+  endif()
+elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+  # Update if necessary
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
+endif()
+
+
+IF(${Boost_MINOR_VERSION} LESS 36)
+  SET(${PROJECT_NAME}_CXXFLAGS "-D WITH_BOOST_1_36 ${${PROJECT_NAME}_CXXFLAGS}")
+ENDIF(${Boost_MINOR_VERSION} LESS 36)
+
+include_directories("${PROJECT_SOURCE_DIR}/include"  "${Boost_INCLUDE_DIR}" "${EIGEN3_INCLUDE_DIR}")
+# Optimisation flags when building with RELEASE
+#----------------------------------------------
+IF(CMAKE_BUILD_TYPE MATCHES "RELEASE")
+  IF(CMAKE_COMPILER_IS_GNUCXX)
+    SET (${PROJECT_NAME}_CXXFLAGS "-O3 -funroll-loops -frerun-loop-opt -fschedule-insns2 -frerun-cse-after-loop -falign-functions -falign-labels -falign-loops -falign-jumps -fexpensive-optimizations ${${PROJECT_NAME}_CXXFLAGS}")
+  ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+ENDIF(CMAKE_BUILD_TYPE MATCHES "RELEASE")
+
+IF(CMAKE_BUILD_TYPE MATCHES "DEBUG")
+  IF(CMAKE_COMPILER_IS_GNUCXX)
+    SET (${PROJECT_NAME}_CXXFLAGS "-g ${${PROJECT_NAME}_CXXFLAGS}")
+  ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+ENDIF(CMAKE_BUILD_TYPE MATCHES "DEBUG")
+
+add_subdirectory(src)
+add_subdirectory(unit-testings)
+
+SET_TARGET_PROPERTIES(${LIB_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+
+# ----------------------------------------------------------------
+# --- Documentation ----------------------------------------------
+# ----------------------------------------------------------------
+
+option(GENERATE_DOC "Generate the documentation " OFF)
+if (GENERATE_DOC)
+  include(FindDoxygen)
+  if(DOXYGEN_FOUND)
+    add_subdirectory(doc)
+  endif(DOXYGEN_FOUND)
+endif (GENERATE_DOC)
+
+# Build a pkgconfig file
+#SET(install_pkg_libdir "\${libdir}")
+#SET(install_pkg_include_dir "\${includedir}")
+
+#define the linker language (useful for empty source folders)
+#SET_TARGET_PROPERTIES(observation PROPERTIES LINKER_LANGUAGE CXX)
+
+#CONFIGURE_FILE(${${PROJECT_NAME}_SOURCE_DIR}/${PROJECT_NAME}.pc.cmake
+#          ${${PROJECT_NAME}_BINARY_DIR}/${PROJECT_NAME}.pc)
+#INSTALL(FILES ${${PROJECT_NAME}_BINARY_DIR}/${PROJECT_NAME}.pc
+#  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig
+#    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE
+#)
