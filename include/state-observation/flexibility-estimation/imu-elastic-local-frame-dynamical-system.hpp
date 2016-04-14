@@ -346,7 +346,6 @@ protected:
       bool withAbsolutePos_;
 
 
-      unsigned driftIndex_;
       unsigned mocapIndex_;
 
       struct Optimization

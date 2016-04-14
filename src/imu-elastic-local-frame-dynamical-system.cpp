@@ -11,8 +11,6 @@
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 #include <stdexcept>
 
-
-
 #include <iostream>
 
 namespace stateObservation
@@ -605,7 +603,7 @@ namespace flexibilityEstimation
 
         if (withAbsolutePos_)
         {
-          op_.drift = x.segment<3>(driftIndex_);
+          op_.drift = x.segment<3>(kine::drift);
           op_.cy=cos(op_.drift(2));
           op_.sy=sin(op_.drift(2));
           op_.rdrift<< op_.cy, -op_.sy, 0,
@@ -619,8 +617,8 @@ namespace flexibilityEstimation
           op_.aatotal = op_.rtotal;
           op_.oritotal.noalias() = op_.aatotal.angle()*op_.aatotal.axis();
 
-          op_.sensorState.segment<3>(mocapIndex_) = op_.oritotal;
-          op_.sensorState.segment<3>(mocapIndex_+3) = op_.ptotal;
+          op_.sensorState.segment<3>(mocapIndex_) = op_.ptotal;
+          op_.sensorState.segment<3>(mocapIndex_+3) = op_.oritotal;
         }
 
         sensor_.setState(op_.sensorState,k);
