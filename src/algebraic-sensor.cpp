@@ -32,8 +32,6 @@ namespace stateObservation
 
     Vector AlgebraicSensor::getMeasurements(bool noisy)
     {
-
-
         if (noisy && noise_!=0x0)
         {
             if (!storedNoisyMeasurement_)
@@ -41,7 +39,6 @@ namespace stateObservation
                 noisyMeasurement_ =  computeNoisyMeasurement_();
                 storedNoisyMeasurement_=true;
             }
-
             return noisyMeasurement_;
         }
         else
@@ -57,7 +54,6 @@ namespace stateObservation
             }
             return noiselessMeasurement_;
         }
-
     }
 
     void AlgebraicSensor::checkState_(const Vector & v)
@@ -93,8 +89,4 @@ namespace stateObservation
         concat_ = n;
         noiselessMeasurement_.resize(getMeasurementSize());
     }
-
-
-
-
 }

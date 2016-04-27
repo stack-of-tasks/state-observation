@@ -575,6 +575,7 @@ namespace flexibilityEstimation
         op_.tc=x.segment(state::tc,3);
         op_.fm=x.segment(state::forcesAndTorques,3);
         op_.tm=x.segment(state::forcesAndTorques+3,3);
+        op_.drift=x.segment<3>(kine::drift);
 
         op_.rFlex =computeRotation_(op_.orientationFlexV,0);
 
@@ -635,7 +636,7 @@ namespace flexibilityEstimation
         if (withForceMeasurements_)
         {
           op_.sensorState.segment(21,nbContacts_*6) = getForcesAndMoments(x,u);
-          mocapIndex_=15+nbContacts_*6;
+          mocapIndex_=21+nbContacts_*6;
           //the last part of the measurement is force torque, it is
           //computed by the current functor and not the sensor_.
           //(see AlgebraicSensor::concatenateWithInput
@@ -648,7 +649,6 @@ namespace flexibilityEstimation
 
         if (withAbsolutePos_)
         {
-          op_.drift = x.segment<3>(kine::drift);
           op_.cy=cos(op_.drift(2));
           op_.sy=sin(op_.drift(2));
           op_.rdrift<< op_.cy, -op_.sy, 0,
@@ -921,7 +921,7 @@ namespace flexibilityEstimation
         measurementSize_+=6;
       }
 
-      sensor_.concatenateWithInput(measurementSize_-measurementSizeBase_);
+      sensor_.concatenateWithInput(measurementSize_-measurementSizeBase_+6);
 
     }
 
