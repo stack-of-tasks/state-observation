@@ -22,12 +22,6 @@
 
 namespace stateObservation
 {
-  namespace kine //for constant declarations
-  {
-    static const unsigned comBias = 18;
-    static const unsigned drift = 26;
-    static const unsigned forcesAndTorques = 20;
-  }
 
   namespace flexibilityEstimation
   {

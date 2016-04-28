@@ -1,8 +1,6 @@
 #include <state-observation/flexibility-estimation/model-base-ekf-flex-estimator-imu.hpp>
 #include <state-observation/tools/miscellaneous-algorithms.hpp>
 
-const double initialVirtualMeasurementCovariance=1.e-10;
-
 const double dxFactor = 1.0e-8;
 const int stateSize = 35;
 
@@ -17,14 +15,13 @@ namespace flexibilityEstimation
         functor_(dt),
         stateSize_(stateSize),
         forceVariance_(1e-4),
+        absPosVariance_(1e-4),
         useFTSensors_(false),
-        withAbsolutePos_(false)
+        withAbsolutePos_(false),
+        withComBias_(false)
     {
         ekf_.setMeasureSize(functor_.getMeasurementSize());
-
-        withComBias_=false;
         ekf_.setStateSize(stateSize_);
-
         ekf_.setInputSize(functor_.getInputSize());
         inputSize_=functor_.getInputSize();
 
@@ -57,8 +54,8 @@ namespace flexibilityEstimation
         v2 << 100,
               100,
               1000;
-        limitAngularAcceleration_=v2;
-        limitLinearAcceleration_=v1;
+        limitAngularAcceleration_=10000*v2;
+        limitLinearAcceleration_=100000*v1;
 
 
     }
@@ -86,34 +83,33 @@ namespace flexibilityEstimation
             stateObservation::Matrix m; m.resize(6,6); m.setIdentity();
 
             Q_=ekf_.getQmatrixIdentity();
-            Q_=Q_*1.e-8;
-            Q_.block(kine::linVel,kine::linVel,3,3)=Matrix3::Identity()*1.e-8;
-            Q_.block(kine::angVel,kine::angVel,3,3)=Matrix3::Identity()*1.e-8;
-            Q_.block(kine::linAcc,kine::linAcc,3,3)=Matrix3::Identity()*1.e-4;
-            Q_.block(kine::angAcc,kine::angAcc,3,3)=Matrix3::Identity()*1.e-4;
-
-            if(withComBias_)
-              Q_.block(kine::comBias,kine::comBias,2,2)=Matrix::Identity(2,2)*2.5e-10;
-            else
-              Q_.block(kine::comBias,kine::comBias,2,2).setZero();
-
-            if (withAbsolutePos_)
-              ;//Q_.block(kine::drift,kine::drift,3,3)=Matrix::Identity(3,3)*1e-8;
-            else
-              Q_.block(kine::drift,kine::drift,3,3).setZero();
-
+            Q_.block(state::pos,state::pos,3,3)=Matrix3::Identity()*1.e-8;
+            Q_.block(state::ori,state::ori,3,3)=Matrix3::Identity()*1.e-8;
+            Q_.block(state::linVel,state::linVel,3,3)=Matrix3::Identity()*1.e-8;
+            Q_.block(state::angVel,state::angVel,3,3)=Matrix3::Identity()*1.e-8;
+            Q_.block(state::fc,state::fc,3,3)=Matrix3::Identity()*1.e-4;
+            Q_.block(state::fc+3,state::fc+3,3,3)=Matrix3::Identity()*0e0;
+            Q_.block(state::tc,state::tc,3,3)=Matrix3::Identity()*1.e-4;
+            Q_.block(state::tc+3,state::tc+3,3,3)=Matrix3::Identity()*0e0;
             Q_.block(state::forcesAndTorques,state::forcesAndTorques,6,6)=m*1.e-2;
 
-            ekf_.setQ(Q_);
+            if(withComBias_)
+              Q_.block(state::comBias,state::comBias,2,2)=Matrix::Identity(2,2)*2.5e-10;
+            else
+              Q_.block(state::comBias,state::comBias,2,2).setZero();
 
+            if (withAbsolutePos_)
+              Q_.block(state::drift,state::drift,3,3)=Matrix::Identity(3,3)*1e-8;
+            else
+              Q_.block(state::drift,state::drift,3,3).setZero();
+
+            ekf_.setQ(Q_);
             resetStateCovarianceMatrix();
     }
 
     void ModelBaseEKFFlexEstimatorIMU::resetStateCovarianceMatrix()
     {
-
-            Matrix P0 (Q_);
-
+            Matrix P0(Q_);
             ekf_.setStateCovariance(P0);
     }
 

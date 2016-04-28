@@ -575,7 +575,7 @@ namespace flexibilityEstimation
         op_.tc=x.segment(state::tc,3);
         op_.fm=x.segment(state::forcesAndTorques,3);
         op_.tm=x.segment(state::forcesAndTorques+3,3);
-        op_.drift=x.segment<3>(kine::drift);
+        op_.drift=x.segment<3>(state::drift);
 
         op_.rFlex =computeRotation_(op_.orientationFlexV,0);
 
@@ -683,8 +683,8 @@ namespace flexibilityEstimation
       op_.yk = yk_;
 
       unsigned sizeBeforeComBias, sizeAfterComBias;
-      sizeBeforeComBias=kine::comBias;
-      sizeAfterComBias=getStateSize()-kine::comBias-2;
+      sizeBeforeComBias=state::comBias;
+      sizeAfterComBias=getStateSize()-state::comBias-2;
 
       for (unsigned i=0; i<sizeBeforeComBias; ++i)
       {
@@ -700,11 +700,11 @@ namespace flexibilityEstimation
 
       if(!withComBias_)
       {
-          op_.Jy.block(0,kine::comBias,getMeasurementSize(),2).setZero();
+          op_.Jy.block(0,state::comBias,getMeasurementSize(),2).setZero();
       }
       else
       {
-        for (unsigned i=kine::comBias; i<kine::comBias+2; ++i)
+        for (unsigned i=state::comBias; i<state::comBias+2; ++i)
         {
           op_.xdx[i]+= dx_[i];
 
@@ -719,11 +719,11 @@ namespace flexibilityEstimation
 
       if (!withAbsolutePos_)
       {
-         op_.Jy.block(0,kine::drift,getMeasurementSize(),3).setZero();
+         op_.Jy.block(0,state::drift,getMeasurementSize(),3).setZero();
       }
       else
       {
-        for (unsigned i=kine::comBias+2; i<kine::comBias+2+sizeAfterComBias; ++i)
+        for (unsigned i=state::comBias+2; i<state::comBias+2+sizeAfterComBias; ++i)
         {
           op_.xdx[i]+= dx_[i];
 
@@ -758,8 +758,8 @@ namespace flexibilityEstimation
       op_.xk1 = xk1_;
 
       unsigned sizeBeforeComBias, sizeAfterComBias;
-      sizeBeforeComBias=kine::comBias;
-      sizeAfterComBias=getStateSize()-kine::comBias-2;
+      sizeBeforeComBias=state::comBias;
+      sizeAfterComBias=getStateSize()-state::comBias-2;
 
       for (unsigned i=0; i<sizeBeforeComBias; ++i)
       {
@@ -777,13 +777,13 @@ namespace flexibilityEstimation
       {
           //op_.Jx.block(kine::comBias,0,2,sizeBeforeComBias).setZero();
           //op_.Jx.block(kine::comBias,kine::comBias+2,2,sizeAfterComBias).setZero();
-          op_.Jx.block(kine::comBias,kine::comBias,2,2).setIdentity();
-          op_.Jx.block(0,kine::comBias,sizeBeforeComBias,2).setZero();
-          op_.Jx.block(kine::comBias+2,kine::comBias,sizeAfterComBias,2).setZero();
+          op_.Jx.block(state::comBias,state::comBias,2,2).setIdentity();
+          op_.Jx.block(0,state::comBias,sizeBeforeComBias,2).setZero();
+          op_.Jx.block(state::comBias+2,state::comBias,sizeAfterComBias,2).setZero();
       }
       else
       {
-        for (unsigned i=kine::comBias; i<kine::comBias+2; ++i)
+        for (unsigned i=state::comBias; i<state::comBias+2; ++i)
         {
           op_.xdx[i]+= dx_[i];
 
@@ -798,12 +798,12 @@ namespace flexibilityEstimation
 
       if (!withAbsolutePos_)
       {
-         op_.Jx.block(0,kine::drift,getStateSize(),3).setZero();
-         op_.Jx.block(kine::drift,kine::drift,3,3).setIdentity();
+         op_.Jx.block(0,state::drift,getStateSize(),3).setZero();
+         op_.Jx.block(state::drift,state::drift,3,3).setIdentity();
       }
       else
       {
-        for (unsigned i=kine::comBias+2; i<kine::comBias+2+sizeAfterComBias; ++i)
+        for (unsigned i=state::comBias+2; i<state::comBias+2+sizeAfterComBias; ++i)
         {
           op_.xdx[i]+= dx_[i];
 
