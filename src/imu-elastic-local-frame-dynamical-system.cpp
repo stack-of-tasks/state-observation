@@ -21,7 +21,8 @@ namespace flexibilityEstimation
         robotMass_(hrp2::m),
         robotMassInv_(1/hrp2::m),
         measurementSize_(measurementSizeBase_),
-        withForceMeasurements_(false), withComBias_(false), withAbsolutePos_(false)
+        withForceMeasurements_(false), withComBias_(false), withAbsolutePos_(false),
+        withUnmodeledMeasurements_(false)
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
        // std::cout<<std::endl<<"IMUElasticLocalFrameDynamicalSystem Constructor"<<std::endl;
@@ -630,21 +631,23 @@ namespace flexibilityEstimation
         op_.sensorState.segment<3>(9)=op_.imuAcc;
         op_.sensorState.segment<3>(12)=op_.imuOmega;
 
-        op_.sensorState.segment<6>(15) << op_.fm,
-                                          op_.tm;
+        index_=15;
+
+        if(withUnmodeledMeasurements_)
+        {
+          op_.sensorState.segment<6>(15) << op_.fm,
+                                            op_.tm;
+          index_+=6;
+        }
 
         if (withForceMeasurements_)
         {
-          op_.sensorState.segment(21,nbContacts_*6) = getForcesAndMoments(x,u);
-          mocapIndex_=21+nbContacts_*6;
+          op_.sensorState.segment(index_,nbContacts_*6) = getForcesAndMoments(x,u);
+          index_+=nbContacts_*6;
           //the last part of the measurement is force torque, it is
           //computed by the current functor and not the sensor_.
           //(see AlgebraicSensor::concatenateWithInput
           //for more details)
-        }
-        else
-        {
-          mocapIndex_=21;
         }
 
         if (withAbsolutePos_)
@@ -662,8 +665,8 @@ namespace flexibilityEstimation
           op_.aatotal = op_.rtotal;
           op_.oritotal.noalias() = op_.aatotal.angle()*op_.aatotal.axis();
 
-          op_.sensorState.segment<3>(mocapIndex_) = op_.ptotal;
-          op_.sensorState.segment<3>(mocapIndex_+3) = op_.oritotal;
+          op_.sensorState.segment<3>(index_) = op_.ptotal;
+          op_.sensorState.segment<3>(index_+3) = op_.oritotal;
         }
 
         sensor_.setState(op_.sensorState,k);
@@ -911,6 +914,11 @@ namespace flexibilityEstimation
     {
       measurementSize_=measurementSizeBase_;
 
+      if(withUnmodeledMeasurements_)
+      {
+        measurementSize_+=6;
+      }
+
       if (withForceMeasurements_)
       {
         measurementSize_+=nbContacts_*6;
@@ -921,7 +929,7 @@ namespace flexibilityEstimation
         measurementSize_+=6;
       }
 
-      sensor_.concatenateWithInput(measurementSize_-measurementSizeBase_+6);
+      sensor_.concatenateWithInput(measurementSize_-measurementSizeBase_);
 
     }
 
@@ -939,6 +947,13 @@ namespace flexibilityEstimation
     void IMUElasticLocalFrameDynamicalSystem::setWithAbsolutePosition(bool b)
     {
       withAbsolutePos_=b;
+      updateMeasurementSize_();
+
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setWithUnmodeledMeasurements(bool b)
+    {
+      withUnmodeledMeasurements_=b;
       updateMeasurementSize_();
 
     }

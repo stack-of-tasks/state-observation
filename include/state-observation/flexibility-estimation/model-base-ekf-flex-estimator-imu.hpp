@@ -115,6 +115,8 @@ namespace flexibilityEstimation
 
         virtual void setWithAbsolutePos(bool);
 
+        void setWithUnmodeledMeasurements(bool b);
+
         virtual void setWithComBias(bool b);
 
         virtual bool getWithComBias()
@@ -177,6 +179,7 @@ namespace flexibilityEstimation
         bool useFTSensors_;
         bool withComBias_;
         bool withAbsolutePos_;
+        bool withUnmodeledMeasurements_;
 
         Vector3 limitAngularAcceleration_;
         Vector3 limitLinearAcceleration_;

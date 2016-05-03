@@ -284,6 +284,7 @@ protected:
       virtual bool getWithComBias() const;
       virtual void setWithAbsolutePosition(bool b);
       virtual bool getWithAbsolutePosition() const;
+      void setWithUnmodeledMeasurements(bool b);
 
 
       virtual void setKfe(const Matrix3 & m);
@@ -315,7 +316,7 @@ protected:
       static const unsigned stateSize_=35;
       static const unsigned inputSizeBase_=42;
       unsigned inputSize_;
-      static const unsigned measurementSizeBase_=12;
+      static const unsigned measurementSizeBase_=6;
       unsigned nbContacts_;
       unsigned contactModel_;
 
@@ -344,9 +345,10 @@ protected:
       bool withForceMeasurements_;
       bool withComBias_;
       bool withAbsolutePos_;
+      bool withUnmodeledMeasurements_;
 
 
-      unsigned mocapIndex_;
+      unsigned index_;
 
       struct Optimization
       {

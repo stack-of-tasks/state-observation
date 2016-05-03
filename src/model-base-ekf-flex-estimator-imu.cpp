@@ -18,7 +18,8 @@ namespace flexibilityEstimation
         absPosVariance_(1e-4),
         useFTSensors_(false),
         withAbsolutePos_(false),
-        withComBias_(false)
+        withComBias_(false),
+        withUnmodeledMeasurements_(false)
     {
         ekf_.setMeasureSize(functor_.getMeasurementSize());
         ekf_.setStateSize(stateSize_);
@@ -75,8 +76,6 @@ namespace flexibilityEstimation
             R_=Matrix::Identity(getMeasurementSize(),getMeasurementSize());
             R_.block(0,0,3,3)=Matrix3::Identity()*1.e-6;//accelerometer
             R_.block(3,3,3,3)=Matrix3::Identity()*1.e-6;//gyrometer
-            R_.block(6,6,3,3)=Matrix3::Identity()*1.e-6;//unmodeleed forces
-            R_.block(9,9,3,3)=Matrix3::Identity()*1.e-6;//unmodeleed torques
 
             updateCovarianceMatrix_();
 
@@ -226,8 +225,15 @@ namespace flexibilityEstimation
 
     void ModelBaseEKFFlexEstimatorIMU::updateCovarianceMatrix_()
     {
-        int currIndex = 12;
+        int currIndex = 6;
         R_.conservativeResize(getMeasurementSize(),getMeasurementSize());
+
+        if(withUnmodeledMeasurements_)
+        {
+          R_.block(6,6,3,3)=Matrix3::Identity()*1.e-6;//unmodeleed forces
+          R_.block(9,9,3,3)=Matrix3::Identity()*1.e-6;//unmodeleed torques
+          currIndex+=6;
+        }
 
         if (useFTSensors_)
         {
@@ -423,6 +429,17 @@ namespace flexibilityEstimation
         functor_.setWithAbsolutePosition(b);
         ekf_.setMeasureSize(functor_.getMeasurementSize());
         withAbsolutePos_=b;
+        updateCovarianceMatrix_();
+      }
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setWithUnmodeledMeasurements(bool b)
+    {
+      if (withUnmodeledMeasurements_!= b)
+      {
+        functor_.setWithUnmodeledMeasurements(b);
+        ekf_.setMeasureSize(functor_.getMeasurementSize());
+        withUnmodeledMeasurements_=b;
         updateCovarianceMatrix_();
       }
     }
