@@ -78,19 +78,23 @@ namespace flexibilityEstimation
             R_.block(3,3,3,3)=Matrix3::Identity()*1.e-6;//gyrometer
 
             updateCovarianceMatrix_();
-
             stateObservation::Matrix m; m.resize(6,6); m.setIdentity();
-
             Q_=ekf_.getQmatrixIdentity();
+
             Q_.block(state::pos,state::pos,3,3)=Matrix3::Identity()*1.e-8;
             Q_.block(state::ori,state::ori,3,3)=Matrix3::Identity()*1.e-8;
             Q_.block(state::linVel,state::linVel,3,3)=Matrix3::Identity()*1.e-8;
             Q_.block(state::angVel,state::angVel,3,3)=Matrix3::Identity()*1.e-8;
+
             Q_.block(state::fc1,state::fc1,3,3)=Matrix3::Identity()*1.e-4;
-            Q_.block(state::fc1+3,state::fc1+3,3,3)=Matrix3::Identity()*0e0;
+            Q_.block(state::fc1+3,state::fc1+3,3,3)=Matrix3::Identity()*1.e-4;
             Q_.block(state::fc2,state::fc2,3,3)=Matrix3::Identity()*1.e-4;
-            Q_.block(state::fc2+3,state::fc2+3,3,3)=Matrix3::Identity()*0e0;
-            Q_.block(state::unmodeledForces,state::unmodeledForces,6,6)=m*1.e-2;
+            Q_.block(state::fc2+3,state::fc2+3,3,3)=Matrix3::Identity()*1.e-4;
+
+            if(withUnmodeledMeasurements_)
+                Q_.block(state::unmodeledForces,state::unmodeledForces,6,6)=m*1.e-2;
+            else
+                Q_.block(state::unmodeledForces,state::unmodeledForces,6,6).setZero();
 
             if(withComBias_)
               Q_.block(state::comBias,state::comBias,2,2)=Matrix::Identity(2,2)*2.5e-10;
@@ -143,8 +147,6 @@ namespace flexibilityEstimation
         ekf_.setMeasurement(y,k_+1);
 
     }
-
-
 
     void ModelBaseEKFFlexEstimatorIMU::setFlexibilityGuess(const Matrix & x)
     {
@@ -230,9 +232,12 @@ namespace flexibilityEstimation
 
         if(withUnmodeledMeasurements_)
         {
-          R_.block(6,6,3,3)=Matrix3::Identity()*1.e-6;//unmodeleed forces
-          R_.block(9,9,3,3)=Matrix3::Identity()*1.e-6;//unmodeleed torques
-          currIndex+=6;
+          R_.block(currIndex,0,6,currIndex).setZero();
+          R_.block(0,currIndex,currIndex,6).setZero();
+          R_.block(currIndex,currIndex,3,3)=Matrix3::Identity()*1.e-6;//unmodeleed forces
+          currIndex+=3;
+          R_.block(currIndex,currIndex,3,3)=Matrix3::Identity()*1.e-6;//unmodeleed torques
+          currIndex+=3;
         }
 
         if (useFTSensors_)

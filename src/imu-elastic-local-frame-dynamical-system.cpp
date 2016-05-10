@@ -81,8 +81,6 @@ namespace flexibilityEstimation
         forces.setZero();
         moments.setZero();
 
-
-
         Vector3 forcei;
         Vector3 momenti;
         Vector3 globalContactPos;
@@ -687,11 +685,9 @@ namespace flexibilityEstimation
       op_.xk_fory = xk_fory_;
       op_.yk = yk_;
 
-      unsigned sizeBeforeComBias, sizeAfterComBias;
-      sizeBeforeComBias=state::comBias;
-      sizeAfterComBias=getStateSize()-state::comBias-2;
+      unsigned sizeAfterComBias=getStateSize()-state::comBias-2;
 
-      for (unsigned i=0; i<sizeBeforeComBias; ++i)
+      for (unsigned i=0; i<state::unmodeledForces; ++i)
       {
         op_.xdx[i]+= dx_[i];
 
@@ -701,6 +697,25 @@ namespace flexibilityEstimation
 
         op_.Jy.col(i)=op_.ykdy;
         op_.xdx[i]=op_.xk_fory[i];
+      }
+
+      if(!withUnmodeledMeasurements_)
+      {
+          op_.Jy.block(0,state::unmodeledForces,getMeasurementSize(),6).setZero();
+      }
+      else
+      {
+          for (unsigned i=state::unmodeledForces; i<state::unmodeledForces+6; ++i)
+          {
+            op_.xdx[i]+= dx_[i];
+
+            op_.ykdy=measureDynamics(op_.xdx,uk_fory_, op_.k_fory);
+            op_.ykdy-=op_.yk;
+            op_.ykdy/=dx_[i];
+
+            op_.Jy.col(i)=op_.ykdy;
+            op_.xdx[i]=op_.xk_fory[i];
+          }
       }
 
       if(!withComBias_)
@@ -762,11 +777,10 @@ namespace flexibilityEstimation
       op_.xk = xk_;
       op_.xk1 = xk1_;
 
-      unsigned sizeBeforeComBias, sizeAfterComBias;
-      sizeBeforeComBias=state::comBias;
-      sizeAfterComBias=getStateSize()-state::comBias-2;
+      unsigned sizeAfterComBias=getStateSize()-state::comBias-2;
+      unsigned sizeAfterUnmodeledForces=getStateSize()-state::unmodeledForces-6;
 
-      for (unsigned i=0; i<sizeBeforeComBias; ++i)
+      for (unsigned i=0; i<state::unmodeledForces; ++i)
       {
         op_.xdx[i]+= dx_[i];
 
@@ -778,12 +792,31 @@ namespace flexibilityEstimation
         op_.xdx[i]=op_.xk[i];
       }
 
+      if(!withUnmodeledMeasurements_)
+      {
+          op_.Jx.block(state::unmodeledForces,state::unmodeledForces,6,6).setIdentity();
+          op_.Jx.block(0,state::unmodeledForces,state::unmodeledForces,6).setZero();
+          op_.Jx.block(state::unmodeledForces+6,state::unmodeledForces,sizeAfterUnmodeledForces,6).setZero();
+      }
+      else
+      {
+        for (unsigned i=state::unmodeledForces; i<state::unmodeledForces+6; ++i)
+        {
+          op_.xdx[i]+= dx_[i];
+
+          op_.xk1dx=stateDynamics(op_.xdx,uk_, 0);
+          op_.xk1dx-=op_.xk1;
+          op_.xk1dx/=dx_[i];
+
+          op_.Jx.col(i)=op_.xk1dx;
+          op_.xdx[i]=op_.xk[i];
+        }
+      }
+
       if(!withComBias_)
       {
-          //op_.Jx.block(kine::comBias,0,2,sizeBeforeComBias).setZero();
-          //op_.Jx.block(kine::comBias,kine::comBias+2,2,sizeAfterComBias).setZero();
           op_.Jx.block(state::comBias,state::comBias,2,2).setIdentity();
-          op_.Jx.block(0,state::comBias,sizeBeforeComBias,2).setZero();
+          op_.Jx.block(0,state::comBias,state::comBias,2).setZero();
           op_.Jx.block(state::comBias+2,state::comBias,sizeAfterComBias,2).setZero();
       }
       else
@@ -808,7 +841,7 @@ namespace flexibilityEstimation
       }
       else
       {
-        for (unsigned i=state::comBias+2; i<state::comBias+2+sizeAfterComBias; ++i)
+          for (unsigned i=state::drift; i<state::drift+3; ++i)
         {
           op_.xdx[i]+= dx_[i];
 
