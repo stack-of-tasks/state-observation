@@ -151,6 +151,8 @@ namespace flexibilityEstimation
         virtual void setAngularAccelerationLimit(const Vector3 & v);
         virtual void setLinearAccelerationLimit(const Vector3 & v);
 
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     protected:
 
         virtual void updateCovarianceMatrix_();

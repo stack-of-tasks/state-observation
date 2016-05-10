@@ -86,11 +86,11 @@ namespace flexibilityEstimation
             Q_.block(state::ori,state::ori,3,3)=Matrix3::Identity()*1.e-8;
             Q_.block(state::linVel,state::linVel,3,3)=Matrix3::Identity()*1.e-8;
             Q_.block(state::angVel,state::angVel,3,3)=Matrix3::Identity()*1.e-8;
-            Q_.block(state::fc,state::fc,3,3)=Matrix3::Identity()*1.e-4;
-            Q_.block(state::fc+3,state::fc+3,3,3)=Matrix3::Identity()*0e0;
-            Q_.block(state::tc,state::tc,3,3)=Matrix3::Identity()*1.e-4;
-            Q_.block(state::tc+3,state::tc+3,3,3)=Matrix3::Identity()*0e0;
-            Q_.block(state::forcesAndTorques,state::forcesAndTorques,6,6)=m*1.e-2;
+            Q_.block(state::fc1,state::fc1,3,3)=Matrix3::Identity()*1.e-4;
+            Q_.block(state::fc1+3,state::fc1+3,3,3)=Matrix3::Identity()*0e0;
+            Q_.block(state::fc2,state::fc2,3,3)=Matrix3::Identity()*1.e-4;
+            Q_.block(state::fc2+3,state::fc2+3,3,3)=Matrix3::Identity()*0e0;
+            Q_.block(state::unmodeledForces,state::unmodeledForces,6,6)=m*1.e-2;
 
             if(withComBias_)
               Q_.block(state::comBias,state::comBias,2,2)=Matrix::Identity(2,2)*2.5e-10;
@@ -335,10 +335,10 @@ namespace flexibilityEstimation
                         lastX_.segment(state::ori,3)=kine::regulateOrientationVector(lastX_.segment(state::ori,3));
                         for(int i=0;i<3;i++)
                         { // Saturation for bounded acceleration
-                            lastX_[state::tc+i]=std::min(lastX_[state::tc+i],limitAngularAcceleration_[i]);
-                            lastX_[state::fc+i]=std::min(lastX_[state::fc+i],limitLinearAcceleration_[i]);
-                            lastX_[state::tc+i]=std::max(lastX_[state::tc+i],-limitAngularAcceleration_[i]);
-                            lastX_[state::fc+i]=std::max(lastX_[state::fc+i],-limitLinearAcceleration_[i]);
+                            lastX_[state::fc2+i]=std::min(lastX_[state::fc2+i],limitAngularAcceleration_[i]);
+                            lastX_[state::fc1+i]=std::min(lastX_[state::fc1+i],limitLinearAcceleration_[i]);
+                            lastX_[state::fc2+i]=std::max(lastX_[state::fc2+i],-limitAngularAcceleration_[i]);
+                            lastX_[state::fc1+i]=std::max(lastX_[state::fc1+i],-limitLinearAcceleration_[i]);
                         }
 
                         ekf_.setState(lastX_,ekf_.getCurrentTime());

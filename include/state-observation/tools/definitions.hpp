@@ -230,9 +230,9 @@ namespace stateObservation
       static const unsigned ori = 3;
       static const unsigned linVel = 6;
       static const unsigned angVel = 9;
-      static const unsigned fc = 12;
-      static const unsigned tc = 18;
-      static const unsigned forcesAndTorques = 24;
+      static const unsigned fc1 = 12;
+      static const unsigned fc2 = 18;
+      static const unsigned unmodeledForces = 24;
       static const unsigned comBias = 30;
       static const unsigned drift = 32;
     }

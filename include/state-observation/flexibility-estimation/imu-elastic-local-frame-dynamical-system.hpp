@@ -132,7 +132,7 @@ protected:
        Vector3& linearAcceleration,  const Vector3 &oriVector ,
        const Matrix3& orientation, const Vector3& angularVel,
        Vector3& angularAcceleration,
-       Vector3& fc, Vector3& tc,
+       Vector6& fc1, Vector6& fc2,
        Vector3 & fm, Vector3& tm);
 
       ///Description of the state dynamics
@@ -224,7 +224,7 @@ protected:
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
-       Vector3& forces, Vector3& moments);
+       Vector6& fc1, Vector6& fc2);
 
       virtual void computeElastPendulumForcesAndMoments
       (const IndexedMatrixArray& PrArray,
@@ -232,7 +232,7 @@ protected:
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
-       Vector3& forces, Vector3& moments);
+       Vector6& forces, Vector6& moments);
 
       void computeForcesAndMoments
       (const IndexedMatrixArray& position1,
@@ -240,7 +240,7 @@ protected:
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
-       Vector3& forces, Vector3& moments);
+       Vector6& fc1, Vector6& fc2);
 
       virtual void computeForcesAndMoments
       (const Vector& x,
@@ -259,8 +259,8 @@ protected:
        const Matrix3& Inertia, const Matrix3& dotInertia,
        const IndexedMatrixArray& contactPos,
        const IndexedMatrixArray& contactOri,
-       Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
-       Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+       Vector3& position, Vector3& linVelocity, Vector6& fc1,
+       Vector3 &oriVector, Vector3& angularVel, Vector6& fc2,
        Vector3 & fm, Vector3& tm,
        double dt
       );
@@ -272,8 +272,8 @@ protected:
        const Matrix3& Inertia, const Matrix3& dotInertia,
        const IndexedMatrixArray& contactPos,
        const IndexedMatrixArray& contactOri,
-       Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
-       Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+       Vector3& position, Vector3& linVelocity, Vector6& fc1,
+       Vector3 &oriVector, Vector3& angularVel, Vector6& fc2,
        Vector3 & fm, Vector3& tm,
        double dt
       );
@@ -369,8 +369,6 @@ protected:
 
         double cy,sy;
 
-
-
         AngleAxis orientationAA;
 
         Vector xk1;
@@ -393,7 +391,6 @@ protected:
         Vector3 ptotal;
         AngleAxis aatotal;
         Vector3 oritotal;
-
 
         Matrix Jx;
         Matrix Jy;
@@ -418,15 +415,16 @@ protected:
 
         Matrix3 rControl;
 
-
         IndexedMatrixArray contactPosV;
         IndexedMatrixArray contactOriV;
 
         Matrix3 inertia;
         Matrix3 dotInertia;
 
-        Vector3 fc;
-        Vector3 tc;
+        Vector6 fc1;
+        Vector6 fc2;
+        Vector3 f;
+        Vector3 t;
 
         Vector3 linearAcceleration;
         Vector3 angularAcceleration;
