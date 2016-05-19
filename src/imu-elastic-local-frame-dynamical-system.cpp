@@ -113,6 +113,57 @@ namespace flexibilityEstimation
         forces.segment<3>(0).noalias() += -Kfv_*linVelocity;
     }
 
+    void IMUElasticLocalFrameDynamicalSystem::computeElastPendulumForcesAndMoments1
+                              (const IndexedMatrixArray& PeArray,
+                               const IndexedMatrixArray& PrArray,
+                               const Vector3& position, const Vector3& linVelocity,
+                               const Vector3& oriVector, const Matrix3& orientation,
+                               const Vector3& angVel,
+                               Vector6& forces, Vector6& moments)
+    {
+        unsigned nbContacts(getContactsNumber());
+        fc_.resize(2*3);
+        tc_.resize(2*3);
+        forces.setZero();
+        moments.setZero();
+
+        stateObservation::Vector3 forcei;
+        stateObservation::Vector3 momenti;
+        stateObservation::Vector3 u, du;
+
+        double stringLength;
+        double modifiedStringLength;
+        double lengthRate;
+        unsigned lengthRateVel;
+
+        for (unsigned i = 0; i<nbContacts ; ++i)
+        {
+            u = position;
+            u.noalias() += orientation*PrArray[i] ;
+            u.noalias() -= PeArray[i];
+
+            du = linVelocity;
+            du.noalias() += kine::skewSymmetric(angVel)*orientation*PrArray[i] ;
+
+            stringLength=(PrArray[i]-PeArray[i]).norm();
+            modifiedStringLength=u.norm();
+
+            lengthRate=(modifiedStringLength-stringLength)/modifiedStringLength;
+            lengthRateVel=(stringLength/std::pow(modifiedStringLength,3))*du.sum();
+
+            forcei = -Kfe_*lengthRate*u-Kfv_*(lengthRateVel*u+lengthRate*du);
+            fc_.segment<3>(3*i)= forcei;
+            forces.segment<3>(0) += forcei;
+
+            momenti.noalias() = kine::skewSymmetric(u)*forcei;
+            tc_.segment<3>(3*i)= momenti;
+            moments.segment<3>(0) += momenti;
+        }
+
+        moments.segment<3>(0).noalias() += - Kte_*oriVector;
+        moments.segment<3>(0).noalias() += - Ktv_*angVel;
+    }
+
 
     Vector IMUElasticLocalFrameDynamicalSystem::getForcesAndMoments()
     {
@@ -192,6 +243,9 @@ namespace flexibilityEstimation
                  break;
 
         case contactModel::pendulum : computeElastPendulumForcesAndMoments(contactpos, contactori, position, linVelocity, oriVector, orientation, angVel, fc1, fc2);
+                 break;
+
+        case contactModel::pendulum1 : computeElastPendulumForcesAndMoments1(contactpos, contactori, position, linVelocity, oriVector, orientation, angVel, fc1, fc2);
                  break;
 
         default: throw std::invalid_argument("IMUElasticLocalFrameDynamicalSystem: the contact model is incorrectly set.");
