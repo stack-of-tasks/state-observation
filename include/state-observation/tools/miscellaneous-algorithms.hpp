@@ -88,6 +88,19 @@ namespace stateObservation
             return v;
         }
 
+        /// Tranbsform the rotation matrix into roll pitch yaw
+        ///(decompose R into Ry*Rp*Rr)
+        inline Vector3 rotationMatrixToRollPitchYaw(const Matrix3 & R)
+        {
+            /// source http://planning.cs.uiuc.edu/node102.html
+            /// and http://planning.cs.uiuc.edu/node103.html
+
+            Vector3 v(atan2(R(2,1),R(2,2)),
+                      atan2(-R(2,0),sqrt(tools::square(R(2,1))+tools::square(R(2,2)))),
+                      atan2(R(1,0),R(0,0)));
+            return v;
+        }
+
         ///transform a 3d vector into a skew symmetric 3x3 matrix
         inline Matrix3 skewSymmetric(const Vector3 & v, Matrix3 & R)
         {
