@@ -63,7 +63,7 @@ namespace stateObservation
         /// Transform the rotation vector into angle axis
         inline AngleAxis rotationVectorToAngleAxis(const Vector3 & v)
         {
-            double angle=v.squaredNorm();
+            double angle(v.squaredNorm());
             if (angle > cst::epsilonAngle * cst::epsilonAngle)
             {
                 angle=sqrt(angle);
@@ -82,10 +82,9 @@ namespace stateObservation
         /// Tranbsform the rotation matrix into rotation vector
         inline Vector3 rotationMatrixToRotationVector(const Matrix3 & R)
         {
-            AngleAxis a;
-            a=AngleAxis(Matrix3(R));
-            Vector v(3);
-            v=a.angle()*a.axis();
+            AngleAxis a(R);
+            Vector3 v(a.axis());
+            v.noalias()=a.angle()*v;
             return v;
         }
 
