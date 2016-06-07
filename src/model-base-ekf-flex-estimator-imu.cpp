@@ -240,9 +240,8 @@ namespace flexibilityEstimation
           currIndex+=3;
         }
 
-        if (useFTSensors_)
+        if(useFTSensors_)
         {
-
           R_.block(currIndex,0,functor_.getContactsNumber()*6,currIndex).setZero();
           R_.block(0,currIndex,currIndex,functor_.getContactsNumber()*6).setZero();
           R_.block(currIndex,currIndex,functor_.getContactsNumber()*6,functor_.getContactsNumber()*6) =
@@ -251,7 +250,7 @@ namespace flexibilityEstimation
           currIndex += functor_.getContactsNumber()*6;
         }
 
-        if (withAbsolutePos_)
+        if(withAbsolutePos_)
         {
           R_.block(currIndex,0,6,currIndex).setZero();
           R_.block(0,currIndex,currIndex,6).setZero();

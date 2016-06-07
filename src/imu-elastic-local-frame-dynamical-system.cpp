@@ -134,6 +134,55 @@ namespace flexibilityEstimation
         double stringLength;
         double modifiedStringLength;
         double lengthRate;
+
+        for (unsigned i = 0; i<nbContacts ; ++i)
+        {
+            u = position;
+            u.noalias() += orientation*PrArray[i] ;
+            u.noalias() -= PeArray[i];
+
+            du = linVelocity;
+            du.noalias() += kine::skewSymmetric(angVel)*orientation*PrArray[i] ;
+
+            stringLength=(PrArray[i]-PeArray[i]).norm();
+            modifiedStringLength=u.norm();
+
+            lengthRate=(modifiedStringLength-stringLength)/modifiedStringLength;
+
+            forcei = -lengthRate*(Kfe_*u+Kfv_*du);
+            fc_.segment<3>(3*i)= forcei;
+            forces.segment<3>(0) += forcei;
+
+            momenti.noalias() = kine::skewSymmetric(u)*forcei;
+            tc_.segment<3>(3*i)= momenti;
+            moments.segment<3>(0) += momenti;
+        }
+
+        moments.segment<3>(0).noalias() += - Kte_*oriVector;
+        moments.segment<3>(0).noalias() += - Ktv_*angVel;
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::computeElastPendulumForcesAndMoments2
+                              (const IndexedMatrixArray& PeArray,
+                               const IndexedMatrixArray& PrArray,
+                               const Vector3& position, const Vector3& linVelocity,
+                               const Vector3& oriVector, const Matrix3& orientation,
+                               const Vector3& angVel,
+                               Vector6& forces, Vector6& moments)
+    {
+        unsigned nbContacts(getContactsNumber());
+        fc_.resize(2*3);
+        tc_.resize(2*3);
+        forces.setZero();
+        moments.setZero();
+
+        stateObservation::Vector3 forcei;
+        stateObservation::Vector3 momenti;
+        stateObservation::Vector3 u, du;
+
+        double stringLength;
+        double modifiedStringLength;
+        double lengthRate;
         unsigned lengthRateVel;
 
         for (unsigned i = 0; i<nbContacts ; ++i)
@@ -246,6 +295,9 @@ namespace flexibilityEstimation
                  break;
 
         case contactModel::pendulum1 : computeElastPendulumForcesAndMoments1(contactpos, contactori, position, linVelocity, oriVector, orientation, angVel, fc1, fc2);
+                 break;
+
+        case contactModel::pendulum2 : computeElastPendulumForcesAndMoments2(contactpos, contactori, position, linVelocity, oriVector, orientation, angVel, fc1, fc2);
                  break;
 
         default: throw std::invalid_argument("IMUElasticLocalFrameDynamicalSystem: the contact model is incorrectly set.");
@@ -634,7 +686,6 @@ namespace flexibilityEstimation
 
         op_.rFlex =computeRotation_(op_.orientationFlexV,0);
 
-
         kine::computeInertiaTensor(u.segment<6>(input::inertia),op_.inertia);
         kine::computeInertiaTensor(u.segment<6>(input::dotInertia),op_.dotInertia);
         unsigned nbContacts(getContactsNumber());
@@ -689,8 +740,8 @@ namespace flexibilityEstimation
 
         if(withUnmodeledMeasurements_)
         {
-          op_.sensorState.segment<6>(15) << op_.fm,
-                                            op_.tm;
+          op_.sensorState.segment<6>(index_) << op_.fm,
+                                                op_.tm;
           index_+=6;
         }
 
@@ -810,8 +861,6 @@ namespace flexibilityEstimation
         }
       }
 
-
-
       //std::cout << "JACOBIAN: "<<std::endl;
       //std::cout << op_.Jy<<std::endl;
 
@@ -908,8 +957,6 @@ namespace flexibilityEstimation
         }
       }
 
-
-
       //std::cout << "JACOBIAN: "<<std::endl;
       //std::cout << op_.Jx <<std::endl;
 
@@ -979,7 +1026,6 @@ namespace flexibilityEstimation
     void IMUElasticLocalFrameDynamicalSystem::setContactsNumber(unsigned i)
     {
         nbContacts_=i;
-
         inputSize_ = 42+6*i;
 
         updateMeasurementSize_();
@@ -1003,10 +1049,7 @@ namespace flexibilityEstimation
     {
       measurementSize_=measurementSizeBase_;
 
-      if(withUnmodeledMeasurements_)
-      {
-        measurementSize_+=6;
-      }
+      measurementSize_+=6; // For unmodeled measurements
 
       if (withForceMeasurements_)
       {

@@ -64,6 +64,7 @@ namespace stateObservation
         static const unsigned elasticContact= 1;
         static const unsigned pendulum= 2;
         static const unsigned pendulum1= 3;
+        static const unsigned pendulum2= 4;
         static const unsigned none= 0;
 
       };
@@ -236,6 +237,14 @@ protected:
        Vector6& forces, Vector6& moments);
 
       virtual void computeElastPendulumForcesAndMoments1
+      (const IndexedMatrixArray& PrArray,
+       const IndexedMatrixArray& PeArray,
+       const Vector3& position, const Vector3& linVelocity,
+       const Vector3& oriVector, const Matrix3& orientation,
+       const Vector3& angVel,
+       Vector6& forces, Vector6& moments);
+
+      virtual void computeElastPendulumForcesAndMoments2
       (const IndexedMatrixArray& PrArray,
        const IndexedMatrixArray& PeArray,
        const Vector3& position, const Vector3& linVelocity,
