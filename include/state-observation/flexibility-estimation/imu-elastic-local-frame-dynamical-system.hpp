@@ -134,7 +134,7 @@ protected:
        Vector3& linearAcceleration,  const Vector3 &oriVector ,
        const Matrix3& orientation, const Vector3& angularVel,
        Vector3& angularAcceleration,
-       Vector6& fc1, Vector6& fc2,
+       Vector6& fc, Vector6& tc,
        Vector3 & fm, Vector3& tm);
 
       ///Description of the state dynamics
@@ -226,7 +226,7 @@ protected:
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
-       Vector6& fc1, Vector6& fc2);
+       Vector6& fc, Vector6& tc);
 
       virtual void computeElastPendulumForcesAndMoments
       (const IndexedMatrixArray& PrArray,
@@ -258,7 +258,7 @@ protected:
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
-       Vector6& fc1, Vector6& fc2);
+       Vector6& fc, Vector6& tc);
 
       virtual void computeForcesAndMoments
       (const Vector& x,
@@ -338,8 +338,8 @@ protected:
       unsigned nbContacts_;
       unsigned contactModel_;
 
-      Vector fc_;
-      Vector tc_;
+      Vector6 fc_;
+      Vector6 tc_;
 
       Vector dx_;
 
@@ -443,6 +443,8 @@ protected:
         Vector6 fc2;
         Vector3 f;
         Vector3 t;
+        Vector6 fc;
+        Vector6 tc;
 
         Vector3 linearAcceleration;
         Vector3 angularAcceleration;

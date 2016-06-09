@@ -164,8 +164,6 @@ int test()
     std::cout << "Beginning reconstruction "<<std::endl;
     for (unsigned k=kinit+2;k<kmax;++k)
     {
-
-
         est.setMeasurement(y[k].transpose());
         est.setMeasurementInput(u[k].transpose());
 
@@ -181,13 +179,10 @@ int test()
 
         errorsum += xdifference.cwiseProduct(xdifference);
 
-
-
         x_output.setValue(flexibility,k);
         y_output.setValue(y[k],k);
         u_output.setValue(u[k],k);
         deltax_output.setValue(xdifference,k);
-
 
         computeTime[0]=est.getComputeFlexibilityTime();
         computationTime_output.setValue(computeTime,k);
@@ -196,11 +191,9 @@ int test()
 
     std::cout << "Completed "<<std::endl;
 
-
     computeTime[0]=computationTime_moy/(kmax-kinit-2);
     computationTime_output.setValue(computeTime,kmax);
     computationTime_output.writeInFile("computationTime.dat");
-
 
     x_output.writeInFile("state.dat");
     y_output.writeInFile("measurement.dat");
@@ -216,8 +209,6 @@ int test()
     error(3) = sqrt((errorsum(kine::ori) + errorsum(kine::ori+1) + errorsum(kine::ori+2))/(kmax-kinit-2));
     error(4) = sqrt((errorsum(kine::angVel) + errorsum(kine::angVel+1) + errorsum(kine::angVel+2))/(kmax-kinit-2));
     error(5) = sqrt((errorsum(kine::angAcc) + errorsum(kine::angAcc+1) + errorsum(kine::angAcc+2))/(kmax-kinit-2));
-
-
 
     std::cout << "Mean computation time " << computeTime[0] <<std::endl;
 

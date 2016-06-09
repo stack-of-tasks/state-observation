@@ -58,6 +58,11 @@ namespace flexibilityEstimation
         ///Sets the number of contacts can be changed online
         void setContactsNumber(unsigned i);
 
+        unsigned getContactsNumber()
+        {
+            return functor_.getContactsNumber();
+        }
+
         void setContactModel(unsigned nb);
 
         /// Sets the value of the next sensor measurement y_{k+1}
