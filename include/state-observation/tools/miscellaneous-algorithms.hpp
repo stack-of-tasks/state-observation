@@ -35,10 +35,19 @@ namespace stateObservation
             return o*(1/dt);
         }
 
+        ///gives the sign of a variable (1, 0 or -1)
         template <typename T> inline
         int signum(T x)
         {
           return (T(0) < x) - (x < T(0));
+        }
+
+        template<typename T>
+        std::string toString(T val)
+        {
+          std::stringstream ss("");
+          ss << val;
+          return ss.str();
         }
     }
 
