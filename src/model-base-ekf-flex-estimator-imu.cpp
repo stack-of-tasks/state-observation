@@ -26,7 +26,6 @@ namespace flexibilityEstimation
         ekf_.setStateSize(stateSize_);
 
         ekf_.setInputSize(functor_.getInputSize());
-        inputSize_=functor_.getInputSize();
 
         ModelBaseEKFFlexEstimatorIMU::resetCovarianceMatrices();
 
@@ -155,7 +154,7 @@ namespace flexibilityEstimation
 
         BOOST_ASSERT((bstate||b6||bhomogeneous) &&
                 "ERROR: The flexibility state has incorrect size \
-                    must be 20x1 vector, 6x1 vector or 4x4 matrix");
+                    must be 23x1 vector, 6x1 vector or 4x4 matrix");
 
         Vector x0 (x);
 
@@ -257,7 +256,7 @@ namespace flexibilityEstimation
 
     unsigned ModelBaseEKFFlexEstimatorIMU::getInputSize() const
     {
-        return inputSize_;
+        return ekf_.getInputSize();
     }
 
     unsigned ModelBaseEKFFlexEstimatorIMU::getMeasurementSize() const

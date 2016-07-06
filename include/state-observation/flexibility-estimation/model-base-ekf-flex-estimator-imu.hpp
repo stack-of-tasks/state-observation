@@ -156,7 +156,6 @@ namespace flexibilityEstimation
 
         static const unsigned measurementSizeBase_=42;
         static const unsigned inputSizeBase_=42;
-        unsigned inputSize_;
 
 
         double dt_;//sampling period
