@@ -306,6 +306,9 @@ namespace flexibilityEstimation
                     unsigned i;
                     for (i=ekf_.getCurrentTime()+1; i<=k_; ++i)
                     {
+                      if (finiteDifferencesJacobians_)
+                      {
+
 
                         ekf_.updatePredictedMeasurement();///triggers also ekf_.updatePrediction();
 
@@ -313,7 +316,8 @@ namespace flexibilityEstimation
                         //ekf_.setC(ekf_.getCMatrixFD(dx_));
                         ekf_.setA(functor_.stateDynamicsJacobian());
                         ekf_.setC(functor_.measureDynamicsJacobian());
-                        ekf_.getEstimatedState(i);
+                      }
+                      ekf_.getEstimatedState(i);
                     }
                     x_=ekf_.getEstimatedState(k_);
 
