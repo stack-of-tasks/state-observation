@@ -77,7 +77,6 @@ namespace flexibilityEstimation
 
     void FixedContactEKFFlexEstimatorIMU::setContactsNumber(unsigned i)
     {
-        finiteDifferencesJacobians_=true;
         functor_.setContactsNumber(i);
         ekf_.setMeasureSize(functor_.getMeasurementSize());
         updateCovarianceMatrix_();

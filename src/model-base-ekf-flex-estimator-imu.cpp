@@ -112,7 +112,6 @@ namespace flexibilityEstimation
 
     void ModelBaseEKFFlexEstimatorIMU::setContactsNumber(unsigned i)
     {
-        finiteDifferencesJacobians_=true;
         functor_.setContactsNumber(i);
 
         unsigned usize = functor_.getInputSize();
