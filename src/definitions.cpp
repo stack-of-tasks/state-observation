@@ -97,7 +97,10 @@ namespace stateObservation
     {
     	std::ofstream f;
 
-        f.open(filename);
+      f.open(filename);
+
+      if (size()>0)
+      {
 
         for (size_t k=getFirstIndex();k<=getLastIndex();++k)
         {
@@ -116,6 +119,7 @@ namespace stateObservation
 
             f << std::endl;
         }
+      }
     }
 
 }
