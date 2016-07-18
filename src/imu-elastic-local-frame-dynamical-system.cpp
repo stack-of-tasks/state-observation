@@ -241,6 +241,8 @@ namespace flexibilityEstimation
     void IMUElasticLocalFrameDynamicalSystem::computeElastContactForcesAndMoments
                               (const IndexedMatrixArray& contactPosArray,
                                const IndexedMatrixArray& contactOriArray,
+                               const IndexedMatrixArray& contactVelArray,
+                               const IndexedMatrixArray& contactAngVelArray,
                                const Vector3& position, const Vector3& linVelocity,
                                const Vector3& oriVector, const Matrix3& orientation,
                                const Vector3& angVel,
@@ -282,13 +284,15 @@ namespace flexibilityEstimation
     inline void IMUElasticLocalFrameDynamicalSystem::computeForcesAndMoments
                           (const IndexedMatrixArray& contactpos,
                            const IndexedMatrixArray& contactori,
+                           const IndexedMatrixArray& contactvel,
+                           const IndexedMatrixArray& contactangvel,
                            const Vector3& position, const Vector3& linVelocity,
                            const Vector3& oriVector, const Matrix3& orientation,
                            const Vector3& angVel,
                            Vector6& fc, Vector6& tc)
     {
         switch(contactModel_){
-        case contactModel::elasticContact : computeElastContactForcesAndMoments(contactpos, contactori, position, linVelocity, oriVector, orientation, angVel, fc, tc);
+        case contactModel::elasticContact : computeElastContactForcesAndMoments(contactpos, contactori, contactvel, contactangvel, position, linVelocity, oriVector, orientation, angVel, fc, tc);
                  break;
 
         case contactModel::pendulum : computeElastPendulumForcesAndMoments(contactpos, contactori, position, linVelocity, oriVector, orientation, angVel, fc, tc);
@@ -326,7 +330,7 @@ namespace flexibilityEstimation
             op_.contactAngVel.setValue(u.segment<3>(input::contacts +12*i +9),i);
         }
 
-        computeForcesAndMoments (op_.contactPosV, op_.contactOriV,
+        computeForcesAndMoments (op_.contactPosV, op_.contactOriV, op_.contactVel, op_.contactAngVel,
                           op_.positionFlex, op_.velocityFlex, op_.orientationFlexV, op_.rFlex,
                              op_.angularVelocityFlex, fc_, tc_);
     }
@@ -432,7 +436,7 @@ namespace flexibilityEstimation
         op_.orientationAA=op_.rFlex;
         oriVector.noalias()=op_.orientationAA.angle()*op_.orientationAA.axis();
 
-        computeForcesAndMoments (contactPos, contactOri,
+        computeForcesAndMoments (contactPos, contactOri, op_.contactVel, op_.contactAngVel,
                           position, linVelocity, oriVector, op_.rFlex,
                              angularVel, fc, tc);
     }
@@ -575,7 +579,7 @@ namespace flexibilityEstimation
 
         // Getting forces
         op_.rFlex = computeRotation_(oriVector,0);
-        computeForcesAndMoments (contactPos, contactOri,
+        computeForcesAndMoments (contactPos, contactOri, op_.contactVel, op_.contactAngVel,
                           position, linVelocity, oriVector, op_.rFlex,
                              angularVel, fc, tc);
     }

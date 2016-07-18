@@ -223,6 +223,8 @@ protected:
       virtual void computeElastContactForcesAndMoments
       (const IndexedMatrixArray& contactPosArray,
        const IndexedMatrixArray& contactOriArray,
+       const IndexedMatrixArray& contactVelArray,
+       const IndexedMatrixArray& contactAngVelArray,
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
@@ -255,6 +257,8 @@ protected:
       void computeForcesAndMoments
       (const IndexedMatrixArray& position1,
        const IndexedMatrixArray& position2,
+       const IndexedMatrixArray& velocity1,
+       const IndexedMatrixArray& velocity2,
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
