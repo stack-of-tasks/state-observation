@@ -317,8 +317,13 @@ namespace flexibilityEstimation
 
         for (unsigned i = 0; i<nbContacts ; ++i)
         {
-          op_.contactPosV.setValue(u.segment<3>(input::contacts + 12*i),i);
-          op_.contactOriV.setValue(u.segment<3>(input::contacts +12*i+3),i);
+            // Positions
+            op_.contactPosV.setValue(u.segment<3>(input::contacts + 12*i),i);
+            op_.contactOriV.setValue(u.segment<3>(input::contacts +12*i+3),i);
+
+            // Velocities
+            op_.contactVel.setValue(u.segment<3>(input::contacts + 12*i +6),i);
+            op_.contactAngVel.setValue(u.segment<3>(input::contacts +12*i +9),i);
         }
 
         computeForcesAndMoments (op_.contactPosV, op_.contactOriV,
@@ -602,8 +607,14 @@ namespace flexibilityEstimation
 
         for (unsigned i = 0; i<nbContacts ; ++i)
         {
+          // Positions
           op_.contactPosV.setValue(u.segment<3>(input::contacts + 12*i),i);
           op_.contactOriV.setValue(u.segment<3>(input::contacts +12*i+3),i);
+
+          // Velocities
+          op_.contactVel.setValue(u.segment<3>(input::contacts + 12*i +6),i);
+          op_.contactAngVel.setValue(u.segment<3>(input::contacts +12*i +9),i);
+
         }
 
         op_.positionCom=u.segment<3>(input::posCom);
@@ -701,8 +712,9 @@ namespace flexibilityEstimation
         unsigned nbContacts(getContactsNumber());
         for (unsigned i = 0; i<nbContacts ; ++i)
         {
-          op_.contactPosV.setValue(u.segment<3>(input::contacts + 12*i),i);
-          op_.contactOriV.setValue(u.segment<3>(input::contacts +12*i+3),i);
+            // Positions
+            op_.contactPosV.setValue(u.segment<3>(input::contacts + 12*i),i);
+            op_.contactOriV.setValue(u.segment<3>(input::contacts +12*i+3),i);
         }
         op_.positionCom=u.segment<3>(input::posCom);
         if(withComBias_) op_.positionCom+=op_.positionComBias;

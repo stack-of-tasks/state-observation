@@ -435,6 +435,8 @@ protected:
 
         IndexedMatrixArray contactPosV;
         IndexedMatrixArray contactOriV;
+        IndexedMatrixArray contactVel;
+        IndexedMatrixArray contactAngVel;
 
         Matrix3 inertia;
         Matrix3 dotInertia;
