@@ -439,8 +439,8 @@ protected:
 
         IndexedMatrixArray contactPosV;
         IndexedMatrixArray contactOriV;
-        IndexedMatrixArray contactVel;
-        IndexedMatrixArray contactAngVel;
+        IndexedMatrixArray contactVelArray;
+        IndexedMatrixArray contactAngVelArray;
 
         Matrix3 inertia;
         Matrix3 dotInertia;
@@ -468,6 +468,7 @@ protected:
         Matrix3 Rci; //rotation of contact i
         Matrix3 Rcit;//transpose of previous
         Vector3 contactPos; //
+        Vector3 contactVel;
         Vector3 RciContactPos;
         Vector3 globalContactPos;
 

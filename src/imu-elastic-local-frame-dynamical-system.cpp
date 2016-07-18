@@ -255,6 +255,7 @@ namespace flexibilityEstimation
       for (unsigned i = 0; i<nbContacts ; ++i)
       {
         op_.contactPos = contactPosArray[i];
+        op_.contactVel = contactVelArray[i];
 
         op_.Rci = computeRotation_(contactOriArray[i],i+2);
         op_.Rcit.noalias()= op_.Rci.transpose();
@@ -266,7 +267,7 @@ namespace flexibilityEstimation
 
         op_.forcei.noalias() = - op_.Rci*Kfe_*op_.Rcit*(op_.globalContactPos-op_.contactPos);
         op_.forcei.noalias() += - op_.Rci*Kfv_*op_.Rcit*(kine::skewSymmetric(angVel)*op_.RciContactPos
-                                  +linVelocity);
+                                  +linVelocity + (orientation+stateObservation::Matrix3::Identity())*op_.contactVel);
 
         fc_.segment<3>(3*i)= op_.forcei;
 
@@ -326,11 +327,11 @@ namespace flexibilityEstimation
             op_.contactOriV.setValue(u.segment<3>(input::contacts +12*i+3),i);
 
             // Velocities
-            op_.contactVel.setValue(u.segment<3>(input::contacts + 12*i +6),i);
-            op_.contactAngVel.setValue(u.segment<3>(input::contacts +12*i +9),i);
+            op_.contactVelArray.setValue(u.segment<3>(input::contacts + 12*i +6),i);
+            op_.contactAngVelArray.setValue(u.segment<3>(input::contacts +12*i +9),i);
         }
 
-        computeForcesAndMoments (op_.contactPosV, op_.contactOriV, op_.contactVel, op_.contactAngVel,
+        computeForcesAndMoments (op_.contactPosV, op_.contactOriV, op_.contactVelArray, op_.contactAngVelArray,
                           op_.positionFlex, op_.velocityFlex, op_.orientationFlexV, op_.rFlex,
                              op_.angularVelocityFlex, fc_, tc_);
     }
@@ -436,7 +437,7 @@ namespace flexibilityEstimation
         op_.orientationAA=op_.rFlex;
         oriVector.noalias()=op_.orientationAA.angle()*op_.orientationAA.axis();
 
-        computeForcesAndMoments (contactPos, contactOri, op_.contactVel, op_.contactAngVel,
+        computeForcesAndMoments (contactPos, contactOri, op_.contactVelArray, op_.contactAngVelArray,
                           position, linVelocity, oriVector, op_.rFlex,
                              angularVel, fc, tc);
     }
@@ -579,7 +580,7 @@ namespace flexibilityEstimation
 
         // Getting forces
         op_.rFlex = computeRotation_(oriVector,0);
-        computeForcesAndMoments (contactPos, contactOri, op_.contactVel, op_.contactAngVel,
+        computeForcesAndMoments (contactPos, contactOri, op_.contactVelArray, op_.contactAngVelArray,
                           position, linVelocity, oriVector, op_.rFlex,
                              angularVel, fc, tc);
     }
@@ -616,8 +617,8 @@ namespace flexibilityEstimation
           op_.contactOriV.setValue(u.segment<3>(input::contacts +12*i+3),i);
 
           // Velocities
-          op_.contactVel.setValue(u.segment<3>(input::contacts + 12*i +6),i);
-          op_.contactAngVel.setValue(u.segment<3>(input::contacts +12*i +9),i);
+          op_.contactVelArray.setValue(u.segment<3>(input::contacts + 12*i +6),i);
+          op_.contactAngVelArray.setValue(u.segment<3>(input::contacts +12*i +9),i);
 
         }
 
