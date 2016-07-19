@@ -1081,7 +1081,6 @@ namespace flexibilityEstimation
     {
       measurementSize_=measurementSizeBase_;
 
-
       if(withUnmodeledMeasurements_)
       {
         measurementSize_+=6; // For unmodeled measurements

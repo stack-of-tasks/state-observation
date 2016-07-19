@@ -9,6 +9,7 @@
 #include <state-observation/flexibility-estimation/model-base-ekf-flex-estimator-imu.hpp>
 
 #include <time.h>
+#include <iostream>
 
 
 using namespace stateObservation;
@@ -33,28 +34,39 @@ int test()
     bool withComBias_=false;
     bool withForceSensors_=true;
 
-    // Dimensions
+    // time
     const double dt=5e-3;
-    const unsigned kinit=6488;
-    const unsigned kmax=11300;
-    unsigned contactNbr = 2;
-    const unsigned inputSize=42+contactNbr*6;
+    const unsigned kinit=3;
+    const unsigned kmax=2200;
+
+    // fix sizes
+    const unsigned inputSizeBase = 42;
     const unsigned measurementSizeBase=6;
-    const unsigned measurementSize=measurementSizeBase+withForceSensors_*contactNbr*6;
-    const unsigned stateSizeBase_=18;
-    const unsigned stateSize=stateSizeBase_+(int)withComBias_*2;
+    const unsigned stateSize=35;
+
+    // variable sizes
+    unsigned contactNbr = 2;
+    unsigned inputSize=inputSizeBase+contactNbr*12;
+    unsigned measurementSize=measurementSizeBase+withForceSensors_*contactNbr*6;
 
     // State initialization => not used here because it is set in model-base-ekf-flex-estimator-imu
 
     /// Definitions of input vectors
-      // Measurement
+     // Measurement
      IndexedMatrixArray y;
      std::cout << "Loading measurements file" << std::endl;
      y.getFromFile("source_measurement.dat",1,measurementSize);
-      // Input
+
+     // Input
      IndexedMatrixArray u;
-      std::cout << "Loading input file" << std::endl;
+     std::cout << "Loading input file" << std::endl;
      u.getFromFile("source_input.dat",1,inputSize);
+
+     // Input
+     IndexedMatrixArray nbSupport;
+     std::cout << "Loading the number of supports file" << std::endl;
+     nbSupport.getFromFile("source_nbSupport.dat",1,1);
+
 //      //state
 //     IndexedMatrixArray xRef;
 //       std::cout << "Loading reference state file" << std::endl;
@@ -114,10 +126,13 @@ int test()
     stateObservation::flexibilityEstimation::ModelBaseEKFFlexEstimatorIMU est;
     est.setSamplingPeriod(dt);
 
+    std::cout << "setting covariances" << std::endl;
+
     // Measurement noise covariance
     stateObservation::Matrix R_; R_.resize(measurementSizeBase,measurementSizeBase); R_.setIdentity();
     R_.block(0,0,3,3)*=1.e-3;
     R_.block(3,3,3,3)*=1.e-6;
+    R_.block(6,6,6,6)*=1e-13;
     est.setMeasurementNoiseCovariance(R_);
     est.setWithForcesMeasurements(withForceSensors_);
     est.setForceVariance(1.e-4);
@@ -160,12 +175,27 @@ int test()
 
     double normState=0;
     Vector errorsum=Vector::Zero(est.getEKF().getStateSize());
+    stateObservation::Vector input, measurement;
 
     std::cout << "Beginning reconstruction "<<std::endl;
     for (unsigned k=kinit+3;k<kmax;++k)
     {
-        est.setMeasurement(y[k].transpose());
-        est.setMeasurementInput(u[k].transpose());
+        contactNbr = nbSupport[k](0);
+
+        std::cout << contactNbr << std::endl;
+
+        if (contactNbr!=est.getContactsNumber()) est.setContactsNumber(contactNbr);
+        inputSize=inputSizeBase+contactNbr*12;
+        measurementSize=measurementSizeBase+withForceSensors_*contactNbr*6;
+
+        input.resize(inputSize); measurement.resize(measurementSize);
+        input=(u[k].block(0,0,1,inputSize)).transpose();
+        measurement=(y[k].block(0,0,1,measurementSize)).transpose();
+
+        std::cout << measurementSize << est.getMeasurementSize() << std::endl;
+
+        est.setMeasurement(measurement);
+        est.setMeasurementInput(input);
 
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
