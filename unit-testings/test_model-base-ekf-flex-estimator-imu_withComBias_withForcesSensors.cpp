@@ -31,13 +31,18 @@ int test()
 {
     std::cout << "Starting" << std::endl;
 
+    // For state vector
     bool withComBias_=false;
+
+    // For measurement vector
+    bool withUnmodeledForces_ = false;
     bool withForceSensors_=true;
+    bool withAbsolutePose_ = false;
 
     // time
     const double dt=5e-3;
     const unsigned kinit=3;
-    const unsigned kmax=2200;
+    const unsigned kmax=1100;
 
     // fix sizes
     const unsigned inputSizeBase = 42;
@@ -47,7 +52,7 @@ int test()
     // variable sizes
     unsigned contactNbr = 2;
     unsigned inputSize=inputSizeBase+contactNbr*12;
-    unsigned measurementSize=measurementSizeBase+withForceSensors_*contactNbr*6;
+    unsigned measurementSize=measurementSizeBase+withUnmodeledForces_*6+withAbsolutePose_*6+withForceSensors_*contactNbr*6;
 
     // State initialization => not used here because it is set in model-base-ekf-flex-estimator-imu
 
@@ -55,7 +60,7 @@ int test()
      // Measurement
      IndexedMatrixArray y;
      std::cout << "Loading measurements file" << std::endl;
-     y.getFromFile("source_measurement.dat",1,measurementSize);
+     y.getFromFile("source_measurement.dat",1,30);
 
      // Input
      IndexedMatrixArray u;
@@ -129,13 +134,17 @@ int test()
     std::cout << "setting covariances" << std::endl;
 
     // Measurement noise covariance
+    est.setWithUnmodeledMeasurements(withUnmodeledForces_);
+    est.setWithForcesMeasurements(withForceSensors_);
+    est.setWithAbsolutePos(withAbsolutePose_);
+
     stateObservation::Matrix R_; R_.resize(measurementSizeBase,measurementSizeBase); R_.setIdentity();
     R_.block(0,0,3,3)*=1.e-3;
     R_.block(3,3,3,3)*=1.e-6;
-    R_.block(6,6,6,6)*=1e-13;
     est.setMeasurementNoiseCovariance(R_);
-    est.setWithForcesMeasurements(withForceSensors_);
+    est.setUnmodeledForceVariance(1e-13);
     est.setForceVariance(1.e-4);
+    est.setAbsolutePosVariance(1e-4);
 
     // Process noise covariance
     est.setWithComBias(withComBias_);
@@ -180,22 +189,35 @@ int test()
     std::cout << "Beginning reconstruction "<<std::endl;
     for (unsigned k=kinit+3;k<kmax;++k)
     {
+        std::cout << k << std::endl;
+
         contactNbr = nbSupport[k](0);
+        est.setContactsNumber(contactNbr);
 
-        std::cout << contactNbr << std::endl;
-
-        if (contactNbr!=est.getContactsNumber()) est.setContactsNumber(contactNbr);
         inputSize=inputSizeBase+contactNbr*12;
-        measurementSize=measurementSizeBase+withForceSensors_*contactNbr*6;
-
-        input.resize(inputSize); measurement.resize(measurementSize);
+        input.resize(inputSize);
         input=(u[k].block(0,0,1,inputSize)).transpose();
-        measurement=(y[k].block(0,0,1,measurementSize)).transpose();
-
-        std::cout << measurementSize << est.getMeasurementSize() << std::endl;
-
-        est.setMeasurement(measurement);
         est.setMeasurementInput(input);
+
+        measurementSize=measurementSizeBase+withUnmodeledForces_*6+withAbsolutePose_*6+withForceSensors_*contactNbr*6;
+        measurement.resize(measurementSize);
+        measurement.segment(0,6) = (y[k].block(0,0,1,6)).transpose();
+        int i = 6;
+        if(withUnmodeledForces_)
+        {
+            measurement.segment<6>(i) = (y[k].block(0,0,1,6)).transpose();
+            i+=6;
+        }
+        if(withForceSensors_)
+        {
+            measurement.segment(i,6*contactNbr) = (y[k].block(0,12,1,6*contactNbr)).transpose();
+            i+=6*contactNbr;
+        }
+        if(withAbsolutePose_)
+        {
+            measurement.segment(i,6) = (y[k].block(0,24,1,6)).transpose();
+        }
+        est.setMeasurement(measurement);
 
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
