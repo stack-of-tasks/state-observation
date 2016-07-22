@@ -129,6 +129,7 @@ namespace flexibilityEstimation
             return withComBias_;
         }
 
+        virtual void setUnmodeledForceVariance(double d);
         virtual void setForceVariance(double d);
         virtual void setAbsolutePosVariance(double d);
 
@@ -180,6 +181,7 @@ namespace flexibilityEstimation
         bool on_;
         double computeFlexibilityTime_;
 
+        double unmodeledForceVariance_;
         double forceVariance_;//force sensor variance
         double absPosVariance_;
 

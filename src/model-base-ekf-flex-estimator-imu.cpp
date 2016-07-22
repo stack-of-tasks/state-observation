@@ -14,6 +14,7 @@ namespace flexibilityEstimation
                             Matrix::Constant(stateSize,1,dxFactor)),
         functor_(dt),
         stateSize_(stateSize),
+        unmodeledForceVariance_(1e-6),
         forceVariance_(1e-4),
         absPosVariance_(1e-4),
         useFTSensors_(false),
@@ -192,8 +193,8 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::setMeasurementNoiseCovariance
                                             (const Matrix & R)
     {
-        BOOST_ASSERT(unsigned(R.rows())==12 &&
-                     unsigned(R.cols())==12 &&
+        BOOST_ASSERT(unsigned(R.rows())==6 &&
+                     unsigned(R.cols())==6 &&
                     "ERROR: The measurement noise covariance matrix R has \
                         incorrect size");
 
@@ -234,10 +235,8 @@ namespace flexibilityEstimation
         {
           R_.block(currIndex,0,6,currIndex).setZero();
           R_.block(0,currIndex,currIndex,6).setZero();
-          R_.block(currIndex,currIndex,3,3)=Matrix3::Identity()*1.e-6;//unmodeleed forces
-          currIndex+=3;
-          R_.block(currIndex,currIndex,3,3)=Matrix3::Identity()*1.e-6;//unmodeleed torques
-          currIndex+=3;
+          R_.block(currIndex,currIndex,3,3)=Matrix3::Identity()*unmodeledForceVariance_; //unmodeleed forces
+          currIndex+=6;
         }
 
         if(useFTSensors_)
@@ -461,6 +460,12 @@ namespace flexibilityEstimation
         withComBias_=b;
         functor_.setWithComBias(b);
       }
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setUnmodeledForceVariance(double d)
+    {
+        unmodeledForceVariance_ = d;
+        updateCovarianceMatrix_();
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setForceVariance(double d)
