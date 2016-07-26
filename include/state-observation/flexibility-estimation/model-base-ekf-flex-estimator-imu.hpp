@@ -122,6 +122,16 @@ namespace flexibilityEstimation
 
         void setWithUnmodeledMeasurements(bool b);
 
+        bool getWithUnmodeledMeasurements()
+        {
+            return withUnmodeledMeasurements_;
+        }
+
+        bool getWithAbsolutePos()
+        {
+            return withAbsolutePos_;
+        }
+
         virtual void setWithComBias(bool b);
 
         virtual bool getWithComBias()
