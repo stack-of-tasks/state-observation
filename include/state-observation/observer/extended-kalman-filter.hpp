@@ -131,6 +131,7 @@ namespace stateObservation
         //optimization
         struct Optimization
         {
+          EIGEN_MAKE_ALIGNED_OPERATOR_NEW
           ObserverBase::InputVector u_;
           KalmanFilterBase::Amatrix a_;
           KalmanFilterBase::Cmatrix c_;
@@ -141,6 +142,9 @@ namespace stateObservation
           ObserverBase::MeasureVector yp_;
 
         } opt;
+
+    public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
 }

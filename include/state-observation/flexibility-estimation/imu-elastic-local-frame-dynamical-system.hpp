@@ -99,8 +99,6 @@ public:
 
           void setAugmentationSize(bool);
 
-
-
 protected:
 
 
@@ -109,6 +107,10 @@ protected:
           virtual Vector computeNoiselessMeasurement_();
 
           unsigned augmentation_;
+
+public:
+          EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
         };
 
 
@@ -134,8 +136,8 @@ protected:
        Vector3& linearAcceleration,  const Vector3 &oriVector ,
        const Matrix3& orientation, const Vector3& angularVel,
        Vector3& angularAcceleration,
-       Vector6& fc, Vector6& tc,
-       Vector3 & fm, Vector3& tm);
+       const Vector6& fc, const Vector6& tc,
+       const Vector3 & fm, const Vector3& tm);
 
       ///Description of the state dynamics
       virtual stateObservation::Vector stateDynamics
@@ -318,8 +320,6 @@ protected:
 
       virtual double getRobotMass() const;
 
-      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
     protected:
 
       stateObservation::AccelerometerGyrometer sensor_;
@@ -374,6 +374,9 @@ protected:
 
       struct Optimization
       {
+
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
         Vector3 positionFlex;
         Vector3 velocityFlex;
         Vector3 accelerationFlex;
@@ -497,8 +500,6 @@ protected:
         Matrix3 curRotation3;
         Vector3 orientationVector3;
 
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
         Optimization()
           :
           curRotation0(Matrix3::Identity()),
@@ -537,12 +538,9 @@ protected:
 
       } op_;
 
-
-
-    private:
-
-
     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
   }
 }
