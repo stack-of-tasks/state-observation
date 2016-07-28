@@ -160,7 +160,7 @@ int test()
 //    est.setFlexibilityCovariance(P0_);
 
     // Estimator state
-    est.setInput(u[kinit+2].block(0,0,1,est.getInputSize()).transpose());
+    est.setInput(u[kinit].block(0,0,1,est.getInputSize()).transpose());
 //    est.setFlexibilityGuess(xRef[kinit+2].block(0,0,est.getStateSize(),1));
 
     // Set contacts number
@@ -187,20 +187,14 @@ int test()
     stateObservation::Vector input, measurement;
 
     std::cout << "Beginning reconstruction "<<std::endl;
-    for (unsigned k=kinit+3;k<kmax;++k)
+    for (unsigned k=kinit;k<kmax;++k)
     {
         std::cout << k << std::endl;
 
         contactNbr = nbSupport[k](0);
         est.setContactsNumber(contactNbr);
 
-        inputSize=inputSizeBase+contactNbr*12;
-        input.resize(inputSize);
-        input=(u[k].block(0,0,1,inputSize)).transpose();
-        est.setMeasurementInput(input);
-
-        measurementSize=measurementSizeBase+withUnmodeledForces_*6+withAbsolutePose_*6+withForceSensors_*contactNbr*6;
-        measurement.resize(measurementSize);
+        measurement.resize(est.getMeasurementSize());
         measurement.segment(0,6) = (y[k].block(0,0,1,6)).transpose();
         int i = 6;
         if(withUnmodeledForces_)
@@ -219,12 +213,17 @@ int test()
         }
         est.setMeasurement(measurement);
 
+        input.resize(est.getInputSize());
+        input=(u[k].block(0,0,1,est.getInputSize())).transpose();
+        est.setMeasurementInput(input);
+
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
 
         flexibility = est.getFlexibilityVector();
 
-        for(int i=0;i<stateSize;++i){
+        for(int i=0;i<stateSize;++i)
+        {
             flexCovariance[i]=est.getFlexibilityCovariance()(i,i);
         }
 
