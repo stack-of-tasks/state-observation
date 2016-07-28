@@ -120,11 +120,10 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::setContactsNumber(unsigned i)
     {
         finiteDifferencesJacobians_=true;
+
         functor_.setContactsNumber(i);
-
-        unsigned usize = functor_.getInputSize();
-
-        ekf_.setInputSize(usize);
+        inputSize_ = functor_.getInputSize();
+        ekf_.setInputSize(inputSize_);
 
         if (useFTSensors_)
         {
