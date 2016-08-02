@@ -222,7 +222,12 @@ namespace flexibilityEstimation
 
     Vector ModelBaseEKFFlexEstimatorIMU::getForcesAndMoments()
     {
-        return functor_.getForcesAndMoments(getFlexibilityVector(),ekf_.getInput(ekf_.getInputTime()));
+        const Vector & v (getFlexibilityVector());
+
+        Vector v2; v2.resize(functor_.getContactsNumber()*6);
+        v2 << v.segment(state::fc1,functor_.getContactsNumber()*6);
+
+        return v2;
     }
 
     void ModelBaseEKFFlexEstimatorIMU::updateCovarianceMatrix_()
