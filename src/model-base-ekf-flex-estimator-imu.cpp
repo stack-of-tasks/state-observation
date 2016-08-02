@@ -310,7 +310,7 @@ namespace flexibilityEstimation
     {
         timespec time1, time2, time3;
 
-        if(on_==true && functor_.getContactsNumber() > 0)
+        if(on_==true)
         {
             if (ekf_.getMeasurementsNumber()>0)
             {
