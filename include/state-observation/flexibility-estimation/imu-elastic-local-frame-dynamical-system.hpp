@@ -369,6 +369,8 @@ public:
       bool withAbsolutePos_;
       bool withUnmodeledMeasurements_;
 
+      double scallingFactor_;
+
 
       unsigned index_;
 

@@ -22,7 +22,8 @@ namespace flexibilityEstimation
         robotMassInv_(1/hrp2::m),
         measurementSize_(measurementSizeBase_),
         withForceMeasurements_(false), withComBias_(false), withAbsolutePos_(false),
-        withUnmodeledMeasurements_(false)
+        withUnmodeledMeasurements_(false),
+        scallingFactor_(0.99)
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
        // std::cout<<std::endl<<"IMUElasticLocalFrameDynamicalSystem Constructor"<<std::endl;
@@ -666,8 +667,8 @@ namespace flexibilityEstimation
 
         // xk1_.segment<2>(state::comBias) = op_.positionComBias.head<2>();
 
-        xk1_.segment<3>(state::unmodeledForces) = 0.99*op_.fm;
-        xk1_.segment<3>(state::unmodeledForces+3) = 0.99*op_.tm;
+        xk1_.segment<3>(state::unmodeledForces) = scallingFactor_*op_.fm;
+        xk1_.segment<3>(state::unmodeledForces+3) = scallingFactor_*op_.tm;
 
         if (processNoise_!=0x0)
             return processNoise_->addNoise(op_.xk1);
