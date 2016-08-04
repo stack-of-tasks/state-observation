@@ -41,6 +41,16 @@ namespace stateObservation
         const double angKe=400;
         const double linKv=600;
         const double angKv=10;
+
+        struct contact
+        {
+          static const unsigned nbMax=4;
+          // index for the contacts
+          static const unsigned lf = 0;
+          static const unsigned rf = 1;
+          static const unsigned lh = 2;
+          static const unsigned rh = 3;
+        };
     }
 
 }
