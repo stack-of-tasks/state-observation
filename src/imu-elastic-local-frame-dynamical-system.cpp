@@ -34,7 +34,7 @@ namespace flexibilityEstimation
       Ktv_=60*Matrix3::Identity();
 
       sensor_.setMatrixMode(true);
-      sensor_.concatenateWithInput(6);
+
       contactModel_=contactModel::none;
 
       nbContacts_=0;
@@ -274,7 +274,7 @@ namespace flexibilityEstimation
         op_.momenti.noalias() = -op_.Rci*Kte_*op_.Rcit*oriVector;
         op_.momenti.noalias() += -op_.Rci*Ktv_*op_.Rcit*angVel;
 
-        tc_.segment<3>(3*i)= op_.momenti + kine::skewSymmetric(op_.globalContactPos)*op_.forcei;
+        tc_.segment<3>(3*i)= op_.momenti;
       }
 
       fc=fc_;
@@ -779,7 +779,6 @@ namespace flexibilityEstimation
 
         if (withForceMeasurements_)
         {
-
           for (unsigned int i=0; i<nbContacts_; ++i)
           {
             op_.sensorState.segment(index_,6) = x.segment(state::fc1+i*6,6);
