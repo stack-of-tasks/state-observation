@@ -782,6 +782,10 @@ namespace flexibilityEstimation
           for (unsigned int i=0; i<nbContacts_; ++i)
           {
             op_.sensorState.segment(index_,6) = x.segment(state::fc1+i*6,6);
+            // the last part of the measurement is force torque, it is
+            // computes by the current functor and not the sensor_.
+            // (see AlgebraicSensor::concatenateWithInput
+            // for more details
             index_+=6;
           }
         }
