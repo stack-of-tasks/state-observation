@@ -599,8 +599,8 @@ namespace flexibilityEstimation
         op_.orientationFlexV=x.segment(state::ori,3);
         op_.velocityFlex=x.segment(state::linVel,3);
         op_.angularVelocityFlex=x.segment(state::angVel,3);
-        op_.fc1=x.segment(state::fc1,6);
-        op_.fc2=x.segment(state::fc2,6);
+        op_.fc1=x.segment(state::fc,6);
+        op_.fc2=x.segment(state::fc+6,6);
         op_.positionComBias <<  x.segment(state::comBias,2),
                                 0;// the bias of the com along the z axis is assumed 0.
         op_.fm=x.segment(state::unmodeledForces,3);
@@ -662,8 +662,8 @@ namespace flexibilityEstimation
         xk1_.segment<3>(state::linVel) = op_.velocityFlex;
         xk1_.segment<3>(state::angVel) = op_.angularVelocityFlex;
 
-        xk1_.segment<6>(state::fc1) = op_.fc1;
-        xk1_.segment<6>(state::fc2) = op_.fc2;
+        xk1_.segment<6>(state::fc) = op_.fc1;
+        xk1_.segment<6>(state::fc+6) = op_.fc2;
 
         // xk1_.segment<2>(state::comBias) = op_.positionComBias.head<2>();
 
@@ -705,8 +705,8 @@ namespace flexibilityEstimation
         op_.velocityFlex=x.segment(state::linVel,3);
         op_.orientationFlexV=x.segment(state::ori,3);
         op_.angularVelocityFlex=x.segment(state::angVel,3);
-        op_.fc1=x.segment(state::fc1,6);
-        op_.fc2=x.segment(state::fc2,6);
+        op_.fc1=x.segment(state::fc,6);
+        op_.fc2=x.segment(state::fc+6,6);
         op_.fm=x.segment(state::unmodeledForces,3);
         op_.tm=x.segment(state::unmodeledForces+3,3);
         op_.drift=x.segment<3>(state::drift);
@@ -782,7 +782,7 @@ namespace flexibilityEstimation
         {
           for (unsigned int i=0; i<nbContacts_; ++i)
           {
-            op_.sensorState.segment(index_,6) = x.segment(state::fc1+i*6,6);
+            op_.sensorState.segment(index_,6) = x.segment(state::fc+i*6,6);
             // the last part of the measurement is force torque, it is
             // computes by the current functor and not the sensor_.
             // (see AlgebraicSensor::concatenateWithInput
