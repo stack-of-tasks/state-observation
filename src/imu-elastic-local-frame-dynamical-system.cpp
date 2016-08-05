@@ -45,8 +45,6 @@ namespace flexibilityEstimation
 
       fc_.resize(hrp2::contact::nbModeledMax*3); fc_.setZero();
       tc_.resize(hrp2::contact::nbModeledMax*3); tc_.setZero();
-      op_.fc.resize(3*hrp2::contact::nbModeledMax);
-      op_.tc.resize(3*hrp2::contact::nbModeledMax);
 
     }
 
@@ -82,7 +80,6 @@ namespace flexibilityEstimation
                                Vector& forces, Vector& moments)
     {
         unsigned nbContacts(getContactsNumber());
-        fc_.setZero(); tc_.setZero();
         forces.setZero(); moments.setZero();
 
         Vector3 forcei;
@@ -104,11 +101,9 @@ namespace flexibilityEstimation
             contactOriUnitVector= (PeArray[i]-globalContactPos)/modifiedStringLength;
 
             forcei = (modifiedStringLength-stringLength)*Kfe_*contactOriUnitVector;
-            fc_.segment<3>(3*i)= forcei;
             forces.segment<3>(0) += forcei;
 
             momenti.noalias() = kine::skewSymmetric(globalContactPos)*forcei;
-            tc_.segment<3>(3*i)= momenti;
             moments.segment<3>(0) += momenti;
         }
 
@@ -126,7 +121,6 @@ namespace flexibilityEstimation
                                Vector& forces, Vector& moments)
     {
         unsigned nbContacts(getContactsNumber());
-        fc_.setZero(); tc_.setZero();
         forces.setZero(); moments.setZero();
 
         stateObservation::Vector3 forcei;
@@ -152,11 +146,9 @@ namespace flexibilityEstimation
             lengthRate=(modifiedStringLength-stringLength)/modifiedStringLength;
 
             forcei = -lengthRate*(Kfe_*u+Kfv_*du);
-            fc_.segment<3>(3*i)= forcei;
             forces.segment<3>(0) += forcei;
 
             momenti.noalias() = kine::skewSymmetric(u)*forcei;
-            tc_.segment<3>(3*i)= momenti;
             moments.segment<3>(0) += momenti;
         }
 
@@ -173,7 +165,6 @@ namespace flexibilityEstimation
                                Vector& forces, Vector& moments)
     {
         unsigned nbContacts(getContactsNumber());
-        fc_.setZero(); tc_.setZero();
         forces.setZero(); moments.setZero();
 
         stateObservation::Vector3 forcei;
@@ -201,11 +192,9 @@ namespace flexibilityEstimation
             lengthRateVel=(stringLength/std::pow(modifiedStringLength,3))*du.sum();
 
             forcei = -Kfe_*lengthRate*u-Kfv_*(lengthRateVel*u+lengthRate*du);
-            fc_.segment<3>(3*i)= forcei;
             forces.segment<3>(0) += forcei;
 
             momenti.noalias() = kine::skewSymmetric(u)*forcei;
-            tc_.segment<3>(3*i)= momenti;
             moments.segment<3>(0) += momenti;
         }
 
@@ -246,7 +235,7 @@ namespace flexibilityEstimation
                                Vector& fc, Vector& tc)
     {
         unsigned nbContacts(getContactsNumber());
-        fc_.setZero(); tc_.setZero();
+        fc.setZero(); tc.setZero();
 
       for (unsigned i = 0; i<nbContacts ; ++i)
       {
@@ -265,16 +254,13 @@ namespace flexibilityEstimation
         op_.forcei.noalias() += - op_.Rci*Kfv_*op_.Rcit*(kine::skewSymmetric(angVel)*op_.RciContactPos
                                   +linVelocity + (orientation+stateObservation::Matrix3::Identity())*op_.contactVel);
 
-        fc_.segment<3>(3*i)= op_.forcei;
+        fc.segment<3>(3*i)= op_.forcei;
 
         op_.momenti.noalias() = -op_.Rci*Kte_*op_.Rcit*oriVector;
         op_.momenti.noalias() += -op_.Rci*Ktv_*op_.Rcit*angVel;
 
-        tc_.segment<3>(3*i)= op_.momenti;
+        tc.segment<3>(3*i)= op_.momenti;
       }
-
-      fc=fc_;
-      tc=tc_;
     }
 
 
@@ -629,8 +615,8 @@ namespace flexibilityEstimation
 
         for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
         {
-            op_.fc.segment<3>(3*i) = op_.efforts[i].block<3,1>(0,0);
-            op_.tc.segment<3>(3*i) = op_.efforts[i].block<3,1>(3,0);
+            fc_.segment<3>(3*i) = op_.efforts[i].block<3,1>(0,0);
+            tc_.segment<3>(3*i) = op_.efforts[i].block<3,1>(3,0);
         }
 
         int subsample=1;
@@ -640,17 +626,17 @@ namespace flexibilityEstimation
                           op_.positionCom, op_.velocityCom,
                           op_.accelerationCom, op_.AngMomentum, op_.dotAngMomentum,
                           op_.inertia, op_.dotInertia,  op_.contactPosV, op_.contactOriV,
-                          op_.positionFlex, op_.velocityFlex, op_.fc,
+                          op_.positionFlex, op_.velocityFlex, fc_,
                           op_.orientationFlexV, op_.angularVelocityFlex,
-                          op_.tc, op_.fm, op_.tm,
+                          tc_, op_.fm, op_.tm,
                           dt_/subsample);
         }
         //x_{k+1}   
 
         for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
         {
-            op_.efforts[i].block<3,1>(0,0) = op_.fc.segment<3>(3*i);
-            op_.efforts[i].block<3,1>(3,0) = op_.tc.segment<3>(3*i);
+            op_.efforts[i].block<3,1>(0,0) = fc_.segment<3>(3*i);
+            op_.efforts[i].block<3,1>(3,0) = tc_.segment<3>(3*i);
         }
 
         xk1_=x;
@@ -744,8 +730,8 @@ namespace flexibilityEstimation
 
         for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
         {
-            op_.fc.segment<3>(3*i) = op_.efforts[i].block<3,1>(0,0);
-            op_.tc.segment<3>(3*i) = op_.efforts[i].block<3,1>(3,0);
+            fc_.segment<3>(3*i) = op_.efforts[i].block<3,1>(0,0);
+            tc_.segment<3>(3*i) = op_.efforts[i].block<3,1>(3,0);
         }
 
         // Get acceleration
@@ -753,7 +739,7 @@ namespace flexibilityEstimation
         op_.accelerationCom, op_.AngMomentum, op_.dotAngMomentum,
         op_.inertia, op_.dotInertia,  op_.contactPosV, op_.contactOriV, op_.positionFlex, op_.velocityFlex, op_.linearAcceleration,
                        op_.orientationFlexV, op_.rFlex, op_.angularVelocityFlex, op_.angularAcceleration,
-                       op_.fc, op_.tc, op_.fm,op_.tm);
+                       fc_, tc_, op_.fm,op_.tm);
 
         // Translation sensor dynamic
         op_.imuAcc = 2*kine::skewSymmetric(op_.angularVelocityFlex) * op_.rFlex * op_.velocityControl;

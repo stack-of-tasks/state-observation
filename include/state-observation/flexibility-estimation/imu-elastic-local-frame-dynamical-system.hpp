@@ -454,14 +454,11 @@ public:
 
         Vector3 f;
         Vector3 t;
-        Vector fc;
-        Vector tc;
+        Vector3 fm;
+        Vector3 tm;
 
         Vector3 linearAcceleration;
         Vector3 angularAcceleration;
-
-        Vector3 fm;
-        Vector3 tm;
 
         Vector3 vf;
         Vector3 vt;
