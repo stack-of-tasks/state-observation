@@ -136,7 +136,7 @@ public:
        Vector3& linearAcceleration,  const Vector3 &oriVector ,
        const Matrix3& orientation, const Vector3& angularVel,
        Vector3& angularAcceleration,
-       const Vector6& fc, const Vector6& tc,
+       const Vector& fc, const Vector& tc,
        const Vector3 & fm, const Vector3& tm);
 
       ///Description of the state dynamics
@@ -230,7 +230,7 @@ public:
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
-       Vector6& fc, Vector6& tc);
+       Vector& fc, Vector& tc);
 
       virtual void computeElastPendulumForcesAndMoments
       (const IndexedMatrixArray& PrArray,
@@ -238,7 +238,7 @@ public:
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
-       Vector6& forces, Vector6& moments);
+       Vector& forces, Vector& moments);
 
       virtual void computeElastPendulumForcesAndMoments1
       (const IndexedMatrixArray& PrArray,
@@ -246,7 +246,7 @@ public:
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
-       Vector6& forces, Vector6& moments);
+       Vector& forces, Vector& moments);
 
       virtual void computeElastPendulumForcesAndMoments2
       (const IndexedMatrixArray& PrArray,
@@ -254,7 +254,7 @@ public:
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
-       Vector6& forces, Vector6& moments);
+       Vector& forces, Vector& moments);
 
       void computeForcesAndMoments
       (const IndexedMatrixArray& position1,
@@ -264,7 +264,7 @@ public:
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
-       Vector6& fc, Vector6& tc);
+       Vector& fc, Vector& tc);
 
       virtual void computeForcesAndMoments
       (const Vector& x,
@@ -283,8 +283,8 @@ public:
        const Matrix3& Inertia, const Matrix3& dotInertia,
        const IndexedMatrixArray& contactPos,
        const IndexedMatrixArray& contactOri,
-       Vector3& position, Vector3& linVelocity, Vector6& fc1,
-       Vector3 &oriVector, Vector3& angularVel, Vector6& fc2,
+       Vector3& position, Vector3& linVelocity, Vector& fc1,
+       Vector3 &oriVector, Vector3& angularVel, Vector& fc2,
        Vector3 & fm, Vector3& tm,
        double dt
       );
@@ -296,8 +296,8 @@ public:
        const Matrix3& Inertia, const Matrix3& dotInertia,
        const IndexedMatrixArray& contactPos,
        const IndexedMatrixArray& contactOri,
-       Vector3& position, Vector3& linVelocity, Vector6& fc1,
-       Vector3 &oriVector, Vector3& angularVel, Vector6& fc2,
+       Vector3& position, Vector3& linVelocity, Vector& fc1,
+       Vector3 &oriVector, Vector3& angularVel, Vector& fc2,
        Vector3 & fm, Vector3& tm,
        double dt
       );
@@ -342,8 +342,8 @@ public:
       unsigned nbContacts_;
       unsigned contactModel_;
 
-      Vector6 fc_;
-      Vector6 tc_;
+      Vector fc_;
+      Vector tc_;
 
       Vector dx_;
 
@@ -450,12 +450,12 @@ public:
         Matrix3 inertia;
         Matrix3 dotInertia;
 
-        Vector6 fc1;
-        Vector6 fc2;
+        Vector fc1;
+        Vector fc2;
         Vector3 f;
         Vector3 t;
-        Vector6 fc;
-        Vector6 tc;
+        Vector fc;
+        Vector tc;
 
         Vector3 linearAcceleration;
         Vector3 angularAcceleration;

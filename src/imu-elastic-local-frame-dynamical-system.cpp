@@ -77,7 +77,7 @@ namespace flexibilityEstimation
                                const Vector3& position, const Vector3& linVelocity,
                                const Vector3& oriVector, const Matrix3& orientation,
                                const Vector3& angVel,
-                               Vector6& forces, Vector6& moments)
+                               Vector& forces, Vector& moments)
     {
         unsigned nbContacts(getContactsNumber());
         fc_.resize(2*3); fc_.setZero();
@@ -123,7 +123,7 @@ namespace flexibilityEstimation
                                const Vector3& position, const Vector3& linVelocity,
                                const Vector3& oriVector, const Matrix3& orientation,
                                const Vector3& angVel,
-                               Vector6& forces, Vector6& moments)
+                               Vector& forces, Vector& moments)
     {
         unsigned nbContacts(getContactsNumber());
         fc_.resize(2*3); fc_.setZero();
@@ -172,7 +172,7 @@ namespace flexibilityEstimation
                                const Vector3& position, const Vector3& linVelocity,
                                const Vector3& oriVector, const Matrix3& orientation,
                                const Vector3& angVel,
-                               Vector6& forces, Vector6& moments)
+                               Vector& forces, Vector& moments)
     {
         unsigned nbContacts(getContactsNumber());
         fc_.resize(2*3); fc_.setZero();
@@ -247,7 +247,7 @@ namespace flexibilityEstimation
                                const Vector3& position, const Vector3& linVelocity,
                                const Vector3& oriVector, const Matrix3& orientation,
                                const Vector3& angVel,
-                               Vector6& fc, Vector6& tc)
+                               Vector& fc, Vector& tc)
     {
         unsigned nbContacts(getContactsNumber());
         fc_.resize(2*3); fc_.setZero();
@@ -291,7 +291,7 @@ namespace flexibilityEstimation
                            const Vector3& position, const Vector3& linVelocity,
                            const Vector3& oriVector, const Matrix3& orientation,
                            const Vector3& angVel,
-                           Vector6& fc, Vector6& tc)
+                           Vector& fc, Vector& tc)
     {
         switch(contactModel_){
         case contactModel::elasticContact : computeElastContactForcesAndMoments(contactpos, contactori, contactvel, contactangvel, position, linVelocity, oriVector, orientation, angVel, fc, tc);
@@ -347,7 +347,7 @@ namespace flexibilityEstimation
         const Vector3& position, const Vector3& linVelocity, Vector3& linearAcceleration,
         const Vector3 &oriVector ,const Matrix3& orientation,
         const Vector3& angularVel, Vector3& angularAcceleration,
-        const Vector6& fc, const Vector6& tc,
+        const Vector& fc, const Vector& tc,
         const Vector3 & fm, const Vector3& tm)
     {
 
@@ -412,8 +412,8 @@ namespace flexibilityEstimation
               const Matrix3& inertia, const Matrix3& dotInertia,
               const IndexedMatrixArray& contactPos,
               const IndexedMatrixArray& contactOri,
-              Vector3& position, Vector3& linVelocity, Vector6& fc,
-              Vector3 &oriVector, Vector3& angularVel, Vector6& tc,
+              Vector3& position, Vector3& linVelocity, Vector& fc,
+              Vector3 &oriVector, Vector3& angularVel, Vector& tc,
               Vector3 & fm, Vector3& tm,
               double dt)
     {
@@ -450,8 +450,8 @@ namespace flexibilityEstimation
               const Matrix3& inertia, const Matrix3& dotInertia,
               const IndexedMatrixArray& contactPos,
               const IndexedMatrixArray& contactOri,
-              Vector3& position, Vector3& linVelocity, Vector6& fc,
-              Vector3 &oriVector, Vector3& angularVel, Vector6& tc,
+              Vector3& position, Vector3& linVelocity, Vector& fc,
+              Vector3 &oriVector, Vector3& angularVel, Vector& tc,
               Vector3 & fm, Vector3& tm,
               double dt)
     {
