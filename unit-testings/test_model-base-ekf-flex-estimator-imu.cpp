@@ -107,10 +107,10 @@ int test()
     est.setRobotMass(56.8679920);
     stateObservation::Vector3 v1; v1.setOnes();
     v1=1000*v1;
-    est.setAngularAccelerationLimit(v1);
+    est.setTorquesLimit(v1);
     stateObservation::Vector3 v2; v2.setOnes();
     v2=1000*v2;
-    est.setLinearAccelerationLimit(v2);
+    est.setForcesLimit(v2);
     est.setKfe(40000*Matrix3::Identity());
     est.setKte(600*Matrix3::Identity());
     est.setKfv(600*Matrix3::Identity());

@@ -164,8 +164,35 @@ namespace flexibilityEstimation
             return functor_.getRobotMass();
         }
 
-        virtual void setAngularAccelerationLimit(const Vector3 & v);
-        virtual void setLinearAccelerationLimit(const Vector3 & v);
+        void setTorquesLimit(const Vector3 & v)
+        {
+            limitTorques_=v;
+        }
+
+        void setForcesLimit(const Vector3 & v)
+        {
+            limitForces_=v;
+        }
+
+        virtual stateObservation::Vector3 getForcesLimit () const
+        {
+            return limitForces_;
+        }
+
+        virtual stateObservation::Vector3 getTorquesLimit () const
+        {
+            return limitTorques_;
+        }
+
+        void setLimitOn(const bool& b)
+        {
+            limitOn_ = b;
+        }
+
+        virtual bool getLimitOn() const
+        {
+            return limitOn_;
+        }
 
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -200,8 +227,9 @@ namespace flexibilityEstimation
         bool withAbsolutePos_;
         bool withUnmodeledMeasurements_;
 
-        Vector3 limitAngularAcceleration_;
-        Vector3 limitLinearAcceleration_;
+        Vector3 limitTorques_;
+        Vector3 limitForces_;
+        bool limitOn_;
 
     private:
     };

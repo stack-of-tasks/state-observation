@@ -20,7 +20,8 @@ namespace flexibilityEstimation
         useFTSensors_(false),
         withAbsolutePos_(false),
         withComBias_(false),
-        withUnmodeledMeasurements_(false)
+        withUnmodeledMeasurements_(false),
+        limitOn_(true)
     {
         ekf_.setMeasureSize(functor_.getMeasurementSize());
         ekf_.setStateSize(stateSize_);
@@ -50,15 +51,17 @@ namespace flexibilityEstimation
         on_=true;
 
         Vector3 v1, v2;
-        v1 << 1000,
-              1000,
-              10000;
-        v2 << 100,
+        Matrix3 v;
+        v1 << 100,
               100,
               1000;
-        limitAngularAcceleration_=10000*v2;
-        limitLinearAcceleration_=100000*v1;
-
+        v2 << 10,
+              10,
+              100;
+        v.setIdentity();
+        v*=cst::gravityConstant*hrp2::m;
+        limitForces_=v*v1;
+        limitTorques_=v*v2;
 
     }
 
@@ -340,14 +343,16 @@ namespace flexibilityEstimation
 
                         ///regulate the part of orientation vector in the state vector
                         lastX_.segment(state::ori,3)=kine::regulateOrientationVector(lastX_.segment(state::ori,3));
-                        for(int i=0;i<3;i++)
-                        { // Saturation for bounded acceleration
-                            lastX_[state::fc+6+i]=std::min(lastX_[state::fc+6+i],limitAngularAcceleration_[i]);
-                            lastX_[state::fc+i]=std::min(lastX_[state::fc+i],limitLinearAcceleration_[i]);
-                            lastX_[state::fc+6+i]=std::max(lastX_[state::fc+6+i],-limitAngularAcceleration_[i]);
-                            lastX_[state::fc+i]=std::max(lastX_[state::fc+i],-limitLinearAcceleration_[i]);
+                        if(limitOn_)
+                        {
+                            for(int i=0;i<3;i++)
+                            { // Saturation for bounded forces and torques
+                                lastX_[state::fc+6+i]=std::min(lastX_[state::fc+6+i],limitTorques_[i]);
+                                lastX_[state::fc+i]=std::min(lastX_[state::fc+i],limitForces_[i]);
+                                lastX_[state::fc+6+i]=std::max(lastX_[state::fc+6+i],-limitTorques_[i]);
+                                lastX_[state::fc+i]=std::max(lastX_[state::fc+i],-limitForces_[i]);
+                            }
                         }
-
                         ekf_.setState(lastX_,ekf_.getCurrentTime());
                     }
                     else //delete NaN values
@@ -487,14 +492,6 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::setRobotMass(double m)
     {
         functor_.setRobotMass(m);
-    }
-
-    void ModelBaseEKFFlexEstimatorIMU::setAngularAccelerationLimit(const Vector3 & v){
-        limitAngularAcceleration_=v;
-    }
-
-    void ModelBaseEKFFlexEstimatorIMU::setLinearAccelerationLimit(const Vector3 & v){
-        limitLinearAcceleration_=v;
     }
 
 }
