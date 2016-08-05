@@ -43,8 +43,10 @@ namespace flexibilityEstimation
 
       kcurrent_=-1;
 
-      fc_.resize(2*3); fc_.setZero();
-      tc_.resize(2*3); tc_.setZero();
+      fc_.resize(hrp2::contact::nbModeledMax*3); fc_.setZero();
+      tc_.resize(hrp2::contact::nbModeledMax*3); tc_.setZero();
+      op_.fc.resize(3*hrp2::contact::nbModeledMax);
+      op_.tc.resize(3*hrp2::contact::nbModeledMax);
 
     }
 
@@ -80,10 +82,8 @@ namespace flexibilityEstimation
                                Vector& forces, Vector& moments)
     {
         unsigned nbContacts(getContactsNumber());
-        fc_.resize(2*3); fc_.setZero();
-        tc_.resize(2*3); tc_.setZero();
-        forces.setZero();
-        moments.setZero();
+        fc_.setZero(); tc_.setZero();
+        forces.setZero(); moments.setZero();
 
         Vector3 forcei;
         Vector3 momenti;
@@ -126,10 +126,8 @@ namespace flexibilityEstimation
                                Vector& forces, Vector& moments)
     {
         unsigned nbContacts(getContactsNumber());
-        fc_.resize(2*3); fc_.setZero();
-        tc_.resize(2*3); tc_.setZero();
-        forces.setZero();
-        moments.setZero();
+        fc_.setZero(); tc_.setZero();
+        forces.setZero(); moments.setZero();
 
         stateObservation::Vector3 forcei;
         stateObservation::Vector3 momenti;
@@ -175,10 +173,8 @@ namespace flexibilityEstimation
                                Vector& forces, Vector& moments)
     {
         unsigned nbContacts(getContactsNumber());
-        fc_.resize(2*3); fc_.setZero();
-        tc_.resize(2*3); tc_.setZero();
-        forces.setZero();
-        moments.setZero();
+        fc_.setZero(); tc_.setZero();
+        forces.setZero(); moments.setZero();
 
         stateObservation::Vector3 forcei;
         stateObservation::Vector3 momenti;
@@ -250,8 +246,7 @@ namespace flexibilityEstimation
                                Vector& fc, Vector& tc)
     {
         unsigned nbContacts(getContactsNumber());
-        fc_.resize(2*3); fc_.setZero();
-        tc_.resize(2*3); tc_.setZero();
+        fc_.setZero(); tc_.setZero();
 
       for (unsigned i = 0; i<nbContacts ; ++i)
       {
@@ -587,7 +582,7 @@ namespace flexibilityEstimation
     }
 
     Vector IMUElasticLocalFrameDynamicalSystem::stateDynamics
-        (const Vector& x, const Vector& u, unsigned )
+            (const Vector& x, const Vector& u, unsigned )
     {
         assertStateVector_(x);
         assertInputVector_(u);
@@ -599,8 +594,10 @@ namespace flexibilityEstimation
         op_.orientationFlexV=x.segment(state::ori,3);
         op_.velocityFlex=x.segment(state::linVel,3);
         op_.angularVelocityFlex=x.segment(state::angVel,3);
-        op_.fc1=x.segment(state::fc,6);
-        op_.fc2=x.segment(state::fc+6,6);
+
+        for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
+            op_.efforts[i]=x.segment(state::fc+6*i,6);
+
         op_.positionComBias <<  x.segment(state::comBias,2),
                                 0;// the bias of the com along the z axis is assumed 0.
         op_.fm=x.segment(state::unmodeledForces,3);
@@ -630,10 +627,11 @@ namespace flexibilityEstimation
         op_.AngMomentum=u.segment<3>(input::angMoment);
         op_.dotAngMomentum=u.segment<3>(input::dotAngMoment);
 
-        op_.fc << op_.fc1.segment<3>(0),
-                  op_.fc2.segment<3>(0);
-        op_.tc << op_.fc1.segment<3>(3),
-                  op_.fc2.segment<3>(3);
+        for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
+        {
+            op_.fc.segment<3>(3*i) = op_.efforts[i].block<3,1>(0,0);
+            op_.tc.segment<3>(3*i) = op_.efforts[i].block<3,1>(3,0);
+        }
 
         int subsample=1;
         for (int i=0; i<subsample; ++i)
@@ -647,12 +645,13 @@ namespace flexibilityEstimation
                           op_.tc, op_.fm, op_.tm,
                           dt_/subsample);
         }
-        //x_{k+1}
+        //x_{k+1}   
 
-        op_.fc1 << op_.fc.segment<3>(0),
-                   op_.tc.segment<3>(0);
-        op_.fc2 << op_.fc.segment<3>(3),
-                   op_.tc.segment<3>(3);
+        for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
+        {
+            op_.efforts[i].block<3,1>(0,0) = op_.fc.segment<3>(3*i);
+            op_.efforts[i].block<3,1>(3,0) = op_.tc.segment<3>(3*i);
+        }
 
         xk1_=x;
 
@@ -662,8 +661,8 @@ namespace flexibilityEstimation
         xk1_.segment<3>(state::linVel) = op_.velocityFlex;
         xk1_.segment<3>(state::angVel) = op_.angularVelocityFlex;
 
-        xk1_.segment<6>(state::fc) = op_.fc1;
-        xk1_.segment<6>(state::fc+6) = op_.fc2;
+        for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
+            xk1_.segment(state::fc+6*i,6) = op_.efforts[i].col(0);
 
         // xk1_.segment<2>(state::comBias) = op_.positionComBias.head<2>();
 
@@ -705,8 +704,12 @@ namespace flexibilityEstimation
         op_.velocityFlex=x.segment(state::linVel,3);
         op_.orientationFlexV=x.segment(state::ori,3);
         op_.angularVelocityFlex=x.segment(state::angVel,3);
-        op_.fc1=x.segment(state::fc,6);
-        op_.fc2=x.segment(state::fc+6,6);
+
+        for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
+        {
+            op_.efforts[i]=x.segment(state::fc+6*i,6);
+        }
+
         op_.fm=x.segment(state::unmodeledForces,3);
         op_.tm=x.segment(state::unmodeledForces+3,3);
         op_.drift=x.segment<3>(state::drift);
@@ -739,10 +742,11 @@ namespace flexibilityEstimation
 
         op_.rimu = op_.rFlex * op_.rControl;
 
-        op_.fc << op_.fc1.segment<3>(0),
-                  op_.fc2.segment<3>(0);
-        op_.tc << op_.fc1.segment<3>(3),
-                  op_.fc2.segment<3>(3);
+        for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
+        {
+            op_.fc.segment<3>(3*i) = op_.efforts[i].block<3,1>(0,0);
+            op_.tc.segment<3>(3*i) = op_.efforts[i].block<3,1>(3,0);
+        }
 
         // Get acceleration
         computeAccelerations (op_.positionCom, op_.velocityCom,

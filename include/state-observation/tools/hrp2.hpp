@@ -45,6 +45,7 @@ namespace stateObservation
         struct contact
         {
           static const unsigned nbMax=4;
+          static const unsigned nbModeledMax=2;
           // index for the contacts
           static const unsigned lf = 0;
           static const unsigned rf = 1;

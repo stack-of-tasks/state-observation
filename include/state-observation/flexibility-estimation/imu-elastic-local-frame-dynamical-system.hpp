@@ -450,8 +450,8 @@ public:
         Matrix3 inertia;
         Matrix3 dotInertia;
 
-        Vector fc1;
-        Vector fc2;
+        IndexedMatrixArray efforts;
+
         Vector3 f;
         Vector3 t;
         Vector fc;
