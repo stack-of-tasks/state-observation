@@ -473,6 +473,7 @@ public:
         Vector3 contactVel;
         Vector3 RciContactPos;
         Vector3 globalContactPos;
+        Matrix3 Rt;
 
         Vector3 forcei;
         Vector3 momenti;

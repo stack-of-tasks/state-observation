@@ -237,6 +237,8 @@ namespace flexibilityEstimation
         unsigned nbContacts(getContactsNumber());
         fc.setZero(); tc.setZero();
 
+      op_.Rt = orientation.transpose();
+
       for (unsigned i = 0; i<nbContacts ; ++i)
       {
         op_.contactPos = contactPosArray[i];
@@ -250,14 +252,14 @@ namespace flexibilityEstimation
         op_.globalContactPos = position;
         op_.globalContactPos.noalias() += op_.RciContactPos ;
 
-        op_.forcei.noalias() = - op_.Rci*Kfe_*op_.Rcit*(op_.globalContactPos-op_.contactPos);
-        op_.forcei.noalias() += - op_.Rci*Kfv_*op_.Rcit*(kine::skewSymmetric(angVel)*op_.RciContactPos
-                                  +linVelocity + (orientation+stateObservation::Matrix3::Identity())*op_.contactVel);
+        op_.forcei.noalias() = - Kfe_*op_.Rcit*op_.Rt*(op_.globalContactPos-op_.contactPos);
+        op_.forcei.noalias() += - Kfv_*op_.Rcit*op_.Rt*(kine::skewSymmetric(angVel)*op_.RciContactPos
+                                  +linVelocity + (orientation-stateObservation::Matrix3::Identity())*op_.contactVel);
 
         fc.segment<3>(3*i)= op_.forcei;
 
-        op_.momenti.noalias() = -op_.Rci*Kte_*op_.Rcit*oriVector;
-        op_.momenti.noalias() += -op_.Rci*Ktv_*op_.Rcit*angVel;
+        op_.momenti.noalias() = -Kte_*op_.Rcit*op_.Rt*oriVector;
+        op_.momenti.noalias() += -Ktv_*op_.Rcit*op_.Rt*angVel;
 
         tc.segment<3>(3*i)= op_.momenti;
       }
@@ -344,9 +346,10 @@ namespace flexibilityEstimation
 
         for (unsigned i = 0; i<getContactsNumber() ; ++i)
         {
+            op_.Rci = kine::rotationVectorToAngleAxis(contactOriV[i]).toRotationMatrix();
             op_.globalContactPos.noalias() = orientation*contactPosV[i] + position ;
-            op_.f+= fc.segment<3>(i*3);
-            op_.t+= tc.segment<3>(i*3)+kine::skewSymmetric(op_.globalContactPos)*fc.segment<3>(i*3);
+            op_.f+= orientation*op_.Rci*fc.segment<3>(i*3);
+            op_.t+= orientation*op_.Rci*tc.segment<3>(i*3)+kine::skewSymmetric(op_.globalContactPos)*op_.f;
         }    
 
         op_.wx2Rc.noalias()=op_.skewV2R*positionCom;
@@ -582,7 +585,7 @@ namespace flexibilityEstimation
         op_.angularVelocityFlex=x.segment(state::angVel,3);
 
         for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
-            op_.efforts[i]=x.segment(state::fc+6*i,6);
+            op_.efforts.setValue(x.segment(state::fc+6*i,6),i);
 
         op_.positionComBias <<  x.segment(state::comBias,2),
                                 0;// the bias of the com along the z axis is assumed 0.
