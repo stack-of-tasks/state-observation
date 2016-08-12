@@ -28,6 +28,7 @@ namespace flexibilityEstimation
         ekf_.setMeasureSize(functor_.getMeasurementSize());
         ekf_.setStateSize(stateSize_);
         ekf_.setInputSize(functor_.getInputSize());
+        inputSize_=functor_.getInputSize();
 
         ModelBaseEKFFlexEstimatorIMU::resetCovarianceMatrices();
 
