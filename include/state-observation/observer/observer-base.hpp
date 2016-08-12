@@ -83,7 +83,6 @@ namespace stateObservation
         /// gets the size of the input vector
         virtual unsigned getInputSize() const;
 
-
         ///Set the value of the state vector at time index k
         virtual void setState(const StateVector& x_k,unsigned k)=0;
 
@@ -91,7 +90,7 @@ namespace stateObservation
         virtual void clearStates()=0;
 
         ///Set the value of the measurements vector at time index k
-        virtual void setMeasurement(const MeasureVector& x_k,unsigned k)=0;
+        virtual void setMeasurement(const MeasureVector& y_k,unsigned k)=0;
 
         ///Remove all the given past values of the measurements
         virtual void clearMeasurements()=0;
@@ -101,7 +100,6 @@ namespace stateObservation
 
         ///Remove all the given past values of the inputs
         virtual void clearInputs()=0;
-
 
         ///Run the observer loop and gets the state estimation of the state at
         ///instant k
@@ -123,7 +121,6 @@ namespace stateObservation
         ///Tells whether or not the vector has the dimensions of a state vector
         virtual bool checkStateVector(const StateVector & v ) const;
 
-
         ///Gives a vector of measurement vector size having duplicated "c" value
         virtual Vector measureVectorConstant( double c ) const;
 
@@ -135,7 +132,6 @@ namespace stateObservation
 
         ///Tells whether or not the vector has the dimensions of a measurement vector
         virtual bool checkMeasureVector(const MeasureVector &) const;
-
 
         ///Gives a vector of input vector size having duplicated "c" value
         virtual Vector inputVectorConstant( double c ) const;
@@ -150,7 +146,6 @@ namespace stateObservation
         virtual bool checkInputVector(const InputVector &) const;
 
     protected:
-
 
         ///stateSize is the size of the state vector
         unsigned n_;

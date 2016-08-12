@@ -8,6 +8,8 @@ namespace stateObservation
 {
 namespace flexibilityEstimation
 {
+    typedef IMUElasticLocalFrameDynamicalSystem::state state;
+
     ModelBaseEKFFlexEstimatorIMU::ModelBaseEKFFlexEstimatorIMU(double dt):
         EKFFlexibilityEstimatorBase
             (stateSize,measurementSizeBase_,inputSizeBase_,
@@ -26,7 +28,6 @@ namespace flexibilityEstimation
         ekf_.setMeasureSize(functor_.getMeasurementSize());
         ekf_.setStateSize(stateSize_);
         ekf_.setInputSize(functor_.getInputSize());
-        inputSize_=functor_.getInputSize();
 
         ModelBaseEKFFlexEstimatorIMU::resetCovarianceMatrices();
 
@@ -122,9 +123,8 @@ namespace flexibilityEstimation
 
     void ModelBaseEKFFlexEstimatorIMU::setContactsNumber(unsigned i)
     {
-        finiteDifferencesJacobians_=true;
-
         functor_.setContactsNumber(i);
+
         inputSize_ = functor_.getInputSize();
         ekf_.setInputSize(inputSize_);
 
@@ -161,7 +161,7 @@ namespace flexibilityEstimation
 
         BOOST_ASSERT((bstate||b6||bhomogeneous) &&
                 "ERROR: The flexibility state has incorrect size \
-                    must be 20x1 vector, 6x1 vector or 4x4 matrix");
+                    must be 23x1 vector, 6x1 vector or 4x4 matrix");
 
         Vector x0 (x);
 
@@ -275,7 +275,7 @@ namespace flexibilityEstimation
 
     unsigned ModelBaseEKFFlexEstimatorIMU::getInputSize() const
     {
-        return inputSize_;
+        return ekf_.getInputSize();
     }
 
     unsigned ModelBaseEKFFlexEstimatorIMU::getMeasurementSize() const
@@ -326,6 +326,9 @@ namespace flexibilityEstimation
                     unsigned i;
                     for (i=ekf_.getCurrentTime()+1; i<=k_; ++i)
                     {
+                      if (finiteDifferencesJacobians_)
+                      {
+
 
                         ekf_.updatePredictedMeasurement();///triggers also ekf_.updatePrediction();
 
@@ -333,7 +336,8 @@ namespace flexibilityEstimation
                         //ekf_.setC(ekf_.getCMatrixFD(dx_));
                         ekf_.setA(functor_.stateDynamicsJacobian());
                         ekf_.setC(functor_.measureDynamicsJacobian());
-                        ekf_.getEstimatedState(i);
+                      }
+                      ekf_.getEstimatedState(i);
                     }
                     x_=ekf_.getEstimatedState(k_);
 

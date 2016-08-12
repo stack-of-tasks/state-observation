@@ -58,6 +58,19 @@ namespace stateObservation
 
       };
 
+      struct state
+      {
+        static const unsigned pos = 0;
+        static const unsigned ori = 3;
+        static const unsigned linVel = 6;
+        static const unsigned angVel = 9;
+        static const unsigned fc = 12;
+        static const unsigned unmodeledForces = 24;
+        static const unsigned comBias = 30;
+        static const unsigned drift = 32;
+      };
+
+
       struct contactModel
       {
         ///indexes of the different components of a vector of the input state

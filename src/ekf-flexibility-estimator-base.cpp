@@ -112,9 +112,12 @@ namespace flexibilityEstimation
 
             for (unsigned i=ekf_.getCurrentTime()+1; i<=k_; ++i)
             {
-                    ekf_.setA(ekf_.getAMatrixFD(dx_));
-                    ekf_.setC(ekf_.getCMatrixFD(dx_));
-                    ekf_.getEstimatedState(i);
+                if (finiteDifferencesJacobians_)
+                {
+                  ekf_.setA(ekf_.getAMatrixFD(dx_));
+                  ekf_.setC(ekf_.getCMatrixFD(dx_));
+                }
+                ekf_.getEstimatedState(i);
             }
 
             Vector x(ekf_.getEstimatedState(k_));
