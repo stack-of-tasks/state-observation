@@ -107,7 +107,6 @@ namespace flexibilityEstimation
             moments.segment<3>(0) += momenti;
         }
 
-        moments.segment<3>(0).noalias() += - Kte_*oriVector;
         moments.segment<3>(0).noalias() += - Ktv_*angVel;
         forces.segment<3>(0).noalias() += -Kfv_*linVelocity;
     }
@@ -622,7 +621,7 @@ namespace flexibilityEstimation
             tc_.segment<3>(3*i) = op_.efforts[i].block<3,1>(3,0);
         }
 
-        int subsample=1;
+        const int subsample=1;
         for (int i=0; i<subsample; ++i)
         {
           iterateDynamicsEuler (
