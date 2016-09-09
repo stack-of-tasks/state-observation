@@ -72,6 +72,50 @@ namespace flexibilityEstimation
    }
 
 
+    Vector IMUElasticLocalFrameDynamicalSystem::getMomenta(const Vector& x, const Vector& u)
+    {
+        // Getting flexibility
+        op_.positionFlex=x.segment(state::pos,3);
+        op_.orientationFlexV=x.segment(state::ori,3);
+        op_.rFlex = computeRotation_(op_.orientationFlexV,0);
+
+        // Getting contact forces
+        for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
+            op_.efforts.setValue(x.segment(state::fc+6*i,6),i);
+
+        op_.fm=x.segment(state::unmodeledForces,3);
+        op_.tm=x.segment(state::unmodeledForces+3,3);
+        for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
+        {
+            fc_.segment<3>(3*i) = op_.efforts[i].block<3,1>(0,0);
+            tc_.segment<3>(3*i) = op_.efforts[i].block<3,1>(3,0);
+        }
+
+        // Getting CoM
+        op_.positionComBias <<  x.segment(state::comBias,2),
+                                0;// the bias of the com along the z axis is assumed 0.
+        op_.positionCom=u.segment<3>(input::posCom);
+        if(withComBias_) op_.positionCom+=op_.positionComBias;
+
+
+        // Getting contact positions
+        unsigned nbContacts(getContactsNumber());
+        for (unsigned i = 0; i<nbContacts ; ++i)
+        {
+          // Positions
+          op_.contactPosV.setValue(u.segment<3>(input::contacts + 12*i),i);
+          op_.contactOriV.setValue(u.segment<3>(input::contacts +12*i+3),i);
+        }
+
+        computeContactWrench(op_.rFlex, op_.positionFlex, op_.contactPosV, op_.contactOriV,
+                             fc_, tc_, op_.fm, op_.tm);
+
+        op_.momenta.segment<3>(0) = op_.f - hrp2::m*cst::gravity;
+        op_.momenta.segment<3>(3) = op_.t - kine::skewSymmetric(op_.rFlex*op_.positionCom+op_.positionFlex)*hrp2::m*cst::gravity;
+
+        return op_.momenta;
+    }
+
     Vector IMUElasticLocalFrameDynamicalSystem::getForcesAndMoments()
     {
         unsigned nbContacts(getContactsNumber());

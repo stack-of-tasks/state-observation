@@ -295,6 +295,8 @@ public:
       virtual Vector getForcesAndMoments (const Vector& x,
        const Vector& u);
 
+      virtual Vector getMomenta(const Vector& x, const Vector& u);
+
       virtual void iterateDynamicsEuler
       (const Vector3& positionCom, const Vector3& velocityCom,
        const Vector3& accelerationCom, const Vector3& AngMomentum,
@@ -395,6 +397,8 @@ public:
 
       struct Optimization
       {
+
+        Vector6 momenta;
 
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

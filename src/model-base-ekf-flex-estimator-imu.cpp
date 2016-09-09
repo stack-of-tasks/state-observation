@@ -224,6 +224,19 @@ namespace flexibilityEstimation
         return R_;
     }
 
+    Vector ModelBaseEKFFlexEstimatorIMU::getMomenta()
+    {
+        if(on_==true)
+        {
+            return functor_.getMomenta(getFlexibilityVector(),getInput());
+        }
+        else
+        {
+            Vector6 v; v.setZero();
+            return v;
+        }
+    }
+
     Vector ModelBaseEKFFlexEstimatorIMU::getForcesAndMoments()
     {
         const Vector & v (getFlexibilityVector());
