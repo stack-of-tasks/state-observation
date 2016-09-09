@@ -318,6 +318,23 @@ namespace flexibilityEstimation
                              op_.angularVelocityFlex, fc_, tc_);
     }
 
+    void IMUElasticLocalFrameDynamicalSystem::computeContactWrench
+            (const Matrix3& orientation, const Vector3& position,
+             const IndexedMatrixArray& contactPosV, const IndexedMatrixArray& contactOriV,
+             const Vector& fc, const Vector& tc, const Vector3 & fm, const Vector3& tm)
+    {
+        op_.f=orientation*fm;
+        op_.t=orientation*tm+kine::skewSymmetric(position)*orientation*fm;
+
+        for (unsigned i = 0; i<getContactsNumber() ; ++i)
+        {
+            op_.Rci = kine::rotationVectorToAngleAxis(contactOriV[i]).toRotationMatrix();
+            op_.globalContactPos.noalias() = orientation*contactPosV[i] + position ;
+            op_.f+= orientation*op_.Rci*fc.segment<3>(i*3);
+            op_.t+= orientation*op_.Rci*tc.segment<3>(i*3)+kine::skewSymmetric(op_.globalContactPos)*op_.f;
+        }
+    }
+
     void IMUElasticLocalFrameDynamicalSystem::computeAccelerations
        (const Vector3& positionCom, const Vector3& velocityCom,
         const Vector3& accelerationCom, const Vector3& AngMomentum,
@@ -339,16 +356,8 @@ namespace flexibilityEstimation
 
         op_.rFlexT.noalias()=orientation.transpose();
 
-        op_.f=orientation*fm;
-        op_.t=orientation*tm+kine::skewSymmetric(position)*orientation*fm;
-
-        for (unsigned i = 0; i<getContactsNumber() ; ++i)
-        {
-            op_.Rci = kine::rotationVectorToAngleAxis(contactOriV[i]).toRotationMatrix();
-            op_.globalContactPos.noalias() = orientation*contactPosV[i] + position ;
-            op_.f+= orientation*op_.Rci*fc.segment<3>(i*3);
-            op_.t+= orientation*op_.Rci*tc.segment<3>(i*3)+kine::skewSymmetric(op_.globalContactPos)*op_.f;
-        }    
+        computeContactWrench(orientation, position, contactPosV, contactOriV,
+                             fc, tc, fm, tm);
 
         op_.wx2Rc.noalias()=op_.skewV2R*positionCom;
         op_._2wxRv.noalias()=2*op_.skewVR*velocityCom;

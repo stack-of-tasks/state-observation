@@ -137,6 +137,12 @@ public:
 
       void test();
 
+      // Get the contact wrench
+      void computeContactWrench
+              (const Matrix3& orientation, const Vector3& position,
+               const IndexedMatrixArray& contactPosV, const IndexedMatrixArray& contactOriV,
+               const Vector& fc, const Vector& tc, const Vector3 & fm, const Vector3& tm);
+
       // computation of the acceleration linear
       virtual void computeAccelerations
       (const Vector3& positionCom, const Vector3& velocityCom,
