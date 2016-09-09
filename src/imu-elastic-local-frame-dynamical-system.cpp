@@ -123,7 +123,7 @@ namespace flexibilityEstimation
 
         op_.forcei.noalias() = - Kfe_*op_.Rcit*op_.Rt*(op_.globalContactPos-op_.contactPos);
         op_.forcei.noalias() += - Kfv_*op_.Rcit*op_.Rt*(kine::skewSymmetric(angVel)*op_.RciContactPos
-                                  +linVelocity + (orientation-stateObservation::Matrix3::Identity())*op_.contactVel);
+                                  +linVelocity + orientation*op_.contactVel);
 
         fc.segment<3>(3*i)= op_.forcei;
 
