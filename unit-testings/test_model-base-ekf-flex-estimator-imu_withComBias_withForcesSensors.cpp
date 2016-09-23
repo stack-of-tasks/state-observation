@@ -41,7 +41,7 @@ int test()
 
     // time
     const double dt=5e-3;
-    const unsigned kinit=3;
+    const unsigned kinit=2;
     const unsigned kmax=1100;
 
     // fix sizes
@@ -131,6 +131,11 @@ int test()
     stateObservation::flexibilityEstimation::ModelBaseEKFFlexEstimatorIMU est;
     est.setSamplingPeriod(dt);
 
+    // Set contacts number
+    est.setContactsNumber(contactNbr);
+    est.setContactModel(stateObservation::flexibilityEstimation::
+                ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
+
     std::cout << "setting covariances" << std::endl;
 
     // Measurement noise covariance
@@ -159,14 +164,8 @@ int test()
 //    for(int i=0;i<stateSize;++i) P0_(i,i)=stateCovariance[kinit+2](i);
 //    est.setFlexibilityCovariance(P0_);
 
-    // Estimator state
-    est.setInput(u[kinit].block(0,0,1,est.getInputSize()).transpose());
-//    est.setFlexibilityGuess(xRef[kinit+2].block(0,0,est.getStateSize(),1));
-
-    // Set contacts number
-    est.setContactsNumber(contactNbr);
-    est.setContactModel(stateObservation::flexibilityEstimation::
-                ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
+//    // Estimator state
+//    est.setInput(u[kinit].block(0,0,1,est.getInputSize()).transpose());
 
     est.setRobotMass(56.8);//48.6);//
 //    stateObservation::Vector3 v1; v1.setOnes();
@@ -182,17 +181,31 @@ int test()
     est.setKfv(600*Matrix3::Identity());
     est.setKtv(10*Matrix3::Identity());
 
-    double normState=0;
-    Vector errorsum=Vector::Zero(est.getEKF().getStateSize());
     stateObservation::Vector input, measurement;
+
+    stateObservation::Vector inputInit, measurementInit;
+    measurementInit.resize(est.getMeasurementSize()); measurementInit.setZero();
+    inputInit.resize(est.getInputSize()); inputInit.setZero();
+    for(unsigned i=0;i<=kinit;++i)
+    {
+        est.setMeasurementInput(inputInit);
+        est.setMeasurement(measurementInit);
+        flexibility = est.getFlexibilityVector();
+    }
 
     std::cout << "Beginning reconstruction "<<std::endl;
     for (unsigned k=kinit;k<kmax;++k)
     {
-        std::cout << k << std::endl;
+        std::cout << "\n" << k << std::endl;
 
         contactNbr = nbSupport[k](0);
         est.setContactsNumber(contactNbr);
+
+        inputSize = est.getInputSize();
+        std::cout << "contactNbr: " << contactNbr << " inputSize: " << inputSize << std::endl;
+        input.resize(inputSize);
+        input=(u[k].block(0,0,1,inputSize)).transpose();
+        est.setMeasurementInput(input);
 
         measurement.resize(est.getMeasurementSize());
         measurement.segment(0,6) = (y[k].block(0,0,1,6)).transpose();
@@ -213,9 +226,7 @@ int test()
         }
         est.setMeasurement(measurement);
 
-        input.resize(est.getInputSize());
-        input=(u[k].block(0,0,1,est.getInputSize())).transpose();
-        est.setMeasurementInput(input);
+        std::cout << "input size=" << est.getEKF().getInputSize() << est.getEKF().getFunctor()->getInputSize() << std::endl;
 
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
