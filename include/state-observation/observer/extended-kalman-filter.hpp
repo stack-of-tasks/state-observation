@@ -72,6 +72,7 @@ namespace stateObservation
         ///and the measurement the user is responsible for the validity of the
         ///pointer during the execution of the kalman filter
         void setFunctor(DynamicalSystemFunctorBase* f);
+        DynamicalSystemFunctorBase* getFunctor(void) const;
 
         ///Gets a pointer to the functor
         DynamicalSystemFunctorBase* functor() const;

@@ -11,6 +11,12 @@ namespace stateObservation
 
     }
 
+    DynamicalSystemFunctorBase* ExtendedKalmanFilter::getFunctor(void) const
+    {
+        return f_;
+
+    }
+
     void ExtendedKalmanFilter::clearFunctor()
     {
         f_=0x0;
@@ -56,7 +62,6 @@ namespace stateObservation
                       k);
         }
 
-
         return xbar_();
     }
 
@@ -80,10 +85,7 @@ namespace stateObservation
             if (directInputOutputFeedthrough_)
             {
                 BOOST_ASSERT(u_.checkIndex(k) &&
-                "ERROR: The input feedthrough of the measurements is not set \
 (the measurement at time k needs the input at time k which was not given) \
-if you don't need the input in the computation of measurement, you \
-must set directInputOutputFeedthrough to 'false' in the constructor");
             }
 
             if (u_.checkIndex(k))
