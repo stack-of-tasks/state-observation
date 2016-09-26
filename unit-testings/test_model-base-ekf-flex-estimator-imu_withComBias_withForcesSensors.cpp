@@ -249,7 +249,6 @@ int test()
         inovInt=inov*dt;
         simulatedMeasurements=est.getSimulatedMeasurement();
         predictedMeasurements=est.getLastPredictedMeasurement();
-        predictedState=est.getPrediction();
 
         x_output.setValue(flexibility,k);
         xCov_output.setValue(flexCovariance,k);
@@ -285,7 +284,7 @@ int test()
     ss_output.writeInFile("simulatedSensors.dat");
     xPredicted_output.writeInFile("statePredicted.dat");
 
-    std::cout << "Mean computation time " << computeTime[0] <<std::endl;
+//   std::cout << "Mean computation time " << computeTime[0] <<std::endl;
 
 //    std::cout << "flexibility mean quadratic error " << normState/(kmax-kinit-3)<<std::endl;
 //    errorsum = errorsum/(kmax-kinit-3);
@@ -316,7 +315,7 @@ int test()
 //    }
 //#endif
 
-    std::cout << "Succeed !!"<< std::endl <<"The end" << std::endl;
+//    std::cout << "Succeed !!"<< std::endl <<"The end" << std::endl;
     return 1;
 }
 
