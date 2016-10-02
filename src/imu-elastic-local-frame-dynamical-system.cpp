@@ -370,12 +370,14 @@ namespace flexibilityEstimation
         op_.f=orientation*fm;
         op_.t=orientation*tm+kine::skewSymmetric(position)*orientation*fm;
 
+
         for (unsigned i = 0; i<getContactsNumber() ; ++i)
         {
             op_.Rci = kine::rotationVectorToAngleAxis(contactOriV[i]).toRotationMatrix();
             op_.globalContactPos.noalias() = orientation*contactPosV[i] + position ;
-            op_.f+= orientation*op_.Rci*fc.segment<3>(i*3);
-            op_.t+= orientation*op_.Rci*tc.segment<3>(i*3)+kine::skewSymmetric(op_.globalContactPos)*op_.f;
+            op_.fi=orientation*op_.Rci*fc.segment<3>(i*3);
+            op_.f+= op_.fi;
+            op_.t+= orientation*op_.Rci*tc.segment<3>(i*3)+kine::skewSymmetric(op_.globalContactPos)*op_.fi;
         }
     }
 
@@ -456,7 +458,7 @@ namespace flexibilityEstimation
         op_.rFlex = computeRotation_(oriVector,0);
         //compute new acceleration with the current flex position and velocity and input
 
-//        computeForcesAndMoments (contactPos, contactOri,
+//        computeForcesAndMoments (contactPos, contactOri, op_.contactVelArray, op_.contactAngVelArray,
 //                          position, linVelocity, oriVector, op_.rFlex,
 //                             angularVel, fc, tc);
         

@@ -475,7 +475,7 @@ public:
 
         IndexedMatrixArray efforts;
 
-        Vector3 f;
+        Vector3 f, fi;
         Vector3 t;
         Vector3 fm;
         Vector3 tm;
