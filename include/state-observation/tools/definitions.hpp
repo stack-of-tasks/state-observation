@@ -110,6 +110,8 @@ namespace stateObservation
         ///Switch off the initalization flag, the value is no longer accessible
         inline void reset();
 
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     protected:
         ///Checks whether the matrix is set or not (assert)
         ///does nothing in release mode
