@@ -224,9 +224,6 @@ namespace stateObservation
         const unsigned angAcc = 15;
     }
 
-
-
-
     namespace cst
     {
         const double gravityConstant = 9.8;

@@ -77,11 +77,9 @@ namespace flexibilityEstimation
 
     void FixedContactEKFFlexEstimatorIMU::setContactsNumber(unsigned i)
     {
-        finiteDifferencesJacobians_=true;
         functor_.setContactsNumber(i);
         ekf_.setMeasureSize(functor_.getMeasurementSize());
         updateCovarianceMatrix_();
-
     }
 
     void FixedContactEKFFlexEstimatorIMU::setContactPosition
@@ -216,7 +214,6 @@ namespace flexibilityEstimation
         v2.tail(3) = v.segment(kine::ori,3);
 
         return kine::vector6ToHomogeneousMatrix(v2);
-
     }
 
     const Vector& FixedContactEKFFlexEstimatorIMU::getFlexibilityVector()
@@ -230,9 +227,7 @@ namespace flexibilityEstimation
                 kine::regulateOrientationVector(lastX_.segment(kine::ori,3));
 
             ekf_.setState(lastX_,ekf_.getCurrentTime());
-
         }
-
         return lastX_;
     }
 

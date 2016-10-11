@@ -298,17 +298,18 @@ namespace stateObservation
             Matrix inoMeasCovInverse;
             LLTPMatrix inoMeasCovLLT;
             Matrix kGain;
+            Matrix t;
         } oc_;
 
 
     };
 
-    void KalmanFilterBase::updatePrediction()
+    /*inline*/ void KalmanFilterBase::updatePrediction()
     {
         oc_.xbar = prediction_(this->x_.getTime()+1);
     }
 
-    void KalmanFilterBase::updatePredictedMeasurement()
+    /*inline*/ void KalmanFilterBase::updatePredictedMeasurement()
     {
         updatePrediction();
         predictedMeasurement_=simulateSensor_(oc_.xbar,this->x_.getTime()+1);

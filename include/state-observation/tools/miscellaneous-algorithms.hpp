@@ -35,10 +35,19 @@ namespace stateObservation
             return o*(1/dt);
         }
 
+        ///gives the sign of a variable (1, 0 or -1)
         template <typename T> inline
         int signum(T x)
         {
           return (T(0) < x) - (x < T(0));
+        }
+
+        template<typename T>
+        std::string toString(T val)
+        {
+          std::stringstream ss("");
+          ss << val;
+          return ss.str();
         }
     }
 
@@ -63,7 +72,7 @@ namespace stateObservation
         /// Transform the rotation vector into angle axis
         inline AngleAxis rotationVectorToAngleAxis(const Vector3 & v)
         {
-            double angle=v.squaredNorm();
+            double angle(v.squaredNorm());
             if (angle > cst::epsilonAngle * cst::epsilonAngle)
             {
                 angle=sqrt(angle);
@@ -82,10 +91,22 @@ namespace stateObservation
         /// Tranbsform the rotation matrix into rotation vector
         inline Vector3 rotationMatrixToRotationVector(const Matrix3 & R)
         {
-            AngleAxis a;
-            a=AngleAxis(Matrix3(R));
-            Vector v(3);
-            v=a.angle()*a.axis();
+            AngleAxis a(R);
+            Vector3 v(a.axis());
+            v.noalias()=a.angle()*v;
+            return v;
+        }
+
+        /// Tranbsform the rotation matrix into roll pitch yaw
+        ///(decompose R into Ry*Rp*Rr)
+        inline Vector3 rotationMatrixToRollPitchYaw(const Matrix3 & R)
+        {
+            /// source http://planning.cs.uiuc.edu/node102.html
+            /// and http://planning.cs.uiuc.edu/node103.html
+
+            Vector3 v(atan2(R(2,1),R(2,2)),
+                      atan2(-R(2,0),sqrt(tools::square(R(2,1))+tools::square(R(2,2)))),
+                      atan2(R(1,0),R(0,0)));
             return v;
         }
 

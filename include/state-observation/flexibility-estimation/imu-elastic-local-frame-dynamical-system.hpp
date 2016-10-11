@@ -22,15 +22,9 @@
 
 namespace stateObservation
 {
-  namespace kine //for constant declarations
-  {
-    static const unsigned comBias = 18;
-    static const unsigned drift = 20;
-  }
 
   namespace flexibilityEstimation
   {
-
 
     /**
     * \class  DynamicalSystem
@@ -64,11 +58,26 @@ namespace stateObservation
 
       };
 
+      struct state
+      {
+        static const unsigned pos = 0;
+        static const unsigned ori = 3;
+        static const unsigned linVel = 6;
+        static const unsigned angVel = 9;
+        static const unsigned fc = 12;
+        static const unsigned unmodeledForces = 24;
+        static const unsigned comBias = 30;
+        static const unsigned drift = 32;
+      };
+
+
       struct contactModel
       {
         ///indexes of the different components of a vector of the input state
         static const unsigned elasticContact= 1;
         static const unsigned pendulum= 2;
+        static const unsigned pendulum1= 3;
+        static const unsigned pendulum2= 4;
         static const unsigned none= 0;
 
       };
@@ -103,8 +112,6 @@ public:
 
           void setAugmentationSize(bool);
 
-
-
 protected:
 
 
@@ -113,6 +120,10 @@ protected:
           virtual Vector computeNoiselessMeasurement_();
 
           unsigned augmentation_;
+
+public:
+          EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
         };
 
 
@@ -126,6 +137,12 @@ protected:
 
       void test();
 
+      // Get the contact wrench
+      void computeContactWrench
+              (const Matrix3& orientation, const Vector3& position,
+               const IndexedMatrixArray& contactPosV, const IndexedMatrixArray& contactOriV,
+               const Vector& fc, const Vector& tc, const Vector3 & fm, const Vector3& tm);
+
       // computation of the acceleration linear
       virtual void computeAccelerations
       (const Vector3& positionCom, const Vector3& velocityCom,
@@ -137,7 +154,9 @@ protected:
        const Vector3& position, const Vector3& linVelocity,
        Vector3& linearAcceleration,  const Vector3 &oriVector ,
        const Matrix3& orientation, const Vector3& angularVel,
-       Vector3& angularAcceleration);
+       Vector3& angularAcceleration,
+       const Vector& fc, const Vector& tc,
+       const Vector3 & fm, const Vector3& tm);
 
       ///Description of the state dynamics
       virtual stateObservation::Vector stateDynamics
@@ -225,10 +244,12 @@ protected:
       virtual void computeElastContactForcesAndMoments
       (const IndexedMatrixArray& contactPosArray,
        const IndexedMatrixArray& contactOriArray,
+       const IndexedMatrixArray& contactVelArray,
+       const IndexedMatrixArray& contactAngVelArray,
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
-       Vector3& forces, Vector3& moments);
+       Vector& fc, Vector& tc);
 
       virtual void computeElastPendulumForcesAndMoments
       (const IndexedMatrixArray& PrArray,
@@ -236,15 +257,33 @@ protected:
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
-       Vector3& forces, Vector3& moments);
+       Vector& forces, Vector& moments);
+
+      virtual void computeElastPendulumForcesAndMoments1
+      (const IndexedMatrixArray& PrArray,
+       const IndexedMatrixArray& PeArray,
+       const Vector3& position, const Vector3& linVelocity,
+       const Vector3& oriVector, const Matrix3& orientation,
+       const Vector3& angVel,
+       Vector& forces, Vector& moments);
+
+      virtual void computeElastPendulumForcesAndMoments2
+      (const IndexedMatrixArray& PrArray,
+       const IndexedMatrixArray& PeArray,
+       const Vector3& position, const Vector3& linVelocity,
+       const Vector3& oriVector, const Matrix3& orientation,
+       const Vector3& angVel,
+       Vector& forces, Vector& moments);
 
       void computeForcesAndMoments
       (const IndexedMatrixArray& position1,
        const IndexedMatrixArray& position2,
+       const IndexedMatrixArray& velocity1,
+       const IndexedMatrixArray& velocity2,
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
-       Vector3& forces, Vector3& moments);
+       Vector& fc, Vector& tc);
 
       virtual void computeForcesAndMoments
       (const Vector& x,
@@ -256,6 +295,8 @@ protected:
       virtual Vector getForcesAndMoments (const Vector& x,
        const Vector& u);
 
+      virtual Vector getMomenta(const Vector& x, const Vector& u);
+
       virtual void iterateDynamicsEuler
       (const Vector3& positionCom, const Vector3& velocityCom,
        const Vector3& accelerationCom, const Vector3& AngMomentum,
@@ -263,8 +304,9 @@ protected:
        const Matrix3& Inertia, const Matrix3& dotInertia,
        const IndexedMatrixArray& contactPos,
        const IndexedMatrixArray& contactOri,
-       Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
-       Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+       Vector3& position, Vector3& linVelocity, Vector& fc1,
+       Vector3 &oriVector, Vector3& angularVel, Vector& fc2,
+       Vector3 & fm, Vector3& tm,
        double dt
       );
 
@@ -275,8 +317,9 @@ protected:
        const Matrix3& Inertia, const Matrix3& dotInertia,
        const IndexedMatrixArray& contactPos,
        const IndexedMatrixArray& contactOri,
-       Vector3& position, Vector3& linVelocity, Vector3& linearAcceleration,
-       Vector3 &oriVector, Vector3& angularVel, Vector3& angularAcceleration,
+       Vector3& position, Vector3& linVelocity, Vector& fc1,
+       Vector3 &oriVector, Vector3& angularVel, Vector& fc2,
+       Vector3 & fm, Vector3& tm,
        double dt
       );
 
@@ -286,6 +329,7 @@ protected:
       virtual bool getWithComBias() const;
       virtual void setWithAbsolutePosition(bool b);
       virtual bool getWithAbsolutePosition() const;
+      void setWithUnmodeledMeasurements(bool b);
 
 
       virtual void setKfe(const Matrix3 & m);
@@ -295,7 +339,7 @@ protected:
 
       virtual void setRobotMass(double d);
 
-      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+      virtual double getRobotMass() const;
 
     protected:
 
@@ -312,7 +356,7 @@ protected:
 
       Matrix3& computeRotation_(const Vector3 & x, int i);
 
-      static const unsigned stateSize_=23;
+      static const unsigned stateSize_=35;
       static const unsigned inputSizeBase_=42;
       unsigned inputSize_;
       static const unsigned measurementSizeBase_=6;
@@ -344,12 +388,20 @@ protected:
       bool withForceMeasurements_;
       bool withComBias_;
       bool withAbsolutePos_;
+      bool withUnmodeledMeasurements_;
+
+      double scallingFactor_;
 
 
-      unsigned mocapIndex_;
+      unsigned index_;
 
       struct Optimization
       {
+
+        Vector6 momenta;
+
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
         Vector3 positionFlex;
         Vector3 velocityFlex;
         Vector3 accelerationFlex;
@@ -366,8 +418,6 @@ protected:
         Matrix3 rdrift;
 
         double cy,sy;
-
-
 
         AngleAxis orientationAA;
 
@@ -392,7 +442,6 @@ protected:
         AngleAxis aatotal;
         Vector3 oritotal;
 
-
         Matrix Jx;
         Matrix Jy;
 
@@ -416,15 +465,23 @@ protected:
 
         Matrix3 rControl;
 
-
         IndexedMatrixArray contactPosV;
         IndexedMatrixArray contactOriV;
+        IndexedMatrixArray contactVelArray;
+        IndexedMatrixArray contactAngVelArray;
 
         Matrix3 inertia;
         Matrix3 dotInertia;
 
-        Vector3 fc;
-        Vector3 tc;
+        IndexedMatrixArray efforts;
+
+        Vector3 f, fi;
+        Vector3 t;
+        Vector3 fm;
+        Vector3 tm;
+
+        Vector3 linearAcceleration;
+        Vector3 angularAcceleration;
 
         Vector3 vf;
         Vector3 vt;
@@ -436,8 +493,10 @@ protected:
         Matrix3 Rci; //rotation of contact i
         Matrix3 Rcit;//transpose of previous
         Vector3 contactPos; //
+        Vector3 contactVel;
         Vector3 RciContactPos;
         Vector3 globalContactPos;
+        Matrix3 Rt;
 
         Vector3 forcei;
         Vector3 momenti;
@@ -463,8 +522,6 @@ protected:
         Vector3 orientationVector2;
         Matrix3 curRotation3;
         Vector3 orientationVector3;
-
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
         Optimization()
           :
@@ -504,12 +561,9 @@ protected:
 
       } op_;
 
-
-
-    private:
-
-
     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
   }
 }

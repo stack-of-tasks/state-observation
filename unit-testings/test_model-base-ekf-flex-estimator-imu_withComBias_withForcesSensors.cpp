@@ -1,260 +1,209 @@
 #include <iostream>
 #include <fstream>
 
-//#include <state-observation/noise/gaussian-white-noise.hpp>
-//#include <state-observation/examples/offline-ekf-flexibility-estimation.hpp>
-//#include <state-observation/dynamical-system/dynamical-system-simulator.hpp>
-//#include <state-observation/tools/miscellaneous-algorithms.hpp>
-
 #include <state-observation/flexibility-estimation/model-base-ekf-flex-estimator-imu.hpp>
+#include <state-observation/flexibility-estimation/imu-elastic-local-frame-dynamical-system.hpp>
 
 #include <time.h>
 
-
 using namespace stateObservation;
 
-timespec diff(const timespec & start, const timespec & end)
+Vector computeZmp (unsigned footNumber, IndexedMatrixArray& forces, IndexedMatrixArray& sensorPositions)
 {
-        timespec temp;
-        if ((end.tv_nsec-start.tv_nsec)<0) {
-                temp.tv_sec = end.tv_sec-start.tv_sec-1;
-                temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
-        } else {
-                temp.tv_sec = end.tv_sec-start.tv_sec;
-                temp.tv_nsec = end.tv_nsec-start.tv_nsec;
+    double fnormal = 0;
+    double sumZmpx = 0;
+    double sumZmpy = 0;
+    double sumZmpz = 0;
+    Vector zmp; zmp.setZero(); zmp.resize (3);
+
+    for (unsigned int i=0; i<footNumber; ++i)
+    {
+        const Vector& f = forces [i];
+        // Check that force is of dimension 6
+        if (f.size () != 6)
+        {
+            zmp.fill (0.);
+            return zmp;
         }
-        return temp;
+
+        const Matrix& M = sensorPositions[i];
+        double fx = M (0,0) * f (0) + M(0,1) * f (1) + M (0,2) * f (2);
+        double fy = M (1,0) * f (0) + M(1,1) * f (1) + M (1,2) * f (2);
+        double fz = M (2,0) * f (0) + M(2,1) * f (1) + M (2,2) * f (2);
+
+        if (fz > 0)
+        {
+            double Mx = M (0,0)*f(3) + M (0,1)*f(4) + M (0,2)*f(5) + M (1,3)*fz - M (2,3)*fy;
+            double My = M (1,0)*f(3) + M (1,1)*f(4) + M (1,2)*f(5) + M (2,3)*fx - M (0,3)*fz;
+
+            fnormal += fz;
+            sumZmpx -= My;
+            sumZmpy += Mx;
+            sumZmpz += fz * M (2,3);
+        }
+    }
+
+    if (fnormal != 0)
+    {
+        zmp (0) = sumZmpx / fnormal;
+        zmp (1) = sumZmpy / fnormal;
+        zmp (2) = sumZmpz / fnormal;
+    }
+    else
+    {
+        zmp.fill (0.);
+    }
+
+    return zmp;
 }
 
 int test()
 {
     std::cout << "Starting" << std::endl;
 
-    bool withComBias_=false;
+    // For measurement vector
+    bool withUnmodeledForces_ = false;
     bool withForceSensors_=true;
+    bool withAbsolutePose_ = false;
 
-    // Dimensions
+    // For state vector
+    bool withComBias_=false;
+
+    // Time
     const double dt=5e-3;
-    const unsigned kinit=6488;
-    const unsigned kmax=11300;
-    unsigned contactNbr = 2;
-    const unsigned inputSize=42+contactNbr*6;
-    const unsigned measurementSizeBase=6;
-    const unsigned measurementSize=measurementSizeBase+withForceSensors_*contactNbr*6;
-    const unsigned stateSizeBase_=18;
-    const unsigned stateSize=stateSizeBase_+(int)withComBias_*2;
+    const unsigned kinit=3500; // 10000; //
+    const unsigned kmax=5700; // 11500; //
 
-    // State initialization => not used here because it is set in model-base-ekf-flex-estimator-imu
+    // Fix sizes
+    const unsigned measurementSizeBase=6;
+    const unsigned inputSizeBase=42;
+    const unsigned stateSize=35;
 
     /// Definitions of input vectors
-      // Measurement
+     // Measurement
      IndexedMatrixArray y;
      std::cout << "Loading measurements file" << std::endl;
-     y.getFromFile("source_measurement.dat",1,measurementSize);
-      // Input
+     y.getFromFile("source_measurement.dat",1,30);
+
+     // Input
      IndexedMatrixArray u;
-      std::cout << "Loading input file" << std::endl;
-     u.getFromFile("source_input.dat",1,inputSize);
-//      //state
-//     IndexedMatrixArray xRef;
-//       std::cout << "Loading reference state file" << std::endl;
-//     xRef.getFromFile("source_state.dat",18,1);
+     std::cout << "Loading input file" << std::endl;
+     u.getFromFile("source_input.dat",1,66);
 
+     // Number of support contacts
+     IndexedMatrixArray nbSupport;
+     std::cout << "Loading the number of supports file" << std::endl;
+     nbSupport.getFromFile("source_nbSupport.dat",1,1);
 
-    /// Definition of ouptut vectors
+    /// Definition of ouptut vectors 
      // State: what we want
      IndexedMatrixArray x_output;
-     // State covariance
-     IndexedMatrixArray xCov_output;
      // Measurement
      IndexedMatrixArray y_output;
      // Input
      IndexedMatrixArray u_output;
-     IndexedMatrixArray deltax_output;
 
-     // Inovation
-     IndexedMatrixArray i_output;
-     // Inovation
-     IndexedMatrixArray iInt_output;
-     // Predicted sensors
-     IndexedMatrixArray ps_output;
-     // Simulated densors ss_output;
-     IndexedMatrixArray ss_output;
-     // Predicted sensors
-     IndexedMatrixArray xPredicted_output;
+     // Zmp from sensors
+     IndexedMatrixArray sensorZmp_output;
+     // Zmp from filter
+     IndexedMatrixArray filteredZmp_output;
 
-     Vector flexibility;
-     flexibility.resize(stateSize);
-     Vector xdifference(flexibility);
+    std::cout << "Creating estimator" <<std::endl;
 
-     Vector inov;
-     inov.resize(stateSize);
-     Vector inovInt;
-     inovInt.resize(stateSize);
-
-     Vector simulatedMeasurements;
-     simulatedMeasurements.resize(measurementSize);
-
-     Vector predictedMeasurements;
-     predictedMeasurements.resize(measurementSize);
-
-     Vector predictedState;
-     predictedState.resize(stateSize);
-
-     Vector flexCovariance;
-     flexCovariance.resize(stateSize);
-
-     timespec time1, time2, time3;
-     IndexedMatrixArray computationTime_output;
-     double computationTime_moy=0;
-     Vector computeTime;
-     computeTime.resize(1);
-
-    /// Initializations
     stateObservation::flexibilityEstimation::ModelBaseEKFFlexEstimatorIMU est;
     est.setSamplingPeriod(dt);
+
+    // Model
+    est.setContactModel(1);
+    est.setRobotMass(56.8);
+    est.setKfe(40000*Matrix3::Identity());
+    est.setKte(350*Matrix3::Identity());
+    est.setKfv(600*Matrix3::Identity());
+    est.setKtv(10*Matrix3::Identity());
+
+    // Config
+    est.setWithUnmodeledMeasurements(withUnmodeledForces_);
+    est.setWithForcesMeasurements(withForceSensors_);
+    est.setWithAbsolutePos(withAbsolutePose_);
+    est.setWithComBias(withComBias_);
+
+    std::cout << "Setting covariances" << std::endl;
 
     // Measurement noise covariance
     stateObservation::Matrix R_; R_.resize(measurementSizeBase,measurementSizeBase); R_.setIdentity();
     R_.block(0,0,3,3)*=1.e-3;
     R_.block(3,3,3,3)*=1.e-6;
     est.setMeasurementNoiseCovariance(R_);
-    est.setWithForcesMeasurements(withForceSensors_);
-    est.setForceVariance(1.e-4);
+    est.setUnmodeledForceVariance(1e-13);
+    est.setForceVariance(1.e-6);
+    est.setAbsolutePosVariance(1e-4);
 
     // Process noise covariance
-    est.setWithComBias(withComBias_);
     stateObservation::Matrix Q_; Q_.resize(stateSize,stateSize); Q_.setIdentity();
     Q_.block(0,0,12,12)*=1.e-8;
-    Q_.block(12,12,6,6)*=1.e-4;
-    if(withComBias_) Q_.block(18,18,2,2)*=0;//1.e-13;
+    Q_.block(12,12,12,12)*=1.e-4;
+    Q_.block(24,24,6,6)*=1.e-2;
+    Q_.block(30,30,2,2)*=1.e-11;
+    Q_.block(32,32,3,3)*=1.e-8;
     est.setProcessNoiseCovariance(Q_);
 
-//    // Flexibility noise covariance
-//    stateObservation::Matrix P0_(stateSize,stateSize); P0_.setZero();
-//    for(int i=0;i<stateSize;++i) P0_(i,i)=stateCovariance[kinit+2](i);
-//    est.setFlexibilityCovariance(P0_);
+    // Temporary variables
+    stateObservation::Vector input, measurement;
+    Vector x; x.resize(stateSize);
+    unsigned contactNbr, inputSize, measurementSize;
 
-    // Estimator state
-    est.setInput(u[kinit+2].block(0,0,1,est.getInputSize()).transpose());
-//    est.setFlexibilityGuess(xRef[kinit+2].block(0,0,est.getStateSize(),1));
-
-    // Set contacts number
-    est.setContactsNumber(contactNbr);
-    est.setContactModel(stateObservation::flexibilityEstimation::
-                ModelBaseEKFFlexEstimatorIMU::contactModel::elasticContact);
-
-    est.setMass(56.8);//48.6);//
-//    stateObservation::Vector3 v1; v1.setOnes();
-//    v1=100*v1;
-//    est.setAngularAccelerationLimit(v1);
-//    stateObservation::Vector3 v2; v2.setOnes();
-//    v2=10*v2;
-//    est.setLinearAccelerationLimit(v2);
-
-    // Set stifness and damping
-    est.setKfe(40000*Matrix3::Identity());
-    est.setKte(350*Matrix3::Identity());
-    est.setKfv(600*Matrix3::Identity());
-    est.setKtv(10*Matrix3::Identity());
-
-    double normState=0;
-    Vector errorsum=Vector::Zero(est.getEKF().getStateSize());
+    stateObservation::IndexedMatrixArray measurementForces, filteredForces, inputFeetPositions;
+    stateObservation::Vector sensorZmp, filteredZmp;
 
     std::cout << "Beginning reconstruction "<<std::endl;
-    for (unsigned k=kinit+3;k<kmax;++k)
+
+    for (unsigned k=kinit;k<kmax;++k)
     {
-        est.setMeasurement(y[k].transpose());
-        est.setMeasurementInput(u[k].transpose());
+        std::cout << "\n" << k << std::endl;
 
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
-
-        flexibility = est.getFlexibilityVector();
-
-        for(int i=0;i<stateSize;++i){
-            flexCovariance[i]=est.getFlexibilityCovariance()(i,i);
+        if(nbSupport[k](0)!=est.getContactsNumber())
+        {
+            contactNbr = nbSupport[k](0);
+            est.setContactsNumber(contactNbr);
         }
 
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
-        computeTime[0]=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
+        measurementSize = est.getMeasurementSize();
+        measurement.resize(measurementSize);
+        measurement = (y[k].block(0,0,1,measurementSize)).transpose();
+        est.setMeasurement(measurement);
 
-//        xdifference =flexibility-xRef[k];
-//        normState += xdifference.squaredNorm();
-//        errorsum += xdifference.cwiseProduct(xdifference);
+        inputSize = est.getInputSize();
+        input.resize(inputSize);
+        input = (u[k+1].block(0,0,1,inputSize)).transpose();
+        est.setMeasurementInput(input);
 
-        inov=est.getInovation();
-        inovInt=inov*dt;
-        simulatedMeasurements=est.getSimulatedMeasurement();
-        predictedMeasurements=est.getLastPredictedMeasurement();
-        predictedState=est.getPrediction();
+        x = est.getFlexibilityVector();
 
-        x_output.setValue(flexibility,k);
-        xCov_output.setValue(flexCovariance,k);
+        // Compute Zmp from sensor and filter
+        for(unsigned i=0;i<contactNbr;++i)
+        {
+            measurementForces.setValue(y[k].block<1,6>(0,measurementSizeBase+withUnmodeledForces_*6+i*6).transpose(),i);
+            filteredForces.setValue(x.segment<6>(stateObservation::flexibilityEstimation::IMUElasticLocalFrameDynamicalSystem::state::fc+i*6),i);
+            inputFeetPositions.setValue(kine::vector6ToHomogeneousMatrix(u[k].block<1,6>(0,inputSizeBase+i*12)).transpose(),i);
+        }
+        sensorZmp=computeZmp(contactNbr, measurementForces, inputFeetPositions);
+        filteredZmp=computeZmp(contactNbr, filteredForces, inputFeetPositions);
+
+        x_output.setValue(x,k);
         y_output.setValue(y[k],k);
         u_output.setValue(u[k],k);
-        deltax_output.setValue(xdifference,k);
-
-        i_output.setValue(inov,k);
-        iInt_output.setValue(inovInt,k);
-        ps_output.setValue(predictedMeasurements,k);
-        ss_output.setValue(simulatedMeasurements,k);
-        xPredicted_output.setValue(predictedState,k);
-
-        computeTime[0]=est.getComputeFlexibilityTime();
-        computationTime_output.setValue(computeTime,k);
-        computationTime_moy+=computeTime[0];
+        sensorZmp_output.setValue(sensorZmp,k);
+        filteredZmp_output.setValue(filteredZmp,k);
     }
 
     std::cout << "Completed "<<std::endl;
 
-    computeTime[0]=computationTime_moy/(kmax-kinit-3);
-    computationTime_output.setValue(computeTime,kmax);
-    computationTime_output.writeInFile("computationTime.dat");
-
     x_output.writeInFile("state.dat");
-    xCov_output.writeInFile("stateCov.dat");
     y_output.writeInFile("measurement.dat");
     u_output.writeInFile("input.dat");
+    sensorZmp_output.writeInFile("sensorZmp.dat");
+    filteredZmp_output.writeInFile("filteredZmp.dat");
 
-    i_output.writeInFile("inovation.dat");
-    iInt_output.writeInFile("inovationInt.dat");
-    ps_output.writeInFile("predictedSensors.dat");
-    ss_output.writeInFile("simulatedSensors.dat");
-    xPredicted_output.writeInFile("statePredicted.dat");
-
-    std::cout << "Mean computation time " << computeTime[0] <<std::endl;
-
-//    std::cout << "flexibility mean quadratic error " << normState/(kmax-kinit-3)<<std::endl;
-//    errorsum = errorsum/(kmax-kinit-3);
-
-//    Vector error(6);
-//
-//    error(0)= sqrt((errorsum(kine::pos) + errorsum(kine::pos+1) + errorsum(kine::pos+2))/(kmax-kinit-3));
-//    error(1) = sqrt((errorsum(kine::linVel) + errorsum(kine::linVel+1) + errorsum(kine::linVel+2))/(kmax-kinit-3));
-//    error(2) = sqrt((errorsum(kine::linAcc) + errorsum(kine::linAcc+1) + errorsum(kine::linAcc+2))/(kmax-kinit-3));
-//    error(3) = sqrt((errorsum(kine::ori) + errorsum(kine::ori+1) + errorsum(kine::ori+2))/(kmax-kinit-3));
-//    error(4) = sqrt((errorsum(kine::angVel) + errorsum(kine::angVel+1) + errorsum(kine::angVel+2))/(kmax-kinit-3));
-//    error(5) = sqrt((errorsum(kine::angAcc) + errorsum(kine::angAcc+1) + errorsum(kine::angAcc+2))/(kmax-kinit-3));
-//
-//    double syntherror = 666*error(0)+10*error(3)+(10*error(1)+1*error(4))+(1*error(2)+1*error(5));
-//    std::cout << "synthError=" << syntherror << std::endl;
-//    std::cout << "Mean error " << error.transpose() <<std::endl;
-
-//    if (normState/(kmax-kinit-3)>1e-04)
-//    {
-//      std::cout << "Failed : error is too big !!"<< std::endl <<"The end" << std::endl;
-//      return 1;
-//    }
-//#ifdef NDEBUG
-//    if (computeTime[0]>2e5)
-//     {
-//      std::cout << "Failed : Computation time is too long !!"<< std::endl <<"The end" << std::endl;
-//      return 2;
-//    }
-//#endif
-
-    std::cout << "Succeed !!"<< std::endl <<"The end" << std::endl;
     return 1;
 }
 

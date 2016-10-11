@@ -11,6 +11,12 @@ namespace stateObservation
 
     }
 
+    DynamicalSystemFunctorBase* ExtendedKalmanFilter::getFunctor(void) const
+    {
+        return f_;
+
+    }
+
     void ExtendedKalmanFilter::clearFunctor()
     {
         f_=0x0;
@@ -55,7 +61,6 @@ namespace stateObservation
                       this->x_.getTime()),
                       k);
         }
-
 
         return xbar_();
     }

@@ -58,6 +58,11 @@ namespace flexibilityEstimation
         ///Sets the number of contacts can be changed online
         void setContactsNumber(unsigned i);
 
+        unsigned getContactsNumber()
+        {
+            return functor_.getContactsNumber();
+        }
+
         void setContactModel(unsigned nb);
 
         /// Sets the value of the next sensor measurement y_{k+1}
@@ -75,6 +80,7 @@ namespace flexibilityEstimation
         ///gets the covariance matrices for the sensor noises
         virtual Matrix getMeasurementNoiseCovariance() const ;
 
+        virtual Vector getMomenta();
         virtual Vector getForcesAndMoments();
 
         // get state covariance
@@ -110,7 +116,22 @@ namespace flexibilityEstimation
 
         ///sets to whether or not the force mesurements are taken into account
         virtual void setWithForcesMeasurements(bool);
+
+        bool getWithForcesMeasurements();
+
         virtual void setWithAbsolutePos(bool);
+
+        void setWithUnmodeledMeasurements(bool b);
+
+        bool getWithUnmodeledMeasurements()
+        {
+            return withUnmodeledMeasurements_;
+        }
+
+        bool getWithAbsolutePos()
+        {
+            return withAbsolutePos_;
+        }
 
         virtual void setWithComBias(bool b);
 
@@ -119,6 +140,7 @@ namespace flexibilityEstimation
             return withComBias_;
         }
 
+        virtual void setUnmodeledForceVariance(double d);
         virtual void setForceVariance(double d);
         virtual void setAbsolutePosVariance(double d);
 
@@ -137,10 +159,43 @@ namespace flexibilityEstimation
         virtual void resetCovarianceMatrices();
         virtual void resetStateCovarianceMatrix();
 
-        virtual void setMass(double m);
+        virtual void setRobotMass(double m);
+        virtual double getRobotMass() const
+        {
+            return functor_.getRobotMass();
+        }
 
-        virtual void setAngularAccelerationLimit(const Vector3 & v);
-        virtual void setLinearAccelerationLimit(const Vector3 & v);
+        void setTorquesLimit(const Vector3 & v)
+        {
+            limitTorques_=v;
+        }
+
+        void setForcesLimit(const Vector3 & v)
+        {
+            limitForces_=v;
+        }
+
+        virtual stateObservation::Vector3 getForcesLimit () const
+        {
+            return limitForces_;
+        }
+
+        virtual stateObservation::Vector3 getTorquesLimit () const
+        {
+            return limitTorques_;
+        }
+
+        void setLimitOn(const bool& b)
+        {
+            limitOn_ = b;
+        }
+
+        virtual bool getLimitOn() const
+        {
+            return limitOn_;
+        }
+
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     protected:
 
@@ -154,7 +209,8 @@ namespace flexibilityEstimation
 
         const unsigned stateSize_;
 
-        static const unsigned measurementSizeBase_=42;
+        static const unsigned measurementSizeBase_=12;
+
         static const unsigned inputSizeBase_=42;
         unsigned inputSize_;
 
@@ -163,15 +219,18 @@ namespace flexibilityEstimation
         bool on_;
         double computeFlexibilityTime_;
 
+        double unmodeledForceVariance_;
         double forceVariance_;//force sensor variance
         double absPosVariance_;
 
         bool useFTSensors_;
         bool withComBias_;
         bool withAbsolutePos_;
+        bool withUnmodeledMeasurements_;
 
-        Vector3 limitAngularAcceleration_;
-        Vector3 limitLinearAcceleration_;
+        Vector3 limitTorques_;
+        Vector3 limitForces_;
+        bool limitOn_;
 
     private:
     };

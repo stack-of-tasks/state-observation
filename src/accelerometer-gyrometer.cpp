@@ -14,9 +14,6 @@ namespace stateObservation
 #endif //STATEOBSERVATION_VERBOUS_CONSTRUCTOR
 
       matrixMode_=false;
-
-
-
     }
 
 
@@ -35,8 +32,8 @@ namespace stateObservation
       if (!matrixMode_)
       {
         Quaternion q(state_[0],state_[1],state_[2],state_[3]);
-        r_=q.toRotationMatrix();
 
+        r_=q.toRotationMatrix();
         acc_= state_.segment(4,3);
         omega_= state_.tail(3);
       }
@@ -50,7 +47,6 @@ namespace stateObservation
       output_.head<3>()=accelerationMeasure(acc_,r_);
       output_.tail<3>()=rotationVelocityMeasure(omega_, r_);
 
-
       return output_;
     }
 
@@ -61,8 +57,6 @@ namespace stateObservation
         currentStateSize_= stateSize_;
       else
         currentStateSize_= stateSizeMatrix_;
-
-
     }
 
 

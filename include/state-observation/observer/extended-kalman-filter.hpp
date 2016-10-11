@@ -72,6 +72,7 @@ namespace stateObservation
         ///and the measurement the user is responsible for the validity of the
         ///pointer during the execution of the kalman filter
         void setFunctor(DynamicalSystemFunctorBase* f);
+        DynamicalSystemFunctorBase* getFunctor(void) const;
 
         ///Gets a pointer to the functor
         DynamicalSystemFunctorBase* functor() const;
@@ -131,6 +132,7 @@ namespace stateObservation
         //optimization
         struct Optimization
         {
+          EIGEN_MAKE_ALIGNED_OPERATOR_NEW
           ObserverBase::InputVector u_;
           KalmanFilterBase::Amatrix a_;
           KalmanFilterBase::Cmatrix c_;
@@ -141,6 +143,9 @@ namespace stateObservation
           ObserverBase::MeasureVector yp_;
 
         } opt;
+
+    public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
 }
