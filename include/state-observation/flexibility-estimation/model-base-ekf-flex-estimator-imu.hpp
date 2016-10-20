@@ -81,6 +81,7 @@ namespace flexibilityEstimation
         virtual Matrix getMeasurementNoiseCovariance() const ;
 
         virtual Vector getMomentaFromForces();
+        virtual Vector getMomentaFromKinematics();
         virtual Vector getForcesAndMoments();
 
         // get state covariance
