@@ -295,7 +295,7 @@ public:
       virtual Vector getForcesAndMoments (const Vector& x,
        const Vector& u);
 
-      virtual Vector getMomenta(const Vector& x, const Vector& u);
+      virtual Vector getMomentaFromForces(const Vector& x, const Vector& u);
 
       virtual void iterateDynamicsEuler
       (const Vector3& positionCom, const Vector3& velocityCom,

@@ -72,7 +72,7 @@ namespace flexibilityEstimation
    }
 
 
-    Vector IMUElasticLocalFrameDynamicalSystem::getMomenta(const Vector& x, const Vector& u)
+    Vector IMUElasticLocalFrameDynamicalSystem::getMomentaFromForces(const Vector& x, const Vector& u)
     {
         // Getting flexibility
         op_.positionFlex=x.segment(state::pos,3);
