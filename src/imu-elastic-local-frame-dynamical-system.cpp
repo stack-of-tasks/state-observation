@@ -95,7 +95,7 @@ namespace flexibilityEstimation
         op_.positionComBias <<  x.segment(state::comBias,2),
                                 0;// the bias of the com along the z axis is assumed 0.
         op_.positionCom=u.segment<3>(input::posCom);
-        if(withComBias_) op_.positionCom+=op_.positionComBias;
+        if(withComBias_) op_.positionCom-=op_.positionComBias;
 
 
         // Getting contact positions
@@ -663,7 +663,7 @@ namespace flexibilityEstimation
         }
 
         op_.positionCom=u.segment<3>(input::posCom);
-        if(withComBias_) op_.positionCom+=op_.positionComBias;
+        if(withComBias_) op_.positionCom-=op_.positionComBias;
         op_.velocityCom=u.segment<3>(input::velCom);
         op_.accelerationCom=u.segment<3>(input::accCom);
         op_.AngMomentum=u.segment<3>(input::angMoment);
@@ -768,7 +768,7 @@ namespace flexibilityEstimation
             op_.contactOriV.setValue(u.segment<3>(input::contacts +12*i+3),i);
         }
         op_.positionCom=u.segment<3>(input::posCom);
-        if(withComBias_) op_.positionCom+=op_.positionComBias;
+        if(withComBias_) op_.positionCom-=op_.positionComBias;
         op_.velocityCom=u.segment<3>(input::velCom);
         op_.accelerationCom=u.segment<3>(input::accCom);
         op_.AngMomentum=u.segment<3>(input::angMoment);
