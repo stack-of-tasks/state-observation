@@ -67,12 +67,12 @@ int test()
     bool withAbsolutePose_ = false;
 
     // For state vector
-    bool withComBias_=false;
+    bool withComBias_=true;
 
     // Time
     const double dt=5e-3;
-    const unsigned kinit=3500; // 10000; //
-    const unsigned kmax=5700; // 11500; //
+    const unsigned kinit=3500; //3758; // 10000; //
+    const unsigned kmax=5700; //5100; // 11500; //
 
     // Fix sizes
     const unsigned measurementSizeBase=6;
@@ -94,6 +94,11 @@ int test()
      IndexedMatrixArray nbSupport;
      std::cout << "Loading the number of supports file" << std::endl;
      nbSupport.getFromFile("source_nbSupport.dat",1,1);
+
+     // CoM bias
+     IndexedMatrixArray bias;
+     std::cout << "Loading comBias file" << std::endl;
+     bias.getFromFile("state-comBias.dat",1,35);
 
     /// Definition of ouptut vectors 
      // State: what we want
@@ -143,7 +148,7 @@ int test()
     Q_.block(0,0,12,12)*=1.e-8;
     Q_.block(12,12,12,12)*=1.e-4;
     Q_.block(24,24,6,6)*=1.e-2;
-    Q_.block(30,30,2,2)*=1.e-11;
+    Q_.block(30,30,2,2)*=1.e-7;
     Q_.block(32,32,3,3)*=1.e-8;
     est.setProcessNoiseCovariance(Q_);
 
@@ -175,6 +180,7 @@ int test()
         inputSize = est.getInputSize();
         input.resize(inputSize);
         input = (u[k+1].block(0,0,1,inputSize)).transpose();
+        input.segment<2>(0) += (bias[k].block(0,stateObservation::flexibilityEstimation::IMUElasticLocalFrameDynamicalSystem::state::comBias,1,2)).transpose();
         est.setMeasurementInput(input);
 
         x = est.getFlexibilityVector();
