@@ -143,6 +143,8 @@ public:
                const IndexedMatrixArray& contactPosV, const IndexedMatrixArray& contactOriV,
                const Vector& fc, const Vector& tc, const Vector3 & fm, const Vector3& tm);
 
+      stateObservation::Vector computeAccelerations(const Vector& x,const Vector& u);
+
       // computation of the acceleration linear
       virtual void computeAccelerations
       (const Vector3& positionCom, const Vector3& velocityCom,
@@ -152,7 +154,7 @@ public:
        const IndexedMatrixArray& contactPos,
        const IndexedMatrixArray& contactOri,
        const Vector3& position, const Vector3& linVelocity,
-       Vector3& linearAcceleration,  const Vector3 &oriVector ,
+       Vector3& linearAcceleration,  const Vector3& oriVector ,
        const Matrix3& orientation, const Vector3& angularVel,
        Vector3& angularAcceleration,
        const Vector& fc, const Vector& tc,

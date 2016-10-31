@@ -63,6 +63,16 @@ namespace flexibilityEstimation
             return functor_.getContactsNumber();
         }
 
+        IMUElasticLocalFrameDynamicalSystem getFunctor()
+        {
+            return functor_;
+        }
+
+        virtual stateObservation::Vector computeAccelerations()
+        {
+            return functor_.computeAccelerations(getFlexibilityVector(),getInput());
+        }
+
         void setContactModel(unsigned nb);
 
         /// Sets the value of the next sensor measurement y_{k+1}
