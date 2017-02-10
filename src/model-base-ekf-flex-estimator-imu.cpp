@@ -355,7 +355,7 @@ namespace flexibilityEstimation
                     }
                     x_=ekf_.getEstimatedState(k_);
 
-                    if (x_==x_)//detect NaN values
+                    if (x_.hasNaN())//detect NaN values
                     {
                         lastX_=x_;
 
