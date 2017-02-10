@@ -1,7 +1,10 @@
 #ifndef STATEOBSERVATIONLOGGER_H
 #define STATEOBSERVATIONLOGGER_H
+
+#include <typeinfo>
 #include <map>
 #include <string>
+#include <stdexcept>
 
 #include <state-observation/tools/definitions.hpp>
 
@@ -17,28 +20,29 @@ namespace stateObservation
 
       ///Use this function to start the recoding of this variable.
       /// WARNING: Be sure that the recorded variable keeps the same memory address
-       void record(const Matrix & matrix, const std::string & filename=std::string(""));
-      //The use of two different overloads for this function serves two purposes
-      // 1- have a different logger for doubles and floats (obvious)
-      // 2- avoid implicit conversions from another floating type into a double or a float.
-      //    by making the conversion ambiguous.
-      void record(const double & d, const std::string & filename=std::string(""));
-      void record(const float & d, const std::string & filename=std::string(""));
+      ///otherwise use updateAddress
+      template <typename T>
+        void record(const T * address, const std::string & filename=std::string(""));
+      template <typename T>
+        void record(const T & reference, const std::string & filename=std::string(""));
 
-      void record(const int & i, const std::string & filename=std::string(""));
-      void record(const long & i, const std::string & filename=std::string(""));
+      ///updates the address of a recorded variable with a new address
+      template <typename T>
+        void updateAddress(const void * oldAddress, const T * newAddress);
+
 
       ///set the Path for the log files, the filenames will be appended to this path
       void setPath(const std::string & path);
 
-      ///update the log with a new value of
-      void insert(const Matrix & matrix);
-      void insert(const double & d);
-      void insert(const float & d);
-      void insert(const int & i);
-      void insert(const long & i);
+      ///update the log with a new value of the reference
+      template <typename T>
+      void push(const T & reference);
 
-      void update();
+      template <typename T>
+      void push(const T * address);
+
+      ///updates all the logs for all recorded variables
+      void push();
 
       const IndexedMatrixArray & getRecord(const Matrix & matrix) const;
 
@@ -54,14 +58,27 @@ namespace stateObservation
 
         IndexedMatrixArray array;
         std::string filename;
-        enum DataType {typematrix,typedouble, typefloat, typeint, typelong} type;
+        const std::type_info * type;
 
-        log_s(const std::string & newfilename, DataType t)
+        log_s(const std::string & newfilename):
+          type (0x0)
         {
           filename = newfilename;
-          type =t;
+
+        }
+
+        template <typename T>
+        void setType()
+        {
+          type =&typeid(T);
         }
       };
+
+      typedef std::map<const void *, log_s > Tmap;
+      typedef std::pair<const void *, log_s > Tpair;
+
+      void update_(const Tmap::iterator & i);
+
       std::string path_;
       std::map<const void *, log_s > logs_;
       Matrix scalar_;
@@ -72,5 +89,7 @@ namespace stateObservation
     };
   }
 }
+
+#include <state-observation/tools/logger.hxx>
 
 #endif // STATEOBSERVATIONLOGGER_H
