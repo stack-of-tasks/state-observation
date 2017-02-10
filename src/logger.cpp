@@ -42,8 +42,11 @@ namespace stateObservation
     {
       Tmap::const_iterator i= logs_.find(address);
       if (i==logs_.end())
+      {
+        BOOST_ASSERT(false && "The logger cannot find the data, please use record function");
         throw std::invalid_argument
                 ("The logger cannot find the data, please use record function");
+      }
       else
         return i->second.array;
     }
@@ -52,8 +55,11 @@ namespace stateObservation
     {
       Tmap::iterator i= logs_.find(address);
       if (i==logs_.end())
+      {
+        BOOST_ASSERT(false && "The logger cannot find the data, please use record function");
         throw std::invalid_argument
                 ("The logger cannot find the data, please use record function");
+      }
       else
         return i->second.array;
     }
@@ -108,8 +114,6 @@ namespace stateObservation
       {
         scalar_(0,0)=*static_cast<const float *>(i->first);
       }
-
-
 
       i->second.array.pushBack(scalar_);
     }

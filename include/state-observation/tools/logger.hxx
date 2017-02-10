@@ -17,11 +17,11 @@ namespace stateObservation
           && *log.type!=typeid(double)
           && *log.type!=typeid(float))
       {
+        BOOST_ASSERT(false && "Tentative to record an unsupported type");
         throw std::invalid_argument
                 ((std::string("The type ") +
                     std::string("log.type->name")
                       +std::string(" is not supported")).c_str());
-        BOOST_ASSERT(false && "Tentative to record an unsupported type");
       }
 
       logs_.insert(Tpair(address,log));
@@ -41,6 +41,7 @@ namespace stateObservation
       if (i!=logs_.end())
         update_(i);
       else
+        BOOST_ASSERT(false && "The logger cannot find the data to push, please use record function");
         throw std::invalid_argument
                 ("The logger cannot find the data, please use record function");
     }
@@ -57,9 +58,9 @@ namespace stateObservation
       Tmap::iterator i= logs_.find(oldAddress);
       if (i==logs_.end())
       {
+        BOOST_ASSERT(false && "Logger : the address to update is not found");
         throw std::invalid_argument
                 ("The logger cannot find the data, please use record function");
-        BOOST_ASSERT(false && "Logger : the address to update is not found");
       }
       else
       {
