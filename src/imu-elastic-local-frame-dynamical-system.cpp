@@ -794,10 +794,11 @@ namespace flexibilityEstimation
 
         // Get acceleration
         computeAccelerations (op_.positionCom, op_.velocityCom,
-        op_.accelerationCom, op_.AngMomentum, op_.dotAngMomentum,
-        op_.inertia, op_.dotInertia,  op_.contactPosV, op_.contactOriV, op_.positionFlex, op_.velocityFlex, op_.linearAcceleration,
-                       op_.orientationFlexV, op_.rFlex, op_.angularVelocityFlex, op_.angularAcceleration,
-                       fc_, tc_, op_.fm,op_.tm);
+                  op_.accelerationCom, op_.AngMomentum, op_.dotAngMomentum,
+                  op_.inertia, op_.dotInertia,  op_.contactPosV, op_.contactOriV,
+                  op_.positionFlex, op_.velocityFlex, op_.linearAcceleration,
+                  op_.orientationFlexV, op_.rFlex, op_.angularVelocityFlex,
+                  op_.angularAcceleration, fc_, tc_, op_.fm,op_.tm);
 
         // Translation sensor dynamic
         op_.imuAcc = 2*kine::skewSymmetric(op_.angularVelocityFlex) * op_.rFlex * op_.velocityControl;
@@ -1210,6 +1211,26 @@ namespace flexibilityEstimation
     void IMUElasticLocalFrameDynamicalSystem::setKtv(const Matrix3 & m)
     {
         Ktv_=m;
+    }
+
+    Matrix IMUElasticLocalFrameDynamicalSystem::getKfe() const
+    {
+        return Kfe_;
+    }
+
+    Matrix IMUElasticLocalFrameDynamicalSystem::getKfv() const
+    {
+        return Kfv_;
+    }
+
+    Matrix IMUElasticLocalFrameDynamicalSystem::getKte() const
+    {
+        return Kte_;
+    }
+
+    Matrix IMUElasticLocalFrameDynamicalSystem::getKtv() const
+    {
+        return Ktv_;
     }
 
     void  IMUElasticLocalFrameDynamicalSystem::setFDstep(const stateObservation::Vector & dx)

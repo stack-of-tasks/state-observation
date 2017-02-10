@@ -337,6 +337,11 @@ public:
       virtual void setKte(const Matrix3 & m);
       virtual void setKtv(const Matrix3 & m);
 
+      virtual Matrix getKfe() const;
+      virtual Matrix getKfv() const;
+      virtual Matrix getKte() const;
+      virtual Matrix getKtv() const;
+
       virtual void setRobotMass(double d);
 
       virtual double getRobotMass() const;
