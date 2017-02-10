@@ -54,8 +54,10 @@ namespace stateObservation
         static const unsigned linVelIMU = 33;
         static const unsigned angVelIMU = 36;
         static const unsigned linAccIMU = 39;
-        static const unsigned contacts = 42;
+        static const unsigned additionalForces = 42;
+        static const unsigned contacts = 48;
 
+        static const unsigned inputSizeBase = 48;
       };
 
       struct state
@@ -141,7 +143,8 @@ public:
       void computeContactWrench
               (const Matrix3& orientation, const Vector3& position,
                const IndexedMatrixArray& contactPosV, const IndexedMatrixArray& contactOriV,
-               const Vector& fc, const Vector& tc, const Vector3 & fm, const Vector3& tm);
+               const Vector& fc, const Vector& tc, const Vector3 & fm, const Vector3& tm,
+               const Vector3& addForce, const Vector3 & addMoment);
 
       // computation of the acceleration linear
       virtual void computeAccelerations
@@ -156,7 +159,8 @@ public:
        const Matrix3& orientation, const Vector3& angularVel,
        Vector3& angularAcceleration,
        const Vector& fc, const Vector& tc,
-       const Vector3 & fm, const Vector3& tm);
+       const Vector3 & fm, const Vector3& tm,
+       const Vector3 & addForces, const Vector3& addMoments);
 
       ///Description of the state dynamics
       virtual stateObservation::Vector stateDynamics
@@ -306,7 +310,8 @@ public:
        const IndexedMatrixArray& contactOri,
        Vector3& position, Vector3& linVelocity, Vector& fc1,
        Vector3 &oriVector, Vector3& angularVel, Vector& fc2,
-       Vector3 & fm, Vector3& tm,
+       const Vector3 & fm, const Vector3& tm,
+       const Vector3 & addForces, const Vector3& addMoments,
        double dt
       );
 
@@ -319,7 +324,8 @@ public:
        const IndexedMatrixArray& contactOri,
        Vector3& position, Vector3& linVelocity, Vector& fc1,
        Vector3 &oriVector, Vector3& angularVel, Vector& fc2,
-       Vector3 & fm, Vector3& tm,
+       const Vector3 & fm, const Vector3& tm,
+       const Vector3 & addForces, const Vector3& addMoments,
        double dt
       );
 
@@ -329,7 +335,7 @@ public:
       virtual bool getWithComBias() const;
       virtual void setWithAbsolutePosition(bool b);
       virtual bool getWithAbsolutePosition() const;
-      void setWithUnmodeledMeasurements(bool b);
+      void setWithUnmodeledForces(bool b);
 
 
       virtual void setKfe(const Matrix3 & m);
@@ -393,7 +399,7 @@ public:
       bool withForceMeasurements_;
       bool withComBias_;
       bool withAbsolutePos_;
-      bool withUnmodeledMeasurements_;
+      bool withUnmodeledForces_;
 
       double marginalStabilityFactor_;
       //a scaling factor a=1-epsilon to avoid the natural marginal stability of
@@ -483,6 +489,8 @@ public:
 
         Vector3 f, fi;
         Vector3 t;
+
+        //unmodelled and unmeasured forces
         Vector3 fm;
         Vector3 tm;
 
@@ -506,6 +514,10 @@ public:
 
         Vector3 forcei;
         Vector3 momenti;
+
+        //additional forces and moments
+        Vector3 addForce;
+        Vector3 addMoment;
 
         Matrix3 skewV;
         Matrix3 skewV2;

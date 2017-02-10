@@ -22,7 +22,7 @@ namespace flexibilityEstimation
         useFTSensors_(false),
         withAbsolutePos_(false),
         withComBias_(false),
-        withUnmodeledMeasurements_(false),
+        withUnmodeledForces_(false),
         limitOn_(true)
     {
         ekf_.setMeasureSize(functor_.getMeasurementSize());
@@ -97,7 +97,7 @@ namespace flexibilityEstimation
             Q_.block(state::fc+6,state::fc+6,3,3)=Matrix3::Identity()*1.e-4;
             Q_.block(state::fc+6+3,state::fc+6+3,3,3)=Matrix3::Identity()*1.e-4;
 
-            if(withUnmodeledMeasurements_)
+            if(withUnmodeledForces_)
                 Q_.block(state::unmodeledForces,state::unmodeledForces,6,6)=m*1.e-2;
             else
                 Q_.block(state::unmodeledForces,state::unmodeledForces,6,6).setZero();
@@ -252,14 +252,6 @@ namespace flexibilityEstimation
         int currIndex = 6;
         R_.conservativeResize(getMeasurementSize(),getMeasurementSize());
 
-        if(withUnmodeledMeasurements_)
-        {
-          R_.block(currIndex,0,6,currIndex).setZero();
-          R_.block(0,currIndex,currIndex,6).setZero();
-          R_.block(currIndex,currIndex,3,3)=Matrix3::Identity()*unmodeledForceVariance_; //unmodeleed forces
-          currIndex+=6;
-        }
-
         if(useFTSensors_)
         {
           R_.block(currIndex,0,functor_.getContactsNumber()*6,currIndex).setZero();
@@ -325,89 +317,96 @@ namespace flexibilityEstimation
 
     const Vector & ModelBaseEKFFlexEstimatorIMU::getFlexibilityVector()
     {
-        timespec time1, time2, time3;
+      timespec time1, time2, time3;
 
-        if(on_==true)
+      if(on_==true)
+      {
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+        preIterationCallback_();
+        if (ekf_.getMeasurementsNumber()>0)
         {
-            if (ekf_.getMeasurementsNumber()>0)
+          k_=ekf_.getMeasurementTime();
+
+          unsigned i;
+          for (i=ekf_.getCurrentTime()+1; i<=k_; ++i)
+          {
+            if (finiteDifferencesJacobians_)
             {
-                clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-                clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
-                if (ekf_.getMeasurementsNumber()>0)
-                {
-                    k_=ekf_.getMeasurementTime();
+              ekf_.updatePredictedMeasurement();///triggers also ekf_.updatePrediction();
 
-                    unsigned i;
-                    for (i=ekf_.getCurrentTime()+1; i<=k_; ++i)
-                    {
-                      if (finiteDifferencesJacobians_)
-                      {
-
-
-                        ekf_.updatePredictedMeasurement();///triggers also ekf_.updatePrediction();
-
-                        //ekf_.setA(ekf_.getAMatrixFD(dx_));
-                        //ekf_.setC(ekf_.getCMatrixFD(dx_));
-                        ekf_.setA(functor_.stateDynamicsJacobian());
-                        ekf_.setC(functor_.measureDynamicsJacobian());
-                      }
-                      ekf_.getEstimatedState(i);
-                    }
-                    x_=ekf_.getEstimatedState(k_);
-
-#ifndef EIGEN_VERSION_LESS_THAN_3_2
-                    if (! x_.hasNaN())//detect NaN values
-                    {
-#else
-                    if (x_==x_)//detect NaN values
-                    {
-#endif // EIGEN_VERSION_LESS_THAN_3_2
-                        lastX_=x_;
-
-                        ///regulate the part of orientation vector in the state vector
-                        lastX_.segment(state::ori,3)=kine::regulateOrientationVector(lastX_.segment(state::ori,3));
-                        if(limitOn_)
-                        {
-                            for(int i=0;i<3;i++)
-                            { // Saturation for bounded forces and torques
-                                lastX_[state::fc+6+i]=std::min(lastX_[state::fc+6+i],limitTorques_[i]);
-                                lastX_[state::fc+i]=std::min(lastX_[state::fc+i],limitForces_[i]);
-                                lastX_[state::fc+6+i]=std::max(lastX_[state::fc+6+i],-limitTorques_[i]);
-                                lastX_[state::fc+i]=std::max(lastX_[state::fc+i],-limitForces_[i]);
-                            }
-                        }
-                        ekf_.setState(lastX_,ekf_.getCurrentTime());
-                    }
-                    else //delete NaN values
-                    {
-                        ekf_.setState(lastX_,k_);
-
-                        if(k_>1) //the first iteration give always nan without initialization
-                        {
-                            resetCovarianceMatrices();
-                        }
-                    }
-                }
-                clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
-
-                computeFlexibilityTime_=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
+              //ekf_.setA(ekf_.getAMatrixFD(dx_));
+              //ekf_.setC(ekf_.getCMatrixFD(dx_));
+              ekf_.setA(functor_.stateDynamicsJacobian());
+              ekf_.setC(functor_.measureDynamicsJacobian());
             }
-        }
-        else
-        {
-            lastX_.setZero();
-            ekf_.setState(lastX_,ekf_.getCurrentTime());
+            ekf_.getEstimatedState(i);
+          }
+          x_=ekf_.getEstimatedState(k_);
 
-            if (ekf_.getMeasurementsNumber()>0)
+          if (! x_.hasNaN())//detect NaN values
+          {
+            lastX_=x_;
+
+            ///regulate the part of orientation vector in the state vector
+            lastX_.segment(state::ori,3)=kine::regulateOrientationVector(lastX_.segment(state::ori,3));
+            if(limitOn_)
             {
-              ekf_.clearMeasurements();
-              ekf_.clearInputs();
+              for(int i=0; i<3; i++)
+              {
+                // Saturation for bounded forces and torques
+                lastX_[state::fc+6+i]=std::min(lastX_[state::fc+6+i],limitTorques_[i]);
+                lastX_[state::fc+i]=std::min(lastX_[state::fc+i],limitForces_[i]);
+                lastX_[state::fc+6+i]=std::max(lastX_[state::fc+6+i],-limitTorques_[i]);
+                lastX_[state::fc+i]=std::max(lastX_[state::fc+i],-limitForces_[i]);
+              }
+            }
+            ekf_.setState(lastX_,ekf_.getCurrentTime());
+          }
+          else //delete NaN values
+          {
+            ekf_.setState(lastX_,k_);
+
+            if(k_>1) //the first iteration give always nan when not
+              //initialized
+            {
+              resetCovarianceMatrices();
               resetStateCovarianceMatrix();
             }
+          }
         }
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
 
-        return lastX_;
+        computeFlexibilityTime_=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
+
+      }
+      else
+      {
+        lastX_.setZero();
+        ekf_.setState(lastX_,ekf_.getCurrentTime());
+
+        if (ekf_.getMeasurementsNumber()>0)
+        {
+          ekf_.clearMeasurements();
+          ekf_.clearInputs();
+          resetStateCovarianceMatrix();
+        }
+      }
+
+      return lastX_;
     }
+
+    void ModelBaseEKFFlexEstimatorIMU::preIterationCallback_()
+    {
+      if (callback_.updateUnmodForceStateCov)
+      {
+        P_=ekf_.getStateCovariance();
+        P_.diagonal().segment<6>(state::unmodeledForces).setConstant(unmodeledForceVariance_);
+        ekf_.setStateCovariance(P_);
+        callback_.updateUnmodForceStateCov=false;
+      }
+    }
+
 
     void ModelBaseEKFFlexEstimatorIMU::setSamplingPeriod(double dt)
     {
@@ -488,13 +487,14 @@ namespace flexibilityEstimation
       }
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::setWithUnmodeledMeasurements(bool b)
+    void ModelBaseEKFFlexEstimatorIMU::setWithUnmodeledForces(bool b)
     {
-      if (withUnmodeledMeasurements_!= b)
+      if (withUnmodeledForces_!= b)
       {
-        functor_.setWithUnmodeledMeasurements(b);
+        functor_.setWithUnmodeledForces(b);
         ekf_.setMeasureSize(functor_.getMeasurementSize());
-        withUnmodeledMeasurements_=b;
+        ekf_.setInputSize(functor_.getInputSize());
+        withUnmodeledForces_=b;
         updateCovarianceMatrix_();
       }
     }
@@ -517,6 +517,7 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::setUnmodeledForceVariance(double d)
     {
         unmodeledForceVariance_ = d;
+        callback_.updateUnmodForceStateCov=true;
         updateCovarianceMatrix_();
     }
 

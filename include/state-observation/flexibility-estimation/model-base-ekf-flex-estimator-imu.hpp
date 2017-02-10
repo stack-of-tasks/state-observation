@@ -121,11 +121,11 @@ namespace flexibilityEstimation
 
         virtual void setWithAbsolutePos(bool);
 
-        void setWithUnmodeledMeasurements(bool b);
+        void setWithUnmodeledForces(bool b);
 
-        bool getWithUnmodeledMeasurements()
+        bool getWithUnmodeledForces()
         {
-            return withUnmodeledMeasurements_;
+            return withUnmodeledForces_;
         }
 
         bool getWithAbsolutePos()
@@ -220,6 +220,17 @@ namespace flexibilityEstimation
         static const unsigned inputSizeBase_=42;
         unsigned inputSize_;
 
+        inline virtual void preIterationCallback_();
+
+        struct callbackBool_
+        {
+          callbackBool_()
+          {
+            updateUnmodForceStateCov = false;
+          }
+          bool updateUnmodForceStateCov;
+        } callback_;
+
 
         double dt_;//sampling period
         bool on_;
@@ -232,7 +243,7 @@ namespace flexibilityEstimation
         bool useFTSensors_;
         bool withComBias_;
         bool withAbsolutePos_;
-        bool withUnmodeledMeasurements_;
+        bool withUnmodeledForces_;
 
         Vector3 limitTorques_;
         Vector3 limitForces_;

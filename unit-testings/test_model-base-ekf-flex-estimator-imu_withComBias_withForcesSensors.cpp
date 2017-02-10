@@ -95,7 +95,7 @@ int test()
      std::cout << "Loading the number of supports file" << std::endl;
      nbSupport.getFromFile("source_nbSupport.dat",1,1);
 
-    /// Definition of ouptut vectors 
+    /// Definition of ouptut vectors
      // State: what we want
      IndexedMatrixArray x_output;
      // Measurement
@@ -122,7 +122,7 @@ int test()
     est.setKtv(10*Matrix3::Identity());
 
     // Config
-    est.setWithUnmodeledMeasurements(withUnmodeledForces_);
+    est.setWithUnmodeledForces(withUnmodeledForces_);
     est.setWithForcesMeasurements(withForceSensors_);
     est.setWithAbsolutePos(withAbsolutePose_);
     est.setWithComBias(withComBias_);

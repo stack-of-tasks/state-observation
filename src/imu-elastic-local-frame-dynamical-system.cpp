@@ -22,7 +22,7 @@ namespace flexibilityEstimation
         robotMassInv_(1/hrp2::m),
         measurementSize_(measurementSizeBase_),
         withForceMeasurements_(false), withComBias_(false), withAbsolutePos_(false),
-        withUnmodeledMeasurements_(false),
+        withUnmodeledForces_(false),
         marginalStabilityFactor_(0.9999)
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
@@ -39,7 +39,7 @@ namespace flexibilityEstimation
       contactModel_=contactModel::none;
 
       nbContacts_=0;
-      inputSize_=42;
+      inputSize_=input::inputSizeBase;
 
       kcurrent_=-1;
 
@@ -107,8 +107,12 @@ namespace flexibilityEstimation
           op_.contactOriV.setValue(u.segment<3>(input::contacts +12*i+3),i);
         }
 
+        op_.addForce = u.segment<3>(input::additionalForces);
+        op_.addMoment = u.segment<3>(input::additionalForces+3);
+
         computeContactWrench(op_.rFlex, op_.positionFlex, op_.contactPosV, op_.contactOriV,
-                             fc_, tc_, op_.fm, op_.tm);
+                             fc_, tc_, op_.fm, op_.tm, op_.addForce, op_.addMoment);
+
 
         op_.momenta.segment<3>(0) = op_.f - hrp2::m*cst::gravity;
         op_.momenta.segment<3>(3) = op_.t - kine::skewSymmetric(op_.rFlex*op_.positionCom+op_.positionFlex)*hrp2::m*cst::gravity;
@@ -365,10 +369,15 @@ namespace flexibilityEstimation
     void IMUElasticLocalFrameDynamicalSystem::computeContactWrench
             (const Matrix3& orientation, const Vector3& position,
              const IndexedMatrixArray& contactPosV, const IndexedMatrixArray& contactOriV,
-             const Vector& fc, const Vector& tc, const Vector3 & fm, const Vector3& tm)
+             const Vector& fc, const Vector& tc, const Vector3 & fm, const Vector3& tm,
+             const Vector3& addForce,const Vector3& addMoment)
     {
-        op_.f=orientation*fm;
-        op_.t=orientation*tm+kine::skewSymmetric(position)*orientation*fm;
+      //from local to global frame
+        op_.f=orientation*addForce;
+        op_.t=orientation*addMoment+kine::skewSymmetric(position)*orientation*addForce;
+
+        op_.f+=fm;
+        op_.t+=tm;
 
 
         for (unsigned i = 0; i<getContactsNumber() ; ++i)
@@ -392,7 +401,8 @@ namespace flexibilityEstimation
         const Vector3 &oriVector ,const Matrix3& orientation,
         const Vector3& angularVel, Vector3& angularAcceleration,
         const Vector& fc, const Vector& tc,
-        const Vector3 & fm, const Vector3& tm)
+        const Vector3 & fm, const Vector3& tm,
+        const Vector3 & addForces, const Vector3& addMoments)
     {
 
         kine::skewSymmetric(angularVel,op_.skewV);
@@ -403,7 +413,7 @@ namespace flexibilityEstimation
         op_.rFlexT.noalias()=orientation.transpose();
 
         computeContactWrench(orientation, position, contactPosV, contactOriV,
-                             fc, tc, fm, tm);
+                             fc, tc, fm, tm, addForces, addMoments);
 
         op_.wx2Rc.noalias()=op_.skewV2R*positionCom;
         op_._2wxRv.noalias()=2*op_.skewVR*velocityCom;
@@ -451,7 +461,8 @@ namespace flexibilityEstimation
               const IndexedMatrixArray& contactOri,
               Vector3& position, Vector3& linVelocity, Vector& fc,
               Vector3 &oriVector, Vector3& angularVel, Vector& tc,
-              Vector3 & fm, Vector3& tm,
+              const Vector3 & fm, const Vector3& tm, const Vector3 &addiForces,
+              const Vector3 & addiMoments,
               double dt)
     {
 
@@ -466,7 +477,7 @@ namespace flexibilityEstimation
         accelerationCom, AngMomentum, dotAngMomentum,
         inertia, dotInertia,  contactPos, contactOri, position, linVelocity, op_.linearAcceleration,
                        oriVector, op_.rFlex, angularVel, op_.angularAcceleration,
-                       fc, tc, fm,tm);
+                       fc, tc, fm,tm, addiForces, addiMoments);
 
         //integrate kinematics with the last acceleration
         integrateKinematics(position, linVelocity, op_.linearAcceleration,
@@ -489,7 +500,8 @@ namespace flexibilityEstimation
               const IndexedMatrixArray& contactOri,
               Vector3& position, Vector3& linVelocity, Vector& fc,
               Vector3 &oriVector, Vector3& angularVel, Vector& tc,
-              Vector3 & fm, Vector3& tm,
+              const Vector3 & fm, const Vector3& tm,
+              const Vector3 & addForces, const Vector3& addMoments,
               double dt)
     {
 
@@ -540,7 +552,7 @@ namespace flexibilityEstimation
                         inertia, dotInertia,  contactPos, contactOri,
                         position, linVelocity, linAcc1, oriVector,
                         orientationFlex, angularVel, angAcc1,
-                        fc, tc, fm, tm);
+                        fc, tc, fm, tm, addForces, addMoments);
 
 
         //////////2nd//////////////
@@ -561,7 +573,7 @@ namespace flexibilityEstimation
                         inertia, dotInertia,  contactPos, contactOri,
                         pos2, linVelocity2, linAcc2, oriv2,
                         ori2, angVelocity2, angAcc2,
-                        fc, tc, fm, tm);
+                        fc, tc, fm, tm, addForces, addMoments);
 
         ////////////3rd/////////////
 
@@ -581,7 +593,8 @@ namespace flexibilityEstimation
                         inertia, dotInertia,  contactPos, contactOri,
                         pos3, linVelocity3, linAcc3, oriv3,
                         ori3, angVelocity3, angAcc3,
-                        tc, fc, fm, tm);
+                        tc, fc, fm, tm,
+                        addForces, addMoments);
 
 
         ////////////4th/////////////
@@ -601,7 +614,8 @@ namespace flexibilityEstimation
                         inertia, dotInertia,  contactPos, contactOri,
                         pos4, linVelocity4, linAcc4, oriv4,
                         ori4, angVelocity4, angAcc4,
-                        fc, tc, fm, tm);
+                        fc, tc, fm, tm,
+                        addForces, addMoments);
 
         /////////////////////////////
 
@@ -675,6 +689,9 @@ namespace flexibilityEstimation
             tc_.segment<3>(3*i) = op_.efforts[i].block<3,1>(3,0);
         }
 
+        op_.addForce = u.segment<3>(input::additionalForces);
+        op_.addMoment = u.segment<3>(input::additionalForces+3);
+
         const int subsample=1;
         for (int i=0; i<subsample; ++i)
         {
@@ -684,7 +701,7 @@ namespace flexibilityEstimation
                           op_.inertia, op_.dotInertia,  op_.contactPosV, op_.contactOriV,
                           op_.positionFlex, op_.velocityFlex, fc_,
                           op_.orientationFlexV, op_.angularVelocityFlex,
-                          tc_, op_.fm, op_.tm,
+                          tc_, op_.fm, op_.tm,op_.addForce,op_.addMoment,
                           dt_/subsample);
         }
         //x_{k+1}
@@ -708,10 +725,17 @@ namespace flexibilityEstimation
 
         // xk1_.segment<2>(state::comBias) = op_.positionComBias.head<2>();
 
-        xk1_.segment<3>(state::unmodeledForces) =
+        if (withUnmodeledForces_)
+        {
+          xk1_.segment<3>(state::unmodeledForces) =
                                       marginalStabilityFactor_*op_.fm;
-        xk1_.segment<3>(state::unmodeledForces+3) =
+          xk1_.segment<3>(state::unmodeledForces+3) =
                                       marginalStabilityFactor_*op_.tm;
+        }
+        else
+        {
+          xk1_.segment<6>(state::unmodeledForces).setZero();
+        }
 
         if (processNoise_!=0x0)
             return processNoise_->addNoise(op_.xk1);
@@ -792,13 +816,17 @@ namespace flexibilityEstimation
             tc_.segment<3>(3*i) = op_.efforts[i].block<3,1>(3,0);
         }
 
+        op_.addForce = u.segment<3>(input::additionalForces);
+        op_.addMoment = u.segment<3>(input::additionalForces+3);
+
         // Get acceleration
         computeAccelerations (op_.positionCom, op_.velocityCom,
                   op_.accelerationCom, op_.AngMomentum, op_.dotAngMomentum,
                   op_.inertia, op_.dotInertia,  op_.contactPosV, op_.contactOriV,
                   op_.positionFlex, op_.velocityFlex, op_.linearAcceleration,
                   op_.orientationFlexV, op_.rFlex, op_.angularVelocityFlex,
-                  op_.angularAcceleration, fc_, tc_, op_.fm,op_.tm);
+                  op_.angularAcceleration, fc_, tc_, op_.fm,op_.tm,
+                  op_.addForce,op_.addMoment);
 
         // Translation sensor dynamic
         op_.imuAcc = 2*kine::skewSymmetric(op_.angularVelocityFlex) * op_.rFlex * op_.velocityControl;
@@ -819,13 +847,6 @@ namespace flexibilityEstimation
         op_.sensorState.segment<3>(12)=op_.imuOmega;
 
         index_=15;
-
-        if(withUnmodeledMeasurements_)
-        {
-          op_.sensorState.segment<6>(index_) << op_.fm,
-                                                op_.tm;
-          index_+=6;
-        }
 
         if (withForceMeasurements_)
         {
@@ -889,7 +910,7 @@ namespace flexibilityEstimation
         op_.xdx[i]=op_.xk_fory[i];
       }
 
-      if(!withUnmodeledMeasurements_)
+      if(!withUnmodeledForces_)
       {
           op_.Jy.block(0,state::unmodeledForces,getMeasurementSize(),6).setZero();
       }
@@ -980,7 +1001,7 @@ namespace flexibilityEstimation
         op_.xdx[i]=op_.xk[i];
       }
 
-      if(!withUnmodeledMeasurements_)
+      if(!withUnmodeledForces_)
       {
           op_.Jx.block(state::unmodeledForces,state::unmodeledForces,6,6).setIdentity();
           op_.Jx.block(0,state::unmodeledForces,state::unmodeledForces,6).setZero();
@@ -1111,7 +1132,7 @@ namespace flexibilityEstimation
     void IMUElasticLocalFrameDynamicalSystem::setContactsNumber(unsigned i)
     {
         nbContacts_=i;
-        inputSize_ = 42+12*i;
+        inputSize_ =input::inputSizeBase +12*i;
 
         updateMeasurementSize_();
     }
@@ -1133,11 +1154,6 @@ namespace flexibilityEstimation
     void IMUElasticLocalFrameDynamicalSystem::updateMeasurementSize_()
     {
       measurementSize_=measurementSizeBase_;
-
-      if(withUnmodeledMeasurements_)
-      {
-        measurementSize_+=6; // For unmodeled measurements
-      }
 
       if (withForceMeasurements_)
       {
@@ -1171,11 +1187,9 @@ namespace flexibilityEstimation
 
     }
 
-    void IMUElasticLocalFrameDynamicalSystem::setWithUnmodeledMeasurements(bool b)
+    void IMUElasticLocalFrameDynamicalSystem::setWithUnmodeledForces(bool b)
     {
-      withUnmodeledMeasurements_=b;
-      updateMeasurementSize_();
-
+      withUnmodeledForces_=b;
     }
 
     bool IMUElasticLocalFrameDynamicalSystem::getWithForceMeasurements() const
