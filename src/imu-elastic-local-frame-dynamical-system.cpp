@@ -23,7 +23,7 @@ namespace flexibilityEstimation
         measurementSize_(measurementSizeBase_),
         withForceMeasurements_(false), withComBias_(false), withAbsolutePos_(false),
         withUnmodeledMeasurements_(false),
-        scallingFactor_(0.99)
+        marginalStabilityFactor_(0.9999)
     {
 #ifdef STATEOBSERVATION_VERBOUS_CONSTRUCTORS
        // std::cout<<std::endl<<"IMUElasticLocalFrameDynamicalSystem Constructor"<<std::endl;
@@ -147,8 +147,8 @@ namespace flexibilityEstimation
                                const Vector3& angVel,
                                Vector& fc, Vector& tc)
     {
-        unsigned nbContacts(getContactsNumber());
-        fc.setZero(); tc.setZero();
+      unsigned nbContacts(getContactsNumber());
+      fc.setZero(); tc.setZero();
 
       op_.Rt = orientation.transpose();
 
@@ -461,7 +461,7 @@ namespace flexibilityEstimation
 //        computeForcesAndMoments (contactPos, contactOri, op_.contactVelArray, op_.contactAngVelArray,
 //                          position, linVelocity, oriVector, op_.rFlex,
 //                             angularVel, fc, tc);
-        
+
         computeAccelerations (positionCom, velocityCom,
         accelerationCom, AngMomentum, dotAngMomentum,
         inertia, dotInertia,  contactPos, contactOri, position, linVelocity, op_.linearAcceleration,
@@ -534,7 +534,7 @@ namespace flexibilityEstimation
         Vector3 linAcc4;
         Vector3 angAcc4;
 
-        //////////1st/////////////    
+        //////////1st/////////////
         computeAccelerations (positionCom, velocityCom,
                         accelerationCom, AngMomentum, dotAngMomentum,
                         inertia, dotInertia,  contactPos, contactOri,
@@ -687,7 +687,7 @@ namespace flexibilityEstimation
                           tc_, op_.fm, op_.tm,
                           dt_/subsample);
         }
-        //x_{k+1}   
+        //x_{k+1}
 
         for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
         {
@@ -708,8 +708,10 @@ namespace flexibilityEstimation
 
         // xk1_.segment<2>(state::comBias) = op_.positionComBias.head<2>();
 
-        xk1_.segment<3>(state::unmodeledForces) = scallingFactor_*op_.fm;
-        xk1_.segment<3>(state::unmodeledForces+3) = scallingFactor_*op_.tm;
+        xk1_.segment<3>(state::unmodeledForces) =
+                                      marginalStabilityFactor_*op_.fm;
+        xk1_.segment<3>(state::unmodeledForces+3) =
+                                      marginalStabilityFactor_*op_.tm;
 
         if (processNoise_!=0x0)
             return processNoise_->addNoise(op_.xk1);
