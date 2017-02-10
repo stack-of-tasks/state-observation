@@ -97,18 +97,51 @@ namespace stateObservation
             return v;
         }
 
-        /// Tranbsform the rotation matrix into roll pitch yaw
+        /// Transform the rotation matrix into roll pitch yaw
         ///(decompose R into Ry*Rp*Rr)
+        inline Vector3 rotationMatrixToRollPitchYaw(const Matrix3 & R, Vector3 & v )
+        {
+            /// source http://planning.cs.uiuc.edu/node102.html
+            /// and http://planning.cs.uiuc.edu/node103.html
+
+            v<<atan2(R(2,1),R(2,2)),
+               atan2(-R(2,0),sqrt(tools::square(R(2,1))+tools::square(R(2,2)))),
+               atan2(R(1,0),R(0,0));
+            return v;
+        }
+
         inline Vector3 rotationMatrixToRollPitchYaw(const Matrix3 & R)
         {
             /// source http://planning.cs.uiuc.edu/node102.html
             /// and http://planning.cs.uiuc.edu/node103.html
 
-            Vector3 v(atan2(R(2,1),R(2,2)),
-                      atan2(-R(2,0),sqrt(tools::square(R(2,1))+tools::square(R(2,2)))),
-                      atan2(R(1,0),R(0,0)));
-            return v;
+            Vector3 v;
+            return rotationMatrixToRollPitchYaw(R,v);
         }
+
+        /// Transform the roll pitch yaw into rotation matrix
+        ///( R = Ry*Rp*Rr)
+        inline Matrix3 rollPitchYawToRotationMatrix(double roll, double pitch, double yaw)
+        {
+          AngleAxis rollAngle(roll, Eigen::Vector3d::UnitX());
+          AngleAxis pitchAngle(pitch, Eigen::Vector3d::UnitY());
+          AngleAxis yawAngle(yaw, Eigen::Vector3d::UnitZ());
+
+          Quaternion q;
+
+          q=yawAngle;
+          q=q*pitchAngle;
+          q=q*rollAngle;
+
+          return q.toRotationMatrix() ;
+        }
+
+        inline Matrix3 rollPitchYawToRotationMatrix(Vector3 rpy)
+        {
+          return rollPitchYawToRotationMatrix(rpy[0],rpy[1],rpy[2]);
+        }
+
+
 
         ///transform a 3d vector into a skew symmetric 3x3 matrix
         inline Matrix3 skewSymmetric(const Vector3 & v, Matrix3 & R)
