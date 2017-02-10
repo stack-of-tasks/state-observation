@@ -44,9 +44,9 @@ namespace stateObservation
       ///updates all the logs for all recorded variables
       void push();
 
-      const IndexedMatrixArray & getRecord(const Matrix & matrix) const;
+      const IndexedMatrixArray & getRecord(const void *address) const;
 
-      IndexedMatrixArray & getRecord(const Matrix & matrix);
+      IndexedMatrixArray & getRecord(const void *address);
 
       void save();
 

@@ -38,9 +38,9 @@ namespace stateObservation
       logs_.clear();
     }
 
-    const IndexedMatrixArray & Logger::getRecord(const Matrix& matrix) const
+    const IndexedMatrixArray & Logger::getRecord(const void* address) const
     {
-      Tmap::const_iterator i= logs_.find(& matrix);
+      Tmap::const_iterator i= logs_.find(address);
       if (i==logs_.end())
         throw std::invalid_argument
                 ("The logger cannot find the data, please use record function");
@@ -48,9 +48,9 @@ namespace stateObservation
         return i->second.array;
     }
 
-    IndexedMatrixArray & Logger::getRecord(const Matrix& matrix)
+    IndexedMatrixArray & Logger::getRecord(const void* address)
     {
-      Tmap::iterator i= logs_.find(& matrix);
+      Tmap::iterator i= logs_.find(address);
       if (i==logs_.end())
         throw std::invalid_argument
                 ("The logger cannot find the data, please use record function");
