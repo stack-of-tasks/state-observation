@@ -414,6 +414,8 @@ namespace flexibilityEstimation
             }
         }
 
+        functor_.printed = false;
+
         return lastX_;
     }
 

@@ -346,6 +346,9 @@ public:
 
       virtual double getRobotMass() const;
 
+    public:
+        bool printed;
+
     protected:
 
       stateObservation::AccelerometerGyrometer sensor_;

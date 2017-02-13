@@ -46,8 +46,9 @@ namespace flexibilityEstimation
       fc_.resize(hrp2::contact::nbModeledMax*3); fc_.setZero();
       tc_.resize(hrp2::contact::nbModeledMax*3); tc_.setZero();
 
+      printed = false;
       pe.setZero();
-      
+
     }
 
     IMUElasticLocalFrameDynamicalSystem::
@@ -285,6 +286,18 @@ namespace flexibilityEstimation
 
             momenti.noalias() = kine::skewSymmetric(globalContactPos)*forcei;
             moments.segment<3>(0) += momenti;
+
+			if(printed==false)
+            {
+    //            std::cout << "globalContactPos=" << globalContactPos.transpose() << std::endl;
+    //            std::cout << "stringLength=" << stringLength << std::endl;
+    //            std::cout << "string deformation=" << modifiedStringLength-stringLength << std::endl;
+    //            std::cout << "contactOriUnitVector=" << contactOriUnitVector.transpose() << std::endl;
+    //            std::cout << "forcei=" << forcei.transpose() << std::endl;
+    //            std::cout << "momenti=" << momenti.transpose() << std::endl;
+                printed=true;
+            }
+
         }
 
         moments.segment<3>(0).noalias() += - Ktv_*angVel;
@@ -332,6 +345,17 @@ namespace flexibilityEstimation
 
         moments.segment<3>(0).noalias() += - Kte_*oriVector;
         moments.segment<3>(0).noalias() += - Ktv_*angVel;
+
+        if(printed==false)
+        {
+    //            std::cout << "stringLength=" << stringLength << std::endl;
+    //        std::cout << "modifiedStringLength=" << modifiedStringLength << std::endl;
+    //            std::cout << "contactOriUnitVector=" << contactOriUnitVector.transpose() << std::endl;
+    //            std::cout << "forcei=" << forcei.transpose() << std::endl;
+    //            std::cout << "momenti=" << momenti.transpose() << std::endl;
+            printed=true;
+        }
+
     }
 
     void IMUElasticLocalFrameDynamicalSystem::computeElastPendulumForcesAndMoments2
@@ -377,6 +401,17 @@ namespace flexibilityEstimation
 
         moments.segment<3>(0).noalias() += - Kte_*oriVector;
         moments.segment<3>(0).noalias() += - Ktv_*angVel;
+
+        if(printed==false)
+        {
+    //            std::cout << "stringLength=" << stringLength << std::endl;
+    //        std::cout << "modifiedStringLength=" << modifiedStringLength << std::endl;
+    //            std::cout << "contactOriUnitVector=" << contactOriUnitVector.transpose() << std::endl;
+    //            std::cout << "forcei=" << forcei.transpose() << std::endl;
+    //            std::cout << "momenti=" << momenti.transpose() << std::endl;
+            printed=true;
+        }
+
     }
 
     inline void IMUElasticLocalFrameDynamicalSystem::computeForcesAndMoments
