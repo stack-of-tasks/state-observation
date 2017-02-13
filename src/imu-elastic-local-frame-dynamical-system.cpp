@@ -1,4 +1,4 @@
- /*
+/*
  * dynamical-system.cpp
  *
  *  Created on: 19 mai 2014
@@ -46,6 +46,8 @@ namespace flexibilityEstimation
       fc_.resize(hrp2::contact::nbModeledMax*3); fc_.setZero();
       tc_.resize(hrp2::contact::nbModeledMax*3); tc_.setZero();
 
+      pe.setZero();
+      
     }
 
     IMUElasticLocalFrameDynamicalSystem::
@@ -251,8 +253,7 @@ namespace flexibilityEstimation
     }
 
     void IMUElasticLocalFrameDynamicalSystem::computeElastPendulumForcesAndMoments
-                              (const IndexedMatrixArray& PeArray,
-                               const IndexedMatrixArray& PrArray,
+                              (const IndexedMatrixArray& PrArray,
                                const Vector3& position, const Vector3& linVelocity,
                                const Vector3& oriVector, const Matrix3& orientation,
                                const Vector3& angVel,
@@ -275,11 +276,11 @@ namespace flexibilityEstimation
             globalContactPos = position ;
             globalContactPos.noalias() += orientation*PrArray[i] ;
 
-            stringLength=(PrArray[i]-PeArray[i]).norm();
-            modifiedStringLength=(globalContactPos-PeArray[i]).norm();
-            contactOriUnitVector= (PeArray[i]-globalContactPos)/modifiedStringLength;
+            stringLength=(PrArray[i]-pe).norm();
+            modifiedStringLength=(globalContactPos-pe).norm();
+            contactOriUnitVector= (globalContactPos-pe)/modifiedStringLength;
 
-            forcei = (modifiedStringLength-stringLength)*Kfe_*contactOriUnitVector;
+            forcei = -(modifiedStringLength-stringLength)*Kfe_*contactOriUnitVector;
             forces.segment<3>(0) += forcei;
 
             momenti.noalias() = kine::skewSymmetric(globalContactPos)*forcei;
@@ -291,8 +292,7 @@ namespace flexibilityEstimation
     }
 
     void IMUElasticLocalFrameDynamicalSystem::computeElastPendulumForcesAndMoments1
-                              (const IndexedMatrixArray& PeArray,
-                               const IndexedMatrixArray& PrArray,
+                              (const IndexedMatrixArray& PrArray,
                                const Vector3& position, const Vector3& linVelocity,
                                const Vector3& oriVector, const Matrix3& orientation,
                                const Vector3& angVel,
@@ -313,12 +313,12 @@ namespace flexibilityEstimation
         {
             u = position;
             u.noalias() += orientation*PrArray[i] ;
-            u.noalias() -= PeArray[i];
+            u.noalias() -= pe;
 
             du = linVelocity;
             du.noalias() += kine::skewSymmetric(angVel)*orientation*PrArray[i] ;
 
-            stringLength=(PrArray[i]-PeArray[i]).norm();
+            stringLength=(PrArray[i]-pe).norm();
             modifiedStringLength=u.norm();
 
             lengthRate=(modifiedStringLength-stringLength)/modifiedStringLength;
@@ -335,8 +335,7 @@ namespace flexibilityEstimation
     }
 
     void IMUElasticLocalFrameDynamicalSystem::computeElastPendulumForcesAndMoments2
-                              (const IndexedMatrixArray& PeArray,
-                               const IndexedMatrixArray& PrArray,
+                              (const IndexedMatrixArray& PrArray,
                                const Vector3& position, const Vector3& linVelocity,
                                const Vector3& oriVector, const Matrix3& orientation,
                                const Vector3& angVel,
@@ -358,12 +357,12 @@ namespace flexibilityEstimation
         {
             u = position;
             u.noalias() += orientation*PrArray[i] ;
-            u.noalias() -= PeArray[i];
+            u.noalias() -= pe;
 
             du = linVelocity;
             du.noalias() += kine::skewSymmetric(angVel)*orientation*PrArray[i] ;
 
-            stringLength=(PrArray[i]-PeArray[i]).norm();
+            stringLength=(PrArray[i]-pe).norm();
             modifiedStringLength=u.norm();
 
             lengthRate=(modifiedStringLength-stringLength)/modifiedStringLength;
@@ -394,13 +393,13 @@ namespace flexibilityEstimation
         case contactModel::elasticContact : computeElastContactForcesAndMoments(contactpos, contactori, contactvel, contactangvel, position, linVelocity, oriVector, orientation, angVel, fc, tc);
                  break;
 
-        case contactModel::pendulum : computeElastPendulumForcesAndMoments(contactpos, contactori, position, linVelocity, oriVector, orientation, angVel, fc, tc);
+        case contactModel::pendulum : computeElastPendulumForcesAndMoments(contactpos, position, linVelocity, oriVector, orientation, angVel, fc, tc);
                  break;
 
-        case contactModel::pendulum1 : computeElastPendulumForcesAndMoments1(contactpos, contactori, position, linVelocity, oriVector, orientation, angVel, fc, tc);
+        case contactModel::pendulum1 : computeElastPendulumForcesAndMoments1(contactpos, position, linVelocity, oriVector, orientation, angVel, fc, tc);
                  break;
 
-        case contactModel::pendulum2 : computeElastPendulumForcesAndMoments2(contactpos, contactori, position, linVelocity, oriVector, orientation, angVel, fc, tc);
+        case contactModel::pendulum2 : computeElastPendulumForcesAndMoments2(contactpos, position, linVelocity, oriVector, orientation, angVel, fc, tc);
                  break;
 
         default: throw std::invalid_argument("IMUElasticLocalFrameDynamicalSystem: the contact model is incorrectly set.");
@@ -442,7 +441,6 @@ namespace flexibilityEstimation
         op_.f=orientation*fm;
         op_.t=orientation*tm+kine::skewSymmetric(position)*orientation*fm;
 
-
         for (unsigned i = 0; i<getContactsNumber() ; ++i)
         {
             op_.Rci = kine::rotationVectorToAngleAxis(contactOriV[i]).toRotationMatrix();
@@ -457,7 +455,6 @@ namespace flexibilityEstimation
     {
         assertStateVector_(x);
         assertInputVector_(u);
-
 
         op_.positionFlex=x.segment(state::pos,3);
         op_.orientationFlexV=x.segment(state::ori,3);
@@ -883,9 +880,7 @@ namespace flexibilityEstimation
         op_.angularVelocityFlex=x.segment(state::angVel,3);
 
         for (int i=0; i<hrp2::contact::nbModeledMax; ++i)
-        {
             op_.efforts[i]=x.segment(state::fc+6*i,6);
-        }
 
         op_.fm=x.segment(state::unmodeledForces,3);
         op_.tm=x.segment(state::unmodeledForces+3,3);

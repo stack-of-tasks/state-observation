@@ -232,6 +232,11 @@ public:
       ///Sets the position of the contact number i
       virtual void setContactPosition(unsigned i, const Vector3 & position);
 
+      virtual void setPe(stateObservation::Vector3 Pe)
+      {
+          pe=Pe;
+      }
+
       ///Gets the position of the contact number i
       virtual Vector3 getContactPosition(unsigned i);
 
@@ -255,7 +260,6 @@ public:
 
       virtual void computeElastPendulumForcesAndMoments
       (const IndexedMatrixArray& PrArray,
-       const IndexedMatrixArray& PeArray,
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
@@ -263,7 +267,6 @@ public:
 
       virtual void computeElastPendulumForcesAndMoments1
       (const IndexedMatrixArray& PrArray,
-       const IndexedMatrixArray& PeArray,
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
@@ -271,7 +274,6 @@ public:
 
       virtual void computeElastPendulumForcesAndMoments2
       (const IndexedMatrixArray& PrArray,
-       const IndexedMatrixArray& PeArray,
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
@@ -394,6 +396,8 @@ public:
       bool withUnmodeledMeasurements_;
 
       double scallingFactor_;
+
+      stateObservation::Vector3 pe;
 
 
       unsigned index_;

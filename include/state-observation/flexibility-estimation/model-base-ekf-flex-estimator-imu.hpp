@@ -166,6 +166,11 @@ namespace flexibilityEstimation
         virtual void setKte(const Matrix3 & m);
         virtual void setKtv(const Matrix3 & m);
 
+        virtual void setPe(const stateObservation::Vector3& Pe)
+        {
+            functor_.setPe(Pe);
+        }
+
         ///Resets the covariance matrices to their original values
         virtual void resetCovarianceMatrices();
         virtual void resetStateCovarianceMatrix();
