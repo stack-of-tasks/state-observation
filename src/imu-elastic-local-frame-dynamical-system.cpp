@@ -284,10 +284,9 @@ namespace flexibilityEstimation
             forcei = -(modifiedStringLength-stringLength)*Kfe_*contactOriUnitVector;
             forces.segment<3>(0) += forcei;
 
-            momenti.noalias() = kine::skewSymmetric(globalContactPos)*forcei;
-            moments.segment<3>(0) += momenti;
+            momenti.setZero();
 
-			if(printed==false)
+            if(printed==false)
             {
     //            std::cout << "globalContactPos=" << globalContactPos.transpose() << std::endl;
     //            std::cout << "stringLength=" << stringLength << std::endl;
