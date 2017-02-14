@@ -83,7 +83,7 @@ namespace flexibilityEstimation
             R_.block(0,0,3,3)=Matrix3::Identity()*1.e-6;//accelerometer
             R_.block(3,3,3,3)=Matrix3::Identity()*1.e-6;//gyrometer
 
-            updateCovarianceMatrix_();
+            updateMeasurementCovarianceMatrix_();
             stateObservation::Matrix m; m.resize(6,6); m.setIdentity();
             Q_=ekf_.getQmatrixIdentity();
 
@@ -98,7 +98,7 @@ namespace flexibilityEstimation
             Q_.block(state::fc+6+3,state::fc+6+3,3,3)=Matrix3::Identity()*1.e-4;
 
             if(withUnmodeledForces_)
-                Q_.block(state::unmodeledForces,state::unmodeledForces,6,6)=m*1.e-2;
+                Q_.block(state::unmodeledForces,state::unmodeledForces,6,6)=Matrix6::Identity()*m*1.e-2;
             else
                 Q_.block(state::unmodeledForces,state::unmodeledForces,6,6).setZero();
 
@@ -132,7 +132,7 @@ namespace flexibilityEstimation
         if (useFTSensors_)
         {
           ekf_.setMeasureSize(functor_.getMeasurementSize());
-          updateCovarianceMatrix_();
+          updateMeasurementCovarianceMatrix_();
         }
     }
 
@@ -202,7 +202,7 @@ namespace flexibilityEstimation
                         incorrect size");
 
         R_=R;
-        updateCovarianceMatrix_();
+        updateMeasurementCovarianceMatrix_();
     }
 
 
@@ -247,7 +247,7 @@ namespace flexibilityEstimation
         return v2;
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::updateCovarianceMatrix_()
+    void ModelBaseEKFFlexEstimatorIMU::updateMeasurementCovarianceMatrix_()
     {
         int currIndex = 6;
         R_.conservativeResize(getMeasurementSize(),getMeasurementSize());
@@ -266,7 +266,7 @@ namespace flexibilityEstimation
         {
           R_.block(currIndex,0,6,currIndex).setZero();
           R_.block(0,currIndex,currIndex,6).setZero();
-          R_.block(currIndex,currIndex,6,6) =   Matrix::Identity(6,6)*absPosVariance_;
+          R_.block(currIndex,currIndex,6,6) = Matrix::Identity(6,6)*absPosVariance_;
 
           currIndex += 6;
         }
@@ -323,7 +323,6 @@ namespace flexibilityEstimation
       {
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
-        preIterationCallback_();
         if (ekf_.getMeasurementsNumber()>0)
         {
           k_=ekf_.getMeasurementTime();
@@ -396,18 +395,6 @@ namespace flexibilityEstimation
       return lastX_;
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::preIterationCallback_()
-    {
-      if (callback_.updateUnmodForceStateCov)
-      {
-        P_=ekf_.getStateCovariance();
-        P_.diagonal().segment<6>(state::unmodeledForces).setConstant(unmodeledForceVariance_);
-        ekf_.setStateCovariance(P_);
-        callback_.updateUnmodForceStateCov=false;
-      }
-    }
-
-
     void ModelBaseEKFFlexEstimatorIMU::setSamplingPeriod(double dt)
     {
         dt_=dt;
@@ -472,7 +459,7 @@ namespace flexibilityEstimation
         functor_.setWithForceMeasurements(b);
         ekf_.setMeasureSize(functor_.getMeasurementSize());
 
-        updateCovarianceMatrix_();
+        updateMeasurementCovarianceMatrix_();
       }
     }
 
@@ -483,7 +470,7 @@ namespace flexibilityEstimation
         functor_.setWithAbsolutePosition(b);
         ekf_.setMeasureSize(functor_.getMeasurementSize());
         withAbsolutePos_=b;
-        updateCovarianceMatrix_();
+        updateMeasurementCovarianceMatrix_();
       }
     }
 
@@ -495,7 +482,7 @@ namespace flexibilityEstimation
         ekf_.setMeasureSize(functor_.getMeasurementSize());
         ekf_.setInputSize(functor_.getInputSize());
         withUnmodeledForces_=b;
-        updateCovarianceMatrix_();
+        updateMeasurementCovarianceMatrix_();
       }
     }
 
@@ -517,20 +504,35 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::setUnmodeledForceVariance(double d)
     {
         unmodeledForceVariance_ = d;
-        callback_.updateUnmodForceStateCov=true;
-        updateCovarianceMatrix_();
+        if (d>0)
+        {
+          setWithUnmodeledForces(true);
+        }
+        P_=ekf_.getStateCovariance();
+        P_.diagonal().segment<6>(state::unmodeledForces).setConstant(unmodeledForceVariance_);
+        ekf_.setStateCovariance(P_);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setUnmodeledForceProcessVariance(double d)
+    {
+        Q_.diagonal().segment<6>(state::unmodeledForces).setConstant(d);
+        ekf_.setQ(Q_);
+        if (d>0)
+        {
+          setWithUnmodeledForces(true);
+        }
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setForceVariance(double d)
     {
         forceVariance_ = d;
-        updateCovarianceMatrix_();
+        updateMeasurementCovarianceMatrix_();
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setAbsolutePosVariance(double d)
     {
         absPosVariance_ = d;
-        updateCovarianceMatrix_();
+        updateMeasurementCovarianceMatrix_();
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setRobotMass(double m)

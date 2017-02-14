@@ -141,6 +141,8 @@ namespace flexibilityEstimation
         }
 
         virtual void setUnmodeledForceVariance(double d);
+        virtual void setUnmodeledForceProcessVariance(double d);
+
         virtual void setForceVariance(double d);
         virtual void setAbsolutePosVariance(double d);
 
@@ -205,7 +207,7 @@ namespace flexibilityEstimation
 
     protected:
 
-        virtual void updateCovarianceMatrix_();
+        virtual void updateMeasurementCovarianceMatrix_();
 
         IMUElasticLocalFrameDynamicalSystem functor_;
 
@@ -219,18 +221,6 @@ namespace flexibilityEstimation
 
         static const unsigned inputSizeBase_=42;
         unsigned inputSize_;
-
-        inline virtual void preIterationCallback_();
-
-        struct callbackBool_
-        {
-          callbackBool_()
-          {
-            updateUnmodForceStateCov = false;
-          }
-          bool updateUnmodForceStateCov;
-        } callback_;
-
 
         double dt_;//sampling period
         bool on_;
