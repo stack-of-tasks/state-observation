@@ -422,6 +422,7 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::setSamplingPeriod(double dt)
     {
         dt_=dt;
+        functor_.setSamplingPeriod(dt);
     }
 
     /// Enable or disable the estimation
