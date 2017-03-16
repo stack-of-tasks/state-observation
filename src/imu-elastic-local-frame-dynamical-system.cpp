@@ -963,9 +963,9 @@ namespace flexibilityEstimation
 
         // Translation sensor dynamic
         op_.imuAcc = 2*kine::skewSymmetric(op_.angularVelocityFlex) * op_.rFlex * op_.velocityControl;
-        op_.imuAcc += op_.accelerationFlex + op_.rFlex * op_.accelerationControl;
+        op_.imuAcc += op_.linearAcceleration + op_.rFlex * op_.accelerationControl;
         op_.imuAcc += (
-                    kine::skewSymmetric(op_.angularAccelerationFlex)
+                    kine::skewSymmetric(op_.angularAcceleration)
                     + tools::square(kine::skewSymmetric(op_.angularVelocityFlex))
                 )*op_.rFlex * op_.positionControl;
 
