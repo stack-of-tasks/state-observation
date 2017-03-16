@@ -34,6 +34,11 @@ namespace flexibilityEstimation
       Kfv_=600*Matrix3::Identity();
       Ktv_=60*Matrix3::Identity();
 
+      KfeCordes_=40000*Matrix3::Identity();
+      KteCordes_=600*Matrix3::Identity();
+      KfvCordes_=600*Matrix3::Identity();
+      KtvCordes_=60*Matrix3::Identity();
+
       sensor_.setMatrixMode(true);
 
       contactModel_=contactModel::none;
@@ -281,7 +286,7 @@ namespace flexibilityEstimation
             modifiedStringLength=(globalContactPos-pe).norm();
             contactOriUnitVector= (globalContactPos-pe)/modifiedStringLength;
 
-            forcei = -(modifiedStringLength-stringLength)*Kfe_*contactOriUnitVector;
+            forcei = -(modifiedStringLength-stringLength)*KfeCordes_*contactOriUnitVector;
             forces.segment<3>(0) += forcei;
 
             momenti.setZero();
@@ -299,8 +304,8 @@ namespace flexibilityEstimation
 
         }
 
-        moments.segment<3>(0).noalias() += - Ktv_*angVel;
-        forces.segment<3>(0).noalias() += -Kfv_*linVelocity;
+        moments.segment<3>(0).noalias() += - KtvCordes_*angVel;
+        forces.segment<3>(0).noalias() += -KfvCordes_*linVelocity;
     }
 
     void IMUElasticLocalFrameDynamicalSystem::computeElastPendulumForcesAndMoments1
@@ -335,15 +340,15 @@ namespace flexibilityEstimation
 
             lengthRate=(modifiedStringLength-stringLength)/modifiedStringLength;
 
-            forcei = -lengthRate*(Kfe_*u+Kfv_*du);
+            forcei = -lengthRate*(KfeCordes_*u+KfvCordes_*du);
             forces.segment<3>(0) += forcei;
 
             momenti.noalias() = kine::skewSymmetric(u)*forcei;
             moments.segment<3>(0) += momenti;
         }
 
-        moments.segment<3>(0).noalias() += - Kte_*oriVector;
-        moments.segment<3>(0).noalias() += - Ktv_*angVel;
+        moments.segment<3>(0).noalias() += - KteCordes_*oriVector;
+        moments.segment<3>(0).noalias() += - KtvCordes_*angVel;
 
         if(printed==false)
         {
@@ -391,15 +396,15 @@ namespace flexibilityEstimation
             lengthRate=(modifiedStringLength-stringLength)/modifiedStringLength;
             lengthRateVel=(stringLength/std::pow(modifiedStringLength,3))*du.sum();
 
-            forcei = -Kfe_*lengthRate*u-Kfv_*(lengthRateVel*u+lengthRate*du);
+            forcei = -KfeCordes_*lengthRate*u-KfvCordes_*(lengthRateVel*u+lengthRate*du);
             forces.segment<3>(0) += forcei;
 
             momenti.noalias() = kine::skewSymmetric(u)*forcei;
             moments.segment<3>(0) += momenti;
         }
 
-        moments.segment<3>(0).noalias() += - Kte_*oriVector;
-        moments.segment<3>(0).noalias() += - Ktv_*angVel;
+        moments.segment<3>(0).noalias() += - KteCordes_*oriVector;
+        moments.segment<3>(0).noalias() += - KtvCordes_*angVel;
 
         if(printed==false)
         {
@@ -1372,6 +1377,26 @@ namespace flexibilityEstimation
     void IMUElasticLocalFrameDynamicalSystem::setKtv(const Matrix3 & m)
     {
         Ktv_=m;
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setKfeCordes(const Matrix3 & m)
+    {
+        KfeCordes_=m;
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setKfvCordes(const Matrix3 & m)
+    {
+        KfvCordes_=m;
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setKteCordes(const Matrix3 & m)
+    {
+        KteCordes_=m;
+    }
+
+    void IMUElasticLocalFrameDynamicalSystem::setKtvCordes(const Matrix3 & m)
+    {
+        KtvCordes_=m;
     }
 
     void  IMUElasticLocalFrameDynamicalSystem::setFDstep(const stateObservation::Vector & dx)

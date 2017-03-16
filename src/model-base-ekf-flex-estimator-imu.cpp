@@ -451,6 +451,26 @@ namespace flexibilityEstimation
         functor_.setKtv(m);
     }
 
+    void ModelBaseEKFFlexEstimatorIMU::setKfeCordes(const Matrix3 & m)
+    {
+        functor_.setKfeCordes(m);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setKfvCordes(const Matrix3 & m)
+    {
+        functor_.setKfvCordes(m);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setKteCordes(const Matrix3 & m)
+    {
+        functor_.setKteCordes(m);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setKtvCordes(const Matrix3 & m)
+    {
+        functor_.setKtvCordes(m);
+    }
+
     double& ModelBaseEKFFlexEstimatorIMU::getComputeFlexibilityTime()
     {
         return computeFlexibilityTime_;

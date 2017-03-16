@@ -342,6 +342,12 @@ public:
       virtual void setKte(const Matrix3 & m);
       virtual void setKtv(const Matrix3 & m);
 
+      virtual void setKfeCordes(const Matrix3 & m);
+      virtual void setKfvCordes(const Matrix3 & m);
+      virtual void setKteCordes(const Matrix3 & m);
+      virtual void setKtvCordes(const Matrix3 & m);
+
+
       virtual void setRobotMass(double d);
 
       virtual double getRobotMass() const;
@@ -390,6 +396,7 @@ public:
       std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;
 
       Matrix3 Kfe_, Kte_, Kfv_, Ktv_;
+      Matrix3 KfeCordes_, KteCordes_, KfvCordes_, KtvCordes_;
 
       unsigned kcurrent_;
 

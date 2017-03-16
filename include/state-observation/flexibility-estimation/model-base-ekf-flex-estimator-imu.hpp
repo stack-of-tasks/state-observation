@@ -166,6 +166,11 @@ namespace flexibilityEstimation
         virtual void setKte(const Matrix3 & m);
         virtual void setKtv(const Matrix3 & m);
 
+        virtual void setKfeCordes(const Matrix3 & m);
+        virtual void setKfvCordes(const Matrix3 & m);
+        virtual void setKteCordes(const Matrix3 & m);
+        virtual void setKtvCordes(const Matrix3 & m);
+
         virtual void setPe(const stateObservation::Vector3& Pe)
         {
             functor_.setPe(Pe);
