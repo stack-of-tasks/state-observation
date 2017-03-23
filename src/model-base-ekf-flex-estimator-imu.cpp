@@ -419,6 +419,17 @@ namespace flexibilityEstimation
         return lastX_;
     }
 
+    stateObservation::Matrix& ModelBaseEKFFlexEstimatorIMU::computeLocalObservationMatrix()
+    {
+        op_.O.resize(getMeasurementSize()*2,getStateSize());
+        op_.CA.resize(getMeasurementSize(),getStateSize());
+        op_.CA  = ekf_.getC();
+        op_.O.block(0,0,getMeasurementSize(),getStateSize()) = op_.CA;
+        op_.CA = op_.CA * ekf_.getA();
+        op_.O.block(getMeasurementSize(),0,getMeasurementSize(),getStateSize()) = op_.CA;
+        return op_.O;
+    }
+
     void ModelBaseEKFFlexEstimatorIMU::setSamplingPeriod(double dt)
     {
         dt_=dt;

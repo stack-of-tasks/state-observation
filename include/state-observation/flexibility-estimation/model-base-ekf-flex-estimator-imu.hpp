@@ -115,6 +115,17 @@ namespace flexibilityEstimation
         /// Gets an estimation of the flexibility in the form of a state vector \hat{x_{k+1}}
         virtual const Vector& getFlexibilityVector();
 
+        virtual stateObservation::Matrix& computeLocalObservationMatrix();
+        virtual stateObservation::Matrix getAMatrix()
+        {
+            return ekf_.getA();
+        }
+
+        virtual stateObservation::Matrix getCMatrix()
+        {
+            return ekf_.getC();
+        }
+
         virtual double& getComputeFlexibilityTime();
 
 
@@ -252,6 +263,12 @@ namespace flexibilityEstimation
         Vector3 limitTorques_;
         Vector3 limitForces_;
         bool limitOn_;
+
+        struct optimization
+        {
+            stateObservation::Matrix O;
+            stateObservation::Matrix CA;
+        }op_;
 
     private:
     };
