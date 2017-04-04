@@ -941,10 +941,12 @@ namespace flexibilityEstimation
         kine::computeInertiaTensor(u.segment<6>(input::inertia),op_.inertia);
         kine::computeInertiaTensor(u.segment<6>(input::dotInertia),op_.dotInertia);
         unsigned nbContacts(getContactsNumber());
+        contactPositions_.clear();
         for (unsigned i = 0; i<nbContacts ; ++i)
         {
             // Positions
             op_.contactPosV.setValue(u.segment<3>(input::contacts + 12*i),i);
+            contactPositions_.push_back(u.segment<3>(input::contacts + 12*i));
             op_.contactOriV.setValue(u.segment<3>(input::contacts +12*i+3),i);
         }
         op_.positionCom=u.segment<3>(input::posCom);
