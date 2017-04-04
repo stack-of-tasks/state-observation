@@ -399,6 +399,13 @@ namespace flexibilityEstimation
                 clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
 
                 computeFlexibilityTime_=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
+
+                x_.segment<3>(state::linVel).setZero();
+                for(int i=0; i<functor_.getContactsNumber();++i)
+                {
+                    x_.segment<3>(state::linVel) += kine::skewSymmetric(kine::rotationVectorToRotationMatrix(x_.segment<3>(state::ori))*functor_.getContactPosition(i))*x_.segment<3>(state::angVel);
+                }
+                x_.segment<3>(state::linVel)=x_.segment<3>(state::linVel)/functor_.getContactsNumber();
             }
         }
         else
