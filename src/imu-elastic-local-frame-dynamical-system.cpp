@@ -44,7 +44,7 @@ namespace flexibilityEstimation
       contactModel_=contactModel::none;
 
       nbContacts_=0;
-      inputSize_=42;
+      inputSize_=42;   
 
       kcurrent_=-1;
 
@@ -289,7 +289,7 @@ namespace flexibilityEstimation
             forcei = -(modifiedStringLength-stringLength)*KfeCordes_*contactOriUnitVector;
             forces.segment<3>(0) += forcei;
 
-            momenti.setZero();
+            momenti=kine::skewSymmetric(globalContactPos)*forcei;
 
             if(printed==false)
             {
@@ -304,6 +304,9 @@ namespace flexibilityEstimation
 
         }
 
+        moments.segment<3>(0) << 0,
+                                 0,
+                                 -KteCordes_(2,2)*oriVector(2);
         moments.segment<3>(0).noalias() += - KtvCordes_*angVel;
         forces.segment<3>(0).noalias() += -KfvCordes_*linVelocity;
     }
@@ -480,13 +483,21 @@ namespace flexibilityEstimation
         op_.f=orientation*fm;
         op_.t=orientation*tm+kine::skewSymmetric(position)*orientation*fm;
 
-        for (unsigned i = 0; i<getContactsNumber() ; ++i)
+        if(contactModel_==contactModel::elasticContact)
         {
-            op_.Rci = kine::rotationVectorToAngleAxis(contactOriV[i]).toRotationMatrix();
-            op_.globalContactPos.noalias() = orientation*contactPosV[i] + position ;
-            op_.fi=orientation*op_.Rci*fc.segment<3>(i*3);
-            op_.f+= op_.fi;
-            op_.t+= orientation*op_.Rci*tc.segment<3>(i*3)+kine::skewSymmetric(op_.globalContactPos)*op_.fi;
+            for (unsigned i = 0; i<getContactsNumber() ; ++i)
+            {
+                op_.Rci = kine::rotationVectorToAngleAxis(contactOriV[i]).toRotationMatrix();
+                op_.globalContactPos.noalias() = orientation*contactPosV[i] + position ;
+                op_.fi=orientation*op_.Rci*fc.segment<3>(i*3);
+                op_.f+= op_.fi;
+                op_.t+= orientation*op_.Rci*tc.segment<3>(i*3)+kine::skewSymmetric(op_.globalContactPos)*op_.fi;
+            }
+        }
+        else
+        {
+            op_.f+=fc.segment<3>(0);
+            op_.t+=tc.segment<3>(0);
         }
     }
 
@@ -1280,6 +1291,7 @@ namespace flexibilityEstimation
         inputSize_ = 42+12*i;
 
         updateMeasurementSize_();
+
     }
 
     void IMUElasticLocalFrameDynamicalSystem::setContactPosition
