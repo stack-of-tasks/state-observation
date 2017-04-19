@@ -87,6 +87,8 @@ int test()
   /// sampling period
     const double dt=5e-3;
 
+    stateObservation::flexibilityEstimation::ModelBaseEKFFlexEstimatorIMU est;
+
   /// Measurement noise covariance
     Matrix Cov;
     Cov.resize(6,6);
@@ -104,10 +106,14 @@ int test()
     const unsigned kinit=0;
     const unsigned kmax=42761;
     const unsigned measurementSize=6;
-    const unsigned inputSize=54;
+    const unsigned inputSizeBase=54;
+
     const unsigned stateSize=18;
     unsigned contactNbr = 2;
     // State initialization => not used here because it is set in model-base-ekf-flex-estimator-imu
+
+
+    const unsigned inputSize=est.getInputSize();
 
      // Input initialization
     Vector u0=Vector::Zero(inputSize-6*contactNbr,1);
@@ -154,7 +160,7 @@ int test()
             -1.18496e-06,
             -4.52691e-16;
 
-    stateObservation::flexibilityEstimation::ModelBaseEKFFlexEstimatorIMU est;
+
     est.setSamplingPeriod(dt);
 
     est.setInput(u0);
@@ -280,7 +286,7 @@ int test()
 //        forcesAndMoments.block(0,0,6,1)=forceRLEGEst[k];
 //        forcesAndMoments.block(6,0,6,1)=forceLLEGEst[k];
 
-        // Compute forces and ZMP estimated in this code  
+        // Compute forces and ZMP estimated in this code
         sensorPosition1=kine::vector6ToHomogeneousMatrix((u[k].block(0,42,1,6)).transpose());
         sensorPosition2=kine::vector6ToHomogeneousMatrix((u[k].block(0,48,1,6)).transpose());
         zmpReEstimated=computeZmp (forcesAndMoments, sensorPosition1, sensorPosition2, contactNbr);
