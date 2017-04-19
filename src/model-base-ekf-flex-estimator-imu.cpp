@@ -118,8 +118,8 @@ namespace flexibilityEstimation
 
     void ModelBaseEKFFlexEstimatorIMU::resetStateCovarianceMatrix()
     {
-            Matrix P0(Q_);
-            ekf_.setStateCovariance(P0);
+            P_=Q_;
+            ekf_.setStateCovariance(P_);
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setContactsNumber(unsigned i)
@@ -355,7 +355,7 @@ namespace flexibilityEstimation
                     }
                     x_=ekf_.getEstimatedState(k_);
 
-                    if (x_==x_)//detect NaN values
+                    if (! x_.hasNaN())//detect NaN values
                     {
                         lastX_=x_;
 
@@ -433,6 +433,26 @@ namespace flexibilityEstimation
     void ModelBaseEKFFlexEstimatorIMU::setKtv(const Matrix3 & m)
     {
         functor_.setKtv(m);
+    }
+
+    Matrix ModelBaseEKFFlexEstimatorIMU::getKfe() const
+    {
+        return functor_.getKfe();
+    }
+
+    Matrix ModelBaseEKFFlexEstimatorIMU::getKfv() const
+    {
+        return functor_.getKfv();
+    }
+
+    Matrix ModelBaseEKFFlexEstimatorIMU::getKte() const
+    {
+        return functor_.getKte();
+    }
+
+    Matrix ModelBaseEKFFlexEstimatorIMU::getKtv() const
+    {
+        return functor_.getKtv();
     }
 
     double& ModelBaseEKFFlexEstimatorIMU::getComputeFlexibilityTime()

@@ -337,6 +337,11 @@ public:
       virtual void setKte(const Matrix3 & m);
       virtual void setKtv(const Matrix3 & m);
 
+      virtual Matrix getKfe() const;
+      virtual Matrix getKfv() const;
+      virtual Matrix getKte() const;
+      virtual Matrix getKtv() const;
+
       virtual void setRobotMass(double d);
 
       virtual double getRobotMass() const;
@@ -390,8 +395,9 @@ public:
       bool withAbsolutePos_;
       bool withUnmodeledMeasurements_;
 
-      double scallingFactor_;
-
+      double marginalStabilityFactor_;
+      //a scaling factor a=1-epsilon to avoid the natural marginal stability of
+      //the dynamics x_{k+1}=x_k we replace it with x_{k+1}=a*x_k
 
       unsigned index_;
 

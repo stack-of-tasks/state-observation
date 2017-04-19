@@ -44,6 +44,7 @@ ADD_LIBRARY(${LIBRARY_NAME}
   linear-acceleration.cpp
   magnetic-field.cpp
   definitions.cpp
+  logger.cpp
   accelerometer-gyrometer.cpp
   accelerometer-gyrometer-magnetometer.cpp
   probability-law-simulation.cpp

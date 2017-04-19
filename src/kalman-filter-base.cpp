@@ -334,13 +334,18 @@ namespace stateObservation
         return predictedMeasurement_;
     }
 
-    Vector KalmanFilterBase::getLastPrediction()
+    Vector KalmanFilterBase::getLastPrediction() const
     {
         return oc_.xbar;
     }
 
-    Vector KalmanFilterBase::getLastPredictedMeasurement()
+    Vector KalmanFilterBase::getLastPredictedMeasurement() const
     {
         return predictedMeasurement_;
+    }
+
+    Matrix KalmanFilterBase::getLastGain() const
+    {
+        return oc_.kGain;
     }
 }
