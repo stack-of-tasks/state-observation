@@ -355,8 +355,13 @@ namespace flexibilityEstimation
                     }
                     x_=ekf_.getEstimatedState(k_);
 
+#ifndef EIGEN_VERSION_LESS_THAN_3_2
                     if (! x_.hasNaN())//detect NaN values
                     {
+#else
+                    if (x_==x_)//detect NaN values
+                    {
+#endif // EIGEN_VERSION_LESS_THAN_3_2
                         lastX_=x_;
 
                         ///regulate the part of orientation vector in the state vector

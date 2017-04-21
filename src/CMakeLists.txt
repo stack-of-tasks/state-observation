@@ -25,6 +25,10 @@ macro(ADDPREFIX newlist prefix list_name)
 
 endmacro(ADDPREFIX)
 
+if(${_Eigen_VERSION} VERSION_LESS "3.2.0")
+    add_definitions(-DEIGEN_VERSION_LESS_THAN_3_2)
+endif()
+
 ADDPREFIX(${PROJECT_NAME}_ABSOLUTE_HEADERS  "${CMAKE_SOURCE_DIR}/"  ${PROJECT_NAME}_HEADERS)
 
 SET(LIBRARY_NAME ${PROJECT_NAME})
