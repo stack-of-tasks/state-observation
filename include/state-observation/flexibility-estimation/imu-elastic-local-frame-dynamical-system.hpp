@@ -248,6 +248,11 @@ public:
 
       virtual void setContactModel(unsigned nb);
 
+      virtual void setPrinted(bool b)
+      {
+          printed_ = b;
+      }
+
       virtual void computeElastContactForcesAndMoments
       (const IndexedMatrixArray& contactPosArray,
        const IndexedMatrixArray& contactOriArray,
@@ -299,8 +304,8 @@ public:
       virtual Vector getForcesAndMoments (const Vector& x,
        const Vector& u);
 
-      virtual Vector getMomentaFromForces(const Vector& x, const Vector& u);
-      virtual Vector getMomentaFromKinematics(const Vector& x, const Vector& u);
+      virtual Vector getMomentaDotFromForces(const Vector& x, const Vector& u);
+      virtual Vector getMomentaDotFromKinematics(const Vector& x, const Vector& u);
 
       virtual void iterateDynamicsEuler
       (const Vector3& positionCom, const Vector3& velocityCom,
@@ -342,20 +347,19 @@ public:
       virtual void setKte(const Matrix3 & m);
       virtual void setKtv(const Matrix3 & m);
 
-      virtual void setKfeCordes(const Matrix3 & m);
-      virtual void setKfvCordes(const Matrix3 & m);
-      virtual void setKteCordes(const Matrix3 & m);
-      virtual void setKtvCordes(const Matrix3 & m);
+      virtual void setKfeRopes(const Matrix3 & m);
+      virtual void setKfvRopes(const Matrix3 & m);
+      virtual void setKteRopes(const Matrix3 & m);
+      virtual void setKtvRopes(const Matrix3 & m);
 
 
       virtual void setRobotMass(double d);
 
       virtual double getRobotMass() const;
 
-    public:
-        bool printed;
-
     protected:
+
+      bool printed_;
 
       stateObservation::AccelerometerGyrometer sensor_;
 
@@ -396,7 +400,7 @@ public:
       std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;
 
       Matrix3 Kfe_, Kte_, Kfv_, Ktv_;
-      Matrix3 KfeCordes_, KteCordes_, KfvCordes_, KtvCordes_;
+      Matrix3 KfeRopes_, KteRopes_, KfvRopes_, KtvRopes_;
 
       unsigned kcurrent_;
 
@@ -415,7 +419,7 @@ public:
       struct Optimization
       {
 
-        Vector6 momenta;
+        Vector6 momentaDot;
 
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

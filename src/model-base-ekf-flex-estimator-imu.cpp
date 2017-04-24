@@ -224,11 +224,11 @@ namespace flexibilityEstimation
         return R_;
     }
 
-    Vector ModelBaseEKFFlexEstimatorIMU::getMomentaFromForces()
+    Vector ModelBaseEKFFlexEstimatorIMU::getMomentaDotFromForces()
     {
         if(on_==true)
         {
-            return functor_.getMomentaFromForces(getFlexibilityVector(),getInput());
+            return functor_.getMomentaDotFromForces(getFlexibilityVector(),getInput());
         }
         else
         {
@@ -237,11 +237,11 @@ namespace flexibilityEstimation
         }
     }
 
-    Vector ModelBaseEKFFlexEstimatorIMU::getMomentaFromKinematics()
+    Vector ModelBaseEKFFlexEstimatorIMU::getMomentaDotFromKinematics()
     {
         if(on_==true)
         {
-            return functor_.getMomentaFromKinematics(getFlexibilityVector(),getInput());
+            return functor_.getMomentaDotFromKinematics(getFlexibilityVector(),getInput());
         }
         else
         {
@@ -364,6 +364,11 @@ namespace flexibilityEstimation
                         ekf_.setA(functor_.stateDynamicsJacobian());
                         ekf_.setC(functor_.measureDynamicsJacobian());
                       }
+                      ///regulate the part of orientation vector in the state vector
+                      for (unsigned i = 0; i<functor_.getContactsNumber() ; ++i)
+                      {
+                          functor_.setContactPosition(i,getInput().segment<3>(42 + 12*i));
+                      }
                       ekf_.getEstimatedState(i);
                     }
                     x_=ekf_.getEstimatedState(k_);
@@ -400,6 +405,7 @@ namespace flexibilityEstimation
 
                 computeFlexibilityTime_=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
 
+                // To be deleted: constrain the internal linear velocity of the flexibility of each foot to zero.
                 x_.segment<3>(state::linVel).setZero();
                 for(int i=0; i<functor_.getContactsNumber();++i)
                 {
@@ -421,7 +427,7 @@ namespace flexibilityEstimation
             }
         }
 
-        functor_.printed = false;
+        functor_.setPrinted(false);
 
         return lastX_;
     }
@@ -469,24 +475,24 @@ namespace flexibilityEstimation
         functor_.setKtv(m);
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::setKfeCordes(const Matrix3 & m)
+    void ModelBaseEKFFlexEstimatorIMU::setKfeRopes(const Matrix3 & m)
     {
-        functor_.setKfeCordes(m);
+        functor_.setKfeRopes(m);
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::setKfvCordes(const Matrix3 & m)
+    void ModelBaseEKFFlexEstimatorIMU::setKfvRopes(const Matrix3 & m)
     {
-        functor_.setKfvCordes(m);
+        functor_.setKfvRopes(m);
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::setKteCordes(const Matrix3 & m)
+    void ModelBaseEKFFlexEstimatorIMU::setKteRopes(const Matrix3 & m)
     {
-        functor_.setKteCordes(m);
+        functor_.setKteRopes(m);
     }
 
-    void ModelBaseEKFFlexEstimatorIMU::setKtvCordes(const Matrix3 & m)
+    void ModelBaseEKFFlexEstimatorIMU::setKtvRopes(const Matrix3 & m)
     {
-        functor_.setKtvCordes(m);
+        functor_.setKtvRopes(m);
     }
 
     double& ModelBaseEKFFlexEstimatorIMU::getComputeFlexibilityTime()

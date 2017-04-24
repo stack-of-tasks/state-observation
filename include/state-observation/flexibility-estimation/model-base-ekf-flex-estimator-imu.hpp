@@ -90,8 +90,8 @@ namespace flexibilityEstimation
         ///gets the covariance matrices for the sensor noises
         virtual Matrix getMeasurementNoiseCovariance() const ;
 
-        virtual Vector getMomentaFromForces();
-        virtual Vector getMomentaFromKinematics();
+        virtual Vector getMomentaDotFromForces();
+        virtual Vector getMomentaDotFromKinematics();
         virtual Vector getForcesAndMoments();
 
         // get state covariance
@@ -177,10 +177,10 @@ namespace flexibilityEstimation
         virtual void setKte(const Matrix3 & m);
         virtual void setKtv(const Matrix3 & m);
 
-        virtual void setKfeCordes(const Matrix3 & m);
-        virtual void setKfvCordes(const Matrix3 & m);
-        virtual void setKteCordes(const Matrix3 & m);
-        virtual void setKtvCordes(const Matrix3 & m);
+        virtual void setKfeRopes(const Matrix3 & m);
+        virtual void setKfvRopes(const Matrix3 & m);
+        virtual void setKteRopes(const Matrix3 & m);
+        virtual void setKtvRopes(const Matrix3 & m);
 
         virtual void setPe(const stateObservation::Vector3& Pe)
         {
