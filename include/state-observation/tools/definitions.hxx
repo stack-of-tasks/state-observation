@@ -113,15 +113,19 @@ Matrix & IndexedMatrixArray::back()
 ///Get the time index
 unsigned IndexedMatrixArray::getLastIndex()const
 {
-    check_();
-    return k_+v_.size()-1;
+    if (v_.size()>0)
+      return k_+v_.size()-1;
+    else
+      return 0;
 }
 
 ///Get the time index
 unsigned IndexedMatrixArray::getFirstIndex()const
 {
-    check_();
-    return k_;
+    if (v_.size()>0)
+      return k_;
+    else
+      return 0;
 }
 
 unsigned IndexedMatrixArray::size() const

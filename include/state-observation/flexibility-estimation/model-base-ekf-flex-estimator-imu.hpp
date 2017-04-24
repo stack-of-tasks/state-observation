@@ -187,9 +187,15 @@ namespace flexibilityEstimation
             functor_.setPe(Pe);
         }
 
+        virtual Matrix getKfe() const;
+        virtual Matrix getKfv() const;
+        virtual Matrix getKte() const;
+        virtual Matrix getKtv() const;
+
         ///Resets the covariance matrices to their original values
         virtual void resetCovarianceMatrices();
         virtual void resetStateCovarianceMatrix();
+
 
         virtual void setRobotMass(double m);
         virtual double getRobotMass() const
@@ -237,7 +243,7 @@ namespace flexibilityEstimation
 
         Vector x_;
 
-        Matrix R_,Q_;
+        Matrix R_,Q_,P_;
 
         const unsigned stateSize_;
 

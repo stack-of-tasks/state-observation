@@ -247,10 +247,13 @@ namespace stateObservation
         inline void updatePredictedMeasurement();
 
         ///get the last predicted state
-        Vector getLastPrediction();
+        Vector getLastPrediction() const;
 
         ///get the last predicted measurement
-        Vector getLastPredictedMeasurement();
+        Vector getLastPredictedMeasurement() const;
+
+        ///get the last Kalman gain matrix
+        Matrix getLastGain() const;
 
     protected:
 
