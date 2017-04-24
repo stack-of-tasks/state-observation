@@ -1300,10 +1300,16 @@ namespace flexibilityEstimation
     void IMUElasticLocalFrameDynamicalSystem::setContactPosition
                                         (unsigned i, const Vector3 & position)
     {
-        BOOST_ASSERT( i< contactPositions_.size() &&
-                    "ERROR: The index of contact is out of range.");
+        if(i< contactPositions_.size())
+        {
+            contactPositions_[i] = position;
+        }
+        else
+        {
+            contactPositions_.push_back(position);
+        }
 
-        contactPositions_[i] = position;
+
     }
 
     Vector3 IMUElasticLocalFrameDynamicalSystem::getContactPosition(unsigned i)
