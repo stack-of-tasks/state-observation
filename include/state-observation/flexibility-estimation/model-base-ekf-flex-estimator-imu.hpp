@@ -143,11 +143,11 @@ namespace flexibilityEstimation
 
         virtual void setWithAbsolutePos(bool);
 
-        void setWithUnmodeledMeasurements(bool b);
+        void setWithUnmodeledForces(bool b);
 
-        bool getWithUnmodeledMeasurements()
+        bool getWithUnmodeledForces()
         {
-            return withUnmodeledMeasurements_;
+            return withUnmodeledForces_;
         }
 
         bool getWithAbsolutePos()
@@ -163,6 +163,8 @@ namespace flexibilityEstimation
         }
 
         virtual void setUnmodeledForceVariance(double d);
+        virtual void setUnmodeledForceProcessVariance(double d);
+
         virtual void setForceVariance(double d);
         virtual void setAbsolutePosVariance(double d);
 
@@ -238,7 +240,7 @@ namespace flexibilityEstimation
 
     protected:
 
-        virtual void updateCovarianceMatrix_();
+        virtual void updateMeasurementCovarianceMatrix_();
 
         IMUElasticLocalFrameDynamicalSystem functor_;
 
@@ -253,7 +255,6 @@ namespace flexibilityEstimation
         static const unsigned inputSizeBase_=42;
         unsigned inputSize_;
 
-
         double dt_;//sampling period
         bool on_;
         double computeFlexibilityTime_;
@@ -265,7 +266,7 @@ namespace flexibilityEstimation
         bool useFTSensors_;
         bool withComBias_;
         bool withAbsolutePos_;
-        bool withUnmodeledMeasurements_;
+        bool withUnmodeledForces_;
 
         Vector3 limitTorques_;
         Vector3 limitForces_;
