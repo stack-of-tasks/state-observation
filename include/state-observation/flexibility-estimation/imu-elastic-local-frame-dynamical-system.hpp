@@ -56,6 +56,8 @@ namespace stateObservation
         static const unsigned linAccIMU = 39;
         static const unsigned contacts = 42;
 
+        static const unsigned inputSizeBase = 42;
+
       };
 
       struct state
