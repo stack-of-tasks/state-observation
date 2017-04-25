@@ -63,6 +63,16 @@ namespace flexibilityEstimation
             return functor_.getContactsNumber();
         }
 
+        IMUElasticLocalFrameDynamicalSystem getFunctor()
+        {
+            return functor_;
+        }
+
+        virtual stateObservation::Vector computeAccelerations()
+        {
+            return functor_.computeAccelerations(getFlexibilityVector(),getInput());
+        }
+
         void setContactModel(unsigned nb);
 
         /// Sets the value of the next sensor measurement y_{k+1}
@@ -80,7 +90,8 @@ namespace flexibilityEstimation
         ///gets the covariance matrices for the sensor noises
         virtual Matrix getMeasurementNoiseCovariance() const ;
 
-        virtual Vector getMomenta();
+        virtual Vector getMomentaDotFromForces();
+        virtual Vector getMomentaDotFromKinematics();
         virtual Vector getForcesAndMoments();
 
         // get state covariance
@@ -103,6 +114,17 @@ namespace flexibilityEstimation
 
         /// Gets an estimation of the flexibility in the form of a state vector \hat{x_{k+1}}
         virtual const Vector& getFlexibilityVector();
+
+        virtual stateObservation::Matrix& computeLocalObservationMatrix();
+        virtual stateObservation::Matrix getAMatrix()
+        {
+            return ekf_.getA();
+        }
+
+        virtual stateObservation::Matrix getCMatrix()
+        {
+            return ekf_.getC();
+        }
 
         virtual double& getComputeFlexibilityTime();
 
@@ -157,6 +179,16 @@ namespace flexibilityEstimation
         virtual void setKte(const Matrix3 & m);
         virtual void setKtv(const Matrix3 & m);
 
+        virtual void setKfeRopes(const Matrix3 & m);
+        virtual void setKfvRopes(const Matrix3 & m);
+        virtual void setKteRopes(const Matrix3 & m);
+        virtual void setKtvRopes(const Matrix3 & m);
+
+        virtual void setPe(const stateObservation::Vector3& Pe)
+        {
+            functor_.setPe(Pe);
+        }
+
         virtual Matrix getKfe() const;
         virtual Matrix getKfv() const;
         virtual Matrix getKte() const;
@@ -165,6 +197,7 @@ namespace flexibilityEstimation
         ///Resets the covariance matrices to their original values
         virtual void resetCovarianceMatrices();
         virtual void resetStateCovarianceMatrix();
+
 
 
         virtual void setRobotMass(double m);
@@ -238,6 +271,14 @@ namespace flexibilityEstimation
         Vector3 limitTorques_;
         Vector3 limitForces_;
         bool limitOn_;
+
+        struct optimization
+        {
+            stateObservation::Matrix O;
+            stateObservation::Matrix CA;
+        }op_;
+        std::vector<Vector3, Eigen::aligned_allocator<Vector3> > contactPositions_;
+
 
     private:
     };
