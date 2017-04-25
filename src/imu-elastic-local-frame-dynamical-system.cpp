@@ -1297,26 +1297,6 @@ namespace flexibilityEstimation
 
     }
 
-    void IMUElasticLocalFrameDynamicalSystem::setContactPosition
-                                        (unsigned i, const Vector3 & position)
-    {
-        if(i< contactPositions_.size())
-        {
-            contactPositions_[i] = position;
-        }
-        else
-        {
-            contactPositions_.push_back(position);
-        }
-
-
-    }
-
-    Vector3 IMUElasticLocalFrameDynamicalSystem::getContactPosition(unsigned i)
-    {
-        return contactPositions_[i];
-    }
-
     void IMUElasticLocalFrameDynamicalSystem::updateMeasurementSize_()
     {
       measurementSize_=measurementSizeBase_;
