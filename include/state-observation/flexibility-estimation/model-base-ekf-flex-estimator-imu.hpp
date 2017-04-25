@@ -197,6 +197,7 @@ namespace flexibilityEstimation
         virtual void resetStateCovarianceMatrix();
 
 
+
         virtual void setRobotMass(double m);
         virtual double getRobotMass() const
         {
@@ -275,6 +276,8 @@ namespace flexibilityEstimation
             stateObservation::Matrix O;
             stateObservation::Matrix CA;
         }op_;
+        std::vector<Vector3, Eigen::aligned_allocator<Vector3> > contactPositions_;
+
 
     private:
     };

@@ -364,10 +364,13 @@ namespace flexibilityEstimation
                         ekf_.setA(functor_.stateDynamicsJacobian());
                         ekf_.setC(functor_.measureDynamicsJacobian());
                       }
+
                       ///regulate the part of orientation vector in the state vector
+                      ///temporary code
+                      contactPositions_.clear();
                       for (unsigned i = 0; i<functor_.getContactsNumber() ; ++i)
                       {
-                          functor_.setContactPosition(i,getInput().segment<3>(42 + 12*i));
+                          contactPositions_.push_back(getInput().segment<3>(42 + 12*i));
                       }
                       ekf_.getEstimatedState(i);
                     }
@@ -414,7 +417,7 @@ namespace flexibilityEstimation
                 x_.segment<3>(state::linVel).setZero();
                 for(int i=0; i<functor_.getContactsNumber();++i)
                 {
-                    x_.segment<3>(state::linVel) += kine::skewSymmetric(kine::rotationVectorToRotationMatrix(x_.segment<3>(state::ori))*functor_.getContactPosition(i))*x_.segment<3>(state::angVel);
+                    x_.segment<3>(state::linVel) += kine::skewSymmetric(kine::rotationVectorToRotationMatrix(x_.segment<3>(state::ori))*contactPositions_[i])*x_.segment<3>(state::angVel);
                 }
                 x_.segment<3>(state::linVel)=x_.segment<3>(state::linVel)/functor_.getContactsNumber();
             }
@@ -499,7 +502,7 @@ namespace flexibilityEstimation
     {
         functor_.setKtvRopes(m);
 	}
-	
+
     Matrix ModelBaseEKFFlexEstimatorIMU::getKfe() const
     {
         return functor_.getKfe();

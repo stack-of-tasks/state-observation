@@ -231,16 +231,10 @@ public:
       ///Sets the number of contacts
       virtual void setContactsNumber(unsigned);
 
-      ///Sets the position of the contact number i
-      virtual void setContactPosition(unsigned i, const Vector3 & position);
-
       virtual void setPe(stateObservation::Vector3 Pe)
       {
           pe=Pe;
       }
-
-      ///Gets the position of the contact number i
-      virtual Vector3 getContactPosition(unsigned i);
 
       ///Gets the nimber of contacts
       inline unsigned getContactsNumber(void) const
