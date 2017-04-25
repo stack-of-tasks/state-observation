@@ -56,6 +56,8 @@ namespace stateObservation
         static const unsigned linAccIMU = 39;
         static const unsigned contacts = 42;
 
+        static const unsigned inputSizeBase = 42;
+
       };
 
       struct state
@@ -143,6 +145,8 @@ public:
                const IndexedMatrixArray& contactPosV, const IndexedMatrixArray& contactOriV,
                const Vector& fc, const Vector& tc, const Vector3 & fm, const Vector3& tm);
 
+      stateObservation::Vector computeAccelerations(const Vector& x,const Vector& u);
+
       // computation of the acceleration linear
       virtual void computeAccelerations
       (const Vector3& positionCom, const Vector3& velocityCom,
@@ -152,7 +156,7 @@ public:
        const IndexedMatrixArray& contactPos,
        const IndexedMatrixArray& contactOri,
        const Vector3& position, const Vector3& linVelocity,
-       Vector3& linearAcceleration,  const Vector3 &oriVector ,
+       Vector3& linearAcceleration,  const Vector3& oriVector ,
        const Matrix3& orientation, const Vector3& angularVel,
        Vector3& angularAcceleration,
        const Vector& fc, const Vector& tc,
@@ -227,11 +231,10 @@ public:
       ///Sets the number of contacts
       virtual void setContactsNumber(unsigned);
 
-      ///Sets the position of the contact number i
-      virtual void setContactPosition(unsigned i, const Vector3 & position);
-
-      ///Gets the position of the contact number i
-      virtual Vector3 getContactPosition(unsigned i);
+      virtual void setPe(stateObservation::Vector3 Pe)
+      {
+          pe=Pe;
+      }
 
       ///Gets the nimber of contacts
       inline unsigned getContactsNumber(void) const
@@ -240,6 +243,11 @@ public:
       }
 
       virtual void setContactModel(unsigned nb);
+
+      virtual void setPrinted(bool b)
+      {
+          printed_ = b;
+      }
 
       virtual void computeElastContactForcesAndMoments
       (const IndexedMatrixArray& contactPosArray,
@@ -253,7 +261,6 @@ public:
 
       virtual void computeElastPendulumForcesAndMoments
       (const IndexedMatrixArray& PrArray,
-       const IndexedMatrixArray& PeArray,
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
@@ -261,7 +268,6 @@ public:
 
       virtual void computeElastPendulumForcesAndMoments1
       (const IndexedMatrixArray& PrArray,
-       const IndexedMatrixArray& PeArray,
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
@@ -269,7 +275,6 @@ public:
 
       virtual void computeElastPendulumForcesAndMoments2
       (const IndexedMatrixArray& PrArray,
-       const IndexedMatrixArray& PeArray,
        const Vector3& position, const Vector3& linVelocity,
        const Vector3& oriVector, const Matrix3& orientation,
        const Vector3& angVel,
@@ -295,7 +300,8 @@ public:
       virtual Vector getForcesAndMoments (const Vector& x,
        const Vector& u);
 
-      virtual Vector getMomenta(const Vector& x, const Vector& u);
+      virtual Vector getMomentaDotFromForces(const Vector& x, const Vector& u);
+      virtual Vector getMomentaDotFromKinematics(const Vector& x, const Vector& u);
 
       virtual void iterateDynamicsEuler
       (const Vector3& positionCom, const Vector3& velocityCom,
@@ -337,6 +343,11 @@ public:
       virtual void setKte(const Matrix3 & m);
       virtual void setKtv(const Matrix3 & m);
 
+      virtual void setKfeRopes(const Matrix3 & m);
+      virtual void setKfvRopes(const Matrix3 & m);
+      virtual void setKteRopes(const Matrix3 & m);
+      virtual void setKtvRopes(const Matrix3 & m);
+
       virtual Matrix getKfe() const;
       virtual Matrix getKfv() const;
       virtual Matrix getKte() const;
@@ -347,6 +358,8 @@ public:
       virtual double getRobotMass() const;
 
     protected:
+
+      bool printed_;
 
       stateObservation::AccelerometerGyrometer sensor_;
 
@@ -387,6 +400,7 @@ public:
       std::vector <Vector3,Eigen::aligned_allocator<Vector3> > contactPositions_;
 
       Matrix3 Kfe_, Kte_, Kfv_, Ktv_;
+      Matrix3 KfeRopes_, KteRopes_, KfvRopes_, KtvRopes_;
 
       unsigned kcurrent_;
 
@@ -394,6 +408,8 @@ public:
       bool withComBias_;
       bool withAbsolutePos_;
       bool withUnmodeledMeasurements_;
+
+      stateObservation::Vector3 pe;
 
       double marginalStabilityFactor_;
       //a scaling factor a=1-epsilon to avoid the natural marginal stability of
@@ -404,7 +420,7 @@ public:
       struct Optimization
       {
 
-        Vector6 momenta;
+        Vector6 momentaDot;
 
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

@@ -224,11 +224,24 @@ namespace flexibilityEstimation
         return R_;
     }
 
-    Vector ModelBaseEKFFlexEstimatorIMU::getMomenta()
+    Vector ModelBaseEKFFlexEstimatorIMU::getMomentaDotFromForces()
     {
         if(on_==true)
         {
-            return functor_.getMomenta(getFlexibilityVector(),getInput());
+            return functor_.getMomentaDotFromForces(getFlexibilityVector(),getInput());
+        }
+        else
+        {
+            Vector6 v; v.setZero();
+            return v;
+        }
+    }
+
+    Vector ModelBaseEKFFlexEstimatorIMU::getMomentaDotFromKinematics()
+    {
+        if(on_==true)
+        {
+            return functor_.getMomentaDotFromKinematics(getFlexibilityVector(),getInput());
         }
         else
         {
@@ -351,6 +364,14 @@ namespace flexibilityEstimation
                         ekf_.setA(functor_.stateDynamicsJacobian());
                         ekf_.setC(functor_.measureDynamicsJacobian());
                       }
+
+                      ///regulate the part of orientation vector in the state vector
+                      ///temporary code
+                      contactPositions_.clear();
+                      for (unsigned i = 0; i<functor_.getContactsNumber() ; ++i)
+                      {
+                          contactPositions_.push_back(getInput().segment<3>(42 + 12*i));
+                      }
                       ekf_.getEstimatedState(i);
                     }
                     x_=ekf_.getEstimatedState(k_);
@@ -391,6 +412,14 @@ namespace flexibilityEstimation
                 clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time3);
 
                 computeFlexibilityTime_=(double)diff(time2,time3).tv_nsec-(double)diff(time1,time2).tv_nsec;
+
+                // To be deleted: constrain the internal linear velocity of the flexibility of each foot to zero.
+                x_.segment<3>(state::linVel).setZero();
+                for(int i=0; i<functor_.getContactsNumber();++i)
+                {
+                    x_.segment<3>(state::linVel) += kine::skewSymmetric(kine::rotationVectorToRotationMatrix(x_.segment<3>(state::ori))*contactPositions_[i])*x_.segment<3>(state::angVel);
+                }
+                x_.segment<3>(state::linVel)=x_.segment<3>(state::linVel)/functor_.getContactsNumber();
             }
         }
         else
@@ -406,12 +435,26 @@ namespace flexibilityEstimation
             }
         }
 
+        functor_.setPrinted(false);
+
         return lastX_;
+    }
+
+    stateObservation::Matrix& ModelBaseEKFFlexEstimatorIMU::computeLocalObservationMatrix()
+    {
+        op_.O.resize(getMeasurementSize()*2,getStateSize());
+        op_.CA.resize(getMeasurementSize(),getStateSize());
+        op_.CA  = ekf_.getC();
+        op_.O.block(0,0,getMeasurementSize(),getStateSize()) = op_.CA;
+        op_.CA = op_.CA * ekf_.getA();
+        op_.O.block(getMeasurementSize(),0,getMeasurementSize(),getStateSize()) = op_.CA;
+        return op_.O;
     }
 
     void ModelBaseEKFFlexEstimatorIMU::setSamplingPeriod(double dt)
     {
         dt_=dt;
+        functor_.setSamplingPeriod(dt);
     }
 
     /// Enable or disable the estimation
@@ -439,6 +482,26 @@ namespace flexibilityEstimation
     {
         functor_.setKtv(m);
     }
+
+    void ModelBaseEKFFlexEstimatorIMU::setKfeRopes(const Matrix3 & m)
+    {
+        functor_.setKfeRopes(m);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setKfvRopes(const Matrix3 & m)
+    {
+        functor_.setKfvRopes(m);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setKteRopes(const Matrix3 & m)
+    {
+        functor_.setKteRopes(m);
+    }
+
+    void ModelBaseEKFFlexEstimatorIMU::setKtvRopes(const Matrix3 & m)
+    {
+        functor_.setKtvRopes(m);
+	}
 
     Matrix ModelBaseEKFFlexEstimatorIMU::getKfe() const
     {
